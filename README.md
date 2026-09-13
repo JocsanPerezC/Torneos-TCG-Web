@@ -1,3 +1,37 @@
+# Guía de uso y funcionalidades
+
+Torneos TCG permite administrar torneos multijugador de Commander y otros TCG desde una cuenta de organizador. Los participantes no requieren una cuenta: el organizador los agrega y controla sus resultados.
+
+## Flujo del organizador
+
+1. Crea una cuenta, inicia sesión y selecciona **Nuevo torneo**.
+2. Define nombre, formato, cantidad de rondas y la puntuación. Por defecto, un empate otorga 2 puntos a cada jugador vivo; todas las reglas pueden editarse después.
+3. En **Jugadores**, agrega participantes, busca por nombre, edítalos, retíralos o elimínalos antes de que entren a una ronda.
+4. En **Rondas**, genera la siguiente ronda. Se requieren al menos 3 jugadores activos y las mesas se distribuyen en grupos de 3, 4 o 5 cuando corresponde.
+5. Inicia la ronda, registra el resultado de cada mesa y termina la ronda cuando todas estén completas. La clasificación se recalcula de inmediato.
+6. Cuando todas las rondas estén completadas, puedes finalizar el torneo para bloquear nuevas ediciones, o reabrirlo si hace falta corregir algo.
+
+## Funcionalidades principales
+
+- Panel de torneos activos y finalizados; cada tarjeta abre el torneo directamente.
+- Mesas y rondas navegables con controles de anterior y siguiente, temporizador y vista pública de solo lectura.
+- Resultados por victoria normal, combo o empate. En un empate se puede marcar quién murió; solo es válido si quedan al menos dos personas vivas.
+- Clasificación por puntos, victorias, fuerza de oponentes, kills y semilla estable para desempates.
+- Emparejamiento determinista que prioriza evitar repetir oponentes y después aproxima jugadores con puntuaciones similares.
+- Notificaciones apiladas en la esquina inferior derecha, con animación y desaparición automática a los cuatro segundos.
+- Persistencia en Supabase: cada cambio relevante se guarda como una operación atómica (configuración, jugadores, rondas, mesas y resultados) para conservar la información al cerrar sesión.
+- Modo demostración con `localStorage` cuando Supabase no está configurado.
+
+## Puntuación
+
+Las mesas de 3 o 4 jugadores usan los valores configurables de primer, segundo, tercer y cuarto lugar. En una mesa de 5, la asignación es 5, 4, 3, 2 y 1 puntos. Los empates usan el valor configurable de empate para cada jugador vivo.
+
+## Contenido técnico anterior
+
+La documentación original se conserva a continuación como referencia de instalación, arquitectura y despliegue.
+
+---
+
 # Mesa Mayor — gestor de torneos TCG
 
 Aplicación React/TypeScript para organizar torneos multijugador de Commander u otros TCG: participantes sin cuenta, mesas de 3–4, resultados normales o por combo, clasificación con desempates y vista pública de solo lectura.

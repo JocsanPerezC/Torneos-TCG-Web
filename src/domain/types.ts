@@ -13,6 +13,6 @@ export interface Tournament {
 }
 export interface Standing { player: Player; rank: number; points: number; wins: number; kills: number; roundsPlayed: number; opponentStrength: number }
 
-export const defaultScoring: ScoringRules = { first: 3, second: 2, third: 1, fourth: 0, tie: 3 }
+export const defaultScoring: ScoringRules = { first: 3, second: 2, third: 1, fourth: 0, tie: 2 }
 export const uid = () => crypto.randomUUID()
 export const normalizeName = (name: string) => name.trim().toLocaleLowerCase()

@@ -7,7 +7,7 @@ import type { Player, Tournament } from './types'
 const players = (count:number): Player[] => Array.from({length:count},(_,index)=>({id:`p${index}`,name:`P${index}`,active:true,tieBreaker:index}))
 describe('distribución de mesas', () => {
   it.each([[1,[1]],[2,[2]],[3,[3]],[4,[4]],[5,[5]],[6,[3,3]],[7,[4,3]],[8,[4,4]],[9,[3,3,3]],[10,[4,3,3]],[11,[4,4,3]],[12,[4,4,4]],[13,[4,3,3,3]],[18,[4,4,4,3,3]]])('asigna %i como %j', (count,expected) => expect(tableSizes(count)).toEqual(expected))
-  it('rechaza cero jugadores', () => expect(()=>tableSizes(0)).toThrow('uno'))
+  it('rechaza cero jugadores', () => expect(()=>tableSizes(0)).toThrow('un jugador'))
   it('asigna cada jugador una sola vez y mesas válidas', () => { const groups=makePairings(players(14),[],{},42); expect(groups.flat()).toHaveLength(14); expect(new Set(groups.flat()).size).toBe(14); expect(groups.every(group=>group.length>=3&&group.length<=4)).toBe(true) })
   it('reduce enfrentamientos repetidos donde hay alternativa', () => { const prior = [{id:'r1',number:1,status:'completada' as const,seed:1,pods:[{id:'x',number:1,playerIds:['p0','p1','p2'],},{id:'y',number:2,playerIds:['p3','p4','p5']}]}]; const groups=makePairings(players(6),prior,{},10); expect(groups.some(group=>group.includes('p0')&&group.includes('p1')&&group.includes('p2'))).toBe(false) })
 })
