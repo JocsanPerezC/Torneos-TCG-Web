@@ -11,7 +11,7 @@ const Context=createContext<Store|null>(null)
 const storageKey='mesa-mayor.tournaments.v1'
 const copy=<T,>(item:T):T=>structuredClone(item)
 const samplePlayers=['Ana','Bruno','Carla','Diego','Elena','Felipe','Gabriela','Hugo'].map((name,index)=>({id:uid(),name,active:true,tieBreaker:index+1}))
-function localInitial():Tournament[]{try{const stored=localStorage.getItem(storageKey);if(stored)return JSON.parse(stored)}catch{}return[{id:'demo',ownerId:'local-organizer',name:'Liga de la Mesa Mayor',format:'Commander',plannedRounds:3,status:'activo',isPublic:false,publicSlug:'mesa-mayor-demo',scoring:defaultScoring,players:samplePlayers,rounds:[],createdAt:new Date().toISOString()}]}
+function localInitial():Tournament[]{try{const stored=localStorage.getItem(storageKey);if(stored)return JSON.parse(stored)}catch{}return[{id:'demo',ownerId:'local-organizer',name:'Liga',format:'Commander',plannedRounds:3,status:'activo',isPublic:false,publicSlug:'mesa-mayor-demo',scoring:defaultScoring,players:samplePlayers,rounds:[],createdAt:new Date().toISOString()}]}
 
 export function TournamentProvider({children}:{children:ReactNode}) {
   const remote=Boolean(supabase); const [tournaments,setTournaments]=useState<Tournament[]>(remote?[]:localInitial); const [ownerId,setOwnerId]=useState<string>(); const [ready,setReady]=useState(!remote); const [remoteError,setRemoteError]=useState<string>();

@@ -32,7 +32,7 @@ La documentación original se conserva a continuación como referencia de instal
 
 ---
 
-# Mesa Mayor — gestor de torneos TCG
+# Torneos — gestor de torneos TCG
 
 Aplicación React/TypeScript para organizar torneos multijugador de Commander u otros TCG: participantes sin cuenta, mesas de 3–4, resultados normales o por combo, clasificación con desempates y vista pública de solo lectura.
 
