@@ -26,30 +26,4 @@ export async function persistRound(round:Tournament['rounds'][number]) { const {
 export async function persistPod(pod:Pod) { const db=client(); const {error}=await db.from('pods').update({result_type:pod.resultType ?? null,notes:pod.notes ?? null}).eq('id',pod.id); if(error) throw error; if(pod.results?.length){const {error:resultError}=await db.from('pod_results').upsert(pod.results.map(r=>({pod_id:pod.id,player_id:r.playerId,position:r.position,kills:r.kills,is_dead:r.dead ?? false})),{onConflict:'pod_id,player_id'});if(resultError)throw resultError} }
 export async function persistRoundMembers(pods:Pod[]) { const db=client(); const ids=pods.map(p=>p.id); const {error}=await db.from('pod_players').delete().in('pod_id',ids); if(error) throw error; const assignments=pods.flatMap(pod=>pod.playerIds.map(playerId=>({pod_id:pod.id,player_id:playerId}))); const {error:insertError}=await db.from('pod_players').insert(assignments); if(insertError)throw insertError }
 export async function deleteRemoteRound(id:string) { const {error}=await client().from('rounds').delete().eq('id',id); if(error) throw error }
-export async function deleteRemoteTournament(id:string) {
-  const db=client()
-  const {data:roundRows,error:roundError}=await db.from('rounds').select('id').eq('tournament_id',id)
-  if(roundError)throw roundError
-  const roundIds=(roundRows??[]).map(round=>String(round.id))
-  if(roundIds.length){
-    const {data:podRows,error:podError}=await db.from('pods').select('id').in('round_id',roundIds)
-    if(podError)throw podError
-    const podIds=(podRows??[]).map(pod=>String(pod.id))
-    if(podIds.length){
-      const {error:resultError}=await db.from('pod_results').delete().in('pod_id',podIds)
-      if(resultError)throw resultError
-      const {error:memberError}=await db.from('pod_players').delete().in('pod_id',podIds)
-      if(memberError)throw memberError
-      const {error:deletePodsError}=await db.from('pods').delete().in('id',podIds)
-      if(deletePodsError)throw deletePodsError
-    }
-    const {error:deleteRoundsError}=await db.from('rounds').delete().in('id',roundIds)
-    if(deleteRoundsError)throw deleteRoundsError
-  }
-  const {error:playerError}=await db.from('players').delete().eq('tournament_id',id)
-  if(playerError)throw playerError
-  const {error:scoringError}=await db.from('scoring_rules').delete().eq('tournament_id',id)
-  if(scoringError)throw scoringError
-  const {error:tournamentError}=await db.from('tournaments').delete().eq('id',id)
-  if(tournamentError)throw tournamentError
-}
+export async function deleteRemoteTournament(id:string) { const { error } = await client().from('tournaments').delete().eq('id', id); if (error) throw error }
