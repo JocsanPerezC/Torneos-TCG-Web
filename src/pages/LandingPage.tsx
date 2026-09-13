@@ -12,7 +12,7 @@ export function LandingPage() {
   if (!loading && user) return <Navigate to="/dashboard" replace />
 
   return (
-    <div className="landing-theme min-h-screen bg-background">
+    <div className="landing-theme min-h-screen">
       <LandingHeader />
       <main>
         <Hero />

@@ -1,15 +1,17 @@
 import { Link } from 'react-router-dom'
-import { Button } from '@/components/ui/button'
+import { Home } from 'lucide-react'
 
 export function LandingHeader() {
+  const animationDelay = `-${Date.now() % 16000}ms`
+
   return (
-    <header className="sticky top-0 z-20 border-b border-border bg-background/95 backdrop-blur">
-      <div className="mx-auto flex h-18 max-w-6xl items-center justify-between px-5">
-        <Link to="/" className="font-serif text-2xl font-semibold tracking-tight text-foreground">Home</Link>
-        <div className="flex items-center gap-1 sm:gap-2">
-          <Button asChild variant="outline"><Link to="/login">Iniciar sesión</Link></Button>
-          <Button asChild className="!text-black"><Link to="/register">Crear cuenta</Link></Button>
-        </div>
+    <header className="app-header border-b border-slate-700/70 backdrop-blur" style={{ animationDelay }}>
+      <div className="mx-auto flex min-h-[68px] max-w-6xl items-center justify-between px-4">
+        <Link to="/" className="inline-flex items-center gap-2 text-lg font-black tracking-tight text-amber-300"><Home size={18} />Home</Link>
+        <nav className="flex items-center gap-1.5 text-xs sm:gap-3 sm:text-sm">
+          <Link to="/login" className="rounded-md border border-slate-500 px-2 py-2 font-semibold hover:bg-slate-800 sm:px-3">Iniciar sesión</Link>
+          <Link to="/register" className="rounded-md bg-amber-400 px-2 py-2 font-bold text-slate-950 hover:bg-amber-300 sm:px-3">Crear cuenta</Link>
+        </nav>
       </div>
     </header>
   )
