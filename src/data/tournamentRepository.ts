@@ -7,21 +7,48 @@ const mapTournament = (row: Row): Tournament => {
   const scoringRow = asArray(row.scoring_rules)[0] ?? {}
   return {
     id: String(row.id), ownerId: String(row.owner_id), name: String(row.name), format: String(row.format), plannedRounds: Number(row.planned_rounds), status: row.status as Tournament['status'], isPublic: Boolean(row.is_public), publicSlug: String(row.public_slug), createdAt: String(row.created_at),
-    scoring: { first: Number(scoringRow.first_place ?? 3), second: Number(scoringRow.second_place ?? 2), third: Number(scoringRow.third_place ?? 1), fourth: Number(scoringRow.fourth_place ?? 0), comboWinner: Number(scoringRow.combo_winner ?? 3), comboOther: Number(scoringRow.combo_other ?? 1) },
+    scoring: { first: Number(scoringRow.first_place ?? 3), second: Number(scoringRow.second_place ?? 2), third: Number(scoringRow.third_place ?? 1), fourth: Number(scoringRow.fourth_place ?? 0), tie: Number(scoringRow.tie_points ?? 3) },
     players: asArray(row.players).map(p => ({ id: String(p.id), name: String(p.name), active: Boolean(p.is_active), tieBreaker: Number(p.tie_breaker) })),
-    rounds: asArray(row.rounds).map(round => ({ id: String(round.id), number: Number(round.number), status: round.status as Tournament['rounds'][number]['status'], seed: Number(round.seed), pods: asArray(round.pods).map(pod => ({ id: String(pod.id), number: Number(pod.number), playerIds: asArray(pod.pod_players).map(player => String(player.player_id)), resultType: pod.result_type as Pod['resultType'], notes: pod.notes ? String(pod.notes) : undefined, results: asArray(pod.pod_results).map(result => ({ playerId: String(result.player_id), position: Number(result.position), kills: Number(result.kills) })) })) })).sort((a,b) => a.number-b.number),
+    rounds: asArray(row.rounds).map(round => ({ id: String(round.id), number: Number(round.number), status: round.status as Tournament['rounds'][number]['status'], seed: Number(round.seed), startedAt: round.started_at ? String(round.started_at) : undefined, endedAt: round.ended_at ? String(round.ended_at) : undefined, pods: asArray(round.pods).map(pod => ({ id: String(pod.id), number: Number(pod.number), playerIds: asArray(pod.pod_players).map(player => String(player.player_id)), resultType: pod.result_type as Pod['resultType'], notes: pod.notes ? String(pod.notes) : undefined, results: asArray(pod.pod_results).map(result => ({ playerId: String(result.player_id), position: Number(result.position), kills: Number(result.kills), dead: Boolean(result.is_dead) })) })) })).sort((a,b) => a.number-b.number),
   }
 }
 function client() { if (!supabase) throw new Error('Supabase no está configurado.'); return supabase }
 export async function loadOwnerTournaments(userId: string) { const { data, error } = await client().from('tournaments').select('*, scoring_rules(*), players(*), rounds(*, pods(*, pod_players(*), pod_results(*)))').eq('owner_id', userId).order('created_at'); if (error) throw error; return asArray(data).map(mapTournament) }
 export async function loadPublicTournament(slug: string) { const { data, error } = await client().rpc('get_public_tournament', { slug }); if (error) throw error; return data ? data as Tournament : undefined }
-export async function insertTournament(t: Tournament) { const db = client(); const { error } = await db.from('tournaments').insert({ id:t.id, owner_id:t.ownerId, name:t.name, format:t.format, planned_rounds:t.plannedRounds, status:t.status, is_public:t.isPublic, public_slug:t.publicSlug }); if(error) throw error; const { error: scoreError } = await db.from('scoring_rules').insert({ tournament_id:t.id, first_place:t.scoring.first, second_place:t.scoring.second, third_place:t.scoring.third, fourth_place:t.scoring.fourth, combo_winner:t.scoring.comboWinner, combo_other:t.scoring.comboOther }); if(scoreError) throw scoreError }
-export async function persistTournament(t: Tournament) { const db=client(); const { error }=await db.from('tournaments').update({name:t.name,format:t.format,planned_rounds:t.plannedRounds,status:t.status,is_public:t.isPublic}).eq('id',t.id); if(error) throw error; const {error: scoringError}=await db.from('scoring_rules').update({first_place:t.scoring.first,second_place:t.scoring.second,third_place:t.scoring.third,fourth_place:t.scoring.fourth,combo_winner:t.scoring.comboWinner,combo_other:t.scoring.comboOther}).eq('tournament_id',t.id); if(scoringError) throw scoringError }
+export async function insertTournament(t: Tournament) { const db = client(); const { error } = await db.from('tournaments').insert({ id:t.id, owner_id:t.ownerId, name:t.name, format:t.format, planned_rounds:t.plannedRounds, status:t.status, is_public:t.isPublic, public_slug:t.publicSlug }); if(error) throw error; const { error: scoreError } = await db.from('scoring_rules').insert({ tournament_id:t.id, first_place:t.scoring.first, second_place:t.scoring.second, third_place:t.scoring.third, fourth_place:t.scoring.fourth, tie_points:t.scoring.tie }); if(scoreError) throw scoreError }
+export async function persistTournament(t: Tournament) { const db=client(); const { error }=await db.from('tournaments').update({name:t.name,format:t.format,planned_rounds:t.plannedRounds,status:t.status,is_public:t.isPublic}).eq('id',t.id); if(error) throw error; const {error: scoringError}=await db.from('scoring_rules').update({first_place:t.scoring.first,second_place:t.scoring.second,third_place:t.scoring.third,fourth_place:t.scoring.fourth,tie_points:t.scoring.tie}).eq('tournament_id',t.id); if(scoringError) throw scoringError }
 export async function insertPlayers(tournamentId:string, players:Tournament['players']) { if (!players.length) return; const {error}=await client().from('players').insert(players.map(p=>({id:p.id,tournament_id:tournamentId,name:p.name,is_active:p.active,tie_breaker:p.tieBreaker}))); if(error) throw error }
 export async function persistPlayer(player:Tournament['players'][number]) { const {error}=await client().from('players').update({name:player.name,is_active:player.active}).eq('id',player.id); if(error) throw error }
 export async function removeRemotePlayer(id:string) { const {error}=await client().from('players').delete().eq('id',id); if(error) throw error }
-export async function insertRound(tournamentId:string, round:Tournament['rounds'][number]) { const db=client(); const {error}=await db.from('rounds').insert({id:round.id,tournament_id:tournamentId,number:round.number,status:round.status,seed:round.seed}); if(error) throw error; for(const pod of round.pods){ const {error:podError}=await db.from('pods').insert({id:pod.id,round_id:round.id,number:pod.number}); if(podError) throw podError; const {error:membersError}=await db.from('pod_players').insert(pod.playerIds.map(playerId=>({pod_id:pod.id,player_id:playerId}))); if(membersError) throw membersError } }
-export async function persistRound(round:Tournament['rounds'][number]) { const {error}=await client().from('rounds').update({status:round.status}).eq('id',round.id); if(error) throw error }
-export async function persistPod(pod:Pod) { const db=client(); const {error}=await db.from('pods').update({result_type:pod.resultType ?? null,notes:pod.notes ?? null}).eq('id',pod.id); if(error) throw error; const {error:deleteError}=await db.from('pod_results').delete().eq('pod_id',pod.id); if(deleteError) throw deleteError; if(pod.results?.length){const {error:insertError}=await db.from('pod_results').insert(pod.results.map(r=>({pod_id:pod.id,player_id:r.playerId,position:r.position,kills:r.kills})));if(insertError)throw insertError} }
+export async function insertRound(tournamentId:string, round:Tournament['rounds'][number]) { const db=client(); const {error}=await db.from('rounds').insert({id:round.id,tournament_id:tournamentId,number:round.number,status:round.status,seed:round.seed,started_at:round.startedAt ?? null,ended_at:round.endedAt ?? null}); if(error) throw error; for(const pod of round.pods){ const {error:podError}=await db.from('pods').insert({id:pod.id,round_id:round.id,number:pod.number}); if(podError) throw podError; const {error:membersError}=await db.from('pod_players').insert(pod.playerIds.map(playerId=>({pod_id:pod.id,player_id:playerId}))); if(membersError) throw membersError } }
+export async function persistRound(round:Tournament['rounds'][number]) { const {error}=await client().from('rounds').update({status:round.status,started_at:round.startedAt ?? null,ended_at:round.endedAt ?? null}).eq('id',round.id); if(error) throw error }
+export async function persistPod(pod:Pod) { const db=client(); const {error}=await db.from('pods').update({result_type:pod.resultType ?? null,notes:pod.notes ?? null}).eq('id',pod.id); if(error) throw error; const {error:deleteError}=await db.from('pod_results').delete().eq('pod_id',pod.id); if(deleteError) throw deleteError; if(pod.results?.length){const {error:insertError}=await db.from('pod_results').insert(pod.results.map(r=>({pod_id:pod.id,player_id:r.playerId,position:r.position,kills:r.kills,is_dead:r.dead ?? false})));if(insertError)throw insertError} }
 export async function persistRoundMembers(pods:Pod[]) { const db=client(); const ids=pods.map(p=>p.id); const {error}=await db.from('pod_players').delete().in('pod_id',ids); if(error) throw error; const assignments=pods.flatMap(pod=>pod.playerIds.map(playerId=>({pod_id:pod.id,player_id:playerId}))); const {error:insertError}=await db.from('pod_players').insert(assignments); if(insertError)throw insertError }
 export async function deleteRemoteRound(id:string) { const {error}=await client().from('rounds').delete().eq('id',id); if(error) throw error }
+export async function deleteRemoteTournament(id:string) {
+  const db=client()
+  const {data:roundRows,error:roundError}=await db.from('rounds').select('id').eq('tournament_id',id)
+  if(roundError)throw roundError
+  const roundIds=(roundRows??[]).map(round=>String(round.id))
+  if(roundIds.length){
+    const {data:podRows,error:podError}=await db.from('pods').select('id').in('round_id',roundIds)
+    if(podError)throw podError
+    const podIds=(podRows??[]).map(pod=>String(pod.id))
+    if(podIds.length){
+      const {error:resultError}=await db.from('pod_results').delete().in('pod_id',podIds)
+      if(resultError)throw resultError
+      const {error:memberError}=await db.from('pod_players').delete().in('pod_id',podIds)
+      if(memberError)throw memberError
+      const {error:deletePodsError}=await db.from('pods').delete().in('id',podIds)
+      if(deletePodsError)throw deletePodsError
+    }
+    const {error:deleteRoundsError}=await db.from('rounds').delete().in('id',roundIds)
+    if(deleteRoundsError)throw deleteRoundsError
+  }
+  const {error:playerError}=await db.from('players').delete().eq('tournament_id',id)
+  if(playerError)throw playerError
+  const {error:scoringError}=await db.from('scoring_rules').delete().eq('tournament_id',id)
+  if(scoringError)throw scoringError
+  const {error:tournamentError}=await db.from('tournaments').delete().eq('id',id)
+  if(tournamentError)throw tournamentError
+}

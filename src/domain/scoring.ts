@@ -3,8 +3,10 @@ import type { Pod, ScoringRules, Standing, Tournament } from './types'
 export function podPoints(pod: Pod, rules: ScoringRules): Record<string, number> {
   const points: Record<string, number> = {}
   for (const result of pod.results ?? []) {
-    points[result.playerId] = pod.resultType === 'combo'
-      ? result.position === 1 ? rules.comboWinner : rules.comboOther
+    points[result.playerId] = pod.resultType === 'empate'
+      ? result.dead ? 0 : rules.tie
+      : pod.playerIds.length === 5
+      ? [5, 4, 3, 2, 1][result.position - 1] ?? 0
       : [rules.first, rules.second, rules.third, rules.fourth][result.position - 1] ?? 0
   }
   return points
@@ -12,9 +14,11 @@ export function podPoints(pod: Pod, rules: ScoringRules): Record<string, number>
 
 export function isValidPodResult(pod: Pod): boolean {
   const results = pod.results ?? []
-  if (!pod.resultType || results.length !== pod.playerIds.length || results.some(r => r.kills < 0 || !Number.isInteger(r.kills))) return false
-  const positions = results.map(r => r.position).sort((a, b) => a - b)
-  return positions.every((position, index) => position === index + 1) && new Set(results.map(r => r.playerId)).size === pod.playerIds.length && results.every(r => pod.playerIds.includes(r.playerId))
+  if (!pod.resultType || results.length !== pod.playerIds.length || results.some(r => r.kills < 0 || !Number.isInteger(r.kills) || r.position < 1 || !Number.isInteger(r.position))) return false
+  if (new Set(results.map(r => r.playerId)).size !== pod.playerIds.length || !results.every(r => pod.playerIds.includes(r.playerId))) return false
+  return pod.resultType === 'empate'
+    ? results.every(result => result.position === 1)
+    : results.filter(result => result.position === 1).length === 1
 }
 
 export function standings(tournament: Tournament): Standing[] {
@@ -24,7 +28,7 @@ export function standings(tournament: Tournament): Standing[] {
     for (const result of pod.results ?? []) {
       const entry = stat[result.playerId]
       entry.points += points[result.playerId]; entry.kills += result.kills; entry.roundsPlayed++
-      if (result.position === 1) entry.wins++
+      if (result.position === 1 && pod.resultType !== 'empate') entry.wins++
       entry.opponents.push(...pod.playerIds.filter(id => id !== result.playerId))
     }
   }
