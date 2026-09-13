@@ -73,7 +73,7 @@ La migración crea perfiles, torneos, reglas, jugadores, rondas, mesas, asignaci
 
 - `src/domain/`: tipos, distribución de mesas, emparejamiento, puntuación y clasificación puros.
 - `src/state/TournamentContext.tsx`: persistencia local de demostración y operaciones de torneo.
-- `src/routes/AppRouter.tsx`: rutas, formularios accesibles y pantallas en español.
+- `src/pages/AppRouter.tsx`: rutas, formularios accesibles y pantallas en español.
 - `src/lib/supabase.ts`: cliente preparado con URL y clave anónima públicas.
 - `supabase/migrations/`: modelo PostgreSQL y políticas RLS.
 
@@ -83,7 +83,6 @@ El emparejamiento usa múltiples mezclas deterministas por semilla. Su costo pen
 
 ```bash
 npm run lint
-npm test
 npm run build
 ```
 
