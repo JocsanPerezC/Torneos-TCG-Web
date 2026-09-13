@@ -3,7 +3,8 @@ import { makePairings } from '../domain/pairing'
 import { isValidPodResult, standings } from '../domain/scoring'
 import { defaultScoring, normalizeName, uid, type Pod, type ScoringRules, type Tournament } from '../domain/types'
 import { supabase } from '../lib/supabase'
-import { deleteRemoteRound, deleteRemoteTournament, insertPlayers, insertRound, insertTournament, loadOwnerTournaments, persistPlayer, persistPod, persistRound, persistRoundMembers, persistTournament, persistTournamentSnapshot, removeRemotePlayer } from '../data/tournamentRepository'
+import { useAuth } from './AuthContext'
+import { deleteRemoteRound, deleteRemoteTournament, insertPlayers, insertRound, insertTournament, loadAllTournaments, loadOwnerTournaments, persistPlayer, persistPod, persistRound, persistRoundMembers, persistTournament, persistTournamentSnapshot, removeRemotePlayer } from '../data/tournamentRepository'
 
 type CreateInput = Pick<Tournament, 'name' | 'format' | 'plannedRounds' | 'isPublic'> & { scoring?: ScoringRules }
 type Store = { tournaments:Tournament[]; ready:boolean; remoteError?:string; createTournament(input:CreateInput):Tournament; updateTournament(id:string, patch:Partial<Tournament>):void; removeTournament(id:string):void; addPlayers(id:string,names:string[]):{added:number;duplicate?:string}; renamePlayer(id:string,playerId:string,name:string):string|undefined; togglePlayer(id:string,playerId:string):void; removePlayer(id:string,playerId:string):string|undefined; generateRound(id:string):string|undefined; startRound(id:string,roundId:string):string|undefined; setRoundStatus(id:string,roundId:string,status:'borrador'|'activa'):void; completeRound(id:string,roundId:string):string|undefined; swapPlayers(id:string,roundId:string,first:string,second:string):void; savePod(id:string,roundId:string,podId:string,pod:Pod):string|undefined; deleteLastRound(id:string):string|undefined; standingsFor(id:string):ReturnType<typeof standings> }
@@ -14,10 +15,11 @@ const samplePlayers=['Ana','Bruno','Carla','Diego','Elena','Felipe','Gabriela','
 function localInitial():Tournament[]{try{const stored=localStorage.getItem(storageKey);if(stored)return JSON.parse(stored)}catch{}return[{id:'demo',ownerId:'local-organizer',name:'Liga',format:'Commander',plannedRounds:3,status:'activo',isPublic:false,publicSlug:'mesa-mayor-demo',scoring:defaultScoring,players:samplePlayers,rounds:[],createdAt:new Date().toISOString()}]}
 
 export function TournamentProvider({children}:{children:ReactNode}) {
+  const { user, isSuperAdmin } = useAuth()
   const remote=Boolean(supabase); const [tournaments,setTournaments]=useState<Tournament[]>(remote?[]:localInitial); const [ownerId,setOwnerId]=useState<string>(); const [ready,setReady]=useState(!remote); const [remoteError,setRemoteError]=useState<string>();
   const writeQueue=useRef(Promise.resolve()); const pendingWrites=useRef(0);
-  const refresh=async(userId?:string)=>{if(!supabase||!userId){setTournaments([]);setReady(true);return}try{setReady(false);setTournaments(await loadOwnerTournaments(userId));setRemoteError(undefined)}catch(error){setRemoteError(error instanceof Error?error.message:'No se pudieron cargar los torneos.')}finally{setReady(true)}}
-  useEffect(()=>{if(!supabase){localStorage.setItem(storageKey,JSON.stringify(tournaments));return}void supabase.auth.getUser().then(({data})=>{setOwnerId(data.user?.id);void refresh(data.user?.id)});const {data:{subscription}}=supabase.auth.onAuthStateChange((_event,session)=>{setOwnerId(session?.user.id);void refresh(session?.user.id)});return()=>subscription.unsubscribe()},[])
+  const refresh=async(userId?:string,includeAll=false)=>{if(!supabase||!userId){setTournaments([]);setReady(true);return}try{setReady(false);setTournaments(await (includeAll?loadAllTournaments():loadOwnerTournaments(userId)));setRemoteError(undefined)}catch(error){setRemoteError(error instanceof Error?error.message:'No se pudieron cargar los torneos.')}finally{setReady(true)}}
+  useEffect(()=>{if(!supabase){localStorage.setItem(storageKey,JSON.stringify(tournaments));return}setOwnerId(user?.id);void refresh(user?.id,isSuperAdmin)},[user?.id,isSuperAdmin])
   const run=(work:()=>Promise<void>)=>{if(!supabase)return;pendingWrites.current++;writeQueue.current=writeQueue.current.then(work).catch(error=>setRemoteError(error instanceof Error&&error.message?error.message:'No se pudo guardar el cambio.')).finally(()=>{pendingWrites.current--})}
   const mutate=(id:string,change:(t:Tournament)=>void,_remoteWork?:(t:Tournament)=>Promise<void>)=>setTournaments(items=>items.map(item=>{if(item.id!==id)return item;const next=copy(item);change(next);run(()=>persistTournamentSnapshot(next));return next}))
   const value=useMemo<Store>(()=>({
