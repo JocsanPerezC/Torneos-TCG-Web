@@ -27,6 +27,7 @@ a { color: inherit; }
 /* Actions are presented as buttons; only the authentication switch keeps its link treatment. */
 .underline { text-decoration-line: none !important; }
 a[href="/login"].underline, a[href="/register"].underline { text-decoration-line: underline !important; }
+a[href="/forgot-password"] { display: block; width: auto; border: 0; padding: 0; background: transparent; font-weight: 400; text-align: center; text-decoration-line: underline !important; }
 .underline:not(a[href="/login"]):not(a[href="/register"]) { display: inline-flex; align-items: center; justify-content: center; border-radius: .5rem; padding: .45rem .7rem; background: #edf2f6; color: #2660A4 !important; font-weight: 600; }
 .text-red-300.underline { background: #fff1f0; color: #a44840 !important; }
 
@@ -36,6 +37,7 @@ table, .tabular-nums { font-variant-numeric: tabular-nums; }
 /* Bridge existing panel utilities to the shared shadcn landing palette. */
 .bg-slate-950 { background-color: #F6F3EC !important; } .bg-slate-950\/80, .bg-slate-950\/95 { background-color: rgba(246,243,236,.94) !important; }
 .bg-slate-900, .bg-slate-900\/75 { background-color: #fff !important; } .bg-slate-800 { background-color: #edf2f6 !important; } .bg-slate-700 { background-color: #dce4eb !important; }
+.bg-slate-600 { background-color: #ECE8DE !important; color: #14385E !important; }
 .hover\:bg-slate-800:hover, .hover\:bg-slate-700:hover { background-color: #e5edf2 !important; }
 .border-slate-700, .border-slate-700\/70, .border-slate-600, .border-slate-500, .border-slate-800 { border-color: #E4DFD2 !important; }
 .text-slate-100, .text-slate-200 { color: #14385E !important; } .text-slate-300 { color: #536478 !important; } .text-slate-400, .text-slate-500 { color: #6B7480 !important; }
@@ -47,3 +49,32 @@ input, textarea, select { color: #14385E; } input:focus, textarea:focus, select:
 
 .landing-theme { --background: #F6F3EC; --foreground: #14385E; --card: #fff; --card-foreground: #14385E; --primary: #2660A4; --primary-foreground: #fff; --secondary: #edf2f6; --secondary-foreground: #14385E; --muted: #ece8de; --muted-foreground: #6B7480; --accent: #2E96A0; --accent-foreground: #fff; --border: #E4DFD2; --font-sans: Inter, ui-sans-serif, system-ui, sans-serif; color: var(--foreground); font-family: var(--font-sans); }
 .landing-theme h1, .landing-theme h2 { font-family: Fraunces, Georgia, serif; }
+
+a[href="/forgot-password"]:hover { background-color: transparent !important; color: #1E4E88 !important; }
+
+/* Preserve the original semantic colors for compact action buttons. */
+.text-slate-300.underline { background-color: #ece8de !important; color: #536478 !important; }
+.text-red-300.underline { background-color: #fff1f0 !important; color: #a44840 !important; }
+
+/* The public round view shows player names only. */
+main.min-h-screen.bg-slate-950 > .mx-auto.max-w-4xl > section > .grid > article > .grid > section > .grid.grid-cols-2 { display: none; }
+
+@keyframes toast-enter {
+  0% { opacity: 0; transform: translateX(110%); }
+  70% { opacity: 1; transform: translateX(-8px); }
+  100% { opacity: 1; transform: translateX(0); }
+}
+@keyframes toast-exit {
+  0% { opacity: 1; transform: translateX(0); }
+  45% { opacity: 1; transform: translateX(-14px); }
+  100% { opacity: 0; transform: translateX(110%); }
+}
+.toast-enter { animation: toast-enter 380ms ease-out both; }
+.toast-exit { animation: toast-exit 500ms ease-in forwards; }
+
+.round-timer { flex-basis: 100%; }
+
+form.mt-3.space-y-4 > button:last-child { display: block; width: fit-content; margin-left: auto; }
+section.grid > form > fieldset + button,
+section.grid > aside > button { display: block; width: fit-content; margin-left: auto; }
+section.grid > div > button { display: block; width: fit-content; margin-left: auto; }

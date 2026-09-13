@@ -1,3 +1,9 @@
-import { Link } from 'react-router-dom'
-import { Button } from '@/components/ui/button'
-export function LandingFooter() { return <footer id="preguntas" className="border-t border-border"><div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-3 px-5 py-7 text-sm text-muted-foreground"><span className="font-serif text-lg font-semibold text-foreground">Home</span><nav className="flex items-center"><Button asChild size="sm" variant="ghost"><Link to="/login">Iniciar sesión</Link></Button><Button asChild size="sm" variant="ghost"><Link to="/register">Crear cuenta</Link></Button></nav></div></footer> }
+export function LandingFooter() {
+  return (
+    <footer className="border-t border-border">
+      <div className="mx-auto max-w-6xl px-5 py-7 text-center text-sm text-muted-foreground">
+        Copyright © 2026
+      </div>
+    </footer>
+  )
+}

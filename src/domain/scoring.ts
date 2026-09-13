@@ -17,7 +17,7 @@ export function isValidPodResult(pod: Pod): boolean {
   if (!pod.resultType || results.length !== pod.playerIds.length || results.some(r => r.kills < 0 || !Number.isInteger(r.kills) || r.position < 1 || !Number.isInteger(r.position))) return false
   if (new Set(results.map(r => r.playerId)).size !== pod.playerIds.length || !results.every(r => pod.playerIds.includes(r.playerId))) return false
   return pod.resultType === 'empate'
-    ? results.every(result => result.position === 1)
+    ? results.filter(result => !result.dead).length >= 2 && results.every(result => result.position === 1)
     : results.filter(result => result.position === 1).length === 1
 }
 
