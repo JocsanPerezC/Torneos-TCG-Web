@@ -13,13 +13,18 @@ Torneos TCG permite administrar torneos multijugador de Commander y otros TCG de
 
 ## Funcionalidades principales
 
-- Panel de torneos activos y finalizados; cada tarjeta abre el torneo directamente.
-- Mesas y rondas navegables con controles de anterior y siguiente, temporizador y vista pública de solo lectura.
-- Resultados con puntos manuales y kills por jugador en cada mesa.
-- Clasificación por puntos, fuerza de oponentes, kills y semilla estable para desempates.
-- Emparejamiento determinista que prioriza evitar repetir oponentes y después aproxima jugadores con puntuaciones similares.
-- Notificaciones apiladas en la esquina inferior derecha, con animación y desaparición automática a los cuatro segundos.
-- Persistencia en Supabase: cada cambio relevante se guarda como una operación atómica (configuración, jugadores, rondas, mesas y resultados) para conservar la información al cerrar sesión.
+- Autenticación con correo y contraseña, inicio de sesión con Google, confirmación de cuenta, recuperación de contraseña y cierre de sesión.
+- Panel del organizador con torneos activos y finalizados; cada tarjeta abre el torneo directamente.
+- Creación y configuración de torneos con nombre, formato, cantidad de rondas, límite de jugadores, límite de mesas y visibilidad pública.
+- Administración de jugadores: alta por lista, búsqueda, edición de nombre, activación o retiro y eliminación antes de participar en una ronda.
+- Generación de rondas con mesas de 3, 4 o 5 participantes y emparejamiento determinista que prioriza evitar rivales repetidos y aproxima jugadores con puntuaciones similares.
+- Gestión completa de rondas: borrador, inicio, temporizador, navegación entre rondas, ajuste manual de jugadores entre mesas y eliminación de la última ronda.
+- Registro de resultados con puntos manuales y kills por jugador; la ronda solo se completa cuando todas sus mesas tienen resultados válidos.
+- Clasificación actualizada al instante, ordenada por puntos, fuerza de oponentes, kills y semilla estable para desempates.
+- Vista pública de solo lectura mediante un enlace único del torneo, con clasificación, ronda actual, mesas y temporizador.
+- Mensajes de confirmación, avisos de error y notificaciones temporales para las acciones del organizador.
+- Roles `organizer`, `admin` y `super_admin`, con panel administrativo global y gestión de usuarios para super administradores.
+- Persistencia en Supabase mediante operaciones atómicas para conservar configuración, jugadores, rondas, mesas y resultados.
 - Modo demostración con `localStorage` cuando Supabase no está configurado.
 
 ## Puntuación
