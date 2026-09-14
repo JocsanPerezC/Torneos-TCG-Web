@@ -1,6 +1,6 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 
-const entries = [['1', 'Lina Rojas', '3 victorias', '11'], ['2', 'Marco Vega', 'Fuerza: 24', '9'], ['3', 'Sofía Mora', '2 victorias', '8'], ['4', 'Tomás León', 'Fuerza: 18', '6']]
+const entries = [['1', 'Lina Rojas', 'Fuerza: 28', '11'], ['2', 'Marco Vega', 'Fuerza: 24', '9'], ['3', 'Sofía Mora', 'Fuerza: 21', '8'], ['4', 'Tomás León', 'Fuerza: 18', '6']]
 const metrics = [['Ronda actual', '2 de 3'], ['Mesas activas', '4'], ['Jugadores', '14']]
 
 export function StandingsPreview() {

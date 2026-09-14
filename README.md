@@ -5,7 +5,7 @@ Torneos TCG permite administrar torneos multijugador de Commander y otros TCG de
 ## Flujo del organizador
 
 1. Crea una cuenta, inicia sesión y selecciona **Nuevo torneo**.
-2. Define nombre, formato, cantidad de rondas y la puntuación. Por defecto, un empate otorga 2 puntos a cada jugador vivo; todas las reglas pueden editarse después.
+2. Define nombre, formato y cantidad de rondas. Los puntos se asignan manualmente a cada jugador al registrar su mesa.
 3. En **Jugadores**, agrega participantes, busca por nombre, edítalos, retíralos o elimínalos antes de que entren a una ronda.
 4. En **Rondas**, genera la siguiente ronda. Se requieren al menos 3 jugadores activos y las mesas se distribuyen en grupos de 3, 4 o 5 cuando corresponde.
 5. Inicia la ronda, registra el resultado de cada mesa y termina la ronda cuando todas estén completas. La clasificación se recalcula de inmediato.
@@ -15,8 +15,8 @@ Torneos TCG permite administrar torneos multijugador de Commander y otros TCG de
 
 - Panel de torneos activos y finalizados; cada tarjeta abre el torneo directamente.
 - Mesas y rondas navegables con controles de anterior y siguiente, temporizador y vista pública de solo lectura.
-- Resultados por victoria normal, combo o empate. En un empate se puede marcar quién murió; solo es válido si quedan al menos dos personas vivas.
-- Clasificación por puntos, victorias, fuerza de oponentes, kills y semilla estable para desempates.
+- Resultados con puntos manuales y kills por jugador en cada mesa.
+- Clasificación por puntos, fuerza de oponentes, kills y semilla estable para desempates.
 - Emparejamiento determinista que prioriza evitar repetir oponentes y después aproxima jugadores con puntuaciones similares.
 - Notificaciones apiladas en la esquina inferior derecha, con animación y desaparición automática a los cuatro segundos.
 - Persistencia en Supabase: cada cambio relevante se guarda como una operación atómica (configuración, jugadores, rondas, mesas y resultados) para conservar la información al cerrar sesión.
@@ -24,7 +24,7 @@ Torneos TCG permite administrar torneos multijugador de Commander y otros TCG de
 
 ## Puntuación
 
-Las mesas de 3 o 4 jugadores usan los valores configurables de primer, segundo, tercer y cuarto lugar. En una mesa de 5, la asignación es 5, 4, 3, 2 y 1 puntos. Los empates usan el valor configurable de empate para cada jugador vivo.
+El organizador registra un número entero no negativo de puntos para cada jugador de una mesa. No existe un límite funcional de 100: se pueden registrar 1, 100 u otro valor acordado. La vista pública no expone esos puntos por mesa.
 
 ## Contenido técnico anterior
 
@@ -34,7 +34,7 @@ La documentación original se conserva a continuación como referencia de instal
 
 # Torneos — gestor de torneos TCG
 
-Aplicación React/TypeScript para organizar torneos multijugador de Commander u otros TCG: participantes sin cuenta, mesas de 3–4, resultados normales o por combo, clasificación con desempates y vista pública de solo lectura.
+Aplicación React/TypeScript para organizar torneos multijugador de Commander u otros TCG: participantes sin cuenta, mesas de 3–4, puntos manuales por jugador, clasificación con desempates y vista pública de solo lectura.
 
 ## Ejecutar localmente
 
@@ -77,7 +77,7 @@ La migración crea perfiles, torneos, reglas, jugadores, rondas, mesas, asignaci
 - `src/lib/supabase.ts`: cliente preparado con URL y clave anónima públicas.
 - `supabase/migrations/`: modelo PostgreSQL y políticas RLS.
 
-El emparejamiento usa múltiples mezclas deterministas por semilla. Su costo penaliza los pares que ya compartieron mesa (peso 100) antes de ponderar la diferencia de puntos, para priorizar no repetir enfrentamientos. En la clasificación: puntos, victorias, fuerza de oponentes (suma de puntos de quienes enfrentó), kills y una semilla estable resuelven los empates.
+El emparejamiento usa múltiples mezclas deterministas por semilla. Su costo penaliza los pares que ya compartieron mesa (peso 100) antes de ponderar la diferencia de puntos, para priorizar no repetir enfrentamientos. En la clasificación: puntos, fuerza de oponentes (suma de puntos de quienes enfrentó), kills y una semilla estable resuelven los empates.
 
 ## Administración
 

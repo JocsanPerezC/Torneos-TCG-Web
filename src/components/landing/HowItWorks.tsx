@@ -1,5 +1,5 @@
 const steps = [
-  ['01', 'Configura lo esencial', 'Elige el nombre, formato, número de rondas y reglas de puntuación.'],
+  ['01', 'Configura lo esencial', 'Elige el nombre, formato y número de rondas.'],
   ['02', 'Añade participantes', 'Registra a los jugadores y genera mesas para comenzar la primera ronda.'],
   ['03', 'Comparte el progreso', 'Carga los resultados y deja disponible la clasificación durante el torneo.'],
 ]

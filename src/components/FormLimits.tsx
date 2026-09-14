@@ -11,7 +11,10 @@ const textLimits: Record<string, { max: number; message: string }> = {
 
 function numericLimit(input: HTMLInputElement) {
   if (input.name === 'rounds') return { min: 1, max: 30, message: 'Las rondas deben estar entre 1 y 30.' }
+  if (input.name === 'maxPlayers') return { min: 3, max: 50, message: 'El máximo de jugadores debe estar entre 3 y 50.' }
+  if (input.name === 'maxTables') return { min: 1, max: 25, message: 'El máximo de mesas debe estar entre 1 y 25.' }
   if (['first', 'second', 'third', 'fourth', 'tie'].includes(input.name)) return { min: 0, max: 100, message: 'La puntuación debe estar entre 0 y 100.' }
+  if (input.name.startsWith('points-')) return { min: 0, max: 2_147_483_647, message: 'Los puntos deben ser enteros no negativos.' }
   if (input.name.startsWith('kills-')) return { min: 0, max: 3, message: 'Los kills deben estar entre 0 y 3.' }
   return undefined
 }
@@ -54,30 +57,23 @@ function validate(element: HTMLInputElement | HTMLTextAreaElement) {
   }
 }
 
-/** Applies the same client-side limits to every form, including modal forms. */
+/** Applies limits only when a field is focused or edited, avoiding a full-DOM observer on every render. */
 export function FormLimits() {
   useEffect(() => {
-    const selector = 'input, textarea'
     const update = (element: Element) => {
       if (element instanceof HTMLInputElement || element instanceof HTMLTextAreaElement) {
         applyLimits(element)
         validate(element)
       }
     }
-    const updateTree = (node: Node) => {
-      if (!(node instanceof Element)) return
-      update(node)
-      node.querySelectorAll(selector).forEach(update)
-    }
     const handleInput = (event: Event) => update(event.target as Element)
-    const observer = new MutationObserver((records) => records.forEach((record) => record.addedNodes.forEach(updateTree)))
 
-    document.querySelectorAll(selector).forEach(update)
+    document.querySelectorAll('input, textarea').forEach(update)
     document.addEventListener('input', handleInput, true)
-    observer.observe(document.body, { childList: true, subtree: true })
+    document.addEventListener('focusin', handleInput, true)
     return () => {
       document.removeEventListener('input', handleInput, true)
-      observer.disconnect()
+      document.removeEventListener('focusin', handleInput, true)
     }
   }, [])
 
