@@ -1,12 +1,119 @@
-import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from 'react'
-import type { User } from '@supabase/supabase-js'
-import { supabase } from '../lib/supabase'
-import type { AppRole } from '../data/adminRepository'
+import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
+import type { User } from '@supabase/supabase-js';
+import { supabase } from '../lib/supabase';
+import type { AppRole } from '../data/adminRepository';
 
 // La confirmación por correo está desactivada temporalmente en Supabase.
 // Al reactivarla, restablecer el aviso correspondiente en la pantalla de registro.
 
-type AuthStore={user:User|null;role:AppRole|null;isAdmin:boolean;isSuperAdmin:boolean;loading:boolean;configured:boolean;signIn(email:string,password:string):Promise<void>;signUp(name:string,email:string,password:string):Promise<void>;isEmailRegistered(email:string):Promise<boolean>;resetPassword(email:string):Promise<void>;signOut():Promise<void>}
-const Context=createContext<AuthStore|null>(null)
-export function AuthProvider({children}:{children:ReactNode}){const[user,setUser]=useState<User|null>(null);const[role,setRole]=useState<AppRole|null>(null);const[loading,setLoading]=useState(Boolean(supabase));useEffect(()=>{const client=supabase;if(!client)return;let active=true;const applySession=async(nextUser:User|null)=>{if(!active)return;setUser(nextUser);if(!nextUser){setRole(null);setLoading(false);return}setLoading(true);const{data,error}=await client.from('profiles').select('role').eq('id',nextUser.id).maybeSingle();if(!active)return;const profileRole=data?.role;setRole(!error&&(profileRole==='admin'||profileRole==='super_admin')?profileRole:'organizer');setLoading(false)};void client.auth.getSession().then(({data})=>void applySession(data.session?.user??null));const{data:{subscription}}=client.auth.onAuthStateChange((_event,session)=>{void applySession(session?.user??null)});return()=>{active=false;subscription.unsubscribe()}},[]);const value=useMemo<AuthStore>(()=>({user,role,isAdmin:role==='admin'||role==='super_admin',isSuperAdmin:role==='super_admin',loading,configured:Boolean(supabase),async signIn(email,password){if(!supabase)return;const{error}=await supabase.auth.signInWithPassword({email,password});if(error)throw error},async isEmailRegistered(email){if(!supabase)return false;const{data,error}=await supabase.rpc('is_email_registered',{candidate_email:email});if(error)throw error;return Boolean(data)},async signUp(name,email,password){if(!supabase)return;const{error}=await supabase.auth.signUp({email,password,options:{data:{display_name:name},emailRedirectTo:`${window.location.origin}/auth/confirmed`}});if(error)throw error},async resetPassword(email){if(!supabase)return;const{error}=await supabase.auth.resetPasswordForEmail(email,{redirectTo:`${window.location.origin}/login`});if(error)throw error},async signOut(){if(!supabase)return;const{error}=await supabase.auth.signOut();if(error)throw error}}),[user,role,loading]);return <Context.Provider value={value}>{children}</Context.Provider>}
-export function useAuth(){const value=useContext(Context);if(!value)throw new Error('AuthProvider no disponible');return value}
+type AuthStore = {
+  user: User | null;
+  role: AppRole | null;
+  isAdmin: boolean;
+  isSuperAdmin: boolean;
+  loading: boolean;
+  configured: boolean;
+  signIn(email: string, password: string): Promise<void>;
+  signUp(name: string, email: string, password: string): Promise<void>;
+  isEmailRegistered(email: string): Promise<boolean>;
+  resetPassword(email: string): Promise<void>;
+  signOut(): Promise<void>;
+};
+const Context = createContext<AuthStore | null>(null);
+export function AuthProvider({ children }: { children: ReactNode }) {
+  const [user, setUser] = useState<User | null>(null);
+  const [role, setRole] = useState<AppRole | null>(null);
+  const [loading, setLoading] = useState(Boolean(supabase));
+  useEffect(() => {
+    const client = supabase;
+    if (!client) return;
+    let active = true;
+    const applySession = async (nextUser: User | null) => {
+      if (!active) return;
+      setUser(nextUser);
+      if (!nextUser) {
+        setRole(null);
+        setLoading(false);
+        return;
+      }
+      setLoading(true);
+      const { data, error } = await client
+        .from('profiles')
+        .select('role')
+        .eq('id', nextUser.id)
+        .maybeSingle();
+      if (!active) return;
+      const profileRole = data?.role;
+      setRole(
+        !error && (profileRole === 'admin' || profileRole === 'super_admin')
+          ? profileRole
+          : 'organizer',
+      );
+      setLoading(false);
+    };
+    void client.auth.getSession().then(({ data }) => void applySession(data.session?.user ?? null));
+    const {
+      data: { subscription },
+    } = client.auth.onAuthStateChange((_event, session) => {
+      void applySession(session?.user ?? null);
+    });
+    return () => {
+      active = false;
+      subscription.unsubscribe();
+    };
+  }, []);
+  const value = useMemo<AuthStore>(
+    () => ({
+      user,
+      role,
+      isAdmin: role === 'admin' || role === 'super_admin',
+      isSuperAdmin: role === 'super_admin',
+      loading,
+      configured: Boolean(supabase),
+      async signIn(email, password) {
+        if (!supabase) return;
+        const { error } = await supabase.auth.signInWithPassword({ email, password });
+        if (error) throw error;
+      },
+      async isEmailRegistered(email) {
+        if (!supabase) return false;
+        const { data, error } = await supabase.rpc('is_email_registered', {
+          candidate_email: email,
+        });
+        if (error) throw error;
+        return Boolean(data);
+      },
+      async signUp(name, email, password) {
+        if (!supabase) return;
+        const { error } = await supabase.auth.signUp({
+          email,
+          password,
+          options: {
+            data: { display_name: name },
+            emailRedirectTo: `${window.location.origin}/auth/confirmed`,
+          },
+        });
+        if (error) throw error;
+      },
+      async resetPassword(email) {
+        if (!supabase) return;
+        const { error } = await supabase.auth.resetPasswordForEmail(email, {
+          redirectTo: `${window.location.origin}/login`,
+        });
+        if (error) throw error;
+      },
+      async signOut() {
+        if (!supabase) return;
+        const { error } = await supabase.auth.signOut();
+        if (error) throw error;
+      },
+    }),
+    [user, role, loading],
+  );
+  return <Context.Provider value={value}>{children}</Context.Provider>;
+}
+export function useAuth() {
+  const value = useContext(Context);
+  if (!value) throw new Error('AuthProvider no disponible');
+  return value;
+}

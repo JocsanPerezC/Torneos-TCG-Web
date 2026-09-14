@@ -7,33 +7,33 @@ import {
   useLocation,
   useNavigate,
   useParams,
-} from "react-router-dom";
-import { useEffect, useRef, useState, type FormEvent } from "react";
-import { useTournament, useTournaments } from "../state/TournamentContext";
-import { useAuth } from "../state/AuthContext";
-import { LandingPage } from "../pages/LandingPage";
+} from 'react-router-dom';
+import { useEffect, useRef, useState, type FormEvent } from 'react';
+import { useTournament, useTournaments } from '../state/TournamentContext';
+import { useAuth } from '../state/AuthContext';
+import { LandingPage } from '../pages/LandingPage';
 import {
   insertPlayers,
   loadAllTournaments,
   loadPublicTournament,
   persistPlayer,
   removeRemotePlayer,
-} from "../data/tournamentRepository";
+} from '../data/tournamentRepository';
 import {
   loadAdminOverview,
   updateProfileRole,
   type AdminOverview,
   type AppRole,
   type AssignableRole,
-} from "../data/adminRepository";
+} from '../data/adminRepository';
 import {
   createManagedUser,
   deleteManagedUser,
   listManagedUsers,
   updateManagedUser,
   type ManagedUser,
-} from "../data/adminUsersRepository";
-import type { Tournament } from "../domain/types";
+} from '../data/adminUsersRepository';
+import type { Tournament } from '../domain/types';
 import {
   Database,
   Eye,
@@ -49,41 +49,41 @@ import {
   Trash2,
   Trophy,
   Users,
-} from "lucide-react";
-import { Modal } from "../components/ui/modal";
-import { showToast, ToastViewport } from "../components/ui/toast";
-import { GoogleAuthButton } from "../components/auth/GoogleAuthButton";
-import { uid, type Pod } from "../domain/types";
-import { getUserProfile } from "../lib/userProfile";
-import type { User } from "@supabase/supabase-js";
+} from 'lucide-react';
+import { Modal } from '../components/ui/modal';
+import { showToast, ToastViewport } from '../components/ui/toast';
+import { GoogleAuthButton } from '../components/auth/GoogleAuthButton';
+import { uid, type Pod } from '../domain/types';
+import { getUserProfile } from '../lib/userProfile';
+import type { User } from '@supabase/supabase-js';
 
 const primary =
-  "rounded-lg bg-amber-400 px-4 py-2 font-bold text-slate-950 hover:bg-amber-300 disabled:cursor-not-allowed disabled:opacity-50";
+  'rounded-lg bg-amber-400 px-4 py-2 font-bold text-slate-950 hover:bg-amber-300 disabled:cursor-not-allowed disabled:opacity-50';
 const panel =
-  "rounded-xl border border-slate-700/70 bg-slate-900/75 p-5 shadow-xl shadow-slate-950/20";
+  'rounded-xl border border-slate-700/70 bg-slate-900/75 p-5 shadow-xl shadow-slate-950/20';
 const field =
-  "mt-1 w-full rounded-lg border border-slate-600 bg-slate-950 px-3 py-2 text-slate-100 outline-none focus:border-amber-400";
+  'mt-1 w-full rounded-lg border border-slate-600 bg-slate-950 px-3 py-2 text-slate-100 outline-none focus:border-amber-400';
 const statusColor: Record<string, string> = {
-  borrador: "bg-slate-600",
-  activa: "bg-emerald-600",
-  completada: "bg-blue-600",
-  activo: "bg-emerald-600",
-  finalizado: "bg-violet-600",
+  borrador: 'bg-slate-600',
+  activa: 'bg-emerald-600',
+  completada: 'bg-blue-600',
+  activo: 'bg-emerald-600',
+  finalizado: 'bg-violet-600',
 };
-const statusLabel: Record<string, string> = { borrador: "En espera" };
+const statusLabel: Record<string, string> = { borrador: 'En espera' };
 function Badge({ children }: { children: string }) {
   return (
     <span
-      className={`inline-flex h-6 items-center rounded-md border border-slate-500 px-2 text-xs font-semibold leading-none ${statusColor[children] ?? "bg-slate-600"}`}
+      className={`inline-flex h-6 items-center rounded-md border border-slate-500 px-2 text-xs font-semibold leading-none ${statusColor[children] ?? 'bg-slate-600'}`}
     >
       {statusLabel[children] ?? children}
     </span>
   );
 }
-function RoundTimer({ round }: { round: Tournament["rounds"][number] }) {
+function RoundTimer({ round }: { round: Tournament['rounds'][number] }) {
   const [now, setNow] = useState(0);
   useEffect(() => {
-    if (round.status !== "activa" || !round.startedAt) return;
+    if (round.status !== 'activa' || !round.startedAt) return;
     const update = () => setNow(Date.now());
     update();
     const interval = window.setInterval(update, 1000);
@@ -92,35 +92,23 @@ function RoundTimer({ round }: { round: Tournament["rounds"][number] }) {
   if (!round.startedAt) return null;
   const elapsed = Math.max(
     0,
-    (round.endedAt ? Date.parse(round.endedAt) : now) -
-      Date.parse(round.startedAt),
+    (round.endedAt ? Date.parse(round.endedAt) : now) - Date.parse(round.startedAt),
   );
   const hours = Math.floor(elapsed / 3_600_000);
   const minutes = Math.floor((elapsed % 3_600_000) / 60_000);
   const seconds = Math.floor((elapsed % 60_000) / 1_000);
-  const clock = [hours, minutes, seconds]
-    .map((value) => String(value).padStart(2, "0"))
-    .join(":");
+  const clock = [hours, minutes, seconds].map((value) => String(value).padStart(2, '0')).join(':');
   return (
     <span className="round-timer text-sm font-semibold tabular-nums text-amber-300">
       Tiempo {clock}
     </span>
   );
 }
-function Notice({
-  children,
-  error = false,
-}: {
-  children: React.ReactNode;
-  error?: boolean;
-}) {
-  const shown = useRef<
-    { children: React.ReactNode; error: boolean } | undefined
-  >(undefined);
+function Notice({ children, error = false }: { children: React.ReactNode; error?: boolean }) {
+  const shown = useRef<{ children: React.ReactNode; error: boolean } | undefined>(undefined);
   useEffect(() => {
     const previous = shown.current;
-    if (previous && previous.children === children && previous.error === error)
-      return;
+    if (previous && previous.children === children && previous.error === error) return;
     shown.current = { children, error };
     showToast(children, error);
   }, [children, error]);
@@ -129,7 +117,7 @@ function Notice({
 function ConfirmModal({
   title,
   description,
-  confirmLabel = "Confirmar",
+  confirmLabel = 'Confirmar',
   destructive = false,
   onClose,
   onConfirm,
@@ -155,7 +143,7 @@ function ConfirmModal({
           type="button"
           className={
             destructive
-              ? "rounded-lg bg-red-700 px-4 py-2 text-sm font-bold text-white hover:bg-red-600"
+              ? 'rounded-lg bg-red-700 px-4 py-2 text-sm font-bold text-white hover:bg-red-600'
               : primary
           }
           onClick={onConfirm}
@@ -171,12 +159,9 @@ function Header() {
   const { user, configured, isAdmin, signOut } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
-  const authScreen = [
-    "/login",
-    "/register",
-    "/forgot-password",
-    "/auth/confirmed",
-  ].includes(location.pathname);
+  const authScreen = ['/login', '/register', '/forgot-password', '/auth/confirmed'].includes(
+    location.pathname,
+  );
   return (
     <header
       className="app-header border-b border-slate-700/70 backdrop-blur"
@@ -214,7 +199,7 @@ function Header() {
                 onClick={() =>
                   void signOut()
                     .catch(() => undefined)
-                    .finally(() => navigate("/", { replace: true }))
+                    .finally(() => navigate('/', { replace: true }))
                 }
               >
                 <LogOut size={15} />
@@ -243,11 +228,10 @@ function CompletionRedirect() {
   useEffect(() => {
     if (
       tournament &&
-      location.pathname.endsWith("/rounds") &&
-      sessionStorage.getItem("mesa-mayor.completed-tournament") ===
-        tournament.id
+      location.pathname.endsWith('/rounds') &&
+      sessionStorage.getItem('mesa-mayor.completed-tournament') === tournament.id
     ) {
-      sessionStorage.removeItem("mesa-mayor.completed-tournament");
+      sessionStorage.removeItem('mesa-mayor.completed-tournament');
       navigate(`/tournaments/${tournament.id}/standings`, { replace: true });
     }
   }, [tournament, location.pathname, navigate]);
@@ -271,10 +255,7 @@ export function AppRouter() {
       <Route path="/" element={<LandingPage />} />
       <Route path="/login" element={<Auth title="Inicia sesión" />} />
       <Route path="/register" element={<Auth title="Crea tu cuenta" />} />
-      <Route
-        path="/forgot-password"
-        element={<Auth title="Recupera tu contraseña" />}
-      />
+      <Route path="/forgot-password" element={<Auth title="Recupera tu contraseña" />} />
       <Route path="/auth/confirmed" element={<ConfirmedAccount />} />
       <Route path="/dashboard" element={<Dashboard />} />
       <Route path="/admin" element={<AdminRoute />} />
@@ -303,8 +284,8 @@ function Home() {
           Organiza la próxima gran mesa.
         </h1>
         <p className="mx-auto mt-5 max-w-xl text-lg text-slate-300">
-          Rondas justas, resultados ágiles y clasificación clara para Commander
-          y cualquier TCG multijugador.
+          Rondas justas, resultados ágiles y clasificación clara para Commander y cualquier TCG
+          multijugador.
         </p>
         <div className="mt-8 flex flex-wrap justify-center gap-3">
           <Link className={primary} to="/register">
@@ -320,17 +301,9 @@ function Home() {
       </section>
       <section className="mt-6 grid gap-4 md:grid-cols-3">
         {[
-          [
-            "♟",
-            "Mesas equilibradas",
-            "Distribución válida de 3 y 4 jugadores.",
-          ],
-          ["✦", "Resultados claros", "Puntos, kills y desempates trazables."],
-          [
-            "⌁",
-            "Consulta pública",
-            "Comparte el estado sin exponer controles.",
-          ],
+          ['♟', 'Mesas equilibradas', 'Distribución válida de 3 y 4 jugadores.'],
+          ['✦', 'Resultados claros', 'Puntos, kills y desempates trazables.'],
+          ['⌁', 'Consulta pública', 'Comparte el estado sin exponer controles.'],
         ].map(([icon, title, text]) => (
           <article key={title} className={panel}>
             <span className="text-2xl text-amber-300">{icon}</span>
@@ -345,44 +318,40 @@ function Home() {
 function Auth({ title }: { title: string }) {
   const { configured, user, signIn, signUp, resetPassword } = useAuth();
   const navigate = useNavigate();
-  const [message, setMessage] = useState("");
+  const [message, setMessage] = useState('');
   const [busy, setBusy] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
-  const recovery = title === "Recupera tu contraseña";
-  const register = title === "Crea tu cuenta";
+  const recovery = title === 'Recupera tu contraseña';
+  const register = title === 'Crea tu cuenta';
   useEffect(() => {
-    if (register && user) navigate("/dashboard", { replace: true });
+    if (register && user) navigate('/dashboard', { replace: true });
   }, [register, user, navigate]);
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
-    const email = String(data.get("email")).trim();
-    const password = String(data.get("password"));
+    const email = String(data.get('email')).trim();
+    const password = String(data.get('password'));
     setBusy(true);
-    setMessage("");
+    setMessage('');
     try {
       if (recovery) {
         await resetPassword(email);
-        setMessage("Revisa tu correo para continuar con la recuperación.");
+        setMessage('Revisa tu correo para continuar con la recuperación.');
       } else if (register) {
-        const name = String(data.get("name")).trim();
-        if (password !== String(data.get("confirmPassword")))
-          throw new Error("Las contraseñas no coinciden.");
+        const name = String(data.get('name')).trim();
+        if (password !== String(data.get('confirmPassword')))
+          throw new Error('Las contraseñas no coinciden.');
         await signUp(name, email, password);
         /* setMessage('Cuenta creada. Revisa tu correo para confirmar tu cuenta; esta pestaña entrará al panel automáticamente.'); // Restaurar al reactivar Confirm email en Supabase. */ navigate(
-          "/dashboard",
+          '/dashboard',
           { replace: true },
         );
       } else {
         await signIn(email, password);
-        navigate("/dashboard");
+        navigate('/dashboard');
       }
     } catch (error) {
-      setMessage(
-        error instanceof Error
-          ? error.message
-          : "No se pudo completar la operación.",
-      );
+      setMessage(error instanceof Error ? error.message : 'No se pudo completar la operación.');
     } finally {
       setBusy(false);
     }
@@ -395,15 +364,13 @@ function Auth({ title }: { title: string }) {
           required
           name={name}
           minLength={6}
-          type={showPassword ? "text" : "password"}
+          type={showPassword ? 'text' : 'password'}
           className={`${field} mt-0 pr-12`}
         />
         <button
           type="button"
-          aria-label={
-            showPassword ? "Ocultar contraseña" : "Mostrar contraseña"
-          }
-          title={showPassword ? "Ocultar contraseña" : "Mostrar contraseña"}
+          aria-label={showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'}
+          title={showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'}
           className="absolute inset-y-0 right-0 inline-flex w-11 items-center justify-center text-slate-400 hover:text-amber-300"
           onClick={() => setShowPassword((value) => !value)}
         >
@@ -419,16 +386,12 @@ function Auth({ title }: { title: string }) {
           <h1 className="text-2xl font-black">{title}</h1>
           <p className="mt-2 text-sm text-slate-300">
             {configured
-              ? ""
-              : "Configura Supabase para activar el acceso real; el modo demo no requiere cuenta."}
+              ? ''
+              : 'Configura Supabase para activar el acceso real; el modo demo no requiere cuenta.'}
           </p>
           {message && (
             <div className="mt-4">
-              <Notice
-                error={
-                  !message.includes("Revisa") && !message.includes("creada")
-                }
-              >
+              <Notice error={!message.includes('Revisa') && !message.includes('creada')}>
                 {message}
               </Notice>
             </div>
@@ -459,27 +422,22 @@ function Auth({ title }: { title: string }) {
             </label>
             {!recovery && (
               <>
-                {passwordField("password", "Contraseña")}
-                {register &&
-                  passwordField("confirmPassword", "Confirmar contraseña")}
+                {passwordField('password', 'Contraseña')}
+                {register && passwordField('confirmPassword', 'Confirmar contraseña')}
               </>
             )}
             <button disabled={busy} className={`${primary} w-full`}>
-              {busy
-                ? "Procesando…"
-                : recovery
-                  ? "Enviar instrucciones"
-                  : "Continuar"}
+              {busy ? 'Procesando…' : recovery ? 'Enviar instrucciones' : 'Continuar'}
             </button>
           </form>
           {!recovery && <GoogleAuthButton />}
           <Link
             className="mt-5 block text-center text-sm text-amber-300 underline"
-            to={title === "Inicia sesión" ? "/register" : "/login"}
+            to={title === 'Inicia sesión' ? '/register' : '/login'}
           >
-            {title === "Inicia sesión"
-              ? "¿No tienes cuenta? Regístrate"
-              : "Volver al inicio de sesión"}
+            {title === 'Inicia sesión'
+              ? '¿No tienes cuenta? Regístrate'
+              : 'Volver al inicio de sesión'}
           </Link>
           {!recovery && (
             <Link
@@ -503,22 +461,18 @@ function ConfirmedAccount() {
           <span className="text-4xl">✓</span>
           <h1 className="mt-3 text-2xl font-black">
             {loading
-              ? "Confirmando tu cuenta…"
+              ? 'Confirmando tu cuenta…'
               : user
-                ? "¡Cuenta confirmada!"
-                : "Revisa la confirmación"}
+                ? '¡Cuenta confirmada!'
+                : 'Revisa la confirmación'}
           </h1>
           <p className="mt-3 text-slate-300">
             {user
-              ? "Ya puedes cerrar esta pestaña y volver a la ventana original. Entrarás al panel automáticamente."
-              : "Estamos validando el enlace. Espera un momento o vuelve a abrir el enlace del correo."}
+              ? 'Ya puedes cerrar esta pestaña y volver a la ventana original. Entrarás al panel automáticamente.'
+              : 'Estamos validando el enlace. Espera un momento o vuelve a abrir el enlace del correo.'}
           </p>
           {user && (
-            <button
-              type="button"
-              className={`${primary} mt-5`}
-              onClick={() => window.close()}
-            >
+            <button type="button" className={`${primary} mt-5`} onClick={() => window.close()}>
               Cerrar pestaña
             </button>
           )}
@@ -530,8 +484,7 @@ function ConfirmedAccount() {
 function OrganizerIdentity({ user }: { user: User | null }) {
   const { name, avatarUrl } = getUserProfile(user);
   const [avatarFailed, setAvatarFailed] = useState(false);
-  const avatarSource =
-    avatarFailed || !avatarUrl ? "/default-avatar.svg" : avatarUrl;
+  const avatarSource = avatarFailed || !avatarUrl ? '/default-avatar.svg' : avatarUrl;
 
   return (
     <p className="flex items-center gap-2 text-sm text-amber-300">
@@ -550,15 +503,12 @@ function OrganizerIdentity({ user }: { user: User | null }) {
 }
 
 function Dashboard() {
-  const { tournaments, ready, remoteError, removeTournament } =
-    useTournaments();
+  const { tournaments, ready, remoteError, removeTournament } = useTournaments();
   const { configured, user, loading } = useAuth();
   const [tournamentToDelete, setTournamentToDelete] = useState<Tournament>();
   const [creating, setCreating] = useState(false);
   const navigate = useNavigate();
-  const ownTournaments = tournaments.filter(
-    (tournament) => tournament.ownerId === user?.id,
-  );
+  const ownTournaments = tournaments.filter((tournament) => tournament.ownerId === user?.id);
   if (configured && !loading && !user) return <Navigate to="/login" replace />;
   return (
     <Layout>
@@ -571,18 +521,16 @@ function Dashboard() {
           + Nuevo torneo
         </button>
       </div>
-      {!ready && (
-        <p className="mb-4 text-sm text-slate-300">Cargando tus torneos…</p>
-      )}
+      {!ready && <p className="mb-4 text-sm text-slate-300">Cargando tus torneos…</p>}
       {remoteError && (
         <div className="mb-4">
           <Notice error>{remoteError}</Notice>
         </div>
       )}
-      {(["activo", "finalizado"] as const).map((status) => (
+      {(['activo', 'finalizado'] as const).map((status) => (
         <section key={status} className="mb-7">
           <h2 className="mb-3 text-lg font-bold">
-            {status === "activo" ? "Activos" : "Finalizados"}
+            {status === 'activo' ? 'Activos' : 'Finalizados'}
           </h2>
           <div className="grid gap-3 md:grid-cols-2">
             {ownTournaments
@@ -594,11 +542,11 @@ function Dashboard() {
                   tabIndex={0}
                   className={`${panel} cursor-pointer transition hover:-translate-y-0.5 hover:border-amber-400`}
                   onClick={(event) => {
-                    if (!(event.target as HTMLElement).closest("button"))
+                    if (!(event.target as HTMLElement).closest('button'))
                       navigate(`/tournaments/${t.id}`);
                   }}
                   onKeyDown={(event) => {
-                    if (event.key === "Enter") navigate(`/tournaments/${t.id}`);
+                    if (event.key === 'Enter') navigate(`/tournaments/${t.id}`);
                   }}
                 >
                   <div className="flex justify-between gap-2">
@@ -606,8 +554,8 @@ function Dashboard() {
                     <Badge>{t.status}</Badge>
                   </div>
                   <p className="mt-2 text-sm text-slate-300">
-                    {t.format} · {t.players.filter((p) => p.active).length}{" "}
-                    activos · {t.rounds.length}/{t.plannedRounds} rondas
+                    {t.format} · {t.players.filter((p) => p.active).length} activos ·{' '}
+                    {t.rounds.length}/{t.plannedRounds} rondas
                   </p>
                   <div className="mt-3 flex justify-end">
                     <button
@@ -620,9 +568,7 @@ function Dashboard() {
                 </article>
               ))}
             {ready && !ownTournaments.some((t) => t.status === status) && (
-              <p className="text-sm text-slate-400">
-                Aún no hay torneos en este estado.
-              </p>
+              <p className="text-sm text-slate-400">Aún no hay torneos en este estado.</p>
             )}
           </div>
         </section>
@@ -648,13 +594,13 @@ function Dashboard() {
 function TournamentCreateModal({ onClose }: { onClose: () => void }) {
   const { createTournament } = useTournaments();
   const navigate = useNavigate();
-  const [error, setError] = useState("");
+  const [error, setError] = useState('');
   function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const form = new FormData(event.currentTarget);
-    const plannedRounds = Number(form.get("rounds"));
-    const maxPlayers = Number(form.get("maxPlayers"));
-    const maxTables = Number(form.get("maxTables"));
+    const plannedRounds = Number(form.get('rounds'));
+    const maxPlayers = Number(form.get('maxPlayers'));
+    const maxTables = Number(form.get('maxTables'));
     if (
       !Number.isInteger(plannedRounds) ||
       plannedRounds < 1 ||
@@ -663,12 +609,12 @@ function TournamentCreateModal({ onClose }: { onClose: () => void }) {
       !Number.isInteger(maxTables) ||
       maxTables < 1
     ) {
-      setError("Indica límites válidos: al menos 3 jugadores y 1 mesa.");
+      setError('Indica límites válidos: al menos 3 jugadores y 1 mesa.');
       return;
     }
     const tournament = createTournament({
-      name: String(form.get("name")),
-      format: String(form.get("format")),
+      name: String(form.get('name')),
+      format: String(form.get('format')),
       plannedRounds,
       isPublic: true,
       maxPlayers,
@@ -747,13 +693,13 @@ function TournamentCreateModal({ onClose }: { onClose: () => void }) {
 function NewTournament() {
   const { createTournament } = useTournaments();
   const navigate = useNavigate();
-  const [error, setError] = useState("");
+  const [error, setError] = useState('');
   function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const values = new FormData(event.currentTarget);
-    const rounds = Number(values.get("rounds"));
-    const maxPlayers = Number(values.get("maxPlayers"));
-    const maxTables = Number(values.get("maxTables"));
+    const rounds = Number(values.get('rounds'));
+    const maxPlayers = Number(values.get('maxPlayers'));
+    const maxTables = Number(values.get('maxTables'));
     if (
       !Number.isInteger(rounds) ||
       rounds < 1 ||
@@ -762,10 +708,10 @@ function NewTournament() {
       !Number.isInteger(maxTables) ||
       maxTables < 1
     )
-      return setError("Indica límites válidos: al menos 3 jugadores y 1 mesa.");
+      return setError('Indica límites válidos: al menos 3 jugadores y 1 mesa.');
     const tournament = createTournament({
-      name: String(values.get("name")),
-      format: String(values.get("format")),
+      name: String(values.get('name')),
+      format: String(values.get('format')),
       plannedRounds: rounds,
       isPublic: true,
       maxPlayers,
@@ -782,12 +728,7 @@ function NewTournament() {
           <div className="grid gap-4 sm:grid-cols-2">
             <label className="text-sm">
               Nombre
-              <input
-                required
-                name="name"
-                className={field}
-                placeholder="Commander de sábado"
-              />
+              <input required name="name" className={field} placeholder="Commander de sábado" />
             </label>
             <label className="text-sm">
               Juego o formato
@@ -828,8 +769,8 @@ function NewTournament() {
             </label>
           </div>
           <p className="text-sm text-slate-300">
-            Los puntos se asignan manualmente a cada jugador cuando se guarda el
-            resultado de su mesa.
+            Los puntos se asignan manualmente a cada jugador cuando se guarda el resultado de su
+            mesa.
           </p>
           <button className={primary}>Crear torneo</button>
         </form>
@@ -859,19 +800,19 @@ function TournamentLayout() {
       </div>
       <nav className="mb-6 flex gap-1 overflow-x-auto rounded-lg border border-slate-700 bg-slate-900 p-1">
         {[
-          ["", "Resumen"],
-          ["players", "Jugadores"],
-          ["rounds", "Rondas"],
-          ["standings", "Clasificación"],
-          ["settings", "Configuración"],
+          ['', 'Resumen'],
+          ['players', 'Jugadores'],
+          ['rounds', 'Rondas'],
+          ['standings', 'Clasificación'],
+          ['settings', 'Configuración'],
         ].map(([suffix, label]) => (
           <NavLink
             end={!suffix}
             className={({ isActive }) =>
-              `whitespace-nowrap rounded-md px-3 py-2 text-sm ${isActive ? "bg-amber-400 font-bold text-slate-950" : "hover:bg-slate-800"}`
+              `whitespace-nowrap rounded-md px-3 py-2 text-sm ${isActive ? 'bg-amber-400 font-bold text-slate-950' : 'hover:bg-slate-800'}`
             }
             key={label}
-            to={`${base}${suffix ? `/${suffix}` : ""}`}
+            to={`${base}${suffix ? `/${suffix}` : ''}`}
           >
             {label}
           </NavLink>
@@ -890,7 +831,7 @@ function TournamentLayout() {
 function Current() {
   const { id } = useParams();
   const tournament = useTournament(id);
-  if (!tournament) throw new Error("Torneo no encontrado");
+  if (!tournament) throw new Error('Torneo no encontrado');
   return tournament;
 }
 function Overview() {
@@ -904,28 +845,22 @@ function Overview() {
           label="Jugadores activos"
           value={tournament.players.filter((p) => p.active).length}
         />
-        <Metric
-          label="Rondas"
-          value={`${tournament.rounds.length}/${tournament.plannedRounds}`}
-        />
-        <Metric
-          label="Mesa actual"
-          value={current ? `R${current.number}` : "—"}
-        />
+        <Metric label="Rondas" value={`${tournament.rounds.length}/${tournament.plannedRounds}`} />
+        <Metric label="Mesa actual" value={current ? `R${current.number}` : '—'} />
       </div>
       {current && (
         <div className="mt-5 rounded-lg bg-slate-950 p-4">
           <p className="font-bold">
-            Ronda {current.number}{" "}
+            Ronda {current.number}{' '}
             <span className="ml-2">
               <Badge>{current.status}</Badge>
             </span>
           </p>
           <p className="mt-2 text-sm text-slate-300">
-            {current.pods.length} mesas generadas.{" "}
-            {current.status === "completada"
-              ? "Resultados registrados."
-              : "Registra los resultados de cada mesa."}
+            {current.pods.length} mesas generadas.{' '}
+            {current.status === 'completada'
+              ? 'Resultados registrados.'
+              : 'Registra los resultados de cada mesa.'}
           </p>
           <Link
             className="mt-3 inline-flex items-center gap-2 rounded-lg bg-amber-400 px-3 py-2 text-sm font-bold text-slate-950 hover:bg-amber-300"
@@ -950,29 +885,28 @@ function Metric({ label, value }: { label: string; value: string | number }) {
 function Players() {
   const tournament = Current();
   const { id } = useParams();
-  const { addPlayers, togglePlayer, removePlayer, renamePlayer } =
-    useTournaments();
-  const [message, setMessage] = useState("");
+  const { addPlayers, togglePlayer, removePlayer, renamePlayer } = useTournaments();
+  const [message, setMessage] = useState('');
   const [adding, setAdding] = useState(false);
-  const [search, setSearch] = useState("");
-  const [editing, setEditing] = useState<Tournament["players"][number]>();
+  const [search, setSearch] = useState('');
+  const [editing, setEditing] = useState<Tournament['players'][number]>();
   const [pending, setPending] = useState<{
-    player: Tournament["players"][number];
-    action: "toggle" | "delete";
+    player: Tournament['players'][number];
+    action: 'toggle' | 'delete';
   }>();
   function add(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const result = addPlayers(
       id!,
-      String(new FormData(event.currentTarget).get("names")).split("\n"),
+      String(new FormData(event.currentTarget).get('names')).split('\n'),
     );
     setMessage(
       result.error ??
         (result.added
-          ? `${result.added} jugador(es) agregado(s).${result.duplicate ? ` Se omitió duplicado: ${result.duplicate}.` : ""}`
+          ? `${result.added} jugador(es) agregado(s).${result.duplicate ? ` Se omitió duplicado: ${result.duplicate}.` : ''}`
           : result.duplicate
             ? `No se agregó ningún jugador; “${result.duplicate}” ya existe.`
-            : "Escribe al menos un nombre."),
+            : 'Escribe al menos un nombre.'),
     );
     setAdding(false);
   }
@@ -982,9 +916,9 @@ function Players() {
     const result = renamePlayer(
       id!,
       editing.id,
-      String(new FormData(event.currentTarget).get("name")),
+      String(new FormData(event.currentTarget).get('name')),
     );
-    setMessage(result ?? "Nombre actualizado.");
+    setMessage(result ?? 'Nombre actualizado.');
     if (!result) setEditing(undefined);
   }
   const normalizedSearch = search.trim().toLocaleLowerCase();
@@ -998,21 +932,19 @@ function Players() {
           <div>
             <h2 className="font-bold">Jugadores</h2>
             <span className="text-sm text-slate-300">
-              {tournament.players.filter((p) => p.active).length} activos ·{" "}
+              {tournament.players.filter((p) => p.active).length} activos ·{' '}
               {tournament.players.length}/{tournament.maxPlayers} cupos usados
             </span>
           </div>
           <button
-            disabled={tournament.status === "finalizado"}
+            disabled={tournament.status === 'finalizado'}
             className={primary}
             onClick={() => setAdding(true)}
           >
             + Agregar jugadores
           </button>
         </div>
-        {message && (
-          <Notice error={message.includes("máximo")}>{message}</Notice>
-        )}
+        {message && <Notice error={message.includes('máximo')}>{message}</Notice>}
         <label className="mb-3 block">
           <span className="sr-only">Buscar jugadores</span>
           <input
@@ -1032,9 +964,9 @@ function Players() {
               <div>
                 <strong>{player.name}</strong>
                 <span
-                  className={`ml-2 text-xs ${player.active ? "text-emerald-300" : "text-slate-400"}`}
+                  className={`ml-2 text-xs ${player.active ? 'text-emerald-300' : 'text-slate-400'}`}
                 >
-                  {player.active ? "Activo" : "Retirado"}
+                  {player.active ? 'Activo' : 'Retirado'}
                 </span>
               </div>
               <div className="flex gap-2">
@@ -1046,13 +978,13 @@ function Players() {
                 </button>
                 <button
                   className="text-xs text-slate-300 underline"
-                  onClick={() => setPending({ player, action: "toggle" })}
+                  onClick={() => setPending({ player, action: 'toggle' })}
                 >
-                  {player.active ? "Retirar" : "Activar"}
+                  {player.active ? 'Retirar' : 'Activar'}
                 </button>
                 <button
                   className="text-xs text-red-300 underline"
-                  onClick={() => setPending({ player, action: "delete" })}
+                  onClick={() => setPending({ player, action: 'delete' })}
                 >
                   Eliminar
                 </button>
@@ -1061,9 +993,7 @@ function Players() {
           ))}
           {!filteredPlayers.length && (
             <p className="text-sm text-slate-400">
-              {search
-                ? "No se encontraron jugadores."
-                : "Aún no hay jugadores."}
+              {search ? 'No se encontraron jugadores.' : 'Aún no hay jugadores.'}
             </p>
           )}
         </div>
@@ -1080,7 +1010,7 @@ function Players() {
               name="names"
               className={field}
               rows={7}
-              placeholder={"Ana\nBruno\nCarla"}
+              placeholder={'Ana\nBruno\nCarla'}
             />
             <div className="flex justify-end gap-3">
               <button
@@ -1104,13 +1034,7 @@ function Players() {
           <form className="space-y-4" onSubmit={edit}>
             <label className="block text-sm">
               Nombre
-              <input
-                autoFocus
-                required
-                name="name"
-                defaultValue={editing.name}
-                className={field}
-              />
+              <input autoFocus required name="name" defaultValue={editing.name} className={field} />
             </label>
             <div className="flex justify-end gap-3">
               <button
@@ -1128,34 +1052,34 @@ function Players() {
       {pending && (
         <ConfirmModal
           title={
-            pending.action === "delete"
-              ? "Eliminar jugador"
+            pending.action === 'delete'
+              ? 'Eliminar jugador'
               : pending.player.active
-                ? "Retirar jugador"
-                : "Activar jugador"
+                ? 'Retirar jugador'
+                : 'Activar jugador'
           }
           description={
-            pending.action === "delete"
+            pending.action === 'delete'
               ? `¿Eliminar a ${pending.player.name}? No se puede eliminar a alguien que ya esté en una ronda.`
               : pending.player.active
                 ? `${pending.player.name} no se incluirá en las próximas rondas.`
                 : `${pending.player.name} volverá a incluirse en las próximas rondas.`
           }
-          confirmLabel={pending.action === "delete" ? "Eliminar" : "Confirmar"}
-          destructive={pending.action === "delete"}
+          confirmLabel={pending.action === 'delete' ? 'Eliminar' : 'Confirmar'}
+          destructive={pending.action === 'delete'}
           onClose={() => setPending(undefined)}
           onConfirm={() => {
             const result =
-              pending.action === "delete"
+              pending.action === 'delete'
                 ? removePlayer(id!, pending.player.id)
                 : (togglePlayer(id!, pending.player.id), undefined);
             setMessage(
               result ??
-                (pending.action === "delete"
-                  ? "Jugador eliminado."
+                (pending.action === 'delete'
+                  ? 'Jugador eliminado.'
                   : pending.player.active
-                    ? "Jugador retirado."
-                    : "Jugador activado."),
+                    ? 'Jugador retirado.'
+                    : 'Jugador activado.'),
             );
             setPending(undefined);
           }}
@@ -1168,28 +1092,17 @@ function Players() {
 function Rounds() {
   const tournament = Current();
   const { id } = useParams();
-  const {
-    generateRound,
-    deleteLastRound,
-    startRound,
-    completeRound,
-    movePlayer,
-  } = useTournaments();
-  const [message, setMessage] = useState("");
+  const { generateRound, deleteLastRound, startRound, completeRound, movePlayer } =
+    useTournaments();
+  const [message, setMessage] = useState('');
   const [deletingLast, setDeletingLast] = useState(false);
-  const [roundToComplete, setRoundToComplete] =
-    useState<Tournament["rounds"][number]>();
+  const [roundToComplete, setRoundToComplete] = useState<Tournament['rounds'][number]>();
   const [selectedRoundId, setSelectedRoundId] = useState<string>();
   const [draggedPlayer, setDraggedPlayer] = useState<string>();
   const last = tournament.rounds.at(-1);
-  const hasOpenRound = tournament.rounds.some(
-    (round) => round.status !== "completada",
-  );
-  const names = Object.fromEntries(
-    tournament.players.map((player) => [player.id, player.name]),
-  );
-  const selectedRound =
-    tournament.rounds.find((round) => round.id === selectedRoundId) ?? last;
+  const hasOpenRound = tournament.rounds.some((round) => round.status !== 'completada');
+  const names = Object.fromEntries(tournament.players.map((player) => [player.id, player.name]));
+  const selectedRound = tournament.rounds.find((round) => round.id === selectedRoundId) ?? last;
   const selectedIndex = selectedRound
     ? tournament.rounds.findIndex((round) => round.id === selectedRound.id)
     : -1;
@@ -1206,32 +1119,27 @@ function Rounds() {
           <button
             disabled={selectedIndex <= 0}
             className="rounded-lg border border-slate-500 px-4 py-2 text-sm font-semibold hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-50"
-            onClick={() =>
-              setSelectedRoundId(tournament.rounds[selectedIndex - 1].id)
-            }
+            onClick={() => setSelectedRoundId(tournament.rounds[selectedIndex - 1].id)}
           >
             Anterior
           </button>
           <button
             disabled={selectedIndex >= tournament.rounds.length - 1}
             className="rounded-lg border border-slate-500 px-4 py-2 text-sm font-semibold hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-50"
-            onClick={() =>
-              setSelectedRoundId(tournament.rounds[selectedIndex + 1].id)
-            }
+            onClick={() => setSelectedRoundId(tournament.rounds[selectedIndex + 1].id)}
           >
             Siguiente
           </button>
           <button
             disabled={
-              tournament.status === "finalizado" ||
+              tournament.status === 'finalizado' ||
               hasOpenRound ||
               tournament.rounds.length >= tournament.plannedRounds
             }
             className={`${primary} inline-flex items-center gap-2`}
             onClick={() =>
               setMessage(
-                generateRound(id!) ??
-                  "Ronda generada. Iníciala cuando las mesas estén listas.",
+                generateRound(id!) ?? 'Ronda generada. Iníciala cuando las mesas estén listas.',
               )
             }
           >
@@ -1251,11 +1159,11 @@ function Rounds() {
       {message && (
         <Notice
           error={
-            message.includes("requieren") ||
-            message.includes("Completa") ||
-            message.includes("finalizado") ||
-            message.includes("Primero") ||
-            message.includes("Espera")
+            message.includes('requieren') ||
+            message.includes('Completa') ||
+            message.includes('finalizado') ||
+            message.includes('Primero') ||
+            message.includes('Espera')
           }
         >
           {message}
@@ -1266,7 +1174,7 @@ function Rounds() {
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div className="flex flex-wrap items-center gap-3">
               <h3 className="font-bold">
-                Ronda {selectedRound.number}{" "}
+                Ronda {selectedRound.number}{' '}
                 <span className="ml-2">
                   <Badge>{selectedRound.status}</Badge>
                 </span>
@@ -1285,15 +1193,12 @@ function Rounds() {
                 <ExternalLink size={14} />
               </Link>
               <button
-                disabled={
-                  selectedRound.status !== "borrador" ||
-                  tournament.status === "finalizado"
-                }
+                disabled={selectedRound.status !== 'borrador' || tournament.status === 'finalizado'}
                 className="inline-flex items-center gap-2 rounded-lg bg-emerald-600 px-3 py-2 text-sm font-bold text-white hover:bg-emerald-500 disabled:cursor-not-allowed disabled:opacity-50"
                 onClick={() =>
                   setMessage(
                     startRound(id!, selectedRound.id) ??
-                      "Ronda iniciada. El cronómetro está en marcha.",
+                      'Ronda iniciada. El cronómetro está en marcha.',
                   )
                 }
               >
@@ -1301,10 +1206,7 @@ function Rounds() {
                 Iniciar ronda
               </button>
               <button
-                disabled={
-                  selectedRound.status !== "activa" ||
-                  tournament.status === "finalizado"
-                }
+                disabled={selectedRound.status !== 'activa' || tournament.status === 'finalizado'}
                 className="inline-flex items-center gap-2 rounded-lg bg-red-700 px-3 py-2 text-sm font-bold text-white hover:bg-red-600 disabled:cursor-not-allowed disabled:opacity-50"
                 onClick={() => setRoundToComplete(selectedRound)}
               >
@@ -1313,15 +1215,15 @@ function Rounds() {
               </button>
             </div>
           </div>
-          {selectedRound.status === "borrador" && (
+          {selectedRound.status === 'borrador' && (
             <p className="mt-3 text-sm text-slate-300">
-              Arrastra un jugador hacia otra mesa para reorganizarla. Cada mesa
-              debe quedar con 3 a 5 jugadores.
+              Arrastra un jugador hacia otra mesa para reorganizarla. Cada mesa debe quedar con 3 a
+              5 jugadores.
             </p>
           )}
           <div className="mt-4 grid gap-3 md:grid-cols-2">
             {selectedRound.pods.map((pod) =>
-              selectedRound.status === "borrador" ? (
+              selectedRound.status === 'borrador' ? (
                 <DraftPodCard
                   key={pod.id}
                   pod={pod}
@@ -1329,12 +1231,7 @@ function Rounds() {
                   draggedPlayer={draggedPlayer}
                   onDragStart={setDraggedPlayer}
                   onDrop={(playerId) => {
-                    const error = movePlayer(
-                      id!,
-                      selectedRound.id,
-                      playerId,
-                      pod.id,
-                    );
+                    const error = movePlayer(id!, selectedRound.id, playerId, pod.id);
                     if (error) setMessage(error);
                   }}
                 />
@@ -1344,12 +1241,9 @@ function Rounds() {
                   tournamentId={id!}
                   roundId={selectedRound.id}
                   pod={pod}
-                  readOnly={
-                    tournament.status === "finalizado" ||
-                    selectedRound.status !== "activa"
-                  }
+                  readOnly={tournament.status === 'finalizado' || selectedRound.status !== 'activa'}
                   names={names}
-                  editable={selectedRound.status === "activa"}
+                  editable={selectedRound.status === 'activa'}
                 />
               ),
             )}
@@ -1357,8 +1251,7 @@ function Rounds() {
         </article>
       ) : (
         <div className={`${panel} text-sm text-slate-300`}>
-          No hay rondas todavía. Agrega al menos tres jugadores activos y genera
-          la primera.
+          No hay rondas todavía. Agrega al menos tres jugadores activos y genera la primera.
         </div>
       )}
       {deletingLast && last && (
@@ -1366,16 +1259,15 @@ function Rounds() {
           title="Eliminar última ronda"
           description={
             last.pods.some((p) => p.results?.length)
-              ? "Se eliminarán las mesas y resultados de esta ronda. Esta acción no se puede deshacer."
-              : "Se eliminarán las mesas de esta ronda."
+              ? 'Se eliminarán las mesas y resultados de esta ronda. Esta acción no se puede deshacer.'
+              : 'Se eliminarán las mesas de esta ronda.'
           }
           confirmLabel="Eliminar ronda"
           destructive
           onClose={() => setDeletingLast(false)}
           onConfirm={() => {
             setMessage(
-              deleteLastRound(id!) ??
-                "Última ronda eliminada y clasificación recalculada.",
+              deleteLastRound(id!) ?? 'Última ronda eliminada y clasificación recalculada.',
             );
             setDeletingLast(false);
           }}
@@ -1391,7 +1283,7 @@ function Rounds() {
           onConfirm={() => {
             setMessage(
               completeRound(id!, roundToComplete.id) ??
-                "Ronda terminada. La clasificación se actualizó.",
+                'Ronda terminada. La clasificación se actualizó.',
             );
             setRoundToComplete(undefined);
           }}
@@ -1419,16 +1311,13 @@ function DraftPodCard({
       onDragOver={(event) => event.preventDefault()}
       onDrop={(event) => {
         event.preventDefault();
-        const playerId =
-          event.dataTransfer.getData("text/plain") || draggedPlayer;
+        const playerId = event.dataTransfer.getData('text/plain') || draggedPlayer;
         if (playerId) onDrop(playerId);
       }}
     >
       <h4 className="font-bold text-amber-300">
-        Mesa {pod.number}{" "}
-        <span className="text-xs font-normal text-slate-400">
-          ({pod.playerIds.length}/5)
-        </span>
+        Mesa {pod.number}{' '}
+        <span className="text-xs font-normal text-slate-400">({pod.playerIds.length}/5)</span>
       </h4>
       <div className="mt-3 grid gap-2">
         {pod.playerIds.map((playerId) => (
@@ -1436,7 +1325,7 @@ function DraftPodCard({
             type="button"
             draggable
             onDragStart={(event) => {
-              event.dataTransfer.setData("text/plain", playerId);
+              event.dataTransfer.setData('text/plain', playerId);
               onDragStart(playerId);
             }}
             className="cursor-grab rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-left text-sm font-semibold active:cursor-grabbing"
@@ -1465,7 +1354,7 @@ function PodCard({
   editable: boolean;
 }) {
   const { savePod } = useTournaments();
-  const [message, setMessage] = useState("");
+  const [message, setMessage] = useState('');
   function save(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const form = new FormData(event.currentTarget);
@@ -1479,7 +1368,7 @@ function PodCard({
     };
     setMessage(
       savePod(tournamentId, roundId, pod.id, next) ??
-        "Resultado guardado. La clasificación se actualizó.",
+        'Resultado guardado. La clasificación se actualizó.',
     );
   }
   return (
@@ -1488,30 +1377,20 @@ function PodCard({
       {!editable && (
         <div className="mt-3 grid gap-2">
           {pod.playerIds.map((playerId) => {
-            const result = pod.results?.find(
-              (item) => item.playerId === playerId,
-            );
+            const result = pod.results?.find((item) => item.playerId === playerId);
             return (
               <section
                 className="overflow-hidden rounded-lg border border-slate-700 bg-slate-900"
                 key={playerId}
               >
-                <h5 className="px-3 py-2 text-sm font-semibold">
-                  {names[playerId]}
-                </h5>
+                <h5 className="px-3 py-2 text-sm font-semibold">{names[playerId]}</h5>
                 {result ? (
                   <div className="grid grid-cols-2 border-t border-slate-700 text-xs">
                     <p className="border-r border-slate-700 px-3 py-2 text-slate-300">
-                      Puntos{" "}
-                      <strong className="ml-1 text-slate-100">
-                        {result.points}
-                      </strong>
+                      Puntos <strong className="ml-1 text-slate-100">{result.points}</strong>
                     </p>
                     <p className="px-3 py-2 text-slate-300">
-                      Kills{" "}
-                      <strong className="ml-1 text-slate-100">
-                        {result.kills}
-                      </strong>
+                      Kills <strong className="ml-1 text-slate-100">{result.kills}</strong>
                     </p>
                   </div>
                 ) : (
@@ -1535,9 +1414,7 @@ function PodCard({
                 className="overflow-hidden rounded-lg border border-slate-700 bg-slate-900"
                 key={playerId}
               >
-                <h5 className="px-4 py-3 text-sm font-semibold">
-                  {names[playerId]}
-                </h5>
+                <h5 className="px-4 py-3 text-sm font-semibold">{names[playerId]}</h5>
                 <div className="grid grid-cols-2 border-t border-slate-700">
                   <label className="border-r border-slate-700 p-3 text-xs font-semibold text-slate-300">
                     Puntos
@@ -1545,10 +1422,7 @@ function PodCard({
                       required
                       min="0"
                       name={`points-${playerId}`}
-                      defaultValue={
-                        pod.results?.find((r) => r.playerId === playerId)
-                          ?.points ?? ""
-                      }
+                      defaultValue={pod.results?.find((r) => r.playerId === playerId)?.points ?? ''}
                       type="number"
                       className="mt-2 w-full rounded-md border border-slate-600 bg-slate-950 px-3 py-2 text-sm text-slate-100 outline-none focus:border-amber-400"
                     />
@@ -1559,10 +1433,7 @@ function PodCard({
                       required
                       min="0"
                       name={`kills-${playerId}`}
-                      defaultValue={
-                        pod.results?.find((r) => r.playerId === playerId)
-                          ?.kills ?? 0
-                      }
+                      defaultValue={pod.results?.find((r) => r.playerId === playerId)?.kills ?? 0}
                       type="number"
                       className="mt-2 w-full rounded-md border border-slate-600 bg-slate-950 px-3 py-2 text-sm text-slate-100 outline-none focus:border-amber-400"
                     />
@@ -1571,9 +1442,7 @@ function PodCard({
               </section>
             ))}
           </div>
-          {message && (
-            <Notice error={message.includes("Completa")}>{message}</Notice>
-          )}
+          {message && <Notice error={message.includes('Completa')}>{message}</Notice>}
           <button disabled={readOnly} className={primary}>
             Guardar resultado
           </button>
@@ -1586,8 +1455,7 @@ function Standings() {
   const tournament = Current();
   const { id } = useParams();
   const rows = useTournaments().standingsFor(id!);
-  const opponentHelp =
-    "Suma de los puntos obtenidos por las personas contra quienes jugaste.";
+  const opponentHelp = 'Suma de los puntos obtenidos por las personas contra quienes jugaste.';
   return (
     <section className={panel}>
       <h2 className="text-xl font-bold">Clasificación</h2>
@@ -1621,9 +1489,7 @@ function Standings() {
                 <td className="p-2">
                   {row.player.name}
                   {!row.player.active && (
-                    <span className="ml-2 text-xs text-slate-500">
-                      Retirado
-                    </span>
+                    <span className="ml-2 text-xs text-slate-500">Retirado</span>
                   )}
                 </td>
                 <td className="p-2 font-bold">{row.points}</td>
@@ -1648,14 +1514,14 @@ function Settings() {
   const tournament = Current();
   const { id } = useParams();
   const { updateTournament } = useTournaments();
-  const [message, setMessage] = useState("");
-  const [statusAction, setStatusAction] = useState<"finalizar" | "reabrir">();
+  const [message, setMessage] = useState('');
+  const [statusAction, setStatusAction] = useState<'finalizar' | 'reabrir'>();
   function save(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const form = new FormData(event.currentTarget);
-    const plannedRounds = Number(form.get("rounds"));
-    const maxPlayers = Number(form.get("maxPlayers"));
-    const maxTables = Number(form.get("maxTables"));
+    const plannedRounds = Number(form.get('rounds'));
+    const maxPlayers = Number(form.get('maxPlayers'));
+    const maxTables = Number(form.get('maxTables'));
     if (
       !Number.isInteger(plannedRounds) ||
       plannedRounds < tournament.rounds.length ||
@@ -1674,47 +1540,31 @@ function Settings() {
         `El máximo debe cubrir los ${tournament.players.length} jugadores actuales y al menos una mesa.`,
       );
     updateTournament(id!, {
-      name: String(form.get("name")).trim(),
-      format: String(form.get("format")).trim(),
+      name: String(form.get('name')).trim(),
+      format: String(form.get('format')).trim(),
       plannedRounds,
       maxPlayers,
       maxTables,
       isPublic: true,
     });
-    setMessage("Configuración guardada.");
+    setMessage('Configuración guardada.');
   }
-  const canFinish = !tournament.rounds.some(
-    (round) => round.status !== "completada",
-  );
+  const canFinish = !tournament.rounds.some((round) => round.status !== 'completada');
   return (
     <section className="grid gap-5 lg:grid-cols-3">
       <form onSubmit={save} className={`${panel} space-y-4 lg:col-span-2`}>
         <h2 className="text-xl font-bold">Configuración del torneo</h2>
         {message && (
-          <Notice
-            error={message.includes("deben") || message.includes("máximo")}
-          >
-            {message}
-          </Notice>
+          <Notice error={message.includes('deben') || message.includes('máximo')}>{message}</Notice>
         )}
         <div className="grid gap-3 sm:grid-cols-2">
           <label className="text-sm">
             Nombre
-            <input
-              required
-              name="name"
-              defaultValue={tournament.name}
-              className={field}
-            />
+            <input required name="name" defaultValue={tournament.name} className={field} />
           </label>
           <label className="text-sm">
             Formato
-            <input
-              required
-              name="format"
-              defaultValue={tournament.format}
-              className={field}
-            />
+            <input required name="format" defaultValue={tournament.format} className={field} />
           </label>
           <label className="text-sm">
             Rondas planificadas
@@ -1750,26 +1600,20 @@ function Settings() {
             />
           </label>
         </div>
-        <p className="text-sm text-slate-300">
-          Los puntos se registran manualmente en cada mesa.
-        </p>
-        <button
-          disabled={tournament.status === "finalizado"}
-          className={primary}
-        >
+        <p className="text-sm text-slate-300">Los puntos se registran manualmente en cada mesa.</p>
+        <button disabled={tournament.status === 'finalizado'} className={primary}>
           Guardar cambios
         </button>
       </form>
       <aside className={panel}>
         <h2 className="font-bold">Estado</h2>
         <p className="mt-2 text-sm text-slate-300">
-          Finalizar bloquea las ediciones. Puede reabrirse mediante
-          confirmación.
+          Finalizar bloquea las ediciones. Puede reabrirse mediante confirmación.
         </p>
-        {tournament.status === "finalizado" ? (
+        {tournament.status === 'finalizado' ? (
           <button
             className="mt-4 rounded-lg border border-amber-400 px-3 py-2 text-sm text-amber-300"
-            onClick={() => setStatusAction("reabrir")}
+            onClick={() => setStatusAction('reabrir')}
           >
             Reabrir torneo
           </button>
@@ -1777,34 +1621,28 @@ function Settings() {
           <button
             disabled={!canFinish}
             className={`${primary} mt-4`}
-            onClick={() => setStatusAction("finalizar")}
+            onClick={() => setStatusAction('finalizar')}
           >
             Finalizar torneo
           </button>
         )}
         {!canFinish && (
-          <p className="mt-2 text-xs text-red-300">
-            Completa la ronda activa antes de finalizar.
-          </p>
+          <p className="mt-2 text-xs text-red-300">Completa la ronda activa antes de finalizar.</p>
         )}
       </aside>
       {statusAction && (
         <ConfirmModal
-          title={
-            statusAction === "finalizar" ? "Finalizar torneo" : "Reabrir torneo"
-          }
+          title={statusAction === 'finalizar' ? 'Finalizar torneo' : 'Reabrir torneo'}
           description={
-            statusAction === "finalizar"
-              ? "El torneo quedará en solo lectura."
-              : "El torneo volverá a permitir cambios."
+            statusAction === 'finalizar'
+              ? 'El torneo quedará en solo lectura.'
+              : 'El torneo volverá a permitir cambios.'
           }
-          confirmLabel={
-            statusAction === "finalizar" ? "Finalizar torneo" : "Reabrir torneo"
-          }
+          confirmLabel={statusAction === 'finalizar' ? 'Finalizar torneo' : 'Reabrir torneo'}
           onClose={() => setStatusAction(undefined)}
           onConfirm={() => {
             updateTournament(id!, {
-              status: statusAction === "finalizar" ? "finalizado" : "activo",
+              status: statusAction === 'finalizar' ? 'finalizado' : 'activo',
             });
             setStatusAction(undefined);
           }}
@@ -1819,7 +1657,7 @@ function PublicView() {
   const [loading, setLoading] = useState(true);
   useEffect(() => {
     let active = true;
-    void loadPublicTournament(slug ?? "")
+    void loadPublicTournament(slug ?? '')
       .then((data) => {
         if (active) setTournament(data);
       })
@@ -1831,11 +1669,7 @@ function PublicView() {
     };
   }, [slug]);
   if (loading)
-    return (
-      <div className="min-h-screen bg-slate-950 p-8 text-slate-300">
-        Cargando ronda…
-      </div>
-    );
+    return <div className="min-h-screen bg-slate-950 p-8 text-slate-300">Cargando ronda…</div>;
   if (!tournament)
     return (
       <div className="min-h-screen bg-slate-950 p-8 text-red-300">
@@ -1843,15 +1677,11 @@ function PublicView() {
       </div>
     );
   const round = tournament.rounds.at(-1);
-  const names = Object.fromEntries(
-    tournament.players.map((player) => [player.id, player.name]),
-  );
+  const names = Object.fromEntries(tournament.players.map((player) => [player.id, player.name]));
   return (
     <main className="min-h-screen bg-slate-950 px-4 py-8 sm:px-6 lg:px-8">
       <div className="mx-auto w-full max-w-[1800px]">
-        <p className="text-xs font-bold tracking-[.16em] text-amber-300">
-          INFORMACIÓN DEL TORNEO
-        </p>
+        <p className="text-xs font-bold tracking-[.16em] text-amber-300">INFORMACIÓN DEL TORNEO</p>
         <h1 className="mt-1 text-3xl font-black">{tournament.name}</h1>
         <p className="mt-1 text-slate-300">{tournament.format}</p>
         {round ? (
@@ -1866,18 +1696,14 @@ function PublicView() {
                   className="rounded-lg border border-slate-700 bg-slate-950 p-4"
                   key={pod.id}
                 >
-                  <h3 className="font-bold text-amber-300">
-                    Mesa {pod.number}
-                  </h3>
+                  <h3 className="font-bold text-amber-300">Mesa {pod.number}</h3>
                   <div className="mt-3 grid gap-3">
                     {pod.playerIds.map((playerId) => (
                       <section
                         className="rounded-lg border border-slate-700 bg-slate-900 px-4 py-3"
                         key={playerId}
                       >
-                        <h4 className="text-sm font-semibold">
-                          {names[playerId]}
-                        </h4>
+                        <h4 className="text-sm font-semibold">{names[playerId]}</h4>
                       </section>
                     ))}
                   </div>
@@ -1904,9 +1730,7 @@ function AdminRoute() {
   if (loading)
     return (
       <Layout>
-        <p className="text-sm text-slate-300">
-          Verificando permisos de administración…
-        </p>
+        <p className="text-sm text-slate-300">Verificando permisos de administración…</p>
       </Layout>
     );
   if (!user) return <Navigate to="/login" replace />;
@@ -1917,15 +1741,15 @@ function AdminRoute() {
 const displayDate = (value: string) => {
   const date = new Date(value);
   return Number.isNaN(date.getTime())
-    ? "—"
-    : new Intl.DateTimeFormat("es-CR", { dateStyle: "medium" }).format(date);
+    ? '—'
+    : new Intl.DateTimeFormat('es-CR', { dateStyle: 'medium' }).format(date);
 };
 const roleLabel = (role: AppRole) =>
-  role === "super_admin"
-    ? "Super administrador"
-    : role === "admin"
-      ? "Administrador"
-      : "Organizador";
+  role === 'super_admin'
+    ? 'Super administrador'
+    : role === 'admin'
+      ? 'Administrador'
+      : 'Organizador';
 
 function AdminDashboard() {
   const { user, isSuperAdmin } = useAuth();
@@ -1935,11 +1759,11 @@ function AdminDashboard() {
   const [changingRole, setChangingRole] = useState<string>();
   const [managedUsers, setManagedUsers] = useState<ManagedUser[]>([]);
   const [editingUser, setEditingUser] = useState<ManagedUser>();
-  const [profileSearch, setProfileSearch] = useState("");
-  const [tournamentSearch, setTournamentSearch] = useState("");
-  const [adminTab, setAdminTab] = useState<
-    "accounts" | "tournaments" | "players" | "details"
-  >("accounts");
+  const [profileSearch, setProfileSearch] = useState('');
+  const [tournamentSearch, setTournamentSearch] = useState('');
+  const [adminTab, setAdminTab] = useState<'accounts' | 'tournaments' | 'players' | 'details'>(
+    'accounts',
+  );
 
   const refresh = async () => {
     setRefreshing(true);
@@ -1950,7 +1774,7 @@ function AdminDashboard() {
       setError(
         reason instanceof Error
           ? reason.message
-          : "No se pudo cargar la información administrativa.",
+          : 'No se pudo cargar la información administrativa.',
       );
     } finally {
       setRefreshing(false);
@@ -1963,9 +1787,7 @@ function AdminDashboard() {
       await updateProfileRole(profileId, role);
       await refresh();
     } catch (reason) {
-      setError(
-        reason instanceof Error ? reason.message : "No se pudo cambiar el rol.",
-      );
+      setError(reason instanceof Error ? reason.message : 'No se pudo cambiar el rol.');
     } finally {
       setChangingRole(undefined);
     }
@@ -1979,9 +1801,7 @@ function AdminDashboard() {
       setManagedUsers(await listManagedUsers());
     } catch (reason) {
       setError(
-        reason instanceof Error
-          ? reason.message
-          : "No se pudieron cargar los perfiles editables.",
+        reason instanceof Error ? reason.message : 'No se pudieron cargar los perfiles editables.',
       );
     }
   };
@@ -1999,29 +1819,17 @@ function AdminDashboard() {
       await deleteManagedUser(target.id);
       await Promise.all([refresh(), refreshManagedUsers()]);
     } catch (reason) {
-      setError(
-        reason instanceof Error
-          ? reason.message
-          : "No se pudo eliminar la cuenta.",
-      );
+      setError(reason instanceof Error ? reason.message : 'No se pudo eliminar la cuenta.');
     }
   };
 
-  const profilesById = new Map(
-    overview?.profiles.map((profile) => [profile.id, profile]),
-  );
+  const profilesById = new Map(overview?.profiles.map((profile) => [profile.id, profile]));
   const playerCount =
-    overview?.tournaments.reduce(
-      (total, tournament) => total + tournament.playerCount,
-      0,
-    ) ?? 0;
+    overview?.tournaments.reduce((total, tournament) => total + tournament.playerCount, 0) ?? 0;
   const activeTournaments =
-    overview?.tournaments.filter((tournament) => tournament.status === "activo")
-      .length ?? 0;
+    overview?.tournaments.filter((tournament) => tournament.status === 'activo').length ?? 0;
   const accountProfiles =
-    overview?.profiles.filter(
-      (profile) => isSuperAdmin || profile.role !== "super_admin",
-    ) ?? [];
+    overview?.profiles.filter((profile) => isSuperAdmin || profile.role !== 'super_admin') ?? [];
   const visibleProfiles = accountProfiles.filter((profile) =>
     `${profile.displayName} ${profile.role}`
       .toLocaleLowerCase()
@@ -2029,7 +1837,7 @@ function AdminDashboard() {
   );
   const visibleTournaments =
     overview?.tournaments.filter((tournament) =>
-      `${tournament.name} ${tournament.format} ${profilesById.get(tournament.ownerId)?.displayName ?? ""}`
+      `${tournament.name} ${tournament.format} ${profilesById.get(tournament.ownerId)?.displayName ?? ''}`
         .toLocaleLowerCase()
         .includes(tournamentSearch.toLocaleLowerCase()),
     ) ?? [];
@@ -2044,8 +1852,7 @@ function AdminDashboard() {
           </p>
           <h1 className="mt-1 text-3xl font-black">Administración</h1>
           <p className="mt-2 max-w-2xl text-sm text-slate-300">
-            Vista global de la aplicación. Solo un super admin puede cambiar
-            roles.
+            Vista global de la aplicación. Solo un super admin puede cambiar roles.
           </p>
         </div>
         <button
@@ -2054,8 +1861,8 @@ function AdminDashboard() {
           disabled={refreshing}
           onClick={() => void refresh()}
         >
-          <RefreshCw size={16} className={refreshing ? "animate-spin" : ""} />
-          {refreshing ? "Actualizando…" : "Actualizar"}
+          <RefreshCw size={16} className={refreshing ? 'animate-spin' : ''} />
+          {refreshing ? 'Actualizando…' : 'Actualizar'}
         </button>
       </div>
       {error && (
@@ -2067,54 +1874,49 @@ function AdminDashboard() {
         <AdminMetric
           icon={<Users size={19} />}
           label="Cuentas"
-          value={overview ? accountProfiles.length : "—"}
+          value={overview ? accountProfiles.length : '—'}
         />
         <AdminMetric
           icon={<ShieldCheck size={19} />}
           label="Acceso admin"
-          value={
-            overview?.profiles.filter((profile) => profile.role === "admin")
-              .length ?? "—"
-          }
+          value={overview?.profiles.filter((profile) => profile.role === 'admin').length ?? '—'}
         />
         <AdminMetric
           icon={<Trophy size={19} />}
           label="Torneos activos"
-          value={overview ? activeTournaments : "—"}
+          value={overview ? activeTournaments : '—'}
         />
         <AdminMetric
           icon={<Database size={19} />}
           label="Jugadores registrados"
-          value={overview ? playerCount : "—"}
+          value={overview ? playerCount : '—'}
         />
       </section>
       {!overview && !error && (
-        <p className="text-sm text-slate-300">
-          Cargando información de Supabase…
-        </p>
+        <p className="text-sm text-slate-300">Cargando información de Supabase…</p>
       )}
       {overview && (
         <>
           <nav className="mb-7 flex gap-1 overflow-x-auto rounded-lg border border-slate-700 bg-slate-900 p-1">
             {(
               [
-                ["accounts", "Cuentas"],
-                ["tournaments", "Torneos"],
-                ["players", "Jugadores activos"],
-                ["details", "Datos completos"],
+                ['accounts', 'Cuentas'],
+                ['tournaments', 'Torneos'],
+                ['players', 'Jugadores activos'],
+                ['details', 'Datos completos'],
               ] as const
             ).map(([tab, label]) => (
               <button
                 key={tab}
                 type="button"
                 onClick={() => setAdminTab(tab)}
-                className={`whitespace-nowrap rounded-md px-3 py-2 text-sm ${adminTab === tab ? "bg-amber-400 font-bold text-slate-950" : "hover:bg-slate-800"}`}
+                className={`whitespace-nowrap rounded-md px-3 py-2 text-sm ${adminTab === tab ? 'bg-amber-400 font-bold text-slate-950' : 'hover:bg-slate-800'}`}
               >
                 {label}
               </button>
             ))}
           </nav>
-          <div className={adminTab === "accounts" ? "" : "hidden"}>
+          <div className={adminTab === 'accounts' ? '' : 'hidden'}>
             <section className={`${panel} mb-7 overflow-hidden p-0`}>
               <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-700 px-5 py-4">
                 <div>
@@ -2127,9 +1929,7 @@ function AdminDashboard() {
                     className="w-52 rounded-lg border border-slate-600 bg-slate-950 px-3 py-2 text-sm text-slate-100 outline-none focus:border-amber-400"
                     placeholder="Buscar cuenta"
                   />
-                  <span className="text-sm text-slate-400">
-                    {accountProfiles.length} en total
-                  </span>
+                  <span className="text-sm text-slate-400">{accountProfiles.length} en total</span>
                 </div>
               </div>
               <div className="max-h-96 overflow-auto">
@@ -2145,13 +1945,8 @@ function AdminDashboard() {
                   </thead>
                   <tbody>
                     {visibleProfiles.map((profile) => (
-                      <tr
-                        key={profile.id}
-                        className="border-b border-slate-700 last:border-0"
-                      >
-                        <td className="px-5 py-3 font-semibold">
-                          {profile.displayName}
-                        </td>
+                      <tr key={profile.id} className="border-b border-slate-700 last:border-0">
+                        <td className="px-5 py-3 font-semibold">{profile.displayName}</td>
                         <td className="px-5 py-3">
                           {isSuperAdmin && profile.id !== user?.id ? (
                             <select
@@ -2159,10 +1954,7 @@ function AdminDashboard() {
                               value={profile.role}
                               disabled={changingRole === profile.id}
                               onChange={(event) =>
-                                void changeRole(
-                                  profile.id,
-                                  event.target.value as AssignableRole,
-                                )
+                                void changeRole(profile.id, event.target.value as AssignableRole)
                               }
                               className="rounded-md border border-slate-500 bg-slate-950 px-2 py-1 text-xs font-semibold disabled:cursor-not-allowed disabled:opacity-50"
                             >
@@ -2172,9 +1964,9 @@ function AdminDashboard() {
                           ) : (
                             <span
                               className={
-                                profile.role !== "organizer"
-                                  ? "rounded-md bg-amber-400 px-2 py-1 text-xs font-bold text-slate-950"
-                                  : "rounded-md bg-slate-800 px-2 py-1 text-xs font-semibold"
+                                profile.role !== 'organizer'
+                                  ? 'rounded-md bg-amber-400 px-2 py-1 text-xs font-bold text-slate-950'
+                                  : 'rounded-md bg-slate-800 px-2 py-1 text-xs font-semibold'
                               }
                             >
                               {roleLabel(profile.role)}
@@ -2193,18 +1985,14 @@ function AdminDashboard() {
                         <td className="px-5 py-3">
                           {isSuperAdmin &&
                           profile.id !== user?.id &&
-                          managedUsers.find(
-                            (managed) => managed.id === profile.id,
-                          ) ? (
+                          managedUsers.find((managed) => managed.id === profile.id) ? (
                             <div className="flex gap-2">
                               <button
                                 type="button"
                                 className="rounded-md border border-slate-500 px-2 py-1 text-xs font-semibold hover:bg-slate-800"
                                 onClick={() =>
                                   setEditingUser(
-                                    managedUsers.find(
-                                      (managed) => managed.id === profile.id,
-                                    ),
+                                    managedUsers.find((managed) => managed.id === profile.id),
                                   )
                                 }
                               >
@@ -2215,9 +2003,7 @@ function AdminDashboard() {
                                 className="rounded-md bg-red-700 px-2 py-1 text-xs font-bold text-white hover:bg-red-600"
                                 onClick={() =>
                                   void removeProfile(
-                                    managedUsers.find(
-                                      (managed) => managed.id === profile.id,
-                                    )!,
+                                    managedUsers.find((managed) => managed.id === profile.id)!,
                                   )
                                 }
                               >
@@ -2243,7 +2029,7 @@ function AdminDashboard() {
             </section>
             {isSuperAdmin && <SuperAdminUserManagement />}
           </div>
-          <div className={adminTab === "tournaments" ? "" : "hidden"}>
+          <div className={adminTab === 'tournaments' ? '' : 'hidden'}>
             <section className={`${panel} overflow-hidden p-0`}>
               <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-700 px-5 py-4">
                 <div>
@@ -2252,9 +2038,7 @@ function AdminDashboard() {
                 <div className="flex items-center gap-2">
                   <input
                     value={tournamentSearch}
-                    onChange={(event) =>
-                      setTournamentSearch(event.target.value)
-                    }
+                    onChange={(event) => setTournamentSearch(event.target.value)}
                     className="w-52 rounded-lg border border-slate-600 bg-slate-950 px-3 py-2 text-sm text-slate-100 outline-none focus:border-amber-400"
                     placeholder="Buscar torneo"
                   />
@@ -2278,39 +2062,27 @@ function AdminDashboard() {
                   </thead>
                   <tbody>
                     {visibleTournaments.map((tournament) => (
-                      <tr
-                        key={tournament.id}
-                        className="border-b border-slate-700 last:border-0"
-                      >
+                      <tr key={tournament.id} className="border-b border-slate-700 last:border-0">
                         <td className="px-5 py-3">
                           <strong className="block">{tournament.name}</strong>
                           <span className="text-xs text-slate-400">
-                            {tournament.format} ·{" "}
-                            {displayDate(tournament.createdAt)}
+                            {tournament.format} · {displayDate(tournament.createdAt)}
                           </span>
                         </td>
                         <td className="px-5 py-3 text-slate-300">
                           {profilesById.get(tournament.ownerId)?.displayName ??
-                            "Organizador eliminado"}
+                            'Organizador eliminado'}
                         </td>
                         <td className="px-5 py-3">
                           <Badge>{tournament.status}</Badge>
                         </td>
-                        <td className="px-5 py-3 tabular-nums">
-                          {tournament.playerCount}
-                        </td>
-                        <td className="px-5 py-3 tabular-nums">
-                          {tournament.roundCount}
-                        </td>
+                        <td className="px-5 py-3 tabular-nums">{tournament.playerCount}</td>
+                        <td className="px-5 py-3 tabular-nums">{tournament.roundCount}</td>
                         <td className="px-5 py-3">
                           <span
-                            className={
-                              tournament.isPublic
-                                ? "text-emerald-300"
-                                : "text-slate-400"
-                            }
+                            className={tournament.isPublic ? 'text-emerald-300' : 'text-slate-400'}
                           >
-                            {tournament.isPublic ? "Público" : "Privado"}
+                            {tournament.isPublic ? 'Público' : 'Privado'}
                           </span>
                         </td>
                         <td className="px-5 py-3">
@@ -2339,10 +2111,10 @@ function AdminDashboard() {
               </div>
             </section>
           </div>
-          <div className={adminTab === "players" ? "" : "hidden"}>
+          <div className={adminTab === 'players' ? '' : 'hidden'}>
             <SuperAdminPlayerManagement />
           </div>
-          <div className={adminTab === "details" ? "" : "hidden"}>
+          <div className={adminTab === 'details' ? '' : 'hidden'}>
             <AdminDataInspector />
           </div>
           {editingUser && (
@@ -2377,9 +2149,7 @@ function AdminMetric({
         {icon}
         <span className="text-sm font-semibold">{label}</span>
       </div>
-      <strong className="mt-3 block text-3xl font-black tabular-nums">
-        {value}
-      </strong>
+      <strong className="mt-3 block text-3xl font-black tabular-nums">{value}</strong>
     </article>
   );
 }
@@ -2387,7 +2157,7 @@ function AdminMetric({
 function AdminDataInspector() {
   const [tournaments, setTournaments] = useState<Tournament[]>();
   const [error, setError] = useState<string>();
-  const [search, setSearch] = useState("");
+  const [search, setSearch] = useState('');
 
   useEffect(() => {
     let active = true;
@@ -2400,7 +2170,7 @@ function AdminDataInspector() {
           setError(
             reason instanceof Error
               ? reason.message
-              : "No se pudo cargar el detalle de los torneos.",
+              : 'No se pudo cargar el detalle de los torneos.',
           );
       });
     return () => {
@@ -2418,15 +2188,12 @@ function AdminDataInspector() {
       <div>
         <h2 className="text-xl font-black">Datos completos</h2>
         <p className="mt-1 text-sm text-slate-300">
-          Consulta de solo lectura de cada torneo, con reglas, jugadores,
-          rondas, mesas y resultados. No incluye credenciales ni datos de
-          Authentication.
+          Consulta de solo lectura de cada torneo, con reglas, jugadores, rondas, mesas y
+          resultados. No incluye credenciales ni datos de Authentication.
         </p>
       </div>
       {error && <p className="mt-4 text-sm text-red-300">{error}</p>}
-      {!tournaments && !error && (
-        <p className="mt-4 text-sm text-slate-300">Cargando detalle…</p>
-      )}
+      {!tournaments && !error && <p className="mt-4 text-sm text-slate-300">Cargando detalle…</p>}
       <input
         value={search}
         onChange={(event) => setSearch(event.target.value)}
@@ -2442,8 +2209,7 @@ function AdminDataInspector() {
             <summary className="cursor-pointer font-semibold">
               <span>{tournament.name}</span>
               <span className="ml-2 text-sm font-normal text-slate-400">
-                {tournament.players.length} jugadores ·{" "}
-                {tournament.rounds.length} rondas
+                {tournament.players.length} jugadores · {tournament.rounds.length} rondas
               </span>
             </summary>
             <pre className="mt-4 max-h-96 overflow-auto rounded-md bg-slate-900 p-4 text-xs leading-relaxed text-slate-300">
@@ -2461,17 +2227,13 @@ function SuperAdminUserManagement() {
   const [users, setUsers] = useState<ManagedUser[]>();
   const [error, setError] = useState<string>();
   const [busy, setBusy] = useState(false);
-  const [search, setSearch] = useState("");
+  const [search, setSearch] = useState('');
   const load = async () => {
     try {
       setUsers(await listManagedUsers());
       setError(undefined);
     } catch (reason) {
-      setError(
-        reason instanceof Error
-          ? reason.message
-          : "No se pudieron cargar las cuentas.",
-      );
+      setError(reason instanceof Error ? reason.message : 'No se pudieron cargar las cuentas.');
     }
   };
   useEffect(() => {
@@ -2488,19 +2250,15 @@ function SuperAdminUserManagement() {
     setBusy(true);
     try {
       await createManagedUser({
-        displayName: String(form.get("displayName")).trim(),
-        email: String(form.get("email")).trim(),
-        password: String(form.get("password")),
-        role: String(form.get("role")) as AssignableRole,
+        displayName: String(form.get('displayName')).trim(),
+        email: String(form.get('email')).trim(),
+        password: String(form.get('password')),
+        role: String(form.get('role')) as AssignableRole,
       });
       event.currentTarget.reset();
       await load();
     } catch (reason) {
-      setError(
-        reason instanceof Error
-          ? reason.message
-          : "No se pudo crear la cuenta.",
-      );
+      setError(reason instanceof Error ? reason.message : 'No se pudo crear la cuenta.');
     } finally {
       setBusy(false);
     }
@@ -2511,18 +2269,14 @@ function SuperAdminUserManagement() {
     setBusy(true);
     try {
       await updateManagedUser(id, {
-        displayName: String(form.get("displayName")).trim(),
-        email: String(form.get("email")).trim(),
-        password: String(form.get("password")) || undefined,
-        role: String(form.get("role")) as AssignableRole,
+        displayName: String(form.get('displayName')).trim(),
+        email: String(form.get('email')).trim(),
+        password: String(form.get('password')) || undefined,
+        role: String(form.get('role')) as AssignableRole,
       });
       await load();
     } catch (reason) {
-      setError(
-        reason instanceof Error
-          ? reason.message
-          : "No se pudo actualizar la cuenta.",
-      );
+      setError(reason instanceof Error ? reason.message : 'No se pudo actualizar la cuenta.');
     } finally {
       setBusy(false);
     }
@@ -2539,11 +2293,7 @@ function SuperAdminUserManagement() {
       await deleteManagedUser(target.id);
       await load();
     } catch (reason) {
-      setError(
-        reason instanceof Error
-          ? reason.message
-          : "No se pudo eliminar la cuenta.",
-      );
+      setError(reason instanceof Error ? reason.message : 'No se pudo eliminar la cuenta.');
     } finally {
       setBusy(false);
     }
@@ -2559,12 +2309,7 @@ function SuperAdminUserManagement() {
         onSubmit={create}
         className="mt-5 grid gap-3 rounded-lg border border-slate-700 bg-slate-950 p-4 md:grid-cols-4"
       >
-        <input
-          required
-          name="displayName"
-          className={field}
-          placeholder="Nombre"
-        />
+        <input required name="displayName" className={field} placeholder="Nombre" />
         <input
           required
           name="email"
@@ -2597,14 +2342,9 @@ function SuperAdminUserManagement() {
       <div className="mt-3 max-h-[34rem] space-y-3 overflow-y-auto pr-1">
         {matchingUsers?.map((managed) =>
           managed.id === user?.id ? (
-            <article
-              key={managed.id}
-              className="rounded-lg border border-slate-700 p-4"
-            >
+            <article key={managed.id} className="rounded-lg border border-slate-700 p-4">
               <strong>{managed.displayName}</strong>
-              <span className="ml-2 text-sm text-amber-300">
-                Super admin protegido
-              </span>
+              <span className="ml-2 text-sm text-amber-300">Super admin protegido</span>
             </article>
           ) : (
             <form
@@ -2653,9 +2393,7 @@ function SuperAdminUserManagement() {
           ),
         )}
         {matchingUsers?.length === 0 && (
-          <p className="text-sm text-slate-400">
-            No hay cuentas que coincidan.
-          </p>
+          <p className="text-sm text-slate-400">No hay cuentas que coincidan.</p>
         )}
       </div>
     </section>
@@ -2665,7 +2403,7 @@ function SuperAdminUserManagement() {
 function SuperAdminPlayerManagement() {
   const { isSuperAdmin } = useAuth();
   const [tournaments, setTournaments] = useState<Tournament[]>();
-  const [search, setSearch] = useState("");
+  const [search, setSearch] = useState('');
   const [error, setError] = useState<string>();
   const [busy, setBusy] = useState(false);
   const load = async () => {
@@ -2673,11 +2411,7 @@ function SuperAdminPlayerManagement() {
       setTournaments(await loadAllTournaments());
       setError(undefined);
     } catch (reason) {
-      setError(
-        reason instanceof Error
-          ? reason.message
-          : "No se pudieron cargar los jugadores.",
-      );
+      setError(reason instanceof Error ? reason.message : 'No se pudieron cargar los jugadores.');
     }
   };
   useEffect(() => {
@@ -2690,18 +2424,14 @@ function SuperAdminPlayerManagement() {
         .map((player) => ({ tournament, player })),
     )
     .filter(({ player, tournament }) =>
-      `${player.name} ${tournament.name}`
-        .toLocaleLowerCase()
-        .includes(search.toLocaleLowerCase()),
+      `${player.name} ${tournament.name}`.toLocaleLowerCase().includes(search.toLocaleLowerCase()),
     );
   if (!isSuperAdmin)
     return (
       <section className={`${panel} mt-7`}>
         <div>
           <h2 className="text-xl font-black">Jugadores activos</h2>
-          <p className="mt-1 text-sm text-slate-300">
-            Consulta de jugadores activos por torneo.
-          </p>
+          <p className="mt-1 text-sm text-slate-300">Consulta de jugadores activos por torneo.</p>
         </div>
         {error && <p className="mt-4 text-sm text-red-300">{error}</p>}
         <input
@@ -2721,9 +2451,7 @@ function SuperAdminPlayerManagement() {
             </article>
           ))}
           {tournaments && players.length === 0 && (
-            <p className="text-sm text-slate-400">
-              No hay jugadores activos que coincidan.
-            </p>
+            <p className="text-sm text-slate-400">No hay jugadores activos que coincidan.</p>
           )}
         </div>
       </section>
@@ -2731,10 +2459,8 @@ function SuperAdminPlayerManagement() {
   const create = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const form = new FormData(event.currentTarget);
-    const tournament = tournaments?.find(
-      (item) => item.id === String(form.get("tournamentId")),
-    );
-    const name = String(form.get("name")).trim();
+    const tournament = tournaments?.find((item) => item.id === String(form.get('tournamentId')));
+    const name = String(form.get('name')).trim();
     if (!tournament || !name) return;
     setBusy(true);
     try {
@@ -2749,37 +2475,29 @@ function SuperAdminPlayerManagement() {
       event.currentTarget.reset();
       await load();
     } catch (reason) {
-      setError(
-        reason instanceof Error
-          ? reason.message
-          : "No se pudo crear el jugador.",
-      );
+      setError(reason instanceof Error ? reason.message : 'No se pudo crear el jugador.');
     } finally {
       setBusy(false);
     }
   };
   const update = async (
     event: FormEvent<HTMLFormElement>,
-    player: Tournament["players"][number],
+    player: Tournament['players'][number],
   ) => {
     event.preventDefault();
-    const name = String(new FormData(event.currentTarget).get("name")).trim();
+    const name = String(new FormData(event.currentTarget).get('name')).trim();
     if (!name) return;
     setBusy(true);
     try {
       await persistPlayer({ ...player, name });
       await load();
     } catch (reason) {
-      setError(
-        reason instanceof Error
-          ? reason.message
-          : "No se pudo actualizar el jugador.",
-      );
+      setError(reason instanceof Error ? reason.message : 'No se pudo actualizar el jugador.');
     } finally {
       setBusy(false);
     }
   };
-  const remove = async (player: Tournament["players"][number]) => {
+  const remove = async (player: Tournament['players'][number]) => {
     if (!window.confirm(`Eliminar a ${player.name}?`)) return;
     setBusy(true);
     try {
@@ -2789,7 +2507,7 @@ function SuperAdminPlayerManagement() {
       setError(
         reason instanceof Error
           ? reason.message
-          : "No se puede eliminar un jugador con participaciones registradas.",
+          : 'No se puede eliminar un jugador con participaciones registradas.',
       );
     } finally {
       setBusy(false);
@@ -2801,8 +2519,7 @@ function SuperAdminPlayerManagement() {
         <p className="text-sm font-semibold text-amber-300">SUPER ADMIN</p>
         <h2 className="mt-1 text-xl font-black">Jugadores activos</h2>
         <p className="mt-1 text-sm text-slate-300">
-          Crea cada jugador dentro de un torneo y administra sus datos desde
-          aquí.
+          Crea cada jugador dentro de un torneo y administra sus datos desde aquí.
         </p>
       </div>
       {error && <p className="mt-4 text-sm text-red-300">{error}</p>}
@@ -2820,12 +2537,7 @@ function SuperAdminPlayerManagement() {
             </option>
           ))}
         </select>
-        <input
-          required
-          name="name"
-          className={field}
-          placeholder="Nombre del jugador"
-        />
+        <input required name="name" className={field} placeholder="Nombre del jugador" />
         <button disabled={busy} className={primary}>
           Crear jugador
         </button>
@@ -2844,15 +2556,8 @@ function SuperAdminPlayerManagement() {
             className="grid gap-3 rounded-lg border border-slate-700 p-4 md:grid-cols-[1fr_1fr_auto]"
           >
             <div>
-              <span className="block text-xs text-slate-400">
-                {tournament.name}
-              </span>
-              <input
-                required
-                name="name"
-                defaultValue={player.name}
-                className={field}
-              />
+              <span className="block text-xs text-slate-400">{tournament.name}</span>
+              <input required name="name" defaultValue={player.name} className={field} />
             </div>
             <span className="self-end text-sm text-emerald-300">Activo</span>
             <div className="flex items-end gap-2">
@@ -2871,9 +2576,7 @@ function SuperAdminPlayerManagement() {
           </form>
         ))}
         {tournaments && players.length === 0 && (
-          <p className="text-sm text-slate-400">
-            No hay jugadores activos que coincidan.
-          </p>
+          <p className="text-sm text-slate-400">No hay jugadores activos que coincidan.</p>
         )}
       </div>
     </section>
@@ -2897,18 +2600,14 @@ function UserProfileModal({
     setBusy(true);
     try {
       await updateManagedUser(user.id, {
-        displayName: String(form.get("displayName")).trim(),
-        email: String(form.get("email")).trim(),
-        password: String(form.get("password")) || undefined,
-        role: String(form.get("role")) as AssignableRole,
+        displayName: String(form.get('displayName')).trim(),
+        email: String(form.get('email')).trim(),
+        password: String(form.get('password')) || undefined,
+        role: String(form.get('role')) as AssignableRole,
       });
       onSaved();
     } catch (reason) {
-      setError(
-        reason instanceof Error
-          ? reason.message
-          : "No se pudo actualizar el perfil.",
-      );
+      setError(reason instanceof Error ? reason.message : 'No se pudo actualizar el perfil.');
     } finally {
       setBusy(false);
     }
@@ -2923,37 +2622,21 @@ function UserProfileModal({
         {error && <p className="text-sm text-red-300">{error}</p>}
         <label className="block text-sm font-medium">
           Nombre
-          <input
-            required
-            name="displayName"
-            defaultValue={user.displayName}
-            className={field}
-          />
+          <input required name="displayName" defaultValue={user.displayName} className={field} />
         </label>
         <label className="block text-sm font-medium">
           Correo
-          <input
-            required
-            name="email"
-            type="email"
-            defaultValue={user.email}
-            className={field}
-          />
+          <input required name="email" type="email" defaultValue={user.email} className={field} />
         </label>
         <label className="block text-sm font-medium">
           Nueva contraseña
-          <input
-            name="password"
-            minLength={6}
-            type="password"
-            className={field}
-          />
+          <input name="password" minLength={6} type="password" className={field} />
         </label>
         <label className="block text-sm font-medium">
           Rol
           <select
             name="role"
-            defaultValue={user.role === "admin" ? "admin" : "organizer"}
+            defaultValue={user.role === 'admin' ? 'admin' : 'organizer'}
             className={field}
           >
             <option value="organizer">Organizador</option>
@@ -2969,7 +2652,7 @@ function UserProfileModal({
             Cancelar
           </button>
           <button disabled={busy} className={primary}>
-            {busy ? "Guardando…" : "Guardar cambios"}
+            {busy ? 'Guardando…' : 'Guardar cambios'}
           </button>
         </div>
       </form>

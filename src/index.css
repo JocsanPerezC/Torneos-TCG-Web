@@ -1,5 +1,5 @@
 @import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Inter:wght@400;500;600;700&display=swap');
-@import "tailwindcss";
+@import 'tailwindcss';
 
 @theme inline {
   --color-background: var(--background);
@@ -18,86 +18,328 @@
   --font-sans: var(--font-sans);
 }
 
-:root { --background: #F6F3EC; --foreground: #14385E; --card: #fff; --card-foreground: #14385E; --primary: #2660A4; --primary-foreground: #fff; --secondary: #edf2f6; --secondary-foreground: #14385E; --muted: #ece8de; --muted-foreground: #6B7480; --accent: #2E96A0; --accent-foreground: #fff; --border: #E4DFD2; --font-sans: Inter, ui-sans-serif, system-ui, sans-serif; font-family: var(--font-sans); color: var(--foreground); background: var(--background); font-synthesis: none; }
-* { box-sizing: border-box; }
+:root {
+  --background: #f6f3ec;
+  --foreground: #14385e;
+  --card: #fff;
+  --card-foreground: #14385e;
+  --primary: #2660a4;
+  --primary-foreground: #fff;
+  --secondary: #edf2f6;
+  --secondary-foreground: #14385e;
+  --muted: #ece8de;
+  --muted-foreground: #6b7480;
+  --accent: #2e96a0;
+  --accent-foreground: #fff;
+  --border: #e4dfd2;
+  --font-sans: Inter, ui-sans-serif, system-ui, sans-serif;
+  font-family: var(--font-sans);
+  color: var(--foreground);
+  background: var(--background);
+  font-synthesis: none;
+}
+* {
+  box-sizing: border-box;
+}
 body {
   min-width: 320px;
   min-height: 100vh;
   margin: 0;
-  background-color: #F6F3EC;
-  background-image: linear-gradient(120deg, rgba(246, 243, 236, .95) 0%, rgba(250, 248, 242, .84) 50%, rgba(246, 243, 236, .96) 100%), url('/tcg_background_light.svg');
+  background-color: #f6f3ec;
+  background-image:
+    linear-gradient(
+      120deg,
+      rgba(246, 243, 236, 0.95) 0%,
+      rgba(250, 248, 242, 0.84) 50%,
+      rgba(246, 243, 236, 0.96) 100%
+    ),
+    url('/tcg_background_light.svg');
   background-position: center, center;
   background-size: cover, cover;
   background-repeat: no-repeat, no-repeat;
   background-attachment: fixed, fixed;
 }
-button, input, select, textarea { font: inherit; }
-button { cursor: pointer; }
-a { color: inherit; }
+button,
+input,
+select,
+textarea {
+  font: inherit;
+}
+button {
+  cursor: pointer;
+}
+a {
+  color: inherit;
+}
 /* Actions are presented as buttons; only the authentication switch keeps its link treatment. */
-.underline { text-decoration-line: none !important; }
-a[href="/login"].underline, a[href="/register"].underline { text-decoration-line: underline !important; }
-a[href="/forgot-password"] { display: block; width: auto; border: 0; padding: 0; background: transparent; font-weight: 400; text-align: center; text-decoration-line: underline !important; }
-.underline:not(a[href="/login"]):not(a[href="/register"]) { display: inline-flex; align-items: center; justify-content: center; border-radius: .5rem; padding: .45rem .7rem; background: #edf2f6; color: #2660A4 !important; font-weight: 600; }
-.text-red-300.underline { background: #fff1f0; color: #a44840 !important; }
+.underline {
+  text-decoration-line: none !important;
+}
+a[href='/login'].underline,
+a[href='/register'].underline {
+  text-decoration-line: underline !important;
+}
+a[href='/forgot-password'] {
+  display: block;
+  width: auto;
+  border: 0;
+  padding: 0;
+  background: transparent;
+  font-weight: 400;
+  text-align: center;
+  text-decoration-line: underline !important;
+}
+.underline:not(a[href='/login']):not(a[href='/register']) {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 0.5rem;
+  padding: 0.45rem 0.7rem;
+  background: #edf2f6;
+  color: #2660a4 !important;
+  font-weight: 600;
+}
+.text-red-300.underline {
+  background: #fff1f0;
+  color: #a44840 !important;
+}
 
-h1, h2, h3 { font-family: Fraunces, Georgia, serif; letter-spacing: -.025em; }
-table, .tabular-nums { font-variant-numeric: tabular-nums; }
+h1,
+h2,
+h3 {
+  font-family: Fraunces, Georgia, serif;
+  letter-spacing: -0.025em;
+}
+table,
+.tabular-nums {
+  font-variant-numeric: tabular-nums;
+}
 
 /* Bridge existing panel utilities to the shared shadcn landing palette. */
-.bg-slate-950 { background-color: #F6F3EC !important; } .bg-slate-950\/80, .bg-slate-950\/95 { background-color: rgba(246,243,236,.94) !important; }
-.bg-slate-900, .bg-slate-900\/75 { background-color: #fff !important; } .bg-slate-800 { background-color: #edf2f6 !important; } .bg-slate-700 { background-color: #dce4eb !important; }
-.bg-slate-600 { background-color: #ECE8DE !important; color: #14385E !important; }
-.hover\:bg-slate-800:hover, .hover\:bg-slate-700:hover { background-color: #e5edf2 !important; }
-.border-slate-700, .border-slate-700\/70, .border-slate-600, .border-slate-500, .border-slate-800 { border-color: #E4DFD2 !important; }
-.text-slate-100, .text-slate-200 { color: #14385E !important; } .text-slate-300 { color: #536478 !important; } .text-slate-400, .text-slate-500 { color: #6B7480 !important; }
-.bg-amber-400 { background-color: #2660A4 !important; } .hover\:bg-amber-300:hover { background-color: #1E4E88 !important; } .text-amber-300, .text-amber-400 { color: #2660A4 !important; } .border-amber-400, .border-amber-300\/30 { border-color: #2660A4 !important; } .text-slate-950 { color: #fff !important; }
-.bg-emerald-600 { background-color: #2E96A0 !important; } .text-emerald-300 { color: #176d75 !important; } .bg-blue-600 { background-color: #587eaa !important; } .bg-violet-600 { background-color: #667590 !important; }
-.bg-red-950 { background-color: #fff1f0 !important; } .text-red-200, .text-red-300 { color: #a44840 !important; } .border-red-700 { border-color: #c16a64 !important; } .hover\:bg-red-950:hover { background-color: #fde7e5 !important; }
-.shadow-xl, .shadow-slate-950\/20 { box-shadow: 0 8px 22px rgba(20,56,94,.08) !important; }
-input, textarea, select { color: #14385E; } input:focus, textarea:focus, select:focus { border-color: #2660A4 !important; outline: 2px solid rgba(38,96,164,.18); outline-offset: 0; }
+.bg-slate-950 {
+  background-color: #f6f3ec !important;
+}
+.bg-slate-950\/80,
+.bg-slate-950\/95 {
+  background-color: rgba(246, 243, 236, 0.94) !important;
+}
+.bg-slate-900,
+.bg-slate-900\/75 {
+  background-color: #fff !important;
+}
+.bg-slate-800 {
+  background-color: #edf2f6 !important;
+}
+.bg-slate-700 {
+  background-color: #dce4eb !important;
+}
+.bg-slate-600 {
+  background-color: #ece8de !important;
+  color: #14385e !important;
+}
+.hover\:bg-slate-800:hover,
+.hover\:bg-slate-700:hover {
+  background-color: #e5edf2 !important;
+}
+.border-slate-700,
+.border-slate-700\/70,
+.border-slate-600,
+.border-slate-500,
+.border-slate-800 {
+  border-color: #e4dfd2 !important;
+}
+.text-slate-100,
+.text-slate-200 {
+  color: #14385e !important;
+}
+.text-slate-300 {
+  color: #536478 !important;
+}
+.text-slate-400,
+.text-slate-500 {
+  color: #6b7480 !important;
+}
+.bg-amber-400 {
+  background-color: #2660a4 !important;
+}
+.hover\:bg-amber-300:hover {
+  background-color: #1e4e88 !important;
+}
+.text-amber-300,
+.text-amber-400 {
+  color: #2660a4 !important;
+}
+.border-amber-400,
+.border-amber-300\/30 {
+  border-color: #2660a4 !important;
+}
+.text-slate-950 {
+  color: #fff !important;
+}
+.bg-emerald-600 {
+  background-color: #2e96a0 !important;
+}
+.text-emerald-300 {
+  color: #176d75 !important;
+}
+.bg-blue-600 {
+  background-color: #587eaa !important;
+}
+.bg-violet-600 {
+  background-color: #667590 !important;
+}
+.bg-red-950 {
+  background-color: #fff1f0 !important;
+}
+.text-red-200,
+.text-red-300 {
+  color: #a44840 !important;
+}
+.border-red-700 {
+  border-color: #c16a64 !important;
+}
+.hover\:bg-red-950:hover {
+  background-color: #fde7e5 !important;
+}
+.shadow-xl,
+.shadow-slate-950\/20 {
+  box-shadow: 0 8px 22px rgba(20, 56, 94, 0.08) !important;
+}
+input,
+textarea,
+select {
+  color: #14385e;
+}
+input:focus,
+textarea:focus,
+select:focus {
+  border-color: #2660a4 !important;
+  outline: 2px solid rgba(38, 96, 164, 0.18);
+  outline-offset: 0;
+}
 
-.landing-theme { --background: #F6F3EC; --foreground: #14385E; --card: #fff; --card-foreground: #14385E; --primary: #2660A4; --primary-foreground: #fff; --secondary: #edf2f6; --secondary-foreground: #14385E; --muted: #ece8de; --muted-foreground: #6B7480; --accent: #2E96A0; --accent-foreground: #fff; --border: #E4DFD2; --font-sans: Inter, ui-sans-serif, system-ui, sans-serif; color: var(--foreground); font-family: var(--font-sans); }
-.landing-theme h1, .landing-theme h2 { font-family: Fraunces, Georgia, serif; }
+.landing-theme {
+  --background: #f6f3ec;
+  --foreground: #14385e;
+  --card: #fff;
+  --card-foreground: #14385e;
+  --primary: #2660a4;
+  --primary-foreground: #fff;
+  --secondary: #edf2f6;
+  --secondary-foreground: #14385e;
+  --muted: #ece8de;
+  --muted-foreground: #6b7480;
+  --accent: #2e96a0;
+  --accent-foreground: #fff;
+  --border: #e4dfd2;
+  --font-sans: Inter, ui-sans-serif, system-ui, sans-serif;
+  color: var(--foreground);
+  font-family: var(--font-sans);
+}
+.landing-theme h1,
+.landing-theme h2 {
+  font-family: Fraunces, Georgia, serif;
+}
 
 @keyframes header-sheen {
-  0%, 100% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
+  0%,
+  100% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
 }
 .app-header {
-  background: linear-gradient(110deg, #F6F3EC 0%, #fffdf8 42%, #edf5f5 58%, #F6F3EC 100%);
+  background: linear-gradient(110deg, #f6f3ec 0%, #fffdf8 42%, #edf5f5 58%, #f6f3ec 100%);
   background-size: 200% 100%;
   animation: header-sheen 16s ease-in-out infinite;
 }
 @media (prefers-reduced-motion: reduce) {
-  .app-header { animation: none; }
+  .app-header {
+    animation: none;
+  }
 }
 
-a[href="/forgot-password"]:hover { background-color: transparent !important; color: #1E4E88 !important; }
+a[href='/forgot-password']:hover {
+  background-color: transparent !important;
+  color: #1e4e88 !important;
+}
 
 /* Preserve the original semantic colors for compact action buttons. */
-.text-slate-300.underline { background-color: #ece8de !important; color: #536478 !important; }
-.text-red-300.underline { background-color: #fff1f0 !important; color: #a44840 !important; }
+.text-slate-300.underline {
+  background-color: #ece8de !important;
+  color: #536478 !important;
+}
+.text-red-300.underline {
+  background-color: #fff1f0 !important;
+  color: #a44840 !important;
+}
 
 /* The public round view shows player names only. */
-main.min-h-screen.bg-slate-950 > .mx-auto.max-w-4xl > section > .grid > article > .grid > section > .grid.grid-cols-2 { display: none; }
+main.min-h-screen.bg-slate-950
+  > .mx-auto.max-w-4xl
+  > section
+  > .grid
+  > article
+  > .grid
+  > section
+  > .grid.grid-cols-2 {
+  display: none;
+}
 
 @keyframes toast-enter {
-  0% { opacity: 0; transform: translateX(110%); }
-  70% { opacity: 1; transform: translateX(-8px); }
-  100% { opacity: 1; transform: translateX(0); }
+  0% {
+    opacity: 0;
+    transform: translateX(110%);
+  }
+  70% {
+    opacity: 1;
+    transform: translateX(-8px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(0);
+  }
 }
 @keyframes toast-exit {
-  0% { opacity: 1; transform: translateX(0); }
-  45% { opacity: 1; transform: translateX(-14px); }
-  100% { opacity: 0; transform: translateX(110%); }
+  0% {
+    opacity: 1;
+    transform: translateX(0);
+  }
+  45% {
+    opacity: 1;
+    transform: translateX(-14px);
+  }
+  100% {
+    opacity: 0;
+    transform: translateX(110%);
+  }
 }
-.toast-enter { animation: toast-enter 380ms ease-out both; }
-.toast-exit { animation: toast-exit 500ms ease-in forwards; }
+.toast-enter {
+  animation: toast-enter 380ms ease-out both;
+}
+.toast-exit {
+  animation: toast-exit 500ms ease-in forwards;
+}
 
-.round-timer { flex-basis: 100%; }
+.round-timer {
+  flex-basis: 100%;
+}
 
-form.mt-3.space-y-4 > button:last-child { display: block; width: fit-content; margin-left: auto; }
+form.mt-3.space-y-4 > button:last-child {
+  display: block;
+  width: fit-content;
+  margin-left: auto;
+}
 section.grid > form > fieldset + button,
-section.grid > aside > button { display: block; width: fit-content; margin-left: auto; }
-section.grid > div > button { display: block; width: fit-content; margin-left: auto; }
+section.grid > aside > button {
+  display: block;
+  width: fit-content;
+  margin-left: auto;
+}
+section.grid > div > button {
+  display: block;
+  width: fit-content;
+  margin-left: auto;
+}
