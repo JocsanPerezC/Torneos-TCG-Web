@@ -81,7 +81,7 @@ function Badge({ children }: { children: string }) {
   );
 }
 function RoundTimer({ round }: { round: Tournament['rounds'][number] }) {
-  const [now, setNow] = useState(0);
+  const [now, setNow] = useState(() => Date.now());
   useEffect(() => {
     if (round.status !== 'activa' || !round.startedAt) return;
     const update = () => setNow(Date.now());
@@ -1657,15 +1657,20 @@ function PublicView() {
   const [loading, setLoading] = useState(true);
   useEffect(() => {
     let active = true;
-    void loadPublicTournament(slug ?? '')
-      .then((data) => {
-        if (active) setTournament(data);
-      })
-      .finally(() => {
-        if (active) setLoading(false);
-      });
+    const loadTournament = () => {
+      void loadPublicTournament(slug ?? '')
+        .then((data) => {
+          if (active) setTournament(data);
+        })
+        .finally(() => {
+          if (active) setLoading(false);
+        });
+    };
+    loadTournament();
+    const interval = window.setInterval(loadTournament, 10_000);
     return () => {
       active = false;
+      window.clearInterval(interval);
     };
   }, [slug]);
   if (loading)
