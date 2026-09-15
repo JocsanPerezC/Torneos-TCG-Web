@@ -42,6 +42,12 @@ export function PublicView() {
         <p className="text-xs font-bold tracking-[.16em] text-amber-300">INFORMACIÓN DEL TORNEO</p>
         <h1 className="mt-1 text-3xl font-black">{tournament.name}</h1>
         <p className="mt-1 text-slate-300">{tournament.format}</p>
+        {tournament.information && (
+          <section className={`${panel} mt-7`}>
+            <h2 className="text-xl font-bold">Información del torneo</h2>
+            <p className="mt-3 whitespace-pre-wrap text-slate-300">{tournament.information}</p>
+          </section>
+        )}
         {round ? (
           <section className={`${panel} mt-7`}>
             <div className="flex flex-wrap items-center justify-between gap-3">

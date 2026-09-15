@@ -9,6 +9,7 @@ const mapTournament = (row: Row): Tournament => {
     ownerId: String(row.owner_id),
     name: String(row.name),
     format: String(row.format),
+    information: String(row.information ?? ''),
     plannedRounds: Number(row.planned_rounds),
     status: row.status as Tournament['status'],
     isPublic: Boolean(row.is_public),
@@ -77,6 +78,7 @@ export async function insertTournament(t: Tournament) {
     owner_id: t.ownerId,
     name: t.name,
     format: t.format,
+    information: t.information,
     planned_rounds: t.plannedRounds,
     status: t.status,
     is_public: t.isPublic,
@@ -92,6 +94,7 @@ export async function persistTournament(t: Tournament) {
     .update({
       name: t.name,
       format: t.format,
+      information: t.information,
       planned_rounds: t.plannedRounds,
       status: t.status,
       is_public: t.isPublic,

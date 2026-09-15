@@ -98,6 +98,48 @@ function Overview() {
           </Link>
         </div>
       )}
+      <TournamentInformation />
+    </section>
+  );
+}
+function TournamentInformation() {
+  const tournament = Current();
+  const { id } = useParams();
+  const { updateTournament } = useTournaments();
+  const [information, setInformation] = useState(tournament.information);
+  const [saved, setSaved] = useState(false);
+  function save(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    updateTournament(id!, { information: information.trim() });
+    setSaved(true);
+  }
+  return (
+    <section className="mt-5 border-t border-slate-700 pt-5">
+      <h2 className="text-xl font-bold">Información del torneo</h2>
+      <p className="mt-1 text-sm text-slate-300">
+        Escribe reglas, horarios, ubicación, premios o cualquier detalle importante.
+      </p>
+      <form className="mt-4" onSubmit={save}>
+        <textarea
+          value={information}
+          onChange={(event) => {
+            setInformation(event.target.value);
+            setSaved(false);
+          }}
+          disabled={tournament.status === 'finalizado'}
+          maxLength={2_000}
+          rows={7}
+          className={`${field} resize-y`}
+          placeholder="Ejemplo: Inscripción a las 10:00 a. m. en la tienda. Lleva tu lista de mazo y confirma tu asistencia."
+        />
+        <div className="mt-3 flex items-center justify-between gap-3">
+          <span className="text-xs text-slate-400">{information.length}/2000 caracteres</span>
+          <button disabled={tournament.status === 'finalizado'} className={primary}>
+            Guardar información
+          </button>
+        </div>
+        {saved && <p className="mt-3 text-sm text-emerald-300">Información guardada.</p>}
+      </form>
     </section>
   );
 }

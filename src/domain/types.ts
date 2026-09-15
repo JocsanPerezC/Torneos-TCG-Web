@@ -32,6 +32,7 @@ export interface Tournament {
   ownerId: string;
   name: string;
   format: string;
+  information: string;
   plannedRounds: number;
   status: TournamentStatus;
   isPublic: boolean;

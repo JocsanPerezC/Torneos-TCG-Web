@@ -70,6 +70,7 @@ function localInitial(): Tournament[] {
     if (stored)
       return (JSON.parse(stored) as Tournament[]).map((tournament) => ({
         ...tournament,
+        information: tournament.information ?? '',
         maxPlayers: tournament.maxPlayers ?? 32,
         maxTables: tournament.maxTables ?? 8,
       }));
@@ -80,6 +81,7 @@ function localInitial(): Tournament[] {
       ownerId: 'local-organizer',
       name: 'Liga',
       format: 'Commander',
+      information: '',
       plannedRounds: 3,
       status: 'activo',
       isPublic: false,
@@ -161,6 +163,7 @@ export function TournamentProvider({ children }: { children: ReactNode }) {
           ownerId: ownerId ?? 'local-organizer',
           name: input.name.trim(),
           format: input.format.trim() || 'Commander',
+          information: '',
           plannedRounds: input.plannedRounds,
           isPublic: true,
           status: 'activo',
