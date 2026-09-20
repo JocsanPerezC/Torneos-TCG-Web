@@ -31,6 +31,10 @@ Torneos TCG permite administrar torneos multijugador de Commander y otros TCG de
 
 El organizador registra un número entero no negativo de puntos para cada jugador de una mesa. No existe un límite funcional de 100: se pueden registrar 1, 100 u otro valor acordado. La vista pública no expone esos puntos por mesa.
 
+## Mejoras pendientes
+
+- Añadir victorias, derrotas, empates y porcentaje de victorias a la clasificación y a la base de datos. Un empate contará como medio triunfo para calcular el porcentaje.
+
 ## Contenido técnico anterior
 
 La documentación original se conserva a continuación como referencia de instalación, arquitectura y despliegue.
