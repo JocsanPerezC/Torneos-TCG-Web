@@ -629,9 +629,10 @@ function PodCard({
     const form = new FormData(event.currentTarget);
     const next: Pod = {
       ...pod,
+      resultType: pod.resultType ?? 'normal',
       results: pod.playerIds.map((playerId) => ({
         playerId,
-        points: Number(form.get(`points-${playerId}`)),
+        position: Number(form.get(`position-${playerId}`)),
         kills: Number(form.get(`kills-${playerId}`)),
       })),
     };
@@ -656,7 +657,7 @@ function PodCard({
                 {result ? (
                   <div className="grid grid-cols-2 border-t border-slate-700 text-xs">
                     <p className="border-r border-slate-700 px-3 py-2 text-slate-300">
-                      Puntos <strong className="ml-1 text-slate-100">{result.points}</strong>
+                      Posición <strong className="ml-1 text-slate-100">{result.position}</strong>
                     </p>
                     <p className="px-3 py-2 text-slate-300">
                       Kills <strong className="ml-1 text-slate-100">{result.kills}</strong>
@@ -675,7 +676,7 @@ function PodCard({
       {editable && (
         <form onSubmit={save} className="mt-3 space-y-4">
           <p className="rounded-md bg-slate-900 px-3 py-2 text-xs text-slate-300">
-            Escribe los puntos acordados para cada jugador de la mesa.
+            Registra la posición y los kills de cada jugador de la mesa.
           </p>
           <div className="grid gap-3">
             {pod.playerIds.map((playerId) => (
@@ -686,12 +687,13 @@ function PodCard({
                 <h5 className="px-4 py-3 text-sm font-semibold">{names[playerId]}</h5>
                 <div className="grid grid-cols-2 border-t border-slate-700">
                   <label className="border-r border-slate-700 p-3 text-xs font-semibold text-slate-300">
-                    Puntos
+                    Posición
                     <input
                       required
-                      min="0"
-                      name={`points-${playerId}`}
-                      defaultValue={pod.results?.find((r) => r.playerId === playerId)?.points ?? ''}
+                      min="1"
+                      max={pod.playerIds.length}
+                      name={`position-${playerId}`}
+                      defaultValue={pod.results?.find((r) => r.playerId === playerId)?.position ?? ''}
                       type="number"
                       className="mt-2 w-full rounded-md border border-slate-600 bg-slate-950 px-3 py-2 text-sm text-slate-100 outline-none focus:border-amber-400"
                     />
