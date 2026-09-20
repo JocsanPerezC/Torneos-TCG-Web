@@ -3,6 +3,14 @@ alter table public.tournaments
   add column if not exists information text not null default ''
   check (char_length(information) <= 2000);
 
+-- Older deployments retain this non-null compatibility column, while the
+-- current client no longer sends materialized points in its snapshots.
+alter table public.pod_results
+  add column if not exists points integer not null default 0 check (points >= 0);
+
+alter table public.pod_results
+  alter column points set default 0;
+
 create or replace function public.save_tournament_snapshot(snapshot jsonb)
 returns void
 language plpgsql
@@ -65,8 +73,8 @@ begin
   delete from public.pod_results pr
   where pr.pod_id in (select (pod->>'id')::uuid from jsonb_array_elements(coalesce(snapshot->'rounds', '[]'::jsonb)) round cross join lateral jsonb_array_elements(coalesce(round->'pods', '[]'::jsonb)) pod);
 
-  insert into public.pod_results (pod_id, player_id, position, kills, is_dead)
-  select (pod->>'id')::uuid, (result->>'playerId')::uuid, (result->>'position')::integer, (result->>'kills')::integer, coalesce((result->>'dead')::boolean, false)
+  insert into public.pod_results (pod_id, player_id, position, kills, is_dead, points)
+  select (pod->>'id')::uuid, (result->>'playerId')::uuid, (result->>'position')::integer, (result->>'kills')::integer, coalesce((result->>'dead')::boolean, false), coalesce((result->>'points')::integer, 0)
   from jsonb_array_elements(coalesce(snapshot->'rounds', '[]'::jsonb)) round
   cross join lateral jsonb_array_elements(coalesce(round->'pods', '[]'::jsonb)) pod
   cross join lateral jsonb_array_elements(coalesce(pod->'results', '[]'::jsonb)) result;
