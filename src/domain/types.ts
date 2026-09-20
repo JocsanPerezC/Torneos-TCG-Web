@@ -8,7 +8,7 @@ export interface Result { playerId: string; position: number; kills: number; dea
 export interface Pod { id: string; number: number; playerIds: string[]; resultType?: ResultType; results?: Result[]; notes?: string }
 export interface Round { id: string; number: number; status: RoundStatus; seed: number; startedAt?: string; endedAt?: string; pods: Pod[] }
 export interface Tournament {
-  id: string; ownerId: string; name: string; format: string; plannedRounds: number; status: TournamentStatus;
+  id: string; ownerId: string; name: string; format: string; information: string; plannedRounds: number; status: TournamentStatus;
   isPublic: boolean; publicSlug: string; scoring: ScoringRules; players: Player[]; rounds: Round[]; createdAt: string
 }
 export interface Standing { player: Player; rank: number; points: number; wins: number; kills: number; roundsPlayed: number; opponentStrength: number }

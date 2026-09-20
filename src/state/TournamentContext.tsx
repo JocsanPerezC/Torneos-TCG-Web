@@ -12,7 +12,7 @@ const Context=createContext<Store|null>(null)
 const storageKey='torneos-tcg.tournaments.v1'
 const copy=<T,>(item:T):T=>structuredClone(item)
 const samplePlayers=['Ana','Bruno','Carla','Diego','Elena','Felipe','Gabriela','Hugo'].map((name,index)=>({id:uid(),name,active:true,tieBreaker:index+1}))
-function localInitial():Tournament[]{try{const stored=localStorage.getItem(storageKey);if(stored)return JSON.parse(stored)}catch{}return[{id:'demo',ownerId:'local-organizer',name:'Liga',format:'Commander',plannedRounds:3,status:'activo',isPublic:false,publicSlug:'torneos-tcg-demo',scoring:defaultScoring,players:samplePlayers,rounds:[],createdAt:new Date().toISOString()}]}
+function localInitial():Tournament[]{try{const stored=localStorage.getItem(storageKey);if(stored)return JSON.parse(stored).map((tournament:Tournament)=>({...tournament,information:tournament.information??''}))}catch{}return[{id:'demo',ownerId:'local-organizer',name:'Liga',format:'Commander',information:'',plannedRounds:3,status:'activo',isPublic:false,publicSlug:'torneos-tcg-demo',scoring:defaultScoring,players:samplePlayers,rounds:[],createdAt:new Date().toISOString()}]}
 
 export function TournamentProvider({children}:{children:ReactNode}) {
   const { user, isSuperAdmin } = useAuth()
@@ -24,7 +24,7 @@ export function TournamentProvider({children}:{children:ReactNode}) {
   const mutate=(id:string,change:(t:Tournament)=>void,_remoteWork?:(t:Tournament)=>Promise<void>)=>setTournaments(items=>items.map(item=>{if(item.id!==id)return item;const next=copy(item);change(next);run(()=>persistTournamentSnapshot(next));return next}))
   const value=useMemo<Store>(()=>({
     tournaments,ready,remoteError,
-    createTournament(input){const t:Tournament={id:uid(),ownerId:ownerId??'local-organizer',name:input.name.trim(),format:input.format.trim()||'Commander',plannedRounds:input.plannedRounds,isPublic:true,scoring:input.scoring??defaultScoring,status:'activo',publicSlug:uid().replaceAll('-',''),players:[],rounds:[],createdAt:new Date().toISOString()};setTournaments(items=>[...items,t]);run(()=>insertTournament(t));return t},
+    createTournament(input){const t:Tournament={id:uid(),ownerId:ownerId??'local-organizer',name:input.name.trim(),format:input.format.trim()||'Commander',information:'',plannedRounds:input.plannedRounds,isPublic:true,scoring:input.scoring??defaultScoring,status:'activo',publicSlug:uid().replaceAll('-',''),players:[],rounds:[],createdAt:new Date().toISOString()};setTournaments(items=>[...items,t]);run(()=>insertTournament(t));return t},
     updateTournament(id,patch){mutate(id,t=>Object.assign(t,patch),persistTournament)},
     removeTournament(id){setTournaments(items=>items.filter(t=>t.id!==id));run(()=>deleteRemoteTournament(id))},
     addPlayers(id,names){let added=0;let duplicate:string|undefined;let created:Tournament['players']=[];mutate(id,t=>{const known=new Set(t.players.map(p=>normalizeName(p.name)));for(const raw of names){const name=raw.trim();if(!name)continue;if(known.has(normalizeName(name))){duplicate??=name;continue}known.add(normalizeName(name));const player={id:uid(),name,active:true,tieBreaker:t.players.length+1};t.players.push(player);created.push(player);added++}},t=>insertPlayers(t.id,created));return{added,duplicate}},
