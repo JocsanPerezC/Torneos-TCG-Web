@@ -1,4 +1,4 @@
--- Mesa Mayor: relational tournament model. Apply with `supabase db push`.
+-- Torneos TCG: relational tournament model. Apply with `supabase db push`.
 create extension if not exists pgcrypto;
 create type public.tournament_status as enum ('borrador','activo','finalizado');
 create type public.round_status as enum ('borrador','activa','completada');
