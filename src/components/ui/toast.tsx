@@ -58,7 +58,7 @@ export function ToastViewport() {
           key={toast.id}
           ref={node => { if (node) nodes.current.set(toast.id, node); else nodes.current.delete(toast.id) }}
           role={toast.error ? 'alert' : 'status'}
-          className={`pointer-events-auto rounded-lg p-3 text-sm shadow-xl ${toast.exiting ? 'toast-exit' : 'toast-enter'} ${toast.error ? 'bg-red-950 text-red-200' : 'bg-emerald-950 text-emerald-200'}`}
+          className={`pointer-events-auto rounded-2xl border border-border p-4 text-sm font-medium shadow-xl ${toast.exiting ? 'toast-exit' : 'toast-enter'} ${toast.error ? 'bg-red-950 text-red-200' : 'bg-[#E7FAEE] text-[#168050]'}`}
         >
           {toast.message}
         </div>

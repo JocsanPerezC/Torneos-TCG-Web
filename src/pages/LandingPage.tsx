@@ -1,5 +1,7 @@
 import { Navigate } from 'react-router-dom'
 import { FeatureList } from '@/components/landing/FeatureList'
+import { ConceptPanel } from '@/components/landing/ConceptPanel'
+import { Faq } from '@/components/landing/Faq'
 import { FinalCta } from '@/components/landing/FinalCta'
 import { Hero } from '@/components/landing/Hero'
 import { HowItWorks } from '@/components/landing/HowItWorks'
@@ -14,15 +16,16 @@ export function LandingPage() {
   if (!loading && user) return <Navigate to="/dashboard" replace />
 
   return (
-    <div className="landing-theme min-h-screen">
+    <div className="landing-theme min-h-screen pt-[72px]">
       <LandingHeader />
       <main>
         <Hero />
         <StandingsPreview />
+        <ConceptPanel />
         <FeatureList />
         <HowItWorks />
+        <Faq />
         <FinalCta />
-        <section id="puntuacion" className="sr-only" aria-label="Puntuación configurable" />
       </main>
       <LandingFooter />
     </div>
