@@ -37,7 +37,7 @@ function Header() {
 
   return <header className="app-header border-b border-border/90">
     <div className="mx-auto flex min-h-[72px] max-w-6xl items-center justify-between px-3 sm:px-5">
-      <Link to="/" className="brand-wiggle inline-flex shrink-0 items-center gap-2 text-lg font-bold tracking-tight text-foreground sm:text-xl"><img src="/tcg-tournament-icon.svg" alt="" className="size-5" />Torneos TCG</Link>
+      <Link to="/" className="brand-wiggle inline-flex shrink-0 items-center gap-2 text-lg font-bold tracking-tight text-foreground sm:text-xl"><img src="/tcg-tournament-icon.svg" alt="" className="size-5" />EDH Tournaments</Link>
       {!authScreen && <nav className="flex shrink-0 flex-nowrap items-center justify-end gap-1 text-sm sm:gap-2">
       <Link to="/dashboard" aria-label={i18n.t('app.header.tournaments')} className="nav-wiggle inline-flex items-center gap-1.5 px-2 py-2 font-semibold text-foreground sm:px-3"><Trophy size={16} /><span className="hidden sm:inline">{i18n.t('app.header.tournaments')}</span></Link>
         {isAdmin && <Link to="/admin" aria-label={i18n.t('app.header.administration')} className="nav-wiggle inline-flex items-center gap-1.5 px-2 py-2 font-semibold text-accent sm:px-3"><ShieldCheck size={16} /><span className="hidden sm:inline">{i18n.t('app.header.administration')}</span></Link>}

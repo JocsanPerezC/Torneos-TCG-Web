@@ -23,13 +23,13 @@ function Section({ title, children }: { title: string; children: React.ReactNode
 
 export function PrivacyPolicyPage() {
   return <LegalLayout title="Privacy Policy">
-    <p>This Privacy Policy explains how Torneos TCG handles personal information when you use the platform. It is an operational description of the current application and is not legal advice.</p>
+    <p>This Privacy Policy explains how EDH Tournaments handles personal information when you use the platform. It is an operational description of the current application and is not legal advice.</p>
     <Section title="1. Data controller and contact">
       <p>The data controller is <strong>[DATA CONTROLLER NAME]</strong>, located in <strong>[COUNTRY OR ADDRESS]</strong>. For privacy requests or questions, contact <strong>{contact}</strong>.</p>
     </Section>
     <Section title="2. Information we process">
-      <p><strong>Account information.</strong> When you register with email, Torneos TCG processes your email address and display name. Password authentication is handled by Supabase Auth; the application does not receive or store password hashes.</p>
-      <p><strong>Google Sign-In information.</strong> When you choose Google Sign-In, authentication is provided through Supabase Auth using Google’s basic OpenID Connect identity information. This may include the name and email address supplied by Google. Torneos TCG uses the information to create or identify your account and display your name. We do not request access to Gmail, Google Drive, contacts, calendars, or other Google data.</p>
+      <p><strong>Account information.</strong> When you register with email, EDH Tournaments processes your email address and display name. Password authentication is handled by Supabase Auth; the application does not receive or store password hashes.</p>
+      <p><strong>Google Sign-In information.</strong> When you choose Google Sign-In, authentication is provided through Supabase Auth using Google’s basic OpenID Connect identity information. This may include the name and email address supplied by Google. EDH Tournaments uses the information to create or identify your account and display your name. We do not request access to Gmail, Google Drive, contacts, calendars, or other Google data.</p>
       <p><strong>Tournament content.</strong> Organizers may provide tournament names, formats, player names, rounds, table assignments, scores, kills, standings, and optional tournament information. Public tournaments can make the relevant tournament content available through their public link.</p>
       <p><strong>Technical storage.</strong> The application uses browser local storage for the selected language, local demo data when the hosted backend is not configured, and authentication/session data required by Supabase Auth. We have not identified advertising or analytics tools in the application source.</p>
     </Section>
@@ -60,9 +60,9 @@ export function PrivacyPolicyPage() {
 
 export function TermsPage() {
   return <LegalLayout title="Terms & Conditions">
-    <p>These Terms &amp; Conditions govern use of Torneos TCG. They are an operational description of the current service and are not legal advice.</p>
+    <p>These Terms &amp; Conditions govern use of EDH Tournaments. They are an operational description of the current service and are not legal advice.</p>
     <Section title="1. Service and responsible party">
-      <p>Torneos TCG is a platform for organizers to create multiplayer TCG tournaments, manage participants, rounds, results, and standings, and optionally share a public tournament view. The service is operated by <strong>[DATA CONTROLLER NAME]</strong>, reachable at <strong>{contact}</strong>.</p>
+      <p>EDH Tournaments is a platform for organizers to create multiplayer TCG tournaments, manage participants, rounds, results, and standings, and optionally share a public tournament view. The service is operated by <strong>[DATA CONTROLLER NAME]</strong>, reachable at <strong>{contact}</strong>.</p>
     </Section>
     <Section title="2. Eligibility and accounts">
       <p>You must provide accurate information, keep your account credentials secure, and use an email address you control. You are responsible for activity performed through your account. Existing users may sign in through the authentication method available for their account. New account creation requires acceptance of these Terms and the Privacy Policy.</p>
@@ -76,16 +76,20 @@ export function TermsPage() {
     <Section title="5. Intellectual property">
       <p>The platform’s software, branding, and design remain the property of their respective owners. You retain rights in the content you submit, while granting the service the limited permission necessary to store, display, and process that content to operate the platform and its public tournament view.</p>
     </Section>
-    <Section title="6. Availability, changes, and third parties">
+    <Section title="6. Unofficial Fan Content">
+      <p>EDH Tournaments is unofficial Fan Content permitted under the Fan Content Policy. Not approved/endorsed by Wizards. Portions of the materials used are property of Wizards of the Coast. © Wizards of the Coast LLC.</p>
+      <p>EDH Tournaments is an independent community tournament platform. Organizers are responsible for obtaining any permissions required for their tournaments and must not represent a tournament as official, sponsored, or approved by Wizards unless they are authorized to do so.</p>
+    </Section>
+    <Section title="7. Availability, changes, and third parties">
       <p>We may maintain, modify, suspend, or discontinue parts of the service when reasonably necessary. We do not promise uninterrupted or error-free availability. Authentication and infrastructure may rely on third-party services, including Supabase and Google Sign-In, each governed by its own terms and privacy practices.</p>
     </Section>
-    <Section title="7. Suspension, cancellation, and deletion">
+    <Section title="8. Suspension, cancellation, and deletion">
       <p>We may suspend or remove access where reasonably necessary to protect the service, users, or legal rights. You may stop using the service at any time. To request deletion of your account and related personal data, follow the process in the Privacy Policy by contacting <strong>{contact}</strong>; identity verification may be required.</p>
     </Section>
-    <Section title="8. Liability">
+    <Section title="9. Liability">
       <p>To the extent permitted by applicable law, the service is provided on an “as available” basis. We do not guarantee tournament outcomes, data availability, compatibility, or uninterrupted access. Nothing in these Terms excludes liability that cannot legally be excluded.</p>
     </Section>
-    <Section title="9. Changes, governing law, and contact">
+    <Section title="10. Changes, governing law, and contact">
       <p>We may update these Terms when the service or applicable requirements change. The effective date will be shown at the top of this page. Applicable law and venue should be confirmed by <strong>[DATA CONTROLLER NAME]</strong> with a qualified legal professional. Questions about these Terms can be sent to <strong>{contact}</strong>.</p>
     </Section>
   </LegalLayout>
