@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { Eye, EyeOff } from 'lucide-react';
 import { GoogleAuthButton } from '../../components/auth/GoogleAuthButton';
 import { useAuth } from '../../state/AuthContext';
+import { currentLegalConsent } from '../../legal';
 import { field, Layout, Notice, panel, primary } from './shared';
 
 export function Auth({ title }: { title: string }) {
@@ -31,7 +32,7 @@ export function Auth({ title }: { title: string }) {
         const name = String(data.get('name')).trim();
         if (password !== String(data.get('confirmPassword')))
           throw new Error('Las contraseñas no coinciden.');
-        await signUp(name, email, password);
+        await signUp(name, email, password, currentLegalConsent);
         /* setMessage('Cuenta creada. Revisa tu correo para confirmar tu cuenta; esta pestaña entrará al panel automáticamente.'); // Restaurar al reactivar Confirm email en Supabase. */ navigate(
           '/dashboard',
           { replace: true },

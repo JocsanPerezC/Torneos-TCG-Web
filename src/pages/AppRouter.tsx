@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next'
 import { useTournament, useTournaments } from '../state/TournamentContext'
 import { useAuth } from '../state/AuthContext'
 import { LandingPage } from '../pages/LandingPage'
+import { PrivacyPolicyPage, TermsPage } from './LegalPages'
 import { insertPlayers, loadAllTournaments, loadPublicTournament, persistPlayer, removeRemotePlayer } from '../data/tournamentRepository'
 import { loadAdminOverview, updateProfileRole, type AdminOverview, type AppRole, type AssignableRole } from '../data/adminRepository'
 import { createManagedUser, deleteManagedUser, listManagedUsers, updateManagedUser, type ManagedUser } from '../data/adminUsersRepository'
@@ -16,6 +17,7 @@ import { LanguageSelector } from '../components/ui/LanguageSelector'
 import { uid, type Pod } from '../domain/types'
 import { getUserProfile } from '../lib/userProfile'
 import i18n from '../i18n'
+import { currentLegalConsent } from '../legal'
 import type { User } from '@supabase/supabase-js'
 
 const primary = 'rounded-full bg-primary px-5 py-2 text-sm font-bold text-primary-foreground transition-all hover:scale-[1.02] hover:bg-[#1B9563] disabled:cursor-not-allowed disabled:opacity-50'
@@ -33,7 +35,7 @@ function Header() {
   const location = useLocation()
   const authScreen = ['/login', '/register', '/forgot-password', '/auth/confirmed'].includes(location.pathname)
 
-  return <header className="app-header border-b border-border/90 backdrop-blur" style={{ animationDelay: `-${Date.now() % 16000}ms` }}>
+  return <header className="app-header border-b border-border/90 backdrop-blur">
     <div className="mx-auto flex min-h-[72px] max-w-6xl items-center justify-between px-3 sm:px-5">
       <Link to="/" className="brand-wiggle inline-flex shrink-0 items-center gap-2 text-lg font-bold tracking-tight text-foreground sm:text-xl"><img src="/tcg-tournament-icon.svg" alt="" className="size-5" />Torneos TCG</Link>
       {!authScreen && <nav className="flex shrink-0 flex-nowrap items-center justify-end gap-1 text-sm sm:gap-2">
@@ -47,10 +49,77 @@ function Header() {
 }
 function CompletionRedirect() { const { id } = useParams(); const tournament = useTournament(id); const location = useLocation(); const navigate = useNavigate(); useEffect(() => { if (tournament && location.pathname.endsWith('/rounds') && sessionStorage.getItem('torneos-tcg.completed-tournament') === tournament.id) { sessionStorage.removeItem('torneos-tcg.completed-tournament'); navigate(`/tournaments/${tournament.id}/standings`, { replace: true }) } }, [tournament, location.pathname, navigate]); return null }
 function Layout({ children }: { children: React.ReactNode }) { return <><Header /><CompletionRedirect /><main className="mx-auto min-h-[calc(100vh-65px)] w-full max-w-6xl px-4 pb-8 pt-24">{children}</main><ToastViewport /></> }
-export function AppRouter() { useTranslation(); return <Routes><Route path="/" element={<LandingPage />} /><Route path="/login" element={<Auth screen="login" />} /><Route path="/register" element={<Auth screen="register" />} /><Route path="/forgot-password" element={<Auth screen="recovery" />} /><Route path="/auth/confirmed" element={<ConfirmedAccount />} /><Route path="/dashboard" element={<Dashboard />} /><Route path="/admin" element={<AdminRoute />} /><Route path="/tournaments/new" element={<NewTournament />} /><Route path="/tournaments/:id/*" element={<TournamentLayout />}><Route index element={<Overview />} /><Route path="players" element={<Players />} /><Route path="rounds" element={<Rounds />} /><Route path="standings" element={<Standings />} /><Route path="settings" element={<Settings />} /></Route><Route path="/t/:slug" element={<PublicView />} /><Route path="*" element={<Navigate to="/" replace />} /></Routes> }
+export function AppRouter() { useTranslation(); return <Routes><Route path="/" element={<LandingPage />} /><Route path="/privacy" element={<PrivacyPolicyPage />} /><Route path="/terms" element={<TermsPage />} /><Route path="/legal-consent" element={<LegalConsent />} /><Route path="/login" element={<Auth screen="login" />} /><Route path="/register" element={<Auth screen="register" />} /><Route path="/forgot-password" element={<Auth screen="recovery" />} /><Route path="/auth/confirmed" element={<ConfirmedAccount />} /><Route path="/dashboard" element={<ConsentGuard><Dashboard /></ConsentGuard>} /><Route path="/admin" element={<ConsentGuard><AdminRoute /></ConsentGuard>} /><Route path="/tournaments/new" element={<ConsentGuard><NewTournament /></ConsentGuard>} /><Route path="/tournaments/:id/*" element={<ConsentGuard><TournamentLayout /></ConsentGuard>}><Route index element={<Overview />} /><Route path="players" element={<Players />} /><Route path="rounds" element={<Rounds />} /><Route path="standings" element={<Standings />} /><Route path="settings" element={<Settings />} /></Route><Route path="/t/:slug" element={<PublicView />} /><Route path="*" element={<Navigate to="/" replace />} /></Routes> }
+
+function ConsentGuard({ children }: { children: React.ReactNode }) { const { user, requiresLegalConsent } = useAuth(); return user && requiresLegalConsent ? <Navigate to="/legal-consent" replace /> : <>{children}</> }
+
+function LegalConsent() {
+  const { user, requiresLegalConsent, acceptLegalConsent } = useAuth()
+  const navigate = useNavigate()
+  const [accepted, setAccepted] = useState(false)
+  const [error, setError] = useState('')
+  const [busy, setBusy] = useState(false)
+  if (!user || !requiresLegalConsent) return <Navigate to="/dashboard" replace />
+  async function submit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault()
+    if (!accepted) return setError('You must accept the Terms & Conditions and Privacy Policy to continue.')
+    setBusy(true)
+    try { await acceptLegalConsent(); navigate('/dashboard', { replace: true }) } catch { setError('We could not save your acceptance. Please try again.') } finally { setBusy(false) }
+  }
+  return <Layout><div className="mx-auto max-w-md"><section lang="en" className={`${panel} space-y-4`}><h1 className="text-2xl font-black">Accept legal documents</h1><p className="text-sm text-slate-300">Before using your new account, please review and accept the following documents.</p><form onSubmit={submit} className="space-y-4"><label className="flex cursor-pointer items-start gap-3 rounded-2xl border border-border bg-secondary/40 p-3 text-sm leading-5"><input required checked={accepted} onChange={event => { setAccepted(event.target.checked); if (event.target.checked) setError('') }} type="checkbox" className="mt-1 size-4 accent-[#21B876]" /><span>I have read and agree to the <Link to="/terms" target="_blank" rel="noreferrer" className="font-semibold text-accent underline">Terms &amp; Conditions</Link> and <Link to="/privacy" target="_blank" rel="noreferrer" className="font-semibold text-accent underline">Privacy Policy</Link>.</span></label>{error && <p role="alert" className="text-sm text-red-300">{error}</p>}<button disabled={busy} className={`${primary} w-full`}>{busy ? 'Saving…' : 'Continue'}</button></form></section></div></Layout>
+}
 
 function Home() { return <Layout><section className="card-pattern overflow-hidden rounded-2xl border border-amber-300/30 bg-slate-900 px-6 py-18 text-center sm:px-12"><p className="mb-4 text-sm font-bold tracking-[.2em] text-amber-300">TORNEOS MULTIJUGADOR</p><h1 className="mx-auto max-w-3xl text-4xl font-black tracking-tight sm:text-6xl">Organiza la próxima gran mesa.</h1><p className="mx-auto mt-5 max-w-xl text-lg text-slate-300">Rondas justas, resultados ágiles y clasificación clara para Commander y cualquier TCG multijugador.</p><div className="mt-8 flex flex-wrap justify-center gap-3"><Link className={primary} to="/register">Crear cuenta</Link><Link className="rounded-lg border border-slate-500 px-4 py-2 font-semibold hover:bg-slate-800" to="/login">Iniciar sesión</Link></div></section><section className="mt-6 grid gap-4 md:grid-cols-3">{[['♟','Mesas equilibradas','Distribución válida de 3 y 4 jugadores.'],['✦','Resultados claros','Puntos, kills y desempates trazables.'],['⌁','Consulta pública','Comparte el estado sin exponer controles.']].map(([icon,title,text]) => <article key={title} className={panel}><span className="text-2xl text-amber-300">{icon}</span><h2 className="mt-3 font-bold">{title}</h2><p className="mt-1 text-sm text-slate-300">{text}</p></article>)}</section></Layout> }
-function Auth({ screen }: { screen: 'login'|'register'|'recovery' }) { const { configured, user, signIn, signUp, resetPassword } = useAuth(); const navigate=useNavigate(); const [message,setMessage]=useState(''); const [busy,setBusy]=useState(false); const [showPassword,setShowPassword]=useState(false); const recovery=screen==='recovery'; const register=screen==='register'; const title=i18n.t(`app.auth.${screen}`); useEffect(()=>{if(register&&user)navigate('/dashboard',{replace:true})},[register,user,navigate]); async function submit(event:FormEvent<HTMLFormElement>){event.preventDefault();const data=new FormData(event.currentTarget);const email=String(data.get('email')).trim();const password=String(data.get('password'));setBusy(true);setMessage('');try{if(recovery){await resetPassword(email);setMessage(i18n.t('app.auth.recoverySent'))}else if(register){const name=String(data.get('name')).trim();if(password!==String(data.get('confirmPassword')))throw new Error(i18n.t('app.auth.passwordsMismatch'));await signUp(name,email,password);navigate('/dashboard',{replace:true})}else{await signIn(email,password);navigate('/dashboard')}}catch(error){setMessage(error instanceof Error?error.message:i18n.t('app.auth.operationFailed'))}finally{setBusy(false)}} const passwordField=(name:string,label:string)=><label className="block text-sm font-medium">{label}<span className="relative mt-1 block"><input required name={name} minLength={6} type={showPassword?'text':'password'} className={`${field} mt-0 pr-12`} /><button type="button" aria-label={showPassword?i18n.t('app.auth.hidePassword'):i18n.t('app.auth.showPassword')} title={showPassword?i18n.t('app.auth.hidePassword'):i18n.t('app.auth.showPassword')} className="absolute inset-y-0 right-0 inline-flex w-11 items-center justify-center text-slate-400 hover:text-amber-300" onClick={()=>setShowPassword(value=>!value)}>{showPassword?<EyeOff size={18}/>:<Eye size={18}/>}</button></span></label>; return <Layout><div className="mx-auto max-w-md"><div className={panel}><h1 className="text-2xl font-black">{title}</h1><p className="mt-2 text-sm text-slate-300">{configured ? '' : i18n.t('app.auth.localMode')}</p>{message&&<div className="mt-4"><Notice error={!message.includes(i18n.t('app.auth.recoverySent'))}>{message}</Notice></div>}<form className="mt-5 space-y-4" onSubmit={submit}>{register&&<label className="block text-sm font-medium">{i18n.t('app.common.name')}<input required name="name" autoComplete="name" className={field} placeholder={i18n.t('app.auth.yourName')} /></label>}<label className="block text-sm font-medium">{i18n.t('app.common.email')}<input required name="email" type="email" autoComplete="email" className={field} placeholder="correo@gmail.com" /></label>{!recovery&&<>{passwordField('password',i18n.t('app.common.password'))}{register&&passwordField('confirmPassword',i18n.t('app.auth.confirmPassword'))}</>}<button disabled={busy} className={`${primary} w-full`}>{busy?i18n.t('app.auth.processing'):recovery?i18n.t('app.auth.sendInstructions'):i18n.t('app.auth.continue')}</button></form>{!recovery&&<GoogleAuthButton />}<Link className="mt-5 block text-center text-sm text-amber-300 underline" to={screen==='login'?'/register':'/login'}>{screen==='login'?i18n.t('app.auth.noAccount'):i18n.t('app.auth.backToLogin')}</Link>{!recovery&&<Link className="mx-auto mt-3 inline-flex w-full justify-center rounded-lg border border-slate-500 px-3 py-2 text-sm font-semibold text-slate-300 hover:bg-slate-800" to="/forgot-password">{i18n.t('app.auth.forgotPassword')}</Link>}</div></div></Layout> }
+function Auth({ screen }: { screen: 'login'|'register'|'recovery' }) {
+  const { configured, user, signIn, signUp, resetPassword } = useAuth()
+  const navigate = useNavigate()
+  const [message, setMessage] = useState('')
+  const [busy, setBusy] = useState(false)
+  const [showPassword, setShowPassword] = useState(false)
+  const [legalAccepted, setLegalAccepted] = useState(false)
+  const [legalError, setLegalError] = useState('')
+  const recovery = screen === 'recovery'
+  const register = screen === 'register'
+  const title = i18n.t(`app.auth.${screen}`)
+
+  useEffect(() => { if (register && user) navigate('/dashboard', { replace: true }) }, [register, user, navigate])
+
+  async function submit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault()
+    const data = new FormData(event.currentTarget)
+    const email = String(data.get('email')).trim()
+    const password = String(data.get('password'))
+    if (register && !legalAccepted) {
+      setLegalError('You must accept the Terms & Conditions and Privacy Policy to create an account.')
+      return
+    }
+    setBusy(true)
+    setMessage('')
+    try {
+      if (recovery) {
+        await resetPassword(email)
+        setMessage(i18n.t('app.auth.recoverySent'))
+      } else if (register) {
+        const name = String(data.get('name')).trim()
+        if (password !== String(data.get('confirmPassword'))) throw new Error(i18n.t('app.auth.passwordsMismatch'))
+        await signUp(name, email, password, currentLegalConsent)
+        navigate('/dashboard', { replace: true })
+      } else {
+        await signIn(email, password)
+        navigate('/dashboard')
+      }
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : i18n.t('app.auth.operationFailed'))
+    } finally {
+      setBusy(false)
+    }
+  }
+
+  const passwordField = (name: string, label: string) => <label className="block text-sm font-medium">{label}<span className="relative mt-1 block"><input required name={name} minLength={6} type={showPassword ? 'text' : 'password'} className={`${field} mt-0 pr-12`} /><button type="button" aria-label={showPassword ? i18n.t('app.auth.hidePassword') : i18n.t('app.auth.showPassword')} title={showPassword ? i18n.t('app.auth.hidePassword') : i18n.t('app.auth.showPassword')} className="absolute inset-y-0 right-0 inline-flex w-11 items-center justify-center text-slate-400 hover:text-amber-300" onClick={() => setShowPassword(value => !value)}>{showPassword ? <EyeOff size={18} /> : <Eye size={18} />}</button></span></label>
+  const consent = <fieldset className="rounded-2xl border border-border bg-secondary/40 p-3"><legend className="sr-only">Legal agreement</legend><label className="flex cursor-pointer items-start gap-3 text-sm leading-5 text-foreground"><input required name="legalConsent" checked={legalAccepted} onChange={event => { setLegalAccepted(event.target.checked); if (event.target.checked) setLegalError('') }} type="checkbox" className="mt-1 size-4 accent-[#21B876]" /><span>I have read and agree to the <Link to="/terms" target="_blank" rel="noreferrer" className="font-semibold text-accent underline">Terms &amp; Conditions</Link> and <Link to="/privacy" target="_blank" rel="noreferrer" className="font-semibold text-accent underline">Privacy Policy</Link>.</span></label>{legalError && <p role="alert" className="mt-2 text-sm text-red-300">{legalError}</p>}</fieldset>
+
+  return <Layout><div className="mx-auto max-w-md"><div className={panel}><h1 className="text-2xl font-black">{title}</h1><p className="mt-2 text-sm text-slate-300">{configured ? '' : i18n.t('app.auth.localMode')}</p>{message && <div className="mt-4"><Notice error={!message.includes(i18n.t('app.auth.recoverySent'))}>{message}</Notice></div>}<form className="mt-5 space-y-4" onSubmit={submit}>{register && <label className="block text-sm font-medium">{i18n.t('app.common.name')}<input required name="name" autoComplete="name" className={field} placeholder={i18n.t('app.auth.yourName')} /></label>}<label className="block text-sm font-medium">{i18n.t('app.common.email')}<input required name="email" type="email" autoComplete="email" className={field} placeholder="correo@gmail.com" /></label>{!recovery && <>{passwordField('password', i18n.t('app.common.password'))}{register && passwordField('confirmPassword', i18n.t('app.auth.confirmPassword'))}</>}{register && consent}<button disabled={busy} className={`${primary} w-full`}>{busy ? i18n.t('app.auth.processing') : recovery ? i18n.t('app.auth.sendInstructions') : i18n.t('app.auth.continue')}</button></form>{!recovery && <GoogleAuthButton requiresConsent={register} consentAccepted={legalAccepted} onConsentRequired={() => setLegalError('You must accept the Terms & Conditions and Privacy Policy to create an account.')} />}<Link className="mt-5 block text-center text-sm text-amber-300 underline" to={screen === 'login' ? '/register' : '/login'}>{screen === 'login' ? i18n.t('app.auth.noAccount') : i18n.t('app.auth.backToLogin')}</Link>{!recovery && <Link className="mx-auto mt-3 inline-flex w-full justify-center rounded-lg border border-slate-500 px-3 py-2 text-sm font-semibold text-slate-300 hover:bg-slate-800" to="/forgot-password">{i18n.t('app.auth.forgotPassword')}</Link>}</div></div></Layout>
+}
 function ConfirmedAccount() { const { user, loading } = useAuth(); return <Layout><div className="mx-auto max-w-md text-center"><section className={panel}><span className="text-4xl">✓</span><h1 className="mt-3 text-2xl font-black">{loading ? 'Confirmando tu cuenta…' : user ? '¡Cuenta confirmada!' : 'Revisa la confirmación'}</h1><p className="mt-3 text-slate-300">{user ? 'Ya puedes cerrar esta pestaña y volver a la ventana original. Entrarás al panel automáticamente.' : 'Estamos validando el enlace. Espera un momento o vuelve a abrir el enlace del correo.'}</p>{user&&<button type="button" className={`${primary} mt-5`} onClick={() => window.close()}>Cerrar pestaña</button>}</section></div></Layout> }
 function OrganizerIdentity({ user }: { user: User | null }) {
   const { name, avatarUrl } = getUserProfile(user)

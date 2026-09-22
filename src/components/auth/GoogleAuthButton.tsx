@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { supabase } from '../../lib/supabase';
 import { Button } from '../ui/button';
 import { showToast } from '../ui/toast';
+import { currentLegalConsent, legalConsentStorageKey } from '../../legal';
 
 function GoogleIcon() {
   return (
@@ -27,11 +28,15 @@ function GoogleIcon() {
   );
 }
 
-export function GoogleAuthButton() {
+export function GoogleAuthButton({ requiresConsent = false, consentAccepted = false, onConsentRequired }: { requiresConsent?: boolean; consentAccepted?: boolean; onConsentRequired?: () => void }) {
   const [busy, setBusy] = useState(false);
   const { t } = useTranslation();
 
   async function signInWithGoogle() {
+    if (requiresConsent && !consentAccepted) {
+      onConsentRequired?.();
+      return;
+    }
     if (!supabase) {
       showToast(t('app.auth.googleUnavailable'), true);
       return;
@@ -39,6 +44,7 @@ export function GoogleAuthButton() {
 
     setBusy(true);
     try {
+      if (requiresConsent) sessionStorage.setItem(legalConsentStorageKey, JSON.stringify(currentLegalConsent));
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: { redirectTo: `${window.location.origin}/dashboard` },
@@ -71,7 +77,7 @@ export function GoogleAuthButton() {
         onClick={() => void signInWithGoogle()}
       >
         <GoogleIcon />
-        {busy ? t('app.auth.redirectingGoogle') : t('app.auth.signInGoogle')}
+        {busy ? t('app.auth.redirectingGoogle') : requiresConsent ? t('app.auth.continueGoogle') : t('app.auth.signInGoogle')}
       </Button>
     </div>
   );
