@@ -6,7 +6,7 @@ export function FinalCta() {
   const { t } = useTranslation()
 
   return (
-    <section className="mx-auto max-w-6xl px-5 py-16 sm:py-20">
+    <section className="landing-deferred mx-auto max-w-6xl px-5 py-16 sm:py-20">
       <div className="rounded-[3rem] bg-[#5B1FE0] px-6 py-14 text-center text-primary-foreground sm:px-12">
         <p className="text-xs font-semibold tracking-[.18em] text-white/75">{t('landing.cta.eyebrow')}</p>
         <h2 className="mx-auto mt-4 max-w-2xl text-3xl font-semibold sm:text-4xl">{t('landing.cta.title')}</h2>

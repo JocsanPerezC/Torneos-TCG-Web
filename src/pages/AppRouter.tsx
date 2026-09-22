@@ -35,7 +35,7 @@ function Header() {
   const location = useLocation()
   const authScreen = ['/login', '/register', '/forgot-password', '/auth/confirmed'].includes(location.pathname)
 
-  return <header className="app-header border-b border-border/90 backdrop-blur">
+  return <header className="app-header border-b border-border/90">
     <div className="mx-auto flex min-h-[72px] max-w-6xl items-center justify-between px-3 sm:px-5">
       <Link to="/" className="brand-wiggle inline-flex shrink-0 items-center gap-2 text-lg font-bold tracking-tight text-foreground sm:text-xl"><img src="/tcg-tournament-icon.svg" alt="" className="size-5" />Torneos TCG</Link>
       {!authScreen && <nav className="flex shrink-0 flex-nowrap items-center justify-end gap-1 text-sm sm:gap-2">

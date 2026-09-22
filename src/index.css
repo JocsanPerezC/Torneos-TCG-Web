@@ -64,6 +64,7 @@ main table tbody tr:hover { background: #FCFAEC; }
 input, textarea, select { color: #111; } input:focus, textarea:focus, select:focus { border-color: #21B876 !important; outline: 2px solid rgba(33,184,118,.18); outline-offset: 0; }
 
 .landing-theme { color: var(--foreground); font-family: var(--font-sans); }
+.landing-deferred { content-visibility: auto; contain-intrinsic-size: auto 560px; }
 
 @keyframes header-sheen {
   0%, 100% { background-position: 0% 50%; }
@@ -88,6 +89,12 @@ input, textarea, select { color: #111; } input:focus, textarea:focus, select:foc
 .nav-sparkle:hover::before, .nav-sparkle:hover::after { opacity: 1; transform: translate(0, -50%) rotate(0); }
 @media (prefers-reduced-motion: reduce) {
   .app-header { animation: none; }
+}
+
+@media (max-width: 767px) {
+  body { background-attachment: scroll, scroll; }
+  .app-header { animation: none; background-position: 0 50%; }
+  .hero-seat, .hero-token, section[aria-label="Vista previa del panel del torneo"] > div::before { animation: none; }
 }
 
 a[href="/forgot-password"]:hover { background-color: transparent !important; color: #1E4E88 !important; }
