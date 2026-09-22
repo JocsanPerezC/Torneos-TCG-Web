@@ -1,27 +1,28 @@
 import { useEffect } from 'react';
+import i18n from '../i18n';
 
-const textLimits: Record<string, { max: number; message: string }> = {
-  name: { max: 80, message: 'El nombre admite un máximo de 80 caracteres.' },
-  displayName: { max: 80, message: 'El nombre admite un máximo de 80 caracteres.' },
-  format: { max: 50, message: 'El formato admite un máximo de 50 caracteres.' },
-  email: { max: 254, message: 'El correo admite un máximo de 254 caracteres.' },
-  password: { max: 128, message: 'La contraseña admite un máximo de 128 caracteres.' },
-  confirmPassword: { max: 128, message: 'La contraseña admite un máximo de 128 caracteres.' },
+const textLimits: Record<string, { max: number; messageKey: string }> = {
+  name: { max: 80, messageKey: 'nameMax' },
+  displayName: { max: 80, messageKey: 'nameMax' },
+  format: { max: 50, messageKey: 'formatMax' },
+  email: { max: 254, messageKey: 'emailMax' },
+  password: { max: 128, messageKey: 'passwordMax' },
+  confirmPassword: { max: 128, messageKey: 'passwordMax' },
 };
 
 function numericLimit(input: HTMLInputElement) {
   if (input.name === 'rounds')
-    return { min: 1, max: 30, message: 'Las rondas deben estar entre 1 y 30.' };
+    return { min: 1, max: 30, messageKey: 'roundsRange' };
   if (input.name === 'maxPlayers')
-    return { min: 3, max: 50, message: 'El máximo de jugadores debe estar entre 3 y 50.' };
+    return { min: 3, max: 50, messageKey: 'maxPlayersRange' };
   if (input.name === 'maxTables')
-    return { min: 1, max: 25, message: 'El máximo de mesas debe estar entre 1 y 25.' };
+    return { min: 1, max: 25, messageKey: 'maxTablesRange' };
   if (['first', 'second', 'third', 'fourth', 'tie'].includes(input.name))
-    return { min: 0, max: 100, message: 'La puntuación debe estar entre 0 y 100.' };
+    return { min: 0, max: 100, messageKey: 'scoringRange' };
   if (input.name.startsWith('points-'))
-    return { min: 0, max: 2_147_483_647, message: 'Los puntos deben ser enteros no negativos.' };
+    return { min: 0, max: 2_147_483_647, messageKey: 'pointsRange' };
   if (input.name.startsWith('kills-'))
-    return { min: 0, max: 3, message: 'Los kills deben estar entre 0 y 3.' };
+    return { min: 0, max: 3, messageKey: 'killsRange' };
   return undefined;
 }
 
@@ -44,17 +45,22 @@ function applyLimits(element: HTMLInputElement | HTMLTextAreaElement) {
 }
 
 function validate(element: HTMLInputElement | HTMLTextAreaElement) {
+  if (element.required && !element.value.trim()) {
+    element.setCustomValidity(i18n.t('app.messages.required'));
+    return;
+  }
+
   if (element instanceof HTMLTextAreaElement && element.name === 'names') {
     const hasLongName = element.value.split(/\r?\n/).some((name) => name.trim().length > 80);
     element.setCustomValidity(
-      hasLongName ? 'Cada nombre de jugador admite un máximo de 80 caracteres.' : '',
+      hasLongName ? i18n.t('app.messages.playerNameMax') : '',
     );
     return;
   }
 
   const textLimit = textLimits[element.name];
   if (textLimit) {
-    element.setCustomValidity(element.value.length > textLimit.max ? textLimit.message : '');
+    element.setCustomValidity(element.value.length > textLimit.max ? i18n.t(`app.messages.${textLimit.messageKey}`) : '');
     return;
   }
 
@@ -65,7 +71,7 @@ function validate(element: HTMLInputElement | HTMLTextAreaElement) {
       limit &&
         element.value !== '' &&
         (!Number.isInteger(value) || value < limit.min || value > limit.max)
-        ? limit.message
+        ? i18n.t(`app.messages.${limit.messageKey}`)
         : '',
     );
   }
@@ -85,9 +91,12 @@ export function FormLimits() {
     document.querySelectorAll('input, textarea').forEach(update);
     document.addEventListener('input', handleInput, true);
     document.addEventListener('focusin', handleInput, true);
+    const refreshMessages = () => document.querySelectorAll('input, textarea').forEach(update);
+    i18n.on('languageChanged', refreshMessages);
     return () => {
       document.removeEventListener('input', handleInput, true);
       document.removeEventListener('focusin', handleInput, true);
+      i18n.off('languageChanged', refreshMessages);
     };
   }, []);
 

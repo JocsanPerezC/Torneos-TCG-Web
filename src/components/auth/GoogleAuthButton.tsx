@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { supabase } from '../../lib/supabase';
 import { Button } from '../ui/button';
 import { showToast } from '../ui/toast';
@@ -28,10 +29,11 @@ function GoogleIcon() {
 
 export function GoogleAuthButton() {
   const [busy, setBusy] = useState(false);
+  const { t } = useTranslation();
 
   async function signInWithGoogle() {
     if (!supabase) {
-      showToast('Supabase no está configurado para iniciar sesión con Google.', true);
+      showToast(t('app.auth.googleUnavailable'), true);
       return;
     }
 
@@ -44,7 +46,7 @@ export function GoogleAuthButton() {
       if (error) throw error;
     } catch (error) {
       showToast(
-        error instanceof Error ? error.message : 'No se pudo iniciar sesión con Google.',
+        error instanceof Error ? error.message : t('app.auth.googleFailed'),
         true,
       );
       setBusy(false);
@@ -58,7 +60,7 @@ export function GoogleAuthButton() {
           <span className="w-full border-t border-slate-700" />
         </div>
         <div className="relative flex justify-center">
-          <span className="bg-slate-900 px-3 text-xs text-slate-400">o continuar con</span>
+          <span className="bg-slate-900 px-3 text-xs text-slate-400">{t('app.auth.continueWith')}</span>
         </div>
       </div>
       <Button
@@ -69,7 +71,7 @@ export function GoogleAuthButton() {
         onClick={() => void signInWithGoogle()}
       >
         <GoogleIcon />
-        {busy ? 'Redirigiendo a Google…' : 'Iniciar sesión con Google'}
+        {busy ? t('app.auth.redirectingGoogle') : t('app.auth.signInGoogle')}
       </Button>
     </div>
   );
