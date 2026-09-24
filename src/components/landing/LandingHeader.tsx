@@ -7,19 +7,19 @@ import { useAuth } from '@/state/AuthContext'
 export function LandingHeader() {
   const { user, loading } = useAuth()
   const { t } = useTranslation()
+  const accountTarget = !loading && user ? '/dashboard' : '/register'
+  const accountLabel = !loading && user ? t('landing.navigation.dashboard') : t('landing.navigation.createAccount')
 
-  return (
-    <header className="app-header border-b border-border">
-      <div className="relative mx-auto flex min-h-[72px] w-full max-w-6xl items-center justify-between px-3 sm:px-5">
-        <Link to="/" className="brand-wiggle inline-flex shrink-0 items-center gap-2 text-lg font-bold tracking-tight text-foreground sm:text-xl"><img src="/tcg-tournament-icon.svg" alt="" className="size-5" />EDH Tournaments</Link>
-        <nav className="absolute left-1/2 hidden -translate-x-1/2 items-center gap-1 xl:flex">
-          <a href="#como-funciona" className="nav-sparkle px-3 py-2 text-sm font-semibold text-foreground hover:text-accent">{t('landing.navigation.howItWorks')}</a><a href="#puntuacion" className="nav-sparkle px-3 py-2 text-sm font-semibold text-accent">{t('landing.navigation.scoring')}</a><a href="#preguntas" className="nav-sparkle px-3 py-2 text-sm font-semibold text-foreground hover:text-accent">{t('landing.navigation.faq')}</a>
-        </nav>
-        <div className="flex shrink-0 items-center gap-1 text-sm sm:gap-2">
-          {!loading && user ? <Button asChild className="h-9 px-3 sm:h-10 sm:px-5"><Link to="/dashboard">{t('landing.navigation.dashboard')}</Link></Button> : <><Button asChild variant="outline" className="hidden h-9 px-4 sm:inline-flex sm:h-10"><Link to="/login">{t('landing.navigation.login')}</Link></Button><Button asChild className="hidden h-9 px-3 sm:inline-flex sm:h-10 sm:px-5"><Link to="/register">{t('landing.navigation.createAccount')}</Link></Button></>}
-          <LanguageSelector />
-        </div>
+  return <header className="app-header landing-header">
+    <div className="landing-header__bar mx-auto max-w-6xl">
+      <Link to="/" className="landing-header__brand"><img src="/tcg-tournament-icon.svg" alt="" />EDH <span>Tournaments</span></Link>
+      <nav className="landing-header__links" aria-label={t('landing.navigation.label')}><a href="#como-funciona">{t('landing.navigation.howItWorks')}</a><a href="#puntuacion">{t('landing.navigation.scoring')}</a><a href="#preguntas">{t('landing.navigation.faq')}</a></nav>
+      <div className="landing-header__actions">
+        {!loading && !user && <Button asChild variant="outline" className="landing-login"><Link to="/login">{t('landing.navigation.login')}</Link></Button>}
+        <Button asChild className="landing-account"><Link to={accountTarget}>{accountLabel}</Link></Button>
+        <LanguageSelector />
+        <details className="landing-menu"><summary aria-label={t('landing.navigation.menu')}><i /><i /><i /></summary><div><a href="#como-funciona">{t('landing.navigation.howItWorks')}</a><a href="#puntuacion">{t('landing.navigation.scoring')}</a><a href="#preguntas">{t('landing.navigation.faq')}</a>{!user && <Link to="/login">{t('landing.navigation.login')}</Link>}</div></details>
       </div>
-    </header>
-  )
+    </div>
+  </header>
 }
