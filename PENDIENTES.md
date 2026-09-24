@@ -5,7 +5,7 @@
 - [ ] Inscripción pública: que los jugadores se registren con un enlace y el organizador los acepte.
 - [ ] Código QR: para abrir rápidamente la página pública o registrarse desde el local.
 - [ ] Exportar resultados: PDF/CSV con clasificación final, rondas y mesas.
-- [ ] Dashboard con estadísticas: jugadores activos, rondas completadas, asistencia, promedio de puntos y podios.
+- [x] Estadísticas por torneo: bitácora de batalla con hitos de juego, asistencia y mesas.
 - [ ] Notificaciones: avisar al iniciar una ronda, asignar mesa o terminar el torneo.
 - [ ] Temporizador visible: cuenta regresiva pública para la ronda actual.
 - [ ] Buscador y filtros: buscar torneos, jugadores y filtrar por formato o estado.
