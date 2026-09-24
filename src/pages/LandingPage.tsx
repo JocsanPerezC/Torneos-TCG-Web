@@ -6,6 +6,7 @@ import { Hero } from '@/components/landing/Hero'
 import { HowItWorks } from '@/components/landing/HowItWorks'
 import { LandingFooter } from '@/components/landing/LandingFooter'
 import { LandingHeader } from '@/components/landing/LandingHeader'
+import { ProjectIdea } from '@/components/landing/ProjectIdea'
 
 export function LandingPage() {
   return (
@@ -13,6 +14,7 @@ export function LandingPage() {
       <LandingHeader />
       <main>
         <Hero />
+        <ProjectIdea />
         <ConceptPanel />
         <FeatureList />
         <HowItWorks />

@@ -39,7 +39,7 @@ function Header() {
 
   return <header className="app-header app-shell-header">
     <div className="app-shell-header__bar mx-auto max-w-6xl">
-      <Link to={authScreen ? '/' : '/dashboard'} className="app-shell-header__brand"><img src="/edh-tournaments-icon.svg" alt="" />EDH <span>Tournaments</span></Link>
+      <Link to="/" className="app-shell-header__brand"><img src="/edh-tournaments-icon.svg" alt="" />EDH <span>Tournaments</span></Link>
       {!authScreen && <nav className="app-shell-header__actions" aria-label={i18n.t('landing.navigation.label')}>
       <Link to="/dashboard" aria-label={i18n.t('app.header.tournaments')} className="app-shell-header__link"><Trophy size={16} /><span className="hidden sm:inline">{i18n.t('app.header.tournaments')}</span></Link>
         {isAdmin && <Link to="/admin" aria-label={i18n.t('app.header.administration')} className="app-shell-header__link app-shell-header__link--admin"><ShieldCheck size={16} /><span className="hidden sm:inline">{i18n.t('app.header.administration')}</span></Link>}
