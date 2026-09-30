@@ -1,0 +1,12 @@
+<svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="EDH Tournaments">
+  <rect x="7" y="7" width="54" height="54" rx="15" fill="#141414"/>
+  <rect x="3" y="3" width="54" height="54" rx="15" fill="#faf6e9" stroke="#141414" stroke-width="3"/>
+  <circle cx="20" cy="20" r="11" fill="#3d5afe" stroke="#141414" stroke-width="3"/>
+  <circle cx="40" cy="20" r="11" fill="#22b573" stroke="#141414" stroke-width="3"/>
+  <circle cx="20" cy="40" r="11" fill="#c1272d" stroke="#141414" stroke-width="3"/>
+  <circle cx="40" cy="40" r="11" fill="#5b21e0" stroke="#141414" stroke-width="3"/>
+  <g transform="rotate(-10 30 30)">
+    <rect x="22" y="19" width="16" height="22" rx="3.5" fill="#fff" stroke="#141414" stroke-width="3"/>
+    <path d="M30 24 L31.6 27.4 L35.3 27.8 L32.5 30.3 L33.3 34 L30 32.1 L26.7 34 L27.5 30.3 L24.7 27.8 L28.4 27.4 Z" fill="#ffc93c" stroke="#141414" stroke-width="1.6" stroke-linejoin="round"/>
+  </g>
+</svg>
