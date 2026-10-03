@@ -22,7 +22,7 @@ function numericLimit(input: HTMLInputElement) {
   if (input.name.startsWith('points-'))
     return { min: 0, max: 2_147_483_647, messageKey: 'pointsRange' };
   if (input.name.startsWith('kills-'))
-    return { min: 0, max: 3, messageKey: 'killsRange' };
+    return { min: 0, max: 5, messageKey: 'killsRange' };
   return undefined;
 }
 

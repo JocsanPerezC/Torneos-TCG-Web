@@ -9,6 +9,7 @@ export function isValidPodResult(pod: Pod): boolean {
         r.points < 0 ||
         !Number.isInteger(r.points) ||
         r.kills < 0 ||
+        r.kills > 5 ||
         !Number.isInteger(r.kills),
     )
   )

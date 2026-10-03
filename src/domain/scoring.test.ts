@@ -1,8 +1,23 @@
 import { describe, expect, it } from 'vitest';
-import { hasCompletePodOutcomes, standings } from './scoring';
+import { hasCompletePodOutcomes, isValidPodResult, standings } from './scoring';
 import type { Tournament } from './types';
 
 describe('standings', () => {
+  it('acepta hasta cinco kills por jugador', () => {
+    const pod = {
+      id: 'pod', number: 1, playerIds: ['a', 'b', 'c'],
+      results: [
+        { playerId: 'a', points: 1, kills: 5 },
+        { playerId: 'b', points: 1, kills: 0 },
+        { playerId: 'c', points: 1, kills: 0 },
+      ],
+    };
+
+    expect(isValidPodResult(pod)).toBe(true);
+    pod.results[0].kills = 6;
+    expect(isValidPodResult(pod)).toBe(false);
+  });
+
   it('calcula estadísticas desde los resultados seleccionados, no desde los puntos', () => {
     const tournament: Tournament = {
       id: 'tournament', ownerId: 'owner', name: 'Liga', format: 'Commander', information: '', plannedRounds: 3, status: 'activo', isPublic: false, publicSlug: 'liga', maxPlayers: 3, maxTables: 1, createdAt: '',
