@@ -2,6 +2,7 @@ import { createContext, useContext, useEffect, useMemo, useState, type ReactNode
 import type { User } from '@supabase/supabase-js';
 import { supabase } from '../lib/supabase';
 import type { AppRole } from '../data/adminRepository';
+import { recordLoginAccess } from '../data/adminUsersRepository';
 import { legalConsentStorageKey, type LegalConsent } from '../legal';
 
 // La confirmación por correo está desactivada temporalmente en Supabase.
@@ -73,7 +74,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     void client.auth.getSession().then(({ data }) => void applySession(data.session?.user ?? null));
     const {
       data: { subscription },
-    } = client.auth.onAuthStateChange((_event, session) => {
+    } = client.auth.onAuthStateChange((event, session) => {
+      if (event === 'SIGNED_IN') void recordLoginAccess().catch(() => undefined);
       void applySession(session?.user ?? null);
     });
     return () => {

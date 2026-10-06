@@ -7,6 +7,15 @@ export type ManagedUser = {
   displayName: string;
   role: AssignableRole | 'super_admin';
   createdAt: string;
+  lastAccess: LoginAccess | null;
+};
+export type LoginAccess = {
+  accessedAt: string;
+  location: string;
+  browser: string;
+  operatingSystem: string;
+  deviceType: string;
+  maskedIp: string;
 };
 type UserInput = { displayName: string; email: string; password?: string; role: AssignableRole };
 
@@ -20,6 +29,12 @@ async function invoke<T>(body: Record<string, unknown>): Promise<T> {
 
 export async function listManagedUsers() {
   return (await invoke<{ users: ManagedUser[] }>({ action: 'list' })).users;
+}
+export async function listManagedUserLoginHistory(id: string) {
+  return (await invoke<{ accesses: LoginAccess[] }>({ action: 'history', id })).accesses;
+}
+export async function recordLoginAccess() {
+  await invoke({ action: 'log-login' });
 }
 export async function createManagedUser(input: Required<UserInput>) {
   await invoke({ action: 'create', ...input });

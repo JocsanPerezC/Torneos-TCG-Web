@@ -122,7 +122,7 @@ function TournamentCreateModal({ onClose }: { onClose: () => void }) {
   const { createTournament } = useTournaments();
   const navigate = useNavigate();
   const [error, setError] = useState('');
-  function submit(event: FormEvent<HTMLFormElement>) {
+  async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const form = new FormData(event.currentTarget);
     const plannedRounds = Number(form.get('rounds'));
@@ -139,16 +139,20 @@ function TournamentCreateModal({ onClose }: { onClose: () => void }) {
       setError('Indica límites válidos: al menos 3 jugadores y 1 mesa.');
       return;
     }
-    const tournament = createTournament({
-      name: String(form.get('name')),
-      format: String(form.get('format')),
-      plannedRounds,
-      isPublic: true,
-      maxPlayers,
-      maxTables,
-    });
-    onClose();
-    navigate(`/tournaments/${tournament.id}`);
+    try {
+      const tournament = await createTournament({
+        name: String(form.get('name')),
+        format: String(form.get('format')),
+        plannedRounds,
+        isPublic: true,
+        maxPlayers,
+        maxTables,
+      });
+      onClose();
+      navigate(`/tournaments/${tournament.id}`);
+    } catch (reason) {
+      setError(reason instanceof Error ? reason.message : 'No se pudo crear el torneo.');
+    }
   }
   return (
     <Modal title="Nuevo torneo" onClose={onClose}>
@@ -221,7 +225,7 @@ export function NewTournament() {
   const { createTournament } = useTournaments();
   const navigate = useNavigate();
   const [error, setError] = useState('');
-  function submit(event: FormEvent<HTMLFormElement>) {
+  async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const values = new FormData(event.currentTarget);
     const rounds = Number(values.get('rounds'));
@@ -236,15 +240,19 @@ export function NewTournament() {
       maxTables < 1
     )
       return setError('Indica límites válidos: al menos 3 jugadores y 1 mesa.');
-    const tournament = createTournament({
-      name: String(values.get('name')),
-      format: String(values.get('format')),
-      plannedRounds: rounds,
-      isPublic: true,
-      maxPlayers,
-      maxTables,
-    });
-    navigate(`/tournaments/${tournament.id}`);
+    try {
+      const tournament = await createTournament({
+        name: String(values.get('name')),
+        format: String(values.get('format')),
+        plannedRounds: rounds,
+        isPublic: true,
+        maxPlayers,
+        maxTables,
+      });
+      navigate(`/tournaments/${tournament.id}`);
+    } catch (reason) {
+      setError(reason instanceof Error ? reason.message : 'No se pudo crear el torneo.');
+    }
   }
   return (
     <Layout>

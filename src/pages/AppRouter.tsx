@@ -7,8 +7,8 @@ import { LandingPage } from '../pages/LandingPage'
 import { PrivacyPolicyPage, TermsPage } from './LegalPages'
 import { TrialPage } from './TrialPage'
 import { deleteRemoteTournament, insertPlayers, loadAllTournaments, loadPublicTournament, persistPlayer, removeRemotePlayer } from '../data/tournamentRepository'
-import { loadAdminOverview, updateProfileRole, type AdminOverview, type AppRole, type AssignableRole } from '../data/adminRepository'
-import { deleteManagedUser, listManagedUsers, updateManagedUser, type ManagedUser } from '../data/adminUsersRepository'
+import { loadAdminOverview, type AdminOverview, type AppRole, type AssignableRole } from '../data/adminRepository'
+import { deleteManagedUser, listManagedUserLoginHistory, listManagedUsers, updateManagedUser, type LoginAccess, type ManagedUser } from '../data/adminUsersRepository'
 import type { Tournament } from '../domain/types'
 import { Archive, BarChart3, CircleX, Database, Equal, Eye, EyeOff, ExternalLink, GitBranch, Inbox, Info, LayoutDashboard, LogOut, Play, Plus, RefreshCw, Settings as SettingsIcon, ShieldCheck, Square, Table, Trash2, Trophy, Users, type LucideIcon } from 'lucide-react'
 import { Modal } from '../components/ui/modal'
@@ -17,6 +17,7 @@ import { showToast, ToastViewport } from '../components/ui/toast'
 import { GoogleAuthButton } from '../components/auth/GoogleAuthButton'
 import { LanguageSelector } from '../components/ui/LanguageSelector'
 import { uid, type Pod, type ResultOutcome } from '../domain/types'
+import { maxTournamentsPerOrganizer, tournamentLimitMessage } from '../domain/tournamentLimits'
 import { tournamentStatistics } from '../domain/statistics'
 import { BattleLedger } from '../components/tournament/BattleLedger'
 import { getUserProfile } from '../lib/userProfile'
@@ -52,7 +53,7 @@ function Header() {
   </header>
 }
 function CompletionRedirect() { const { id } = useParams(); const tournament = useTournament(id); const location = useLocation(); const navigate = useNavigate(); useEffect(() => { if (tournament && location.pathname.endsWith('/rounds') && sessionStorage.getItem('torneos-tcg.completed-tournament') === tournament.id) { sessionStorage.removeItem('torneos-tcg.completed-tournament'); navigate(`/tournaments/${tournament.id}/standings`, { replace: true }) } }, [tournament, location.pathname, navigate]); return null }
-function Layout({ children }: { children: React.ReactNode }) { return <><Header /><CompletionRedirect /><main className="mx-auto min-h-[calc(100vh-72px)] w-full max-w-6xl px-4 pb-8 pt-24">{children}</main><ToastViewport /></> }
+function Layout({ children, wide = false }: { children: React.ReactNode; wide?: boolean }) { return <><Header /><CompletionRedirect /><main className={`mx-auto min-h-[calc(100vh-72px)] w-full ${wide ? 'max-w-7xl' : 'max-w-6xl'} px-4 pb-8 pt-24`}>{children}</main><ToastViewport /></> }
 export function AppRouter() { useTranslation(); return <Routes><Route path="/" element={<LandingPage />} /><Route path="/trial" element={<TrialPage />} /><Route path="/privacy" element={<PrivacyPolicyPage />} /><Route path="/terms" element={<TermsPage />} /><Route path="/legal-consent" element={<LegalConsent />} /><Route path="/login" element={<Auth screen="login" />} /><Route path="/register" element={<Auth screen="register" />} /><Route path="/forgot-password" element={<Auth screen="recovery" />} /><Route path="/auth/confirmed" element={<ConfirmedAccount />} /><Route path="/dashboard" element={<ConsentGuard><Dashboard /></ConsentGuard>} /><Route path="/admin" element={<ConsentGuard><AdminRoute /></ConsentGuard>} /><Route path="/tournaments/new" element={<ConsentGuard><NewTournament /></ConsentGuard>} /><Route path="/tournaments/:id/*" element={<ConsentGuard><TournamentLayout /></ConsentGuard>}><Route index element={<Overview />} /><Route path="players" element={<Players />} /><Route path="rounds" element={<Rounds />} /><Route path="standings" element={<Standings />} /><Route path="settings" element={<Settings />} /></Route><Route path="/t/:slug" element={<PublicView />} /><Route path="*" element={<Navigate to="/" replace />} /></Routes> }
 
 function ConsentGuard({ children }: { children: React.ReactNode }) { const { user, requiresLegalConsent } = useAuth(); return user && requiresLegalConsent ? <Navigate to="/legal-consent" replace /> : <>{children}</> }
@@ -139,64 +140,419 @@ function OrganizerIdentity({ user }: { user: User | null }) {
 }
 
 function Dashboard() {
-  const { tournaments, ready, remoteError, removeTournament } = useTournaments()
-  const { configured, user, loading } = useAuth()
-  const [tournamentToDelete, setTournamentToDelete] = useState<Tournament>()
-  const [creating, setCreating] = useState(false)
-  const navigate = useNavigate()
-  const ownTournaments = tournaments.filter(tournament => tournament.ownerId === user?.id)
-  if (configured && !loading && !user) return <Navigate to="/login" replace />
+  const { tournaments, ready, remoteError, removeTournament } = useTournaments();
+  const { configured, user, loading } = useAuth();
+  const [tournamentToDelete, setTournamentToDelete] = useState<Tournament>();
+  const [creating, setCreating] = useState(false);
+  const navigate = useNavigate();
+  const ownTournaments = tournaments.filter((tournament) => tournament.ownerId === user?.id);
+  const tournamentLimitReached = ownTournaments.length >= maxTournamentsPerOrganizer;
+  if (configured && !loading && !user) return <Navigate to="/login" replace />;
 
-  return <Layout><div className="dashboard-board">
-    <header className="dashboard-board__header"><div><OrganizerIdentity user={user}/><h1>{i18n.t('app.dashboard.title')}</h1></div><button className={primary} onClick={() => setCreating(true)}><Plus size={16} aria-hidden />{i18n.t('app.dashboard.newTournament')}</button></header>
-    {!ready && <div className="app-loading-note"><i /><span>{i18n.t('app.dashboard.loading')}</span></div>}
-    {remoteError && <div className="mb-4"><Notice error>{remoteError}</Notice></div>}
-    {(['activo', 'finalizado'] as const).map(status => {
-      const sectionTournaments = ownTournaments.filter(tournament => tournament.status === status)
-      const SectionIcon = status === 'activo' ? Play : Archive
-      return <section key={status} className="dashboard-shelf"><header><span><SectionIcon size={14} aria-hidden /></span><h2>{status === 'activo' ? i18n.t('app.dashboard.active') : i18n.t('app.dashboard.finished')}</h2></header><div className="dashboard-shelf__grid">
-        {sectionTournaments.map(tournament => <article key={tournament.id} role="link" tabIndex={0} className="tournament-ticket" onClick={event => { if (!(event.target as HTMLElement).closest('button')) navigate(`/tournaments/${tournament.id}`) }} onKeyDown={event => { if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); navigate(`/tournaments/${tournament.id}`) } }}>
-          <div className="tournament-ticket__top"><span>{tournament.format}</span><Badge>{tournament.status}</Badge></div><strong>{tournament.name}</strong><p>{i18n.t('app.dashboard.playersAndRounds', { players: tournament.players.filter(player => player.active).length, rounds: `${tournament.rounds.length}/${tournament.plannedRounds}` })}</p><div className="tournament-ticket__bottom"><div className="round-pips" aria-label={i18n.t('app.dashboard.playersAndRounds', { players: tournament.players.filter(player => player.active).length, rounds: `${tournament.rounds.length}/${tournament.plannedRounds}` })}>{Array.from({ length: tournament.plannedRounds }, (_, round) => <i className={round < tournament.rounds.length ? 'is-done' : ''} key={round} />)}</div><button className="app-action-delete" onClick={event => { event.stopPropagation(); setTournamentToDelete(tournament) }}>{i18n.t('app.common.delete')}</button></div>
-        </article>)}
-        {ready && sectionTournaments.length === 0 && <div className="app-empty-state"><span><Inbox aria-hidden /></span><p>{i18n.t('app.dashboard.noTournaments')}</p></div>}
-      </div></section>
-    })}
-    {creating && <TournamentCreateModal onClose={() => setCreating(false)} />}
-    {tournamentToDelete && <ConfirmModal title={i18n.t('app.dashboard.deleteTitle')} description={i18n.t('app.dashboard.deleteDescription', { name: tournamentToDelete.name })} confirmLabel={i18n.t('app.dashboard.deleteTitle')} destructive onClose={() => setTournamentToDelete(undefined)} onConfirm={() => { removeTournament(tournamentToDelete.id); setTournamentToDelete(undefined) }} />}
-  </div></Layout>
+  return (
+    <Layout>
+      <div className="dashboard-board">
+        <header className="dashboard-board__header">
+          <div>
+            <OrganizerIdentity user={user} />
+            <h1>{i18n.t('app.dashboard.title')}</h1>
+          </div>
+          <button
+            className={primary}
+            onClick={() => {
+              if (tournamentLimitReached) {
+                showToast(tournamentLimitMessage, true);
+                return;
+              }
+              setCreating(true);
+            }}
+          >
+            <Plus size={16} aria-hidden />
+            {i18n.t('app.dashboard.newTournament')}
+          </button>
+        </header>
+        {!ready && (
+          <div className="app-loading-note">
+            <i />
+            <span>{i18n.t('app.dashboard.loading')}</span>
+          </div>
+        )}
+        {remoteError && (
+          <div className="mb-4">
+            <Notice error>{remoteError}</Notice>
+          </div>
+        )}
+        {(['activo', 'finalizado'] as const).map((status) => {
+          const sectionTournaments = ownTournaments.filter(
+            (tournament) => tournament.status === status,
+          );
+          const SectionIcon = status === 'activo' ? Play : Archive;
+          return (
+            <section key={status} className="dashboard-shelf">
+              <header>
+                <span>
+                  <SectionIcon size={14} aria-hidden />
+                </span>
+                <h2>
+                  {status === 'activo'
+                    ? i18n.t('app.dashboard.active')
+                    : i18n.t('app.dashboard.finished')}
+                </h2>
+              </header>
+              <div className="dashboard-shelf__grid">
+                {sectionTournaments.map((tournament) => (
+                  <article
+                    key={tournament.id}
+                    role="link"
+                    tabIndex={0}
+                    className="tournament-ticket"
+                    onClick={(event) => {
+                      if (!(event.target as HTMLElement).closest('button'))
+                        navigate(`/tournaments/${tournament.id}`);
+                    }}
+                    onKeyDown={(event) => {
+                      if (event.key === 'Enter' || event.key === ' ') {
+                        event.preventDefault();
+                        navigate(`/tournaments/${tournament.id}`);
+                      }
+                    }}
+                  >
+                    <div className="tournament-ticket__top">
+                      <span>{tournament.format}</span>
+                      <Badge>{tournament.status}</Badge>
+                    </div>
+                    <strong>{tournament.name}</strong>
+                    <p>
+                      {i18n.t('app.dashboard.playersAndRounds', {
+                        players: tournament.players.filter((player) => player.active).length,
+                        rounds: `${tournament.rounds.length}/${tournament.plannedRounds}`,
+                      })}
+                    </p>
+                    <div className="tournament-ticket__bottom">
+                      <div
+                        className="round-pips"
+                        aria-label={i18n.t('app.dashboard.playersAndRounds', {
+                          players: tournament.players.filter((player) => player.active).length,
+                          rounds: `${tournament.rounds.length}/${tournament.plannedRounds}`,
+                        })}
+                      >
+                        {Array.from({ length: tournament.plannedRounds }, (_, round) => (
+                          <i
+                            className={round < tournament.rounds.length ? 'is-done' : ''}
+                            key={round}
+                          />
+                        ))}
+                      </div>
+                      <button
+                        className="app-action-delete"
+                        onClick={(event) => {
+                          event.stopPropagation();
+                          setTournamentToDelete(tournament);
+                        }}
+                      >
+                        {i18n.t('app.common.delete')}
+                      </button>
+                    </div>
+                  </article>
+                ))}
+                {ready && sectionTournaments.length === 0 && (
+                  <div className="app-empty-state">
+                    <span>
+                      <Inbox aria-hidden />
+                    </span>
+                    <p>{i18n.t('app.dashboard.noTournaments')}</p>
+                  </div>
+                )}
+              </div>
+            </section>
+          );
+        })}
+        {creating && <TournamentCreateModal onClose={() => setCreating(false)} />}
+        {tournamentToDelete && (
+          <ConfirmModal
+            title={i18n.t('app.dashboard.deleteTitle')}
+            description={i18n.t('app.dashboard.deleteDescription', {
+              name: tournamentToDelete.name,
+            })}
+            confirmLabel={i18n.t('app.dashboard.deleteTitle')}
+            destructive
+            onClose={() => setTournamentToDelete(undefined)}
+            onConfirm={() => {
+              removeTournament(tournamentToDelete.id);
+              setTournamentToDelete(undefined);
+            }}
+          />
+        )}
+      </div>
+    </Layout>
+  );
 }
 
-function TournamentCreateModal({ onClose }: { onClose:()=>void }) {
+function TournamentCreateModal({ onClose }: { onClose: () => void }) {
   const { createTournament } = useTournaments();
   const navigate = useNavigate();
   const [error, setError] = useState('');
+  const [busy, setBusy] = useState(false);
 
-  function submit(event: FormEvent<HTMLFormElement>) {
+  async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const form = new FormData(event.currentTarget);
     const plannedRounds = Number(form.get('rounds'));
     const maxPlayers = Number(form.get('maxPlayers'));
     const maxTables = Number(form.get('maxTables'));
-    if (!Number.isInteger(plannedRounds) || plannedRounds < 1 || !Number.isInteger(maxPlayers) || maxPlayers < 3 || !Number.isInteger(maxTables) || maxTables < 1) {
+    if (
+      !Number.isInteger(plannedRounds) ||
+      plannedRounds < 1 ||
+      !Number.isInteger(maxPlayers) ||
+      maxPlayers < 3 ||
+      !Number.isInteger(maxTables) ||
+      maxTables < 1
+    ) {
       setError(i18n.t('app.createTournament.invalidLimits'));
       return;
     }
-    const tournament = createTournament({ name: String(form.get('name')), format: String(form.get('format')), plannedRounds, maxPlayers, maxTables, isPublic: true });
-    onClose();
-    navigate(`/tournaments/${tournament.id}`);
+    setBusy(true);
+    try {
+      const tournament = await createTournament({
+        name: String(form.get('name')),
+        format: String(form.get('format')),
+        plannedRounds,
+        maxPlayers,
+        maxTables,
+        isPublic: true,
+      });
+      onClose();
+      navigate(`/tournaments/${tournament.id}`);
+    } catch (reason) {
+      setError(reason instanceof Error ? reason.message : tournamentLimitMessage);
+    } finally {
+      setBusy(false);
+    }
   }
 
-  return <Modal title={i18n.t('app.createTournament.title')} description={i18n.t('app.createTournament.description')} onClose={onClose}><form className="space-y-4" onSubmit={submit}>{error&&<Notice error>{error}</Notice>}<div className="grid gap-3 sm:grid-cols-2"><label className="text-sm sm:col-span-2">{i18n.t('app.common.name')}<input autoFocus required name="name" className={field} placeholder={i18n.t('app.createTournament.namePlaceholder')} /></label><label className="text-sm">{i18n.t('app.createTournament.format')}<input name="format" defaultValue="Commander" className={field} /></label><label className="text-sm">{i18n.t('app.tournament.rounds')}<input required name="rounds" defaultValue="3" min="1" type="number" className={field} /></label><label className="text-sm">{i18n.t('app.createTournament.maxPlayers')}<input required name="maxPlayers" defaultValue="32" min="3" type="number" className={field} /></label><label className="text-sm">{i18n.t('app.createTournament.maxTables')}<input required name="maxTables" defaultValue="8" min="1" type="number" className={field} /></label></div><div className="flex justify-end gap-3"><button type="button" className="rounded-lg border border-slate-500 px-4 py-2 text-sm font-semibold hover:bg-slate-800" onClick={onClose}>{i18n.t('app.common.cancel')}</button><button className={primary}>{i18n.t('app.createTournament.create')}</button></div></form></Modal>
+  return (
+    <Modal
+      title={i18n.t('app.createTournament.title')}
+      description={i18n.t('app.createTournament.description')}
+      onClose={onClose}
+    >
+      <form className="space-y-4" onSubmit={submit}>
+        {error && <Notice error>{error}</Notice>}
+        <div className="grid gap-3 sm:grid-cols-2">
+          <label className="text-sm sm:col-span-2">
+            {i18n.t('app.common.name')}
+            <input
+              autoFocus
+              required
+              name="name"
+              className={field}
+              placeholder={i18n.t('app.createTournament.namePlaceholder')}
+            />
+          </label>
+          <label className="text-sm">
+            {i18n.t('app.createTournament.format')}
+            <input name="format" defaultValue="Commander" className={field} />
+          </label>
+          <label className="text-sm">
+            {i18n.t('app.tournament.rounds')}
+            <input
+              required
+              name="rounds"
+              defaultValue="3"
+              min="1"
+              type="number"
+              className={field}
+            />
+          </label>
+          <label className="text-sm">
+            {i18n.t('app.createTournament.maxPlayers')}
+            <input
+              required
+              name="maxPlayers"
+              defaultValue="32"
+              min="3"
+              type="number"
+              className={field}
+            />
+          </label>
+          <label className="text-sm">
+            {i18n.t('app.createTournament.maxTables')}
+            <input
+              required
+              name="maxTables"
+              defaultValue="8"
+              min="1"
+              type="number"
+              className={field}
+            />
+          </label>
+        </div>
+        <div className="flex justify-end gap-3">
+          <button
+            type="button"
+            className="rounded-lg border border-slate-500 px-4 py-2 text-sm font-semibold hover:bg-slate-800"
+            onClick={onClose}
+          >
+            {i18n.t('app.common.cancel')}
+          </button>
+          <button disabled={busy} className={primary}>
+            {busy ? 'Creando…' : i18n.t('app.createTournament.create')}
+          </button>
+        </div>
+      </form>
+    </Modal>
+  );
 }
-function NewTournament() { const { createTournament } = useTournaments(); const navigate = useNavigate(); const [error, setError] = useState(''); function submit(event: FormEvent<HTMLFormElement>) { event.preventDefault(); const values = new FormData(event.currentTarget); const rounds = Number(values.get('rounds')); const maxPlayers = Number(values.get('maxPlayers')); const maxTables = Number(values.get('maxTables')); if (!Number.isInteger(rounds) || rounds < 1 || !Number.isInteger(maxPlayers) || maxPlayers < 3 || !Number.isInteger(maxTables) || maxTables < 1) return setError(i18n.t('app.createTournament.invalidLimits')); const tournament = createTournament({ name: String(values.get('name')), format: String(values.get('format')), plannedRounds: rounds, maxPlayers, maxTables, isPublic: true }); navigate(`/tournaments/${tournament.id}`) } return <Layout><div className="mx-auto max-w-2xl"><h1 className="mb-5 text-3xl font-black">{i18n.t('app.createTournament.title')}</h1><form onSubmit={submit} className={`${panel} space-y-4`}>{error && <Notice error>{error}</Notice>}<div className="grid gap-4 sm:grid-cols-2"><label className="text-sm">{i18n.t('app.common.name')}<input required name="name" className={field} placeholder={i18n.t('app.createTournament.namePlaceholder')} /></label><label className="text-sm">{i18n.t('app.createTournament.gameOrFormat')}<input name="format" defaultValue="Commander" className={field} /></label><label className="text-sm">{i18n.t('app.createTournament.plannedRounds')}<input required name="rounds" defaultValue="3" min="1" type="number" className={field} /></label><label className="text-sm">{i18n.t('app.createTournament.maxPlayers')}<input required name="maxPlayers" defaultValue="32" min="3" type="number" className={field} /></label><label className="text-sm">{i18n.t('app.createTournament.maxTables')}<input required name="maxTables" defaultValue="8" min="1" type="number" className={field} /></label></div><button className={primary}>{i18n.t('app.createTournament.create')}</button></form></div></Layout> }
+function NewTournament() {
+  const { createTournament } = useTournaments();
+  const navigate = useNavigate();
+  const [error, setError] = useState('');
+  const [busy, setBusy] = useState(false);
+  async function submit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    const values = new FormData(event.currentTarget);
+    const rounds = Number(values.get('rounds'));
+    const maxPlayers = Number(values.get('maxPlayers'));
+    const maxTables = Number(values.get('maxTables'));
+    if (
+      !Number.isInteger(rounds) ||
+      rounds < 1 ||
+      !Number.isInteger(maxPlayers) ||
+      maxPlayers < 3 ||
+      !Number.isInteger(maxTables) ||
+      maxTables < 1
+    )
+      return setError(i18n.t('app.createTournament.invalidLimits'));
+    setBusy(true);
+    try {
+      const tournament = await createTournament({
+        name: String(values.get('name')),
+        format: String(values.get('format')),
+        plannedRounds: rounds,
+        maxPlayers,
+        maxTables,
+        isPublic: true,
+      });
+      navigate(`/tournaments/${tournament.id}`);
+    } catch (reason) {
+      setError(reason instanceof Error ? reason.message : tournamentLimitMessage);
+    } finally {
+      setBusy(false);
+    }
+  }
+  return (
+    <Layout>
+      <div className="mx-auto max-w-2xl">
+        <h1 className="mb-5 text-3xl font-black">{i18n.t('app.createTournament.title')}</h1>
+        <form onSubmit={submit} className={`${panel} space-y-4`}>
+          {error && <Notice error>{error}</Notice>}
+          <div className="grid gap-4 sm:grid-cols-2">
+            <label className="text-sm">
+              {i18n.t('app.common.name')}
+              <input
+                required
+                name="name"
+                className={field}
+                placeholder={i18n.t('app.createTournament.namePlaceholder')}
+              />
+            </label>
+            <label className="text-sm">
+              {i18n.t('app.createTournament.gameOrFormat')}
+              <input name="format" defaultValue="Commander" className={field} />
+            </label>
+            <label className="text-sm">
+              {i18n.t('app.createTournament.plannedRounds')}
+              <input
+                required
+                name="rounds"
+                defaultValue="3"
+                min="1"
+                type="number"
+                className={field}
+              />
+            </label>
+            <label className="text-sm">
+              {i18n.t('app.createTournament.maxPlayers')}
+              <input
+                required
+                name="maxPlayers"
+                defaultValue="32"
+                min="3"
+                type="number"
+                className={field}
+              />
+            </label>
+            <label className="text-sm">
+              {i18n.t('app.createTournament.maxTables')}
+              <input
+                required
+                name="maxTables"
+                defaultValue="8"
+                min="1"
+                type="number"
+                className={field}
+              />
+            </label>
+          </div>
+          <button disabled={busy} className={primary}>
+            {busy ? 'Creando…' : i18n.t('app.createTournament.create')}
+          </button>
+        </form>
+      </div>
+    </Layout>
+  );
+}
 
 function TournamentLayout() {
-  const { id } = useParams()
-  const tournament = useTournament(id)
-  if (!tournament) return <Layout><Notice error>{i18n.t('app.tournament.notFound')}</Notice></Layout>
-  const base = `/tournaments/${tournament.id}`
-  const tabs: [string, LucideIcon, string][] = [['', LayoutDashboard, i18n.t('app.tournament.overview')], ['players', Users, i18n.t('app.tournament.players')], ['rounds', GitBranch, i18n.t('app.tournament.rounds')], ['standings', Trophy, i18n.t('app.tournament.standings')], ['statistics', BarChart3, i18n.t('app.statistics.title')], ['settings', SettingsIcon, i18n.t('app.tournament.settings')]]
-  return <Layout><header className="tournament-masthead"><div><p>{tournament.format}</p><h1>{tournament.name}</h1></div><Badge>{tournament.status}</Badge></header><nav className="tournament-tabs" aria-label={i18n.t('landing.navigation.label')}>{tabs.map(([suffix, Icon, label]) => <NavLink end={!suffix} className={({ isActive }) => `tournament-tabs__tab ${isActive ? 'is-active' : ''}`} key={label} to={`${base}${suffix ? `/${suffix}` : ''}`}><Icon size={16} aria-hidden />{label}</NavLink>)}</nav><Routes><Route index element={<Overview />} /><Route path="players" element={<Players />} /><Route path="rounds" element={<Rounds />} /><Route path="standings" element={<Standings />} /><Route path="statistics" element={<Statistics />} /><Route path="settings" element={<Settings />} /></Routes></Layout>
+  const { id } = useParams();
+  const tournament = useTournament(id);
+  if (!tournament)
+    return (
+      <Layout>
+        <Notice error>{i18n.t('app.tournament.notFound')}</Notice>
+      </Layout>
+    );
+  const base = `/tournaments/${tournament.id}`;
+  const tabs: [string, LucideIcon, string][] = [
+    ['', LayoutDashboard, i18n.t('app.tournament.overview')],
+    ['players', Users, i18n.t('app.tournament.players')],
+    ['rounds', GitBranch, i18n.t('app.tournament.rounds')],
+    ['standings', Trophy, i18n.t('app.tournament.standings')],
+    ['statistics', BarChart3, i18n.t('app.statistics.title')],
+    ['settings', SettingsIcon, i18n.t('app.tournament.settings')],
+  ];
+  return (
+    <Layout>
+      <header className="tournament-masthead">
+        <div>
+          <p>{tournament.format}</p>
+          <h1>{tournament.name}</h1>
+        </div>
+        <Badge>{tournament.status}</Badge>
+      </header>
+      <nav className="tournament-tabs" aria-label={i18n.t('landing.navigation.label')}>
+        {tabs.map(([suffix, Icon, label]) => (
+          <NavLink
+            end={!suffix}
+            className={({ isActive }) => `tournament-tabs__tab ${isActive ? 'is-active' : ''}`}
+            key={label}
+            to={`${base}${suffix ? `/${suffix}` : ''}`}
+          >
+            <Icon size={16} aria-hidden />
+            {label}
+          </NavLink>
+        ))}
+      </nav>
+      <Routes>
+        <Route index element={<Overview />} />
+        <Route path="players" element={<Players />} />
+        <Route path="rounds" element={<Rounds />} />
+        <Route path="standings" element={<Standings />} />
+        <Route path="statistics" element={<Statistics />} />
+        <Route path="settings" element={<Settings />} />
+      </Routes>
+    </Layout>
+  );
 }
 function Current() { const { id } = useParams(); const tournament = useTournament(id); if (!tournament) throw new Error('Torneo no encontrado'); return tournament }
 function Overview() { const tournament = Current(); const current = tournament.rounds.at(-1); return <section className="overview-board"><header><p>{i18n.t('app.tournament.state')}</p><h2>{i18n.t('app.tournament.overview')}</h2></header><div className="overview-board__metrics"><Metric label={i18n.t('app.tournament.activePlayers')} value={tournament.players.filter(player => player.active).length} icon={Users} /><Metric label={i18n.t('app.tournament.rounds')} value={`${tournament.rounds.length}/${tournament.plannedRounds}`} icon={GitBranch} /><Metric label={i18n.t('app.tournament.currentTable')} value={current ? `R${current.number}` : '—'} icon={Table} /></div><TournamentInformation /></section> }
@@ -357,114 +713,849 @@ const displayDate = (value: string) => {
   const date = new Date(value)
   return Number.isNaN(date.getTime()) ? '—' : new Intl.DateTimeFormat('es-CR', { dateStyle: 'medium' }).format(date)
 }
+const displayDateTime = (value: string) => {
+  const date = new Date(value)
+  return Number.isNaN(date.getTime())
+    ? 'Sin registros'
+    : new Intl.DateTimeFormat('es-CR', { dateStyle: 'medium', timeStyle: 'short' }).format(date)
+}
+const accessOrigin = (access: LoginAccess) =>
+  `${access.location} · ${access.browser} / ${access.operatingSystem}`
 const roleLabel = (role: AppRole) => role === 'super_admin' ? 'Super administrador' : role === 'admin' ? 'Administrador' : 'Organizador'
 
 function AdminDashboard() {
-  const { user, isSuperAdmin } = useAuth()
-  const [overview, setOverview] = useState<AdminOverview>()
-  const [error, setError] = useState<string>()
-  const [refreshing, setRefreshing] = useState(false)
-  const [changingRole, setChangingRole] = useState<string>()
-  const [deletingTournament, setDeletingTournament] = useState<string>()
-  const [managedUsers, setManagedUsers] = useState<ManagedUser[]>([])
-  const [editingUser, setEditingUser] = useState<ManagedUser>()
-  const [profileSearch, setProfileSearch] = useState('')
-  const [tournamentSearch, setTournamentSearch] = useState('')
-  const [adminTab, setAdminTab] = useState<'accounts' | 'tournaments' | 'players' | 'details'>('accounts')
+  const { user, isSuperAdmin } = useAuth();
+  const [overview, setOverview] = useState<AdminOverview>();
+  const [error, setError] = useState<string>();
+  const [refreshing, setRefreshing] = useState(false);
+  const [deletingTournament, setDeletingTournament] = useState<string>();
+  const [managedUsers, setManagedUsers] = useState<ManagedUser[]>([]);
+  const [editingUser, setEditingUser] = useState<ManagedUser>();
+  const [profileSearch, setProfileSearch] = useState('');
+  const [tournamentSearch, setTournamentSearch] = useState('');
+  const [adminTab, setAdminTab] = useState<'accounts' | 'tournaments' | 'players' | 'details'>(
+    'accounts',
+  );
 
   const refresh = async () => {
-    setRefreshing(true)
+    setRefreshing(true);
     try {
-      setOverview(await loadAdminOverview())
-      setError(undefined)
+      setOverview(await loadAdminOverview());
+      setError(undefined);
     } catch (reason) {
-      setError(reason instanceof Error ? reason.message : 'No se pudo cargar la información administrativa.')
+      setError(
+        reason instanceof Error
+          ? reason.message
+          : 'No se pudo cargar la información administrativa.',
+      );
     } finally {
-      setRefreshing(false)
+      setRefreshing(false);
     }
-  }
+  };
 
-  const changeRole = async (profileId: string, role: AssignableRole) => {
-    setChangingRole(profileId)
+  useEffect(() => {
+    void refresh();
+  }, []);
+  const refreshManagedUsers = async () => {
     try {
-      await updateProfileRole(profileId, role)
-      await refresh()
+      setManagedUsers(await listManagedUsers());
     } catch (reason) {
-      setError(reason instanceof Error ? reason.message : 'No se pudo cambiar el rol.')
-    } finally {
-      setChangingRole(undefined)
+      setError(
+        reason instanceof Error ? reason.message : 'No se pudieron cargar los perfiles editables.',
+      );
     }
-  }
+  };
+  useEffect(() => {
+    if (isSuperAdmin) void refreshManagedUsers();
+  }, [isSuperAdmin]);
+  const removeProfile = async (target: ManagedUser) => {
+    if (
+      !window.confirm(
+        `Eliminar la cuenta de ${target.displayName}? También se eliminarán sus torneos. Esta acción no se puede deshacer.`,
+      )
+    )
+      return;
+    try {
+      await deleteManagedUser(target.id);
+      await Promise.all([refresh(), refreshManagedUsers()]);
+    } catch (reason) {
+      setError(reason instanceof Error ? reason.message : 'No se pudo eliminar la cuenta.');
+    }
+  };
+  const removeAdminTournament = async (target: AdminOverview['tournaments'][number]) => {
+    if (
+      !window.confirm(
+        `Eliminar el torneo ${target.name}? Se eliminarán sus jugadores, rondas y resultados. Esta acción no se puede deshacer.`,
+      )
+    )
+      return;
+    setDeletingTournament(target.id);
+    try {
+      await deleteRemoteTournament(target.id);
+      await refresh();
+    } catch (reason) {
+      setError(reason instanceof Error ? reason.message : 'No se pudo eliminar el torneo.');
+    } finally {
+      setDeletingTournament(undefined);
+    }
+  };
 
-  useEffect(() => { void refresh() }, [])
-  const refreshManagedUsers = async () => { try { setManagedUsers(await listManagedUsers()); } catch (reason) { setError(reason instanceof Error ? reason.message : 'No se pudieron cargar los perfiles editables.') } }
-  useEffect(() => { if (isSuperAdmin) void refreshManagedUsers() }, [isSuperAdmin])
-  const removeProfile = async (target: ManagedUser) => { if (!window.confirm(`Eliminar la cuenta de ${target.displayName}? También se eliminarán sus torneos. Esta acción no se puede deshacer.`)) return; try { await deleteManagedUser(target.id); await Promise.all([refresh(), refreshManagedUsers()]) } catch (reason) { setError(reason instanceof Error ? reason.message : 'No se pudo eliminar la cuenta.') } }
-  const removeAdminTournament = async (target: AdminOverview['tournaments'][number]) => { if (!window.confirm(`Eliminar el torneo ${target.name}? Se eliminarán sus jugadores, rondas y resultados. Esta acción no se puede deshacer.`)) return; setDeletingTournament(target.id); try { await deleteRemoteTournament(target.id); await refresh() } catch (reason) { setError(reason instanceof Error ? reason.message : 'No se pudo eliminar el torneo.') } finally { setDeletingTournament(undefined) } }
+  const profilesById = new Map(overview?.profiles.map((profile) => [profile.id, profile]));
+  const playerCount =
+    overview?.tournaments.reduce((total, tournament) => total + tournament.playerCount, 0) ?? 0;
+  const activeTournaments =
+    overview?.tournaments.filter((tournament) => tournament.status === 'activo').length ?? 0;
+  const accountProfiles =
+    overview?.profiles.filter((profile) => isSuperAdmin || profile.role !== 'super_admin') ?? [];
+  const managedUsersById = new Map(managedUsers.map((managed) => [managed.id, managed]));
+  const visibleProfiles = accountProfiles.filter((profile) =>
+    `${profile.displayName} ${profile.role} ${managedUsersById.get(profile.id)?.email ?? ''}`
+      .toLocaleLowerCase()
+      .includes(profileSearch.toLocaleLowerCase()),
+  );
+  const visibleTournaments =
+    overview?.tournaments.filter((tournament) =>
+      `${tournament.name} ${tournament.format} ${profilesById.get(tournament.ownerId)?.displayName ?? ''}`
+        .toLocaleLowerCase()
+        .includes(tournamentSearch.toLocaleLowerCase()),
+    ) ?? [];
 
-  const profilesById = new Map(overview?.profiles.map(profile => [profile.id, profile]))
-  const playerCount = overview?.tournaments.reduce((total, tournament) => total + tournament.playerCount, 0) ?? 0
-  const activeTournaments = overview?.tournaments.filter(tournament => tournament.status === 'activo').length ?? 0
-  const accountProfiles = overview?.profiles.filter(profile => isSuperAdmin || profile.role !== 'super_admin') ?? []
-  const managedUsersById = new Map(managedUsers.map(managed => [managed.id, managed]))
-  const visibleProfiles = accountProfiles.filter(profile => `${profile.displayName} ${profile.role} ${managedUsersById.get(profile.id)?.email ?? ''}`.toLocaleLowerCase().includes(profileSearch.toLocaleLowerCase()))
-  const visibleTournaments = overview?.tournaments.filter(tournament => `${tournament.name} ${tournament.format} ${profilesById.get(tournament.ownerId)?.displayName ?? ''}`.toLocaleLowerCase().includes(tournamentSearch.toLocaleLowerCase())) ?? []
-
-  return <Layout><div className="mb-6 flex flex-wrap items-start justify-between gap-4"><div><p className="inline-flex items-center gap-2 text-sm font-semibold text-amber-300"><ShieldCheck size={16} />ACCESO RESTRINGIDO</p><h1 className="mt-1 text-3xl font-black">Administración</h1><p className="mt-2 max-w-2xl text-sm text-slate-300">Vista global de la aplicación. Solo un super admin puede cambiar roles.</p></div><button type="button" className="inline-flex items-center gap-2 rounded-lg border border-slate-500 px-4 py-2 text-sm font-semibold hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-50" disabled={refreshing} onClick={() => void refresh()}><RefreshCw size={16} className={refreshing ? 'animate-spin' : ''} />{refreshing ? 'Actualizando…' : 'Actualizar'}</button></div>{error&&<section className="mb-5 rounded-xl border border-red-700 bg-red-950 p-4 text-sm text-red-300">{error}</section>}<section className="mb-7 grid gap-4 sm:grid-cols-2 lg:grid-cols-4"><AdminMetric icon={<Users size={19} />} label="Cuentas" value={overview ? accountProfiles.length : '—'} /><AdminMetric icon={<ShieldCheck size={19} />} label="Acceso admin" value={overview?.profiles.filter(profile => profile.role === 'admin').length ?? '—'} /><AdminMetric icon={<Trophy size={19} />} label="Torneos activos" value={overview ? activeTournaments : '—'} /><AdminMetric icon={<Database size={19} />} label="Jugadores registrados" value={overview ? playerCount : '—'} /></section>{!overview&&!error&&<p className="text-sm text-slate-300">Cargando información de Supabase…</p>}{overview&&<><nav className="mb-7 flex gap-1 overflow-x-auto rounded-lg border border-slate-700 bg-slate-900 p-1">{([["accounts","Cuentas"],["tournaments","Torneos"],["players","Jugadores activos"],["details","Datos completos"]] as const).map(([tab,label])=><button key={tab} type="button" onClick={()=>setAdminTab(tab)} className={`whitespace-nowrap rounded-md px-3 py-2 text-sm ${adminTab===tab ? "bg-amber-400 font-bold text-slate-950" : "hover:bg-slate-800"}`}>{label}</button>)}</nav><div className={adminTab === 'accounts' ? '' : 'hidden'}><section className={`${panel} overflow-hidden p-0`}><div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-700 px-5 py-4"><div><h2 className="text-xl font-black">Cuentas</h2></div><div className="flex items-center gap-2"><input value={profileSearch} onChange={event=>setProfileSearch(event.target.value)} className="w-52 rounded-lg border border-slate-600 bg-slate-950 px-3 py-2 text-sm text-slate-100 outline-none focus:border-amber-400" placeholder="Buscar cuenta" /><span className="text-sm text-slate-400">{accountProfiles.length} en total</span></div></div><div className="max-h-96 overflow-auto"><table className="w-full min-w-[760px] text-left text-sm"><thead className="border-b border-slate-700 bg-slate-800 text-xs uppercase tracking-wide text-slate-400"><tr><th className="px-5 py-3 font-semibold">Organizador</th><th className="px-5 py-3 font-semibold">Correo</th><th className="px-5 py-3 font-semibold">Rol</th><th className="px-5 py-3 font-semibold">Registro</th><th className="px-5 py-3 font-semibold">ID</th><th className="px-5 py-3 font-semibold">Acciones</th></tr></thead><tbody>{visibleProfiles.map(profile=><tr key={profile.id} className="border-b border-slate-700 last:border-0"><td className="px-5 py-3 font-semibold">{profile.displayName}</td><td className="max-w-56 truncate px-5 py-3 text-slate-300" title={managedUsersById.get(profile.id)?.email}>{managedUsersById.get(profile.id)?.email ?? '—'}</td><td className="px-5 py-3">{isSuperAdmin&&profile.id!==user?.id?<select aria-label={`Cambiar rol de ${profile.displayName}`} value={profile.role} disabled={changingRole===profile.id} onChange={event=>void changeRole(profile.id,event.target.value as AssignableRole)} className="rounded-md border border-slate-500 bg-slate-950 px-2 py-1 text-xs font-semibold disabled:cursor-not-allowed disabled:opacity-50"><option value="organizer">Organizador</option><option value="admin">Administrador</option></select>:<span className={profile.role !== 'organizer' ? 'rounded-md bg-amber-400 px-2 py-1 text-xs font-bold text-slate-950' : 'rounded-md bg-slate-800 px-2 py-1 text-xs font-semibold'}>{roleLabel(profile.role)}</span>}</td><td className="px-5 py-3 text-slate-300">{displayDate(profile.createdAt)}</td><td className="max-w-44 truncate px-5 py-3 font-mono text-xs text-slate-400" title={profile.id}>{profile.id}</td><td className="px-5 py-3">{isSuperAdmin&&profile.id!==user?.id&&managedUsers.find(managed=>managed.id===profile.id)?<div className="flex gap-2"><button type="button" className="rounded-md border border-slate-500 px-2 py-1 text-xs font-semibold hover:bg-slate-800" onClick={()=>setEditingUser(managedUsers.find(managed=>managed.id===profile.id))}>Editar</button><button type="button" className="rounded-md bg-red-700 px-2 py-1 text-xs font-bold text-white hover:bg-red-600" onClick={()=>void removeProfile(managedUsers.find(managed=>managed.id===profile.id)!)}>Eliminar</button></div>:<span className="text-slate-400">—</span>}</td></tr>)}{visibleProfiles.length===0&&<tr><td colSpan={6} className="px-5 py-5 text-slate-400">No hay perfiles registrados.</td></tr>}</tbody></table></div></section></div><div className={adminTab === 'tournaments' ? '' : 'hidden'}><section className={`${panel} overflow-hidden p-0`}><div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-700 px-5 py-4"><div><h2 className="text-xl font-black">Torneos</h2></div><div className="flex items-center gap-2"><input value={tournamentSearch} onChange={event=>setTournamentSearch(event.target.value)} className="w-52 rounded-lg border border-slate-600 bg-slate-950 px-3 py-2 text-sm text-slate-100 outline-none focus:border-amber-400" placeholder="Buscar torneo" /><span className="text-sm text-slate-400">{overview.tournaments.length} en total</span></div></div><div className="max-h-96 overflow-auto"><table className="w-full min-w-[780px] text-left text-sm"><thead className="border-b border-slate-700 bg-slate-800 text-xs uppercase tracking-wide text-slate-400"><tr><th className="px-5 py-3 font-semibold">Torneo</th><th className="px-5 py-3 font-semibold">Organizador</th><th className="px-5 py-3 font-semibold">Estado</th><th className="px-5 py-3 font-semibold">Participantes</th><th className="px-5 py-3 font-semibold">Rondas</th><th className="px-5 py-3 font-semibold">Visibilidad</th><th className="px-5 py-3 font-semibold">Acciones</th></tr></thead><tbody>{visibleTournaments.map(tournament=><tr key={tournament.id} className="border-b border-slate-700 last:border-0"><td className="px-5 py-3"><strong className="block">{tournament.name}</strong><span className="text-xs text-slate-400">{tournament.format} · {displayDate(tournament.createdAt)}</span></td><td className="px-5 py-3 text-slate-300">{profilesById.get(tournament.ownerId)?.displayName ?? 'Organizador eliminado'}</td><td className="px-5 py-3"><Badge>{tournament.status}</Badge></td><td className="px-5 py-3 tabular-nums">{tournament.playerCount}</td><td className="px-5 py-3 tabular-nums">{tournament.roundCount}</td><td className="px-5 py-3"><span className={tournament.isPublic ? 'text-emerald-300' : 'text-slate-400'}>{tournament.isPublic ? 'Público' : 'Privado'}</span></td><td className="px-5 py-3">{isSuperAdmin?<div className="flex gap-2"><Link to={`/tournaments/${tournament.id}`} className="rounded-md border border-slate-500 px-2 py-1 text-xs font-semibold hover:bg-slate-800">Gestionar</Link><button type="button" disabled={deletingTournament===tournament.id} className="rounded-md bg-red-700 px-2 py-1 text-xs font-bold text-white hover:bg-red-600 disabled:cursor-not-allowed disabled:opacity-50" onClick={()=>void removeAdminTournament(tournament)}>{deletingTournament===tournament.id ? 'Eliminando...' : 'Eliminar'}</button></div>:<span className="text-slate-400">—</span>}</td></tr>)}{visibleTournaments.length===0&&<tr><td colSpan={7} className="px-5 py-5 text-slate-400">No hay torneos registrados.</td></tr>}</tbody></table></div></section></div><div className={adminTab === 'players' ? '' : 'hidden'}><SuperAdminPlayerManagement /></div><div className={adminTab === 'details' ? '' : 'hidden'}><AdminDataInspector /></div>{editingUser&&<UserProfileModal user={editingUser} onClose={()=>setEditingUser(undefined)} onSaved={()=>{void refresh();void refreshManagedUsers();setEditingUser(undefined)}} />}</>}</Layout>
+  return (
+    <Layout wide>
+      <div className="mb-6 flex flex-wrap items-start justify-between gap-4">
+        <div>
+          <p className="inline-flex items-center gap-2 text-sm font-semibold text-amber-300">
+            <ShieldCheck size={16} />
+            ACCESO RESTRINGIDO
+          </p>
+          <h1 className="mt-1 text-3xl font-black">Administración</h1>
+          <p className="mt-2 max-w-2xl text-sm text-slate-300">
+            Vista global de la aplicación. Solo un super admin puede cambiar roles.
+          </p>
+        </div>
+        <button
+          type="button"
+          className="inline-flex items-center gap-2 rounded-lg border border-slate-500 px-4 py-2 text-sm font-semibold hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-50"
+          disabled={refreshing}
+          onClick={() => void refresh()}
+        >
+          <RefreshCw size={16} className={refreshing ? 'animate-spin' : ''} />
+          {refreshing ? 'Actualizando…' : 'Actualizar'}
+        </button>
+      </div>
+      {error && (
+        <section className="mb-5 rounded-xl border border-red-700 bg-red-950 p-4 text-sm text-red-300">
+          {error}
+        </section>
+      )}
+      <section className="mb-7 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <AdminMetric
+          icon={<Users size={19} />}
+          label="Cuentas"
+          value={overview ? accountProfiles.length : '—'}
+        />
+        <AdminMetric
+          icon={<ShieldCheck size={19} />}
+          label="Acceso admin"
+          value={overview?.profiles.filter((profile) => profile.role === 'admin').length ?? '—'}
+        />
+        <AdminMetric
+          icon={<Trophy size={19} />}
+          label="Torneos activos"
+          value={overview ? activeTournaments : '—'}
+        />
+        <AdminMetric
+          icon={<Database size={19} />}
+          label="Jugadores registrados"
+          value={overview ? playerCount : '—'}
+        />
+      </section>
+      {!overview && !error && (
+        <p className="text-sm text-slate-300">Cargando información de Supabase…</p>
+      )}
+      {overview && (
+        <>
+          <nav className="mb-7 flex gap-1 overflow-x-auto rounded-lg border border-slate-700 bg-slate-900 p-1">
+            {(
+              [
+                ['accounts', 'Cuentas'],
+                ['tournaments', 'Torneos'],
+                ['players', 'Jugadores activos'],
+                ['details', 'Datos completos'],
+              ] as const
+            ).map(([tab, label]) => (
+              <button
+                key={tab}
+                type="button"
+                onClick={() => setAdminTab(tab)}
+                className={`whitespace-nowrap rounded-md px-3 py-2 text-sm ${adminTab === tab ? 'bg-amber-400 font-bold text-slate-950' : 'hover:bg-slate-800'}`}
+              >
+                {label}
+              </button>
+            ))}
+          </nav>
+          <div className={adminTab === 'accounts' ? '' : 'hidden'}>
+            <section className={`${panel} overflow-hidden p-0`}>
+              <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-700 px-5 py-4">
+                <div>
+                  <h2 className="text-xl font-black">Cuentas</h2>
+                </div>
+                <div className="flex items-center gap-2">
+                  <input
+                    value={profileSearch}
+                    onChange={(event) => setProfileSearch(event.target.value)}
+                    className="w-52 rounded-lg border border-slate-600 bg-slate-950 px-3 py-2 text-sm text-slate-100 outline-none focus:border-amber-400"
+                    placeholder="Buscar cuenta"
+                  />
+                  <span className="text-sm text-slate-400">{accountProfiles.length} en total</span>
+                </div>
+              </div>
+              <div className="max-h-96 overflow-auto">
+                <table className="w-full min-w-[1080px] text-left text-sm">
+                  <thead className="border-b border-slate-700 bg-slate-800 text-xs uppercase tracking-wide text-slate-400">
+                    <tr>
+                      <th className="px-5 py-3 font-semibold">Organizador</th>
+                      <th className="px-5 py-3 font-semibold">Correo</th>
+                      <th className="px-5 py-3 font-semibold">Rol</th>
+                      <th className="px-5 py-3 font-semibold">Registro</th>
+                      <th className="px-5 py-3 font-semibold">Último acceso</th>
+                      <th className="px-5 py-3 font-semibold">Desde</th>
+                      <th className="px-5 py-3 font-semibold">ID</th>
+                      <th className="px-5 py-3 font-semibold">Acciones</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {visibleProfiles.map((profile) => (
+                      <tr key={profile.id} className="border-b border-slate-700 last:border-0">
+                        <td className="px-5 py-3 font-semibold">{profile.displayName}</td>
+                        <td
+                          className="max-w-56 truncate px-5 py-3 text-slate-300"
+                          title={managedUsersById.get(profile.id)?.email}
+                        >
+                          {managedUsersById.get(profile.id)?.email ?? '—'}
+                        </td>
+                        <td className="px-5 py-3">
+                          <span
+                            className={
+                              profile.role !== 'organizer'
+                                ? 'rounded-md bg-amber-400 px-2 py-1 text-xs font-bold text-slate-950'
+                                : 'rounded-md bg-slate-800 px-2 py-1 text-xs font-semibold'
+                            }
+                          >
+                            {roleLabel(profile.role)}
+                          </span>
+                        </td>
+                        <td className="px-5 py-3 text-slate-300">
+                          {displayDate(profile.createdAt)}
+                        </td>
+                        <td className="whitespace-nowrap px-5 py-3 text-slate-300">
+                          {!isSuperAdmin
+                            ? 'Restringido'
+                            : managedUsersById.get(profile.id)?.lastAccess
+                            ? displayDateTime(managedUsersById.get(profile.id)!.lastAccess!.accessedAt)
+                            : 'Sin registros'}
+                        </td>
+                        <td
+                          className="max-w-64 truncate px-5 py-3 text-slate-300"
+                          title={
+                            !isSuperAdmin
+                              ? 'Restringido'
+                              : managedUsersById.get(profile.id)?.lastAccess
+                              ? `${accessOrigin(managedUsersById.get(profile.id)!.lastAccess!)} · ${managedUsersById.get(profile.id)!.lastAccess!.deviceType}`
+                              : 'Sin registros'
+                          }
+                        >
+                          {!isSuperAdmin
+                            ? 'Restringido'
+                            : managedUsersById.get(profile.id)?.lastAccess
+                            ? accessOrigin(managedUsersById.get(profile.id)!.lastAccess!)
+                            : 'Sin registros'}
+                        </td>
+                        <td
+                          className="max-w-44 truncate px-5 py-3 font-mono text-xs text-slate-400"
+                          title={profile.id}
+                        >
+                          {profile.id}
+                        </td>
+                        <td className="px-5 py-3">
+                          {isSuperAdmin &&
+                          profile.id !== user?.id &&
+                          managedUsers.find((managed) => managed.id === profile.id) ? (
+                            <div className="flex gap-2">
+                              <button
+                                type="button"
+                                className="rounded-md border border-slate-500 px-2 py-1 text-xs font-semibold hover:bg-slate-800"
+                                onClick={() =>
+                                  setEditingUser(
+                                    managedUsers.find((managed) => managed.id === profile.id),
+                                  )
+                                }
+                              >
+                                Editar
+                              </button>
+                              <button
+                                type="button"
+                                className="rounded-md bg-red-700 px-2 py-1 text-xs font-bold text-white hover:bg-red-600"
+                                onClick={() =>
+                                  void removeProfile(
+                                    managedUsers.find((managed) => managed.id === profile.id)!,
+                                  )
+                                }
+                              >
+                                Eliminar
+                              </button>
+                            </div>
+                          ) : (
+                            <span className="text-slate-400">—</span>
+                          )}
+                        </td>
+                      </tr>
+                    ))}
+                    {visibleProfiles.length === 0 && (
+                      <tr>
+                        <td colSpan={8} className="px-5 py-5 text-slate-400">
+                          No hay perfiles registrados.
+                        </td>
+                      </tr>
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            </section>
+          </div>
+          <div className={adminTab === 'tournaments' ? '' : 'hidden'}>
+            <section className={`${panel} overflow-hidden p-0`}>
+              <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-700 px-5 py-4">
+                <div>
+                  <h2 className="text-xl font-black">Torneos</h2>
+                </div>
+                <div className="flex items-center gap-2">
+                  <input
+                    value={tournamentSearch}
+                    onChange={(event) => setTournamentSearch(event.target.value)}
+                    className="w-52 rounded-lg border border-slate-600 bg-slate-950 px-3 py-2 text-sm text-slate-100 outline-none focus:border-amber-400"
+                    placeholder="Buscar torneo"
+                  />
+                  <span className="text-sm text-slate-400">
+                    {overview.tournaments.length} en total
+                  </span>
+                </div>
+              </div>
+              <div className="max-h-96 overflow-auto">
+                <table className="w-full min-w-[780px] text-left text-sm">
+                  <thead className="border-b border-slate-700 bg-slate-800 text-xs uppercase tracking-wide text-slate-400">
+                    <tr>
+                      <th className="px-5 py-3 font-semibold">Torneo</th>
+                      <th className="px-5 py-3 font-semibold">Organizador</th>
+                      <th className="px-5 py-3 font-semibold">Estado</th>
+                      <th className="px-5 py-3 font-semibold">Participantes</th>
+                      <th className="px-5 py-3 font-semibold">Rondas</th>
+                      <th className="px-5 py-3 font-semibold">Visibilidad</th>
+                      <th className="px-5 py-3 font-semibold">Acciones</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {visibleTournaments.map((tournament) => (
+                      <tr key={tournament.id} className="border-b border-slate-700 last:border-0">
+                        <td className="px-5 py-3">
+                          <strong className="block">{tournament.name}</strong>
+                          <span className="text-xs text-slate-400">
+                            {tournament.format} · {displayDate(tournament.createdAt)}
+                          </span>
+                        </td>
+                        <td className="px-5 py-3 text-slate-300">
+                          {profilesById.get(tournament.ownerId)?.displayName ??
+                            'Organizador eliminado'}
+                        </td>
+                        <td className="px-5 py-3">
+                          <Badge>{tournament.status}</Badge>
+                        </td>
+                        <td className="px-5 py-3 tabular-nums">{tournament.playerCount}</td>
+                        <td className="px-5 py-3 tabular-nums">{tournament.roundCount}</td>
+                        <td className="px-5 py-3">
+                          <span
+                            className={tournament.isPublic ? 'text-emerald-300' : 'text-slate-400'}
+                          >
+                            {tournament.isPublic ? 'Público' : 'Privado'}
+                          </span>
+                        </td>
+                        <td className="px-5 py-3">
+                          {isSuperAdmin ? (
+                            <div className="flex gap-2">
+                              <Link
+                                to={`/tournaments/${tournament.id}`}
+                                className="rounded-md border border-slate-500 px-2 py-1 text-xs font-semibold hover:bg-slate-800"
+                              >
+                                Gestionar
+                              </Link>
+                              <button
+                                type="button"
+                                disabled={deletingTournament === tournament.id}
+                                className="rounded-md bg-red-700 px-2 py-1 text-xs font-bold text-white hover:bg-red-600 disabled:cursor-not-allowed disabled:opacity-50"
+                                onClick={() => void removeAdminTournament(tournament)}
+                              >
+                                {deletingTournament === tournament.id
+                                  ? 'Eliminando...'
+                                  : 'Eliminar'}
+                              </button>
+                            </div>
+                          ) : (
+                            <span className="text-slate-400">—</span>
+                          )}
+                        </td>
+                      </tr>
+                    ))}
+                    {visibleTournaments.length === 0 && (
+                      <tr>
+                        <td colSpan={7} className="px-5 py-5 text-slate-400">
+                          No hay torneos registrados.
+                        </td>
+                      </tr>
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            </section>
+          </div>
+          <div className={adminTab === 'players' ? '' : 'hidden'}>
+            <SuperAdminPlayerManagement />
+          </div>
+          <div className={adminTab === 'details' ? '' : 'hidden'}>
+            <AdminDataInspector />
+          </div>
+          {editingUser && (
+            <UserProfileModal
+              user={editingUser}
+              onClose={() => setEditingUser(undefined)}
+              onSaved={() => {
+                void refresh();
+                void refreshManagedUsers();
+                setEditingUser(undefined);
+              }}
+            />
+          )}
+        </>
+      )}
+    </Layout>
+  );
 }
 
-function AdminMetric({ icon, label, value }: { icon: React.ReactNode; label: string; value: number | string }) {
-  return <article className={panel}><div className="flex items-center gap-2 text-amber-300">{icon}<span className="text-sm font-semibold">{label}</span></div><strong className="mt-3 block text-3xl font-black tabular-nums">{value}</strong></article>
+function AdminMetric({
+  icon,
+  label,
+  value,
+}: {
+  icon: React.ReactNode;
+  label: string;
+  value: number | string;
+}) {
+  return (
+    <article className={panel}>
+      <div className="flex items-center gap-2 text-amber-300">
+        {icon}
+        <span className="text-sm font-semibold">{label}</span>
+      </div>
+      <strong className="mt-3 block text-3xl font-black tabular-nums">{value}</strong>
+    </article>
+  );
 }
 
 function AdminDataInspector() {
-  const [tournaments, setTournaments] = useState<Tournament[]>()
-  const [error, setError] = useState<string>()
-  const [search, setSearch] = useState('')
+  const [tournaments, setTournaments] = useState<Tournament[]>();
+  const [error, setError] = useState<string>();
+  const [search, setSearch] = useState('');
 
   useEffect(() => {
-    let active = true
-    void loadAllTournaments().then(data => { if (active) setTournaments(data) }).catch(reason => { if (active) setError(reason instanceof Error ? reason.message : 'No se pudo cargar el detalle de los torneos.') })
-    return () => { active = false }
-  }, [])
+    let active = true;
+    void loadAllTournaments()
+      .then((data) => {
+        if (active) setTournaments(data);
+      })
+      .catch((reason) => {
+        if (active)
+          setError(
+            reason instanceof Error
+              ? reason.message
+              : 'No se pudo cargar el detalle de los torneos.',
+          );
+      });
+    return () => {
+      active = false;
+    };
+  }, []);
 
-  const visibleTournaments = tournaments?.filter(tournament => `${tournament.name} ${tournament.format}`.toLocaleLowerCase().includes(search.toLocaleLowerCase()))
-  return <section className={`${panel} mt-7`}><div><h2 className="text-xl font-black">Datos completos</h2><p className="mt-1 text-sm text-slate-300">Consulta de solo lectura de cada torneo, con reglas, jugadores, rondas, mesas y resultados. No incluye credenciales ni datos de Authentication.</p></div>{error&&<p className="mt-4 text-sm text-red-300">{error}</p>}{!tournaments&&!error&&<p className="mt-4 text-sm text-slate-300">Cargando detalle…</p>}<input value={search} onChange={event=>setSearch(event.target.value)} className="mt-4 w-full rounded-lg border border-slate-600 bg-slate-950 px-3 py-2 text-sm text-slate-100 outline-none focus:border-amber-400" placeholder="Buscar detalle de torneo" /><div className="mt-4 max-h-[34rem] space-y-3 overflow-y-auto pr-1">{visibleTournaments?.map(tournament=><details key={tournament.id} className="rounded-lg border border-slate-700 bg-slate-950 p-4"><summary className="cursor-pointer font-semibold"><span>{tournament.name}</span><span className="ml-2 text-sm font-normal text-slate-400">{tournament.players.length} jugadores · {tournament.rounds.length} rondas</span></summary><pre className="mt-4 max-h-96 overflow-auto rounded-md bg-slate-900 p-4 text-xs leading-relaxed text-slate-300">{JSON.stringify(tournament, null, 2)}</pre></details>)}</div></section>
+  const visibleTournaments = tournaments?.filter((tournament) =>
+    `${tournament.name} ${tournament.format}`
+      .toLocaleLowerCase()
+      .includes(search.toLocaleLowerCase()),
+  );
+  return (
+    <section className={`${panel} mt-7`}>
+      <div>
+        <h2 className="text-xl font-black">Datos completos</h2>
+        <p className="mt-1 text-sm text-slate-300">
+          Consulta de solo lectura de cada torneo, con reglas, jugadores, rondas, mesas y
+          resultados. No incluye credenciales ni datos de Authentication.
+        </p>
+      </div>
+      {error && <p className="mt-4 text-sm text-red-300">{error}</p>}
+      {!tournaments && !error && <p className="mt-4 text-sm text-slate-300">Cargando detalle…</p>}
+      <input
+        value={search}
+        onChange={(event) => setSearch(event.target.value)}
+        className="mt-4 w-full rounded-lg border border-slate-600 bg-slate-950 px-3 py-2 text-sm text-slate-100 outline-none focus:border-amber-400"
+        placeholder="Buscar detalle de torneo"
+      />
+      <div className="mt-4 max-h-[34rem] space-y-3 overflow-y-auto pr-1">
+        {visibleTournaments?.map((tournament) => (
+          <details
+            key={tournament.id}
+            className="rounded-lg border border-slate-700 bg-slate-950 p-4"
+          >
+            <summary className="cursor-pointer font-semibold">
+              <span>{tournament.name}</span>
+              <span className="ml-2 text-sm font-normal text-slate-400">
+                {tournament.players.length} jugadores · {tournament.rounds.length} rondas
+              </span>
+            </summary>
+            <pre className="mt-4 max-h-96 overflow-auto rounded-md bg-slate-900 p-4 text-xs leading-relaxed text-slate-300">
+              {JSON.stringify(tournament, null, 2)}
+            </pre>
+          </details>
+        ))}
+      </div>
+    </section>
+  );
 }
 
 function SuperAdminPlayerManagement() {
-  const { isSuperAdmin } = useAuth()
-  const [tournaments, setTournaments] = useState<Tournament[]>()
-  const [search, setSearch] = useState('')
-  const [error, setError] = useState<string>()
-  const [busy, setBusy] = useState(false)
-  const load = async () => { try { setTournaments(await loadAllTournaments()); setError(undefined) } catch (reason) { setError(reason instanceof Error ? reason.message : 'No se pudieron cargar los jugadores.') } }
-  useEffect(() => { void load() }, [])
-  const activePlayers = (tournaments ?? []).flatMap(tournament => tournament.players.filter(player => player.active).map(player => ({ tournament, player })))
-  const playersByTournament = new Map(tournaments?.map(tournament => [tournament.id, tournament.players.filter(player => player.active).length]))
-  const players = activePlayers.filter(({ player, tournament }) => `${player.name} ${tournament.name}`.toLocaleLowerCase().includes(search.toLocaleLowerCase()))
-  if (!isSuperAdmin) return <section className={`${panel} mt-7`}><div><h2 className="text-xl font-black">Jugadores activos</h2><p className="mt-1 text-sm text-slate-300">Consulta de jugadores activos por torneo.</p></div>{error&&<p className="mt-4 text-sm text-red-300">{error}</p>}<input value={search} onChange={event=>setSearch(event.target.value)} className={`${field} mt-4`} placeholder="Buscar jugador o torneo" /><div className="mt-3 max-h-96 space-y-2 overflow-y-auto pr-1">{players.map(({ tournament, player })=><article key={player.id} className="flex items-center justify-between gap-3 rounded-lg border border-slate-700 p-3"><strong>{player.name}</strong><span className="text-sm text-slate-400">{tournament.name}</span></article>)}{tournaments&&players.length===0&&<p className="text-sm text-slate-400">No hay jugadores activos que coincidan.</p>}</div></section>
-  const create = async (event: FormEvent<HTMLFormElement>) => { event.preventDefault(); const form = new FormData(event.currentTarget); const tournament = tournaments?.find(item => item.id === String(form.get('tournamentId'))); const name = String(form.get('name')).trim(); if (!tournament || !name) return; setBusy(true); try { await insertPlayers(tournament.id, [{ id: uid(), name, active: true, tieBreaker: tournament.players.length + 1 }]); event.currentTarget.reset(); await load() } catch (reason) { setError(reason instanceof Error ? reason.message : 'No se pudo crear el jugador.') } finally { setBusy(false) } }
-  const update = async (event: FormEvent<HTMLFormElement>, player: Tournament['players'][number]) => { event.preventDefault(); const name = String(new FormData(event.currentTarget).get('name')).trim(); if (!name) return; setBusy(true); try { await persistPlayer({ ...player, name }); await load() } catch (reason) { setError(reason instanceof Error ? reason.message : 'No se pudo actualizar el jugador.') } finally { setBusy(false) } }
-  const remove = async (player: Tournament['players'][number]) => { if (!window.confirm(`Eliminar a ${player.name}?`)) return; setBusy(true); try { await removeRemotePlayer(player.id); await load() } catch (reason) { setError(reason instanceof Error ? reason.message : 'No se puede eliminar un jugador con participaciones registradas.') } finally { setBusy(false) } }
-  return <section className={[panel, 'mt-7 overflow-hidden p-0'].join(' ')}><div className="px-5 pt-5"><p className="text-sm font-semibold text-amber-300">SUPER ADMIN</p><h2 className="mt-1 text-xl font-black">Jugadores activos</h2><p className="mt-1 text-sm text-slate-300">Crea cada jugador dentro de un torneo y administra sus datos desde aquí.</p>{error&&<p className="mt-4 text-sm text-red-300">{error}</p>}<form onSubmit={create} className="mt-4 grid gap-3 rounded-lg border border-slate-700 bg-slate-950 p-4 md:grid-cols-3"><select required name="tournamentId" className={field} defaultValue=""><option value="" disabled>Selecciona un torneo</option>{tournaments?.map(tournament=><option key={tournament.id} value={tournament.id}>{tournament.name}</option>)}</select><input required name="name" className={field} placeholder="Nombre del jugador" /><button disabled={busy} className={primary}>Crear jugador</button></form></div><div className="mt-4 flex flex-wrap items-center justify-between gap-2 border-y border-slate-700 px-5 py-4"><input value={search} onChange={event=>setSearch(event.target.value)} className="w-64 rounded-lg border border-slate-600 bg-slate-950 px-3 py-2 text-sm text-slate-100 outline-none focus:border-amber-400" placeholder="Buscar jugador o torneo" /><span className="text-sm text-slate-400">{players.length} en total</span></div><div className="max-h-[34rem] overflow-auto"><table className="w-full min-w-[680px] text-left text-sm"><thead className="border-b border-slate-700 bg-slate-800 text-xs uppercase tracking-wide text-slate-400"><tr><th className="px-5 py-3 font-semibold">Jugador</th><th className="px-5 py-3 font-semibold">Torneo</th><th className="px-5 py-3 font-semibold">Estado</th><th className="px-5 py-3 font-semibold">Acciones</th></tr></thead><tbody>{players.map(({ tournament, player })=><tr key={player.id} className="border-b border-slate-700 last:border-0"><td className="px-5 py-3"><form id={'player-' + player.id} onSubmit={event=>void update(event,player)}><input required name="name" defaultValue={player.name} className={field} /></form></td><td className="px-5 py-3"><strong className="block">{tournament.name}</strong><span className="text-xs text-slate-400">{playersByTournament.get(tournament.id) ?? 0} jugadores activos</span></td><td className="px-5 py-3 text-emerald-300">Activo</td><td className="px-5 py-3"><div className="flex gap-2"><button disabled={busy} form={'player-' + player.id} className={primary}>Guardar</button><button disabled={busy} type="button" className="rounded-lg bg-red-700 px-3 py-2 text-sm font-bold text-white hover:bg-red-600 disabled:opacity-50" onClick={()=>void remove(player)}>Eliminar</button></div></td></tr>)}{tournaments&&players.length===0&&<tr><td colSpan={4} className="px-5 py-5 text-slate-400">No hay jugadores activos que coincidan.</td></tr>}</tbody></table></div></section>
+  const { isSuperAdmin } = useAuth();
+  const [tournaments, setTournaments] = useState<Tournament[]>();
+  const [search, setSearch] = useState('');
+  const [error, setError] = useState<string>();
+  const [busy, setBusy] = useState(false);
+  const load = async () => {
+    try {
+      setTournaments(await loadAllTournaments());
+      setError(undefined);
+    } catch (reason) {
+      setError(reason instanceof Error ? reason.message : 'No se pudieron cargar los jugadores.');
+    }
+  };
+  useEffect(() => {
+    void load();
+  }, []);
+  const activePlayers = (tournaments ?? []).flatMap((tournament) =>
+    tournament.players.filter((player) => player.active).map((player) => ({ tournament, player })),
+  );
+  const playersByTournament = new Map(
+    tournaments?.map((tournament) => [
+      tournament.id,
+      tournament.players.filter((player) => player.active).length,
+    ]),
+  );
+  const players = activePlayers.filter(({ player, tournament }) =>
+    `${player.name} ${tournament.name}`.toLocaleLowerCase().includes(search.toLocaleLowerCase()),
+  );
+  if (!isSuperAdmin)
+    return (
+      <section className={`${panel} mt-7`}>
+        <div>
+          <h2 className="text-xl font-black">Jugadores activos</h2>
+          <p className="mt-1 text-sm text-slate-300">Consulta de jugadores activos por torneo.</p>
+        </div>
+        {error && <p className="mt-4 text-sm text-red-300">{error}</p>}
+        <input
+          value={search}
+          onChange={(event) => setSearch(event.target.value)}
+          className={`${field} mt-4`}
+          placeholder="Buscar jugador o torneo"
+        />
+        <div className="mt-3 max-h-96 space-y-2 overflow-y-auto pr-1">
+          {players.map(({ tournament, player }) => (
+            <article
+              key={player.id}
+              className="flex items-center justify-between gap-3 rounded-lg border border-slate-700 p-3"
+            >
+              <strong>{player.name}</strong>
+              <span className="text-sm text-slate-400">{tournament.name}</span>
+            </article>
+          ))}
+          {tournaments && players.length === 0 && (
+            <p className="text-sm text-slate-400">No hay jugadores activos que coincidan.</p>
+          )}
+        </div>
+      </section>
+    );
+  const create = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    const form = new FormData(event.currentTarget);
+    const tournament = tournaments?.find((item) => item.id === String(form.get('tournamentId')));
+    const name = String(form.get('name')).trim();
+    if (!tournament || !name) return;
+    setBusy(true);
+    try {
+      await insertPlayers(tournament.id, [
+        { id: uid(), name, active: true, tieBreaker: tournament.players.length + 1 },
+      ]);
+      event.currentTarget.reset();
+      await load();
+    } catch (reason) {
+      setError(reason instanceof Error ? reason.message : 'No se pudo crear el jugador.');
+    } finally {
+      setBusy(false);
+    }
+  };
+  const update = async (
+    event: FormEvent<HTMLFormElement>,
+    player: Tournament['players'][number],
+  ) => {
+    event.preventDefault();
+    const name = String(new FormData(event.currentTarget).get('name')).trim();
+    if (!name) return;
+    setBusy(true);
+    try {
+      await persistPlayer({ ...player, name });
+      await load();
+    } catch (reason) {
+      setError(reason instanceof Error ? reason.message : 'No se pudo actualizar el jugador.');
+    } finally {
+      setBusy(false);
+    }
+  };
+  const remove = async (player: Tournament['players'][number]) => {
+    if (!window.confirm(`Eliminar a ${player.name}?`)) return;
+    setBusy(true);
+    try {
+      await removeRemotePlayer(player.id);
+      await load();
+    } catch (reason) {
+      setError(
+        reason instanceof Error
+          ? reason.message
+          : 'No se puede eliminar un jugador con participaciones registradas.',
+      );
+    } finally {
+      setBusy(false);
+    }
+  };
+  return (
+    <section className={[panel, 'mt-7 overflow-hidden p-0'].join(' ')}>
+      <div className="px-5 pt-5">
+        <p className="text-sm font-semibold text-amber-300">SUPER ADMIN</p>
+        <h2 className="mt-1 text-xl font-black">Jugadores activos</h2>
+        <p className="mt-1 text-sm text-slate-300">
+          Crea cada jugador dentro de un torneo y administra sus datos desde aquí.
+        </p>
+        {error && <p className="mt-4 text-sm text-red-300">{error}</p>}
+        <form
+          onSubmit={create}
+          className="mt-4 grid gap-3 rounded-lg border border-slate-700 bg-slate-950 p-4 md:grid-cols-3"
+        >
+          <select required name="tournamentId" className={field} defaultValue="">
+            <option value="" disabled>
+              Selecciona un torneo
+            </option>
+            {tournaments?.map((tournament) => (
+              <option key={tournament.id} value={tournament.id}>
+                {tournament.name}
+              </option>
+            ))}
+          </select>
+          <input required name="name" className={field} placeholder="Nombre del jugador" />
+          <button disabled={busy} className={primary}>
+            Crear jugador
+          </button>
+        </form>
+      </div>
+      <div className="mt-4 flex flex-wrap items-center justify-between gap-2 border-y border-slate-700 px-5 py-4">
+        <input
+          value={search}
+          onChange={(event) => setSearch(event.target.value)}
+          className="w-64 rounded-lg border border-slate-600 bg-slate-950 px-3 py-2 text-sm text-slate-100 outline-none focus:border-amber-400"
+          placeholder="Buscar jugador o torneo"
+        />
+        <span className="text-sm text-slate-400">{players.length} en total</span>
+      </div>
+      <div className="max-h-[34rem] overflow-auto">
+        <table className="w-full min-w-[680px] text-left text-sm">
+          <thead className="border-b border-slate-700 bg-slate-800 text-xs uppercase tracking-wide text-slate-400">
+            <tr>
+              <th className="px-5 py-3 font-semibold">Jugador</th>
+              <th className="px-5 py-3 font-semibold">Torneo</th>
+              <th className="px-5 py-3 font-semibold">Estado</th>
+              <th className="px-5 py-3 font-semibold">Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            {players.map(({ tournament, player }) => (
+              <tr key={player.id} className="border-b border-slate-700 last:border-0">
+                <td className="px-5 py-3">
+                  <form id={'player-' + player.id} onSubmit={(event) => void update(event, player)}>
+                    <input required name="name" defaultValue={player.name} className={field} />
+                  </form>
+                </td>
+                <td className="px-5 py-3">
+                  <strong className="block">{tournament.name}</strong>
+                  <span className="text-xs text-slate-400">
+                    {playersByTournament.get(tournament.id) ?? 0} jugadores activos
+                  </span>
+                </td>
+                <td className="px-5 py-3 text-emerald-300">Activo</td>
+                <td className="px-5 py-3">
+                  <div className="flex gap-2">
+                    <button disabled={busy} form={'player-' + player.id} className={primary}>
+                      Guardar
+                    </button>
+                    <button
+                      disabled={busy}
+                      type="button"
+                      className="rounded-lg bg-red-700 px-3 py-2 text-sm font-bold text-white hover:bg-red-600 disabled:opacity-50"
+                      onClick={() => void remove(player)}
+                    >
+                      Eliminar
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            ))}
+            {tournaments && players.length === 0 && (
+              <tr>
+                <td colSpan={4} className="px-5 py-5 text-slate-400">
+                  No hay jugadores activos que coincidan.
+                </td>
+              </tr>
+            )}
+          </tbody>
+        </table>
+      </div>
+    </section>
+  );
 }
 
-function UserProfileModal({ user, onClose, onSaved }: { user: ManagedUser; onClose: () => void; onSaved: () => void }) {
-  const [error, setError] = useState<string>()
-  const [busy, setBusy] = useState(false)
+function UserProfileModal({
+  user,
+  onClose,
+  onSaved,
+}: {
+  user: ManagedUser;
+  onClose: () => void;
+  onSaved: () => void;
+}) {
+  const [error, setError] = useState<string>();
+  const [busy, setBusy] = useState(false);
+  const [loginHistory, setLoginHistory] = useState<LoginAccess[]>();
+  const [loginHistoryError, setLoginHistoryError] = useState<string>();
+  useEffect(() => {
+    let active = true;
+    void listManagedUserLoginHistory(user.id)
+      .then((accesses) => {
+        if (active) setLoginHistory(accesses);
+      })
+      .catch((reason) => {
+        if (active)
+          setLoginHistoryError(
+            reason instanceof Error ? reason.message : 'No se pudo cargar el historial de accesos.',
+          );
+      });
+    return () => {
+      active = false;
+    };
+  }, [user.id]);
   const save = async (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault()
-    const form = new FormData(event.currentTarget)
-    setBusy(true)
+    event.preventDefault();
+    const form = new FormData(event.currentTarget);
+    setBusy(true);
     try {
-      await updateManagedUser(user.id, { displayName: String(form.get('displayName')).trim(), email: String(form.get('email')).trim(), password: String(form.get('password')) || undefined, role: String(form.get('role')) as AssignableRole })
-      onSaved()
+      await updateManagedUser(user.id, {
+        displayName: String(form.get('displayName')).trim(),
+        email: String(form.get('email')).trim(),
+        password: String(form.get('password')) || undefined,
+        role: String(form.get('role')) as AssignableRole,
+      });
+      onSaved();
     } catch (reason) {
-      setError(reason instanceof Error ? reason.message : 'No se pudo actualizar el perfil.')
+      setError(reason instanceof Error ? reason.message : 'No se pudo actualizar el perfil.');
     } finally {
-      setBusy(false)
+      setBusy(false);
     }
-  }
-  return <Modal title={`Editar perfil: ${user.displayName}`} description="Deja la contraseña vacía para conservarla." onClose={onClose}><form onSubmit={save} className="space-y-4">{error&&<p className="text-sm text-red-300">{error}</p>}<label className="block text-sm font-medium">Nombre<input required name="displayName" defaultValue={user.displayName} className={field} /></label><label className="block text-sm font-medium">Correo<input required name="email" type="email" defaultValue={user.email} className={field} /></label><label className="block text-sm font-medium">Nueva contraseña<input name="password" minLength={6} type="password" className={field} /></label><label className="block text-sm font-medium">Rol<select name="role" defaultValue={user.role === 'admin' ? 'admin' : 'organizer'} className={field}><option value="organizer">Organizador</option><option value="admin">Administrador</option></select></label><div className="flex justify-end gap-3"><button type="button" className="rounded-lg border border-slate-500 px-4 py-2 text-sm font-semibold hover:bg-slate-800" onClick={onClose}>Cancelar</button><button disabled={busy} className={primary}>{busy ? 'Guardando…' : 'Guardar cambios'}</button></div></form></Modal>
+  };
+  return (
+    <Modal
+      title={`Editar perfil: ${user.displayName}`}
+      description="Deja la contraseña vacía para conservarla."
+      onClose={onClose}
+    >
+      <form onSubmit={save} className="space-y-4">
+        {error && <p className="text-sm text-red-300">{error}</p>}
+        <label className="block text-sm font-medium">
+          Nombre
+          <input required name="displayName" defaultValue={user.displayName} className={field} />
+        </label>
+        <label className="block text-sm font-medium">
+          Correo
+          <input required name="email" type="email" defaultValue={user.email} className={field} />
+        </label>
+        <label className="block text-sm font-medium">
+          Nueva contraseña
+          <input name="password" minLength={6} type="password" className={field} />
+        </label>
+        <label className="block text-sm font-medium">
+          Rol
+          <select
+            name="role"
+            defaultValue={user.role === 'admin' ? 'admin' : 'organizer'}
+            className={field}
+          >
+            <option value="organizer">Organizador</option>
+            <option value="admin">Administrador</option>
+          </select>
+        </label>
+        <section className="border-t border-slate-700 pt-4">
+          <h3 className="font-semibold">Historial de inicios de sesión</h3>
+          <p className="mt-1 text-xs text-slate-400">Visible solo para superadministradores.</p>
+          {!loginHistory && !loginHistoryError && (
+            <p className="mt-3 text-sm text-slate-400">Cargando historial…</p>
+          )}
+          {loginHistoryError && <p className="mt-3 text-sm text-red-300">{loginHistoryError}</p>}
+          {loginHistory && loginHistory.length === 0 && (
+            <p className="mt-3 text-sm text-slate-400">No hay inicios de sesión registrados.</p>
+          )}
+          {loginHistory && loginHistory.length > 0 && (
+            <div className="mt-3 max-h-56 space-y-2 overflow-y-auto pr-1">
+              {loginHistory.map((access, index) => (
+                <article
+                  key={`${access.accessedAt}-${access.maskedIp}-${index}`}
+                  className="rounded-lg border border-slate-700 bg-slate-950 p-3 text-sm"
+                >
+                  <div className="flex flex-wrap items-center justify-between gap-2">
+                    <strong>{displayDateTime(access.accessedAt)}</strong>
+                    <span className="font-mono text-xs text-slate-400">{access.maskedIp}</span>
+                  </div>
+                  <p className="mt-1 truncate text-slate-300" title={access.location}>
+                    {access.location}
+                  </p>
+                  <p className="mt-1 text-xs text-slate-400">
+                    {access.browser} / {access.operatingSystem} · {access.deviceType}
+                  </p>
+                </article>
+              ))}
+            </div>
+          )}
+        </section>
+        <div className="flex justify-end gap-3">
+          <button
+            type="button"
+            className="rounded-lg border border-slate-500 px-4 py-2 text-sm font-semibold hover:bg-slate-800"
+            onClick={onClose}
+          >
+            Cancelar
+          </button>
+          <button disabled={busy} className={primary}>
+            {busy ? 'Guardando…' : 'Guardar cambios'}
+          </button>
+        </div>
+      </form>
+    </Modal>
+  );
 }
