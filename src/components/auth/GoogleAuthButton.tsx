@@ -28,7 +28,15 @@ function GoogleIcon() {
   );
 }
 
-export function GoogleAuthButton({ requiresConsent = false, consentAccepted = false, onConsentRequired }: { requiresConsent?: boolean; consentAccepted?: boolean; onConsentRequired?: () => void }) {
+export function GoogleAuthButton({
+  requiresConsent = false,
+  consentAccepted = false,
+  onConsentRequired,
+}: {
+  requiresConsent?: boolean;
+  consentAccepted?: boolean;
+  onConsentRequired?: () => void;
+}) {
   const [busy, setBusy] = useState(false);
   const { t } = useTranslation();
 
@@ -44,17 +52,15 @@ export function GoogleAuthButton({ requiresConsent = false, consentAccepted = fa
 
     setBusy(true);
     try {
-      if (requiresConsent) sessionStorage.setItem(legalConsentStorageKey, JSON.stringify(currentLegalConsent));
+      if (requiresConsent)
+        sessionStorage.setItem(legalConsentStorageKey, JSON.stringify(currentLegalConsent));
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: { redirectTo: `${window.location.origin}/dashboard` },
       });
       if (error) throw error;
     } catch (error) {
-      showToast(
-        error instanceof Error ? error.message : t('app.auth.googleFailed'),
-        true,
-      );
+      showToast(error instanceof Error ? error.message : t('app.auth.googleFailed'), true);
       setBusy(false);
     }
   }
@@ -63,10 +69,12 @@ export function GoogleAuthButton({ requiresConsent = false, consentAccepted = fa
     <div className="mt-5">
       <div className="relative my-5">
         <div className="absolute inset-0 flex items-center" aria-hidden="true">
-          <span className="w-full border-t border-slate-700" />
+          <span className="w-full border-t border-border" />
         </div>
         <div className="relative flex justify-center">
-          <span className="bg-slate-900 px-3 text-xs text-slate-400">{t('app.auth.continueWith')}</span>
+          <span className="bg-card px-3 text-xs text-muted-foreground">
+            {t('app.auth.continueWith')}
+          </span>
         </div>
       </div>
       <Button
@@ -77,7 +85,11 @@ export function GoogleAuthButton({ requiresConsent = false, consentAccepted = fa
         onClick={() => void signInWithGoogle()}
       >
         <GoogleIcon />
-        {busy ? t('app.auth.redirectingGoogle') : requiresConsent ? t('app.auth.continueGoogle') : t('app.auth.signInGoogle')}
+        {busy
+          ? t('app.auth.redirectingGoogle')
+          : requiresConsent
+            ? t('app.auth.continueGoogle')
+            : t('app.auth.signInGoogle')}
       </Button>
     </div>
   );

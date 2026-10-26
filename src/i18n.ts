@@ -111,6 +111,200 @@ Object.assign(resources.en.translation.app.tournament, {
   roundCompleted: 'Round completed. Standings updated.',
 })
 
+Object.assign(resources.es.translation.app.common, {
+  close: 'Cerrar',
+})
+
+Object.assign(resources.en.translation.app.common, {
+  close: 'Close',
+})
+
+Object.assign(resources.es.translation.app.auth, {
+  legalAgreement: 'He leído y acepto los',
+  legalAgreementConnector: ' y ',
+  terms: 'Términos y condiciones',
+  privacy: 'Política de privacidad',
+  legalAgreementSuffix: '.',
+  legalConsentRequired: 'Debes aceptar los Términos y condiciones y la Política de privacidad para crear una cuenta.',
+})
+
+Object.assign(resources.en.translation.app.auth, {
+  legalAgreement: 'I have read and agree to the',
+  legalAgreementConnector: ' and ',
+  terms: 'Terms & Conditions',
+  privacy: 'Privacy Policy',
+  legalAgreementSuffix: '.',
+  legalConsentRequired: 'You must accept the Terms & Conditions and Privacy Policy to create an account.',
+})
+
+Object.assign(resources.es.translation.app, {
+  legalConsent: {
+    title: 'Acepta los documentos legales',
+    description: 'Antes de usar tu nueva cuenta, revisa y acepta los siguientes documentos.',
+    required: 'Debes aceptar los Términos y condiciones y la Política de privacidad para continuar.',
+    saveFailed: 'No se pudo guardar tu aceptación. Inténtalo de nuevo.',
+    saving: 'Guardando…',
+  },
+  admin: {
+    verifyingAccess: 'Verificando permisos de administración…',
+    restrictedAccess: 'ACCESO RESTRINGIDO',
+    title: 'Administración',
+    description: 'Vista global de la aplicación. Solo un superadministrador puede cambiar roles.',
+    refresh: 'Actualizar',
+    refreshing: 'Actualizando…',
+    loadOverviewFailed: 'No se pudo cargar la información administrativa.',
+    loadProfilesFailed: 'No se pudieron cargar los perfiles editables.',
+    deleteAccountConfirm: '¿Eliminar la cuenta de {{name}}? También se eliminarán sus torneos. Esta acción no se puede deshacer.',
+    deleteAccountFailed: 'No se pudo eliminar la cuenta.',
+    deleteTournamentConfirm: '¿Eliminar el torneo {{name}}? Se eliminarán sus jugadores, rondas y resultados. Esta acción no se puede deshacer.',
+    deleteTournamentFailed: 'No se pudo eliminar el torneo.',
+    loadingOverview: 'Cargando información de Supabase…',
+    total: '{{count}} en total',
+    restricted: 'Restringido',
+    noRecords: 'Sin registros',
+    organizerRemoved: 'Organizador eliminado',
+    public: 'Público',
+    private: 'Privado',
+    manage: 'Gestionar',
+    deleting: 'Eliminando…',
+    roles: { organizer: 'Organizador', admin: 'Administrador', super_admin: 'Superadministrador' },
+    metrics: { accounts: 'Cuentas', adminAccess: 'Acceso admin', activeTournaments: 'Torneos activos', registeredPlayers: 'Jugadores registrados' },
+    tabs: { accounts: 'Cuentas', tournaments: 'Torneos', players: 'Jugadores activos', details: 'Datos completos' },
+    accounts: { search: 'Buscar cuenta', organizer: 'Organizador', email: 'Correo', role: 'Rol', registeredAt: 'Registro', lastAccess: 'Último acceso', origin: 'Desde', id: 'ID', empty: 'No hay perfiles registrados.' },
+    tournaments: { search: 'Buscar torneo', tournament: 'Torneo', organizer: 'Organizador', participants: 'Participantes', rounds: 'Rondas', visibility: 'Visibilidad', empty: 'No hay torneos registrados.' },
+    details: { description: 'Consulta de solo lectura de cada torneo, con reglas, jugadores, rondas, mesas y resultados. No incluye credenciales ni datos de autenticación.', loading: 'Cargando detalle…', search: 'Buscar detalle de torneo', loadFailed: 'No se pudo cargar el detalle de los torneos.', summary: '{{players}} jugadores · {{rounds}} rondas' },
+    players: { description: 'Consulta de jugadores activos por torneo.', search: 'Buscar jugador o torneo', empty: 'No hay jugadores activos que coincidan.', loadFailed: 'No se pudieron cargar los jugadores.', createDescription: 'Crea cada jugador dentro de un torneo y administra sus datos desde aquí.', selectTournament: 'Selecciona un torneo', playerName: 'Nombre del jugador', create: 'Crear jugador', activeCount: '{{count}} jugadores activos', createFailed: 'No se pudo crear el jugador.', updateFailed: 'No se pudo actualizar el jugador.', deleteConfirm: '¿Eliminar a {{name}}?', deleteFailed: 'No se puede eliminar un jugador con participaciones registradas.' },
+    profile: { title: 'Editar perfil: {{name}}', description: 'Deja la contraseña vacía para conservarla.', newPassword: 'Nueva contraseña', loginHistory: 'Historial de inicios de sesión', superAdminOnly: 'Visible solo para superadministradores.', loadingHistory: 'Cargando historial…', noHistory: 'No hay inicios de sesión registrados.', loadHistoryFailed: 'No se pudo cargar el historial de accesos.', saveChanges: 'Guardar cambios', saving: 'Guardando…', updateFailed: 'No se pudo actualizar el perfil.' },
+  },
+})
+
+Object.assign(resources.en.translation.app, {
+  legalConsent: {
+    title: 'Accept legal documents',
+    description: 'Before using your new account, review and accept the following documents.',
+    required: 'You must accept the Terms & Conditions and Privacy Policy to continue.',
+    saveFailed: 'We could not save your acceptance. Please try again.',
+    saving: 'Saving…',
+  },
+  admin: {
+    verifyingAccess: 'Checking administration permissions…',
+    restrictedAccess: 'RESTRICTED ACCESS',
+    title: 'Administration',
+    description: 'Global application view. Only a super administrator can change roles.',
+    refresh: 'Refresh',
+    refreshing: 'Refreshing…',
+    loadOverviewFailed: 'The administrative information could not be loaded.',
+    loadProfilesFailed: 'The editable profiles could not be loaded.',
+    deleteAccountConfirm: 'Delete {{name}}’s account? Their tournaments will also be deleted. This cannot be undone.',
+    deleteAccountFailed: 'The account could not be deleted.',
+    deleteTournamentConfirm: 'Delete {{name}}? Its players, rounds, and results will be deleted. This cannot be undone.',
+    deleteTournamentFailed: 'The tournament could not be deleted.',
+    loadingOverview: 'Loading Supabase information…',
+    total: '{{count}} total',
+    restricted: 'Restricted',
+    noRecords: 'No records',
+    organizerRemoved: 'Organizer deleted',
+    public: 'Public',
+    private: 'Private',
+    manage: 'Manage',
+    deleting: 'Deleting…',
+    roles: { organizer: 'Organizer', admin: 'Administrator', super_admin: 'Super administrator' },
+    metrics: { accounts: 'Accounts', adminAccess: 'Admin access', activeTournaments: 'Active tournaments', registeredPlayers: 'Registered players' },
+    tabs: { accounts: 'Accounts', tournaments: 'Tournaments', players: 'Active players', details: 'Full data' },
+    accounts: { search: 'Search accounts', organizer: 'Organizer', email: 'Email', role: 'Role', registeredAt: 'Registered', lastAccess: 'Last access', origin: 'From', id: 'ID', empty: 'There are no registered profiles.' },
+    tournaments: { search: 'Search tournaments', tournament: 'Tournament', organizer: 'Organizer', participants: 'Participants', rounds: 'Rounds', visibility: 'Visibility', empty: 'There are no registered tournaments.' },
+    details: { description: 'Read-only view of every tournament, including rules, players, rounds, tables, and results. It does not include credentials or authentication data.', loading: 'Loading details…', search: 'Search tournament details', loadFailed: 'Tournament details could not be loaded.', summary: '{{players}} players · {{rounds}} rounds' },
+    players: { description: 'View active players by tournament.', search: 'Search player or tournament', empty: 'No active players match.', loadFailed: 'Players could not be loaded.', createDescription: 'Create each player within a tournament and manage their data here.', selectTournament: 'Select a tournament', playerName: 'Player name', create: 'Create player', activeCount: '{{count}} active players', createFailed: 'The player could not be created.', updateFailed: 'The player could not be updated.', deleteConfirm: 'Delete {{name}}?', deleteFailed: 'A player with recorded participation cannot be deleted.' },
+    profile: { title: 'Edit profile: {{name}}', description: 'Leave the password blank to keep it.', newPassword: 'New password', loginHistory: 'Sign-in history', superAdminOnly: 'Visible only to super administrators.', loadingHistory: 'Loading history…', noHistory: 'There are no sign-ins recorded.', loadHistoryFailed: 'The access history could not be loaded.', saveChanges: 'Save changes', saving: 'Saving…', updateFailed: 'The profile could not be updated.' },
+  },
+})
+
+Object.assign(resources.es.translation.app.createTournament, {
+  creating: 'Creando…',
+})
+
+Object.assign(resources.en.translation.app.createTournament, {
+  creating: 'Creating…',
+})
+
+Object.assign(resources.es.translation.app, {
+  legal: {
+    closeTab: 'Cerrar pestaña',
+    privacy: {
+      title: 'Política de privacidad',
+      updated: 'Fecha de vigencia y última actualización: 22 de septiembre de 2026',
+      intro: 'Esta Política de privacidad explica cómo EDH Tournaments maneja la información personal cuando utilizas la plataforma. Es una descripción operativa de la aplicación actual y no constituye asesoría legal.',
+      sections: [
+        { title: '1. Responsable del tratamiento y contacto', paragraphs: ['El responsable del tratamiento es [NOMBRE DEL RESPONSABLE], ubicado en [PAÍS O DIRECCIÓN]. Para solicitudes o consultas de privacidad, escribe a [CONTACT EMAIL].'] },
+        { title: '2. Información que procesamos', paragraphs: ['Información de la cuenta. Cuando te registras con correo electrónico, EDH Tournaments procesa tu dirección de correo y nombre para mostrar. Supabase Auth gestiona la autenticación de contraseñas; la aplicación no recibe ni almacena hashes de contraseñas.', 'Información de inicio de sesión con Google. Si eliges iniciar sesión con Google, Supabase Auth proporciona la autenticación mediante la información básica de identidad de OpenID Connect de Google. Puede incluir el nombre y correo facilitados por Google. EDH Tournaments utiliza esta información para crear o identificar tu cuenta y mostrar tu nombre. No solicitamos acceso a Gmail, Google Drive, contactos, calendarios ni otros datos de Google.', 'Contenido de torneos. Los organizadores pueden proporcionar nombres de torneos, formatos, nombres de jugadores, rondas, asignaciones de mesa, puntuaciones, eliminaciones, clasificaciones e información opcional. Los torneos públicos pueden mostrar el contenido relevante mediante su enlace público.', 'Almacenamiento técnico. La aplicación utiliza el almacenamiento local del navegador para el idioma elegido, datos locales de demostración cuando el backend alojado no está configurado, y datos de autenticación o sesión necesarios para Supabase Auth. No hemos identificado herramientas de publicidad o analítica en el código fuente de la aplicación.'] },
+        { title: '3. Por qué usamos la información', paragraphs: ['Usamos la información de la cuenta para autenticar usuarios, mantener su perfil de organizador y ofrecer recuperación de cuenta. Usamos el contenido de los torneos para operar las funciones de gestión y, cuando un organizador hace público un torneo, para mostrar su vista pública. Usamos el almacenamiento técnico estrictamente necesario para mantener la aplicación funcionando y conservar el idioma o sesión seleccionados.'] },
+        { title: '4. Base legal y consentimiento', paragraphs: ['Procesamos información según sea necesario para prestar el servicio solicitado por la persona usuaria y, cuando corresponde, con base en su aceptación de los Términos y condiciones y esta Política de privacidad. Las cuentas nuevas registran la fecha y versión de esa aceptación. Puedes retirar el consentimiento o solicitar eliminación como se describe abajo; esto puede impedir el uso continuado de funciones que dependan de la cuenta.'] },
+        { title: '5. Proveedores de servicio y transferencias internacionales', paragraphs: ['Supabase proporciona los servicios de autenticación y base de datos para la aplicación de producción configurada. Google proporciona el servicio de identidad para iniciar sesión con Google cuando se utiliza esa opción. Google Fonts se carga para mostrar la tipografía del sitio. Estos proveedores pueden procesar información en países distintos al tuyo. No identificamos otros servicios de terceros de analítica, publicidad, correo electrónico, alojamiento o API de Google en el código fuente de la aplicación.', 'La información obtenida mediante inicio de sesión con Google se accede únicamente para autenticación básica, se utiliza solo para crear o identificar la cuenta, se almacena solo según sea necesario para el perfil y flujo de autenticación, y no se vende ni comparte para publicidad. Se elimina con la cuenta cuando corresponde, sujeto a los límites de conservación indicados abajo. Este uso está sujeto a la Política de datos de usuario de los servicios de API de Google, incluidos sus requisitos de uso limitado.'] },
+        { title: '6. Conservación y seguridad', paragraphs: ['Conservamos la información de cuentas y torneos mientras la cuenta o torneo relacionado permanezca activo y durante un período limitado posterior cuando sea razonablemente necesario para seguridad, prevención de fraude, atención de disputas u obligaciones legales. Aplicamos salvaguardas técnicas y organizativas razonables, pero ningún servicio en línea puede garantizar seguridad absoluta.'] },
+        { title: '7. Tus derechos y eliminación de cuenta', paragraphs: ['Sujeto a la ley aplicable, puedes solicitar acceso, corrección, actualización, eliminación o restricción de tu información personal, y retirar el consentimiento. Para solicitar la eliminación de tu cuenta y datos, escribe a [CONTACT EMAIL] desde el correo de la cuenta con el asunto “Solicitud de eliminación de cuenta”. Podemos solicitar verificación de identidad antes de actuar. La eliminación puede retirar la cuenta y sus datos de torneos asociados; puede conservarse información limitada cuando sea necesaria para seguridad, prevención de fraude u obligaciones legales.'] },
+        { title: '8. Cookies, almacenamiento local y menores de edad', paragraphs: ['La aplicación no utiliza intencionalmente cookies no esenciales de analítica o publicidad. Solo utiliza el almacenamiento local y las tecnologías de sesión descritas arriba, además del almacenamiento estrictamente necesario de proveedores para autenticación. No ofrecemos deliberadamente el servicio a menores de edad cuando la ley aplicable requiere consentimiento parental. Si crees que un menor proporcionó información personal sin autorización adecuada, contáctanos en [CONTACT EMAIL].'] },
+        { title: '9. Costa Rica y cambios a la política', paragraphs: ['Esta política busca leerse de forma coherente con los principios generales de la Ley N.º 8968 de Costa Rica sobre Protección de la Persona frente al Tratamiento de sus Datos Personales. No representa una garantía de cumplimiento legal ni asesoría legal. Podemos actualizar esta política para reflejar cambios al servicio o requisitos legales; la fecha de actualización aparecerá al inicio de esta página.'] },
+      ],
+    },
+    terms: {
+      title: 'Términos y condiciones',
+      updated: 'Fecha de vigencia y última actualización: 22 de septiembre de 2026',
+      intro: 'Estos Términos y condiciones rigen el uso de EDH Tournaments. Son una descripción operativa del servicio actual y no constituyen asesoría legal.',
+      sections: [
+        { title: '1. Servicio y parte responsable', paragraphs: ['EDH Tournaments es una plataforma para que organizadores creen torneos multijugador de TCG, administren participantes, rondas, resultados y clasificaciones, y opcionalmente compartan una vista pública del torneo. El servicio es operado por [NOMBRE DEL RESPONSABLE], disponible en [CONTACT EMAIL].'] },
+        { title: '2. Elegibilidad y cuentas', paragraphs: ['Debes proporcionar información precisa, mantener seguras las credenciales de tu cuenta y utilizar una dirección de correo que controles. Eres responsable de la actividad realizada mediante tu cuenta. Las personas usuarias existentes pueden iniciar sesión mediante el método de autenticación disponible para su cuenta. Crear una cuenta nueva exige aceptar estos Términos y la Política de privacidad.'] },
+        { title: '3. Uso aceptable', paragraphs: ['Puedes utilizar el servicio para organizar y seguir torneos legales de TCG. No debes intentar acceder a la cuenta de otra persona, interferir con el servicio, eludir controles de seguridad, enviar código malicioso, infringir derechos de terceros ni usar la plataforma para actividades ilegales, abusivas, engañosas o dañinas.'] },
+        { title: '4. Contenido de usuarios y torneos públicos', paragraphs: ['Sigues siendo responsable del contenido de torneos que envíes, incluidos nombres de participantes, puntuaciones, resultados e información opcional. Debes tener una base adecuada para proporcionar esa información. Si haces público un torneo, entiendes que su vista pública puede exponer los detalles destinados a participantes y espectadores. No publiques información personal sensible mediante los campos del torneo.'] },
+        { title: '5. Propiedad intelectual', paragraphs: ['El software, la marca y el diseño de la plataforma siguen siendo propiedad de sus respectivos titulares. Conservas los derechos sobre el contenido que envías y otorgas al servicio el permiso limitado necesario para almacenar, mostrar y procesar ese contenido para operar la plataforma y su vista pública de torneos.'] },
+        { title: '6. Contenido de fans no oficial', paragraphs: ['EDH Tournaments es contenido de fans no oficial permitido conforme a la Política de contenido de fans. No está aprobado ni respaldado por Wizards. Partes de los materiales utilizados son propiedad de Wizards of the Coast. © Wizards of the Coast LLC.', 'EDH Tournaments es una plataforma comunitaria independiente de torneos. Los organizadores son responsables de obtener los permisos requeridos para sus torneos y no deben presentar un torneo como oficial, patrocinado o aprobado por Wizards salvo que estén autorizados.'] },
+        { title: '7. Disponibilidad, cambios y terceros', paragraphs: ['Podemos mantener, modificar, suspender o descontinuar partes del servicio cuando sea razonablemente necesario. No prometemos disponibilidad ininterrumpida ni libre de errores. La autenticación y la infraestructura pueden depender de servicios de terceros, incluidos Supabase e inicio de sesión con Google, cada uno sujeto a sus propios términos y prácticas de privacidad.'] },
+        { title: '8. Suspensión, cancelación y eliminación', paragraphs: ['Podemos suspender o retirar el acceso cuando sea razonablemente necesario para proteger el servicio, sus usuarios o derechos legales. Puedes dejar de usar el servicio en cualquier momento. Para solicitar la eliminación de tu cuenta y datos personales relacionados, sigue el proceso de la Política de privacidad contactando a [CONTACT EMAIL]; puede requerirse verificación de identidad.'] },
+        { title: '9. Responsabilidad', paragraphs: ['En la medida permitida por la ley aplicable, el servicio se proporciona según disponibilidad. No garantizamos resultados de torneos, disponibilidad de datos, compatibilidad ni acceso ininterrumpido. Nada de estos Términos excluye responsabilidad que legalmente no pueda excluirse.'] },
+        { title: '10. Cambios, ley aplicable y contacto', paragraphs: ['Podemos actualizar estos Términos cuando cambie el servicio o los requisitos aplicables. La fecha de vigencia se mostrará al inicio de esta página. La ley aplicable y jurisdicción deben ser confirmadas por [NOMBRE DEL RESPONSABLE] con un profesional legal calificado. Las preguntas sobre estos Términos pueden enviarse a [CONTACT EMAIL].'] },
+      ],
+    },
+  },
+})
+
+Object.assign(resources.en.translation.app, {
+  legal: {
+    closeTab: 'Close tab',
+    privacy: {
+      title: 'Privacy Policy',
+      updated: 'Effective date and last updated: September 22, 2026',
+      intro: 'This Privacy Policy explains how EDH Tournaments handles personal information when you use the platform. It is an operational description of the current application and is not legal advice.',
+      sections: [
+        { title: '1. Data controller and contact', paragraphs: ['The data controller is [DATA CONTROLLER NAME], located in [COUNTRY OR ADDRESS]. For privacy requests or questions, contact [CONTACT EMAIL].'] },
+        { title: '2. Information we process', paragraphs: ['Account information. When you register with email, EDH Tournaments processes your email address and display name. Password authentication is handled by Supabase Auth; the application does not receive or store password hashes.', 'Google Sign-In information. When you choose Google Sign-In, authentication is provided through Supabase Auth using Google’s basic OpenID Connect identity information. This may include the name and email address supplied by Google. EDH Tournaments uses the information to create or identify your account and display your name. We do not request access to Gmail, Google Drive, contacts, calendars, or other Google data.', 'Tournament content. Organizers may provide tournament names, formats, player names, rounds, table assignments, scores, kills, standings, and optional tournament information. Public tournaments can make the relevant tournament content available through their public link.', 'Technical storage. The application uses browser local storage for the selected language, local demo data when the hosted backend is not configured, and authentication or session data required by Supabase Auth. We have not identified advertising or analytics tools in the application source.'] },
+        { title: '3. Why we use information', paragraphs: ['We use account information to authenticate users, maintain their organizer profile, and provide account recovery. We use tournament content to operate the tournament-management features and, when an organizer makes a tournament public, to provide its public view. We use strictly necessary technical storage to keep the application working and to maintain the selected language or session.'] },
+        { title: '4. Legal basis and consent', paragraphs: ['We process information as needed to provide the service requested by the user and, where required, based on the user’s acceptance of the Terms & Conditions and this Privacy Policy. New accounts record the date and version of that acceptance. Users may withdraw consent or request deletion as described below; this may prevent continued use of account-dependent features.'] },
+        { title: '5. Service providers and international transfers', paragraphs: ['Supabase provides authentication and database services for the configured production application. Google provides the Google Sign-In identity service when that option is used. Google Fonts is loaded to display the site typeface. These providers may process information in countries other than your own. We do not identify any other third-party analytics, advertising, email, hosting, or Google API service in the application source.', 'Information obtained through Google Sign-In is accessed only for basic authentication, used only to create or identify the account, stored only as needed for the account profile and authentication flow, and is not sold or shared for advertising. It is deleted with the account where applicable, subject to the retention limits below. This use is subject to the Google API Services User Data Policy, including its Limited Use requirements.'] },
+        { title: '6. Retention and security', paragraphs: ['We retain account and tournament information while the account or related tournament remains active, and for a limited period afterward when reasonably necessary for security, fraud prevention, dispute handling, or legal obligations. We use reasonable technical and organizational safeguards, but no online service can guarantee absolute security.'] },
+        { title: '7. Your rights and account deletion', paragraphs: ['Subject to applicable law, you may request access, correction, updating, deletion, or restriction of your personal information, and may withdraw consent. To request account and data deletion, email [CONTACT EMAIL] from the account email address with the subject “Account deletion request.” We may request identity verification before acting. Deletion may remove the account and its associated tournament data; limited information may be retained where necessary for security, fraud prevention, or legal obligations.'] },
+        { title: '8. Cookies, local storage, and children', paragraphs: ['The application does not intentionally use non-essential analytics or advertising cookies. It uses only the local storage and session technologies described above, plus any strictly necessary provider storage for authentication. We do not knowingly offer the service to children where parental consent is required by applicable law. If you believe a child has provided personal information without appropriate authorization, contact us at [CONTACT EMAIL].'] },
+        { title: '9. Costa Rica and policy changes', paragraphs: ['This policy is intended to be read consistently with the general principles of Costa Rica’s Law No. 8968 on the Protection of the Person with Regard to the Processing of Personal Data. It does not represent a guarantee of legal compliance or legal advice. We may update this policy to reflect changes to the service or legal requirements; the updated date will appear at the top of this page.'] },
+      ],
+    },
+    terms: {
+      title: 'Terms & Conditions',
+      updated: 'Effective date and last updated: September 22, 2026',
+      intro: 'These Terms & Conditions govern use of EDH Tournaments. They are an operational description of the current service and are not legal advice.',
+      sections: [
+        { title: '1. Service and responsible party', paragraphs: ['EDH Tournaments is a platform for organizers to create multiplayer TCG tournaments, manage participants, rounds, results, and standings, and optionally share a public tournament view. The service is operated by [DATA CONTROLLER NAME], reachable at [CONTACT EMAIL].'] },
+        { title: '2. Eligibility and accounts', paragraphs: ['You must provide accurate information, keep your account credentials secure, and use an email address you control. You are responsible for activity performed through your account. Existing users may sign in through the authentication method available for their account. New account creation requires acceptance of these Terms and the Privacy Policy.'] },
+        { title: '3. Acceptable use', paragraphs: ['You may use the service to organize and follow lawful TCG tournaments. You must not attempt to access another person’s account, interfere with the service, bypass security controls, submit malicious code, infringe others’ rights, or use the platform for unlawful, abusive, deceptive, or harmful activity.'] },
+        { title: '4. User content and public tournaments', paragraphs: ['You remain responsible for tournament content you submit, including participant names, scores, results, and optional information. You must have an appropriate basis to provide that information. If you make a tournament public, you understand that its public view can expose the tournament details intended for participants and spectators. Do not publish sensitive personal information through tournament fields.'] },
+        { title: '5. Intellectual property', paragraphs: ['The platform’s software, branding, and design remain the property of their respective owners. You retain rights in the content you submit, while granting the service the limited permission necessary to store, display, and process that content to operate the platform and its public tournament view.'] },
+        { title: '6. Unofficial Fan Content', paragraphs: ['EDH Tournaments is unofficial Fan Content permitted under the Fan Content Policy. Not approved or endorsed by Wizards. Portions of the materials used are property of Wizards of the Coast. © Wizards of the Coast LLC.', 'EDH Tournaments is an independent community tournament platform. Organizers are responsible for obtaining any permissions required for their tournaments and must not represent a tournament as official, sponsored, or approved by Wizards unless they are authorized to do so.'] },
+        { title: '7. Availability, changes, and third parties', paragraphs: ['We may maintain, modify, suspend, or discontinue parts of the service when reasonably necessary. We do not promise uninterrupted or error-free availability. Authentication and infrastructure may rely on third-party services, including Supabase and Google Sign-In, each governed by its own terms and privacy practices.'] },
+        { title: '8. Suspension, cancellation, and deletion', paragraphs: ['We may suspend or remove access where reasonably necessary to protect the service, users, or legal rights. You may stop using the service at any time. To request deletion of your account and related personal data, follow the process in the Privacy Policy by contacting [CONTACT EMAIL]; identity verification may be required.'] },
+        { title: '9. Liability', paragraphs: ['To the extent permitted by applicable law, the service is provided on an “as available” basis. We do not guarantee tournament outcomes, data availability, compatibility, or uninterrupted access. Nothing in these Terms excludes liability that cannot legally be excluded.'] },
+        { title: '10. Changes, governing law, and contact', paragraphs: ['We may update these Terms when the service or applicable requirements change. The effective date will be shown at the top of this page. Applicable law and venue should be confirmed by [DATA CONTROLLER NAME] with a qualified legal professional. Questions about these Terms can be sent to [CONTACT EMAIL].'] },
+      ],
+    },
+  },
+})
+
 const initialLanguage = typeof window === 'undefined' ? 'es' : localStorage.getItem('torneos-tcg.language') ?? (navigator.language.startsWith('en') ? 'en' : 'es')
 
 void i18n.use(initReactI18next).init({

@@ -6,3 +6,4 @@
 - La persistencia pasa por `src/data/` y `src/lib/supabase.ts`. El modo demo usa `localStorage` cuando Supabase no está configurado.
 - Todo texto visible nuevo debe tener claves equivalentes en español e inglés dentro de `src/i18n.ts` y consumirlas desde la interfaz activa.
 - Para cambios de UI, reutiliza las clases y componentes existentes antes de añadir estilos nuevos. Valida con compilación; agrega pruebas cuando cambie lógica observable.
+- Para cambios visuales, consulta `docs/design-system.md` y conserva los tokens, responsive, accesibilidad e i18n.

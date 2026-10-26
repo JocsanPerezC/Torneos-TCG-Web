@@ -32,7 +32,7 @@ const statusColor: Record<string, string> = { borrador: 'border-[#E7E2D2] bg-[#F
 function Badge({ children }: { children: string }) { const labels:Record<string,string>={borrador:i18n.t('app.common.draft'),activa:i18n.t('app.common.activeStatus'),completada:i18n.t('app.common.completed'),activo:i18n.t('app.common.tournamentActive'),finalizado:i18n.t('app.common.finished')}; return <span className={`app-badge ${statusColor[children] ?? 'bg-transparent text-muted-foreground'}`}>{labels[children] ?? children}</span> }
 function RoundTimer({ round }: { round: Tournament['rounds'][number] }) { const [now,setNow]=useState(0); useEffect(()=>{if(round.status!=='activa'||!round.startedAt)return;const update=()=>setNow(Date.now());update();const interval=window.setInterval(update,1000);return()=>window.clearInterval(interval)},[round.status,round.startedAt]); if(!round.startedAt)return null; const elapsed=Math.max(0,(round.endedAt?Date.parse(round.endedAt):now)-Date.parse(round.startedAt)); const hours=Math.floor(elapsed/3_600_000); const minutes=Math.floor(elapsed%3_600_000/60_000); const seconds=Math.floor(elapsed%60_000/1_000); const clock=[hours,minutes,seconds].map(value=>String(value).padStart(2,'0')).join(':'); return <span className="round-timer" aria-label={i18n.t('app.tournament.round', { number: round.number })}>{clock}</span> }
 function Notice({ children, error = false }: { children: React.ReactNode; error?: boolean }) { const validationMessages=[i18n.t('app.messages.completeResults'),i18n.t('app.messages.outcomeRequired')]; const isError=error||(typeof children==='string'&&validationMessages.includes(children)); const shown=useRef<{children:React.ReactNode;error:boolean}|undefined>(undefined); useEffect(()=>{const previous=shown.current;if(previous&&previous.children===children&&previous.error===isError)return;shown.current={children,error:isError};showToast(children,isError)},[children,isError]); return null }
-function ConfirmModal({ title, description, confirmLabel, destructive=false, onClose, onConfirm }: { title:string; description:string; confirmLabel?:string; destructive?:boolean; onClose:()=>void; onConfirm:()=>void }) { return <Modal title={title} description={description} onClose={onClose}><div className="flex flex-wrap justify-end gap-3"><button type="button" className="rounded-lg border border-slate-500 px-4 py-2 text-sm font-semibold hover:bg-slate-800" onClick={onClose}>{i18n.t('app.common.cancel')}</button><button type="button" className={destructive ? 'rounded-lg bg-red-700 px-4 py-2 text-sm font-bold text-white hover:bg-red-600' : primary} onClick={onConfirm}>{confirmLabel ?? i18n.t('app.common.save')}</button></div></Modal> }
+function ConfirmModal({ title, description, confirmLabel, destructive=false, onClose, onConfirm }: { title:string; description:string; confirmLabel?:string; destructive?:boolean; onClose:()=>void; onConfirm:()=>void }) { return <Modal title={title} description={description} onClose={onClose}><div className="flex flex-wrap justify-end gap-3"><Button type="button" variant="outline" className="app-button app-button--secondary" onClick={onClose}>{i18n.t('app.common.cancel')}</Button><Button type="button" variant="outline" className={destructive ? 'app-button app-button--danger' : primary} onClick={onConfirm}>{confirmLabel ?? i18n.t('app.common.save')}</Button></div></Modal> }
 
 function Header() {
   const { user, configured, isAdmin, signOut } = useAuth()
@@ -67,11 +67,11 @@ function LegalConsent() {
   if (!user || !requiresLegalConsent) return <Navigate to="/dashboard" replace />
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
-    if (!accepted) return setError('You must accept the Terms & Conditions and Privacy Policy to continue.')
+    if (!accepted) return setError(i18n.t('app.legalConsent.required'))
     setBusy(true)
-    try { await acceptLegalConsent(); navigate('/dashboard', { replace: true }) } catch { setError('We could not save your acceptance. Please try again.') } finally { setBusy(false) }
+    try { await acceptLegalConsent(); navigate('/dashboard', { replace: true }) } catch { setError(i18n.t('app.legalConsent.saveFailed')) } finally { setBusy(false) }
   }
-  return <Layout><div className="mx-auto max-w-md"><section lang="en" className={`${panel} space-y-4`}><h1 className="text-2xl font-black">Accept legal documents</h1><p className="text-sm text-slate-300">Before using your new account, please review and accept the following documents.</p><form onSubmit={submit} className="space-y-4"><label className="flex cursor-pointer items-start gap-3 rounded-2xl border border-border bg-secondary/40 p-3 text-sm leading-5"><input required checked={accepted} onChange={event => { setAccepted(event.target.checked); if (event.target.checked) setError('') }} type="checkbox" className="mt-1 size-4 accent-[#21B876]" /><span>I have read and agree to the <Link to="/terms" target="_blank" rel="noreferrer" className="font-semibold text-accent underline">Terms &amp; Conditions</Link> and <Link to="/privacy" target="_blank" rel="noreferrer" className="font-semibold text-accent underline">Privacy Policy</Link>.</span></label>{error && <p role="alert" className="text-sm text-red-300">{error}</p>}<button disabled={busy} className={`${primary} w-full`}>{busy ? 'Saving…' : 'Continue'}</button></form></section></div></Layout>
+  return <Layout><div className="mx-auto max-w-md"><section className={`${panel} space-y-4`}><h1 className="text-2xl font-black">{i18n.t('app.legalConsent.title')}</h1><p className="text-sm text-muted-foreground">{i18n.t('app.legalConsent.description')}</p><form onSubmit={submit} className="space-y-4"><label className="flex cursor-pointer items-start gap-3 rounded-2xl border border-border bg-secondary/40 p-3 text-sm leading-5"><input required checked={accepted} onChange={event => { setAccepted(event.target.checked); if (event.target.checked) setError('') }} type="checkbox" className="mt-1 size-4 accent-[#21B876]" /><span>{i18n.t('app.auth.legalAgreement')} <Link to="/terms" target="_blank" rel="noreferrer" className="font-semibold text-accent underline">{i18n.t('app.auth.terms')}</Link>{i18n.t('app.auth.legalAgreementConnector')}<Link to="/privacy" target="_blank" rel="noreferrer" className="font-semibold text-accent underline">{i18n.t('app.auth.privacy')}</Link>{i18n.t('app.auth.legalAgreementSuffix')}</span></label>{error && <p role="alert" className="text-sm text-red-300">{error}</p>}<Button disabled={busy} className={`${primary} w-full`}>{busy ? i18n.t('app.legalConsent.saving') : i18n.t('app.auth.continue')}</Button></form></section></div></Layout>
 }
 
 function Home() { return <Layout><section className="card-pattern overflow-hidden rounded-2xl border border-amber-300/30 bg-slate-900 px-6 py-18 text-center sm:px-12"><p className="mb-4 text-sm font-bold tracking-[.2em] text-amber-300">TORNEOS MULTIJUGADOR</p><h1 className="mx-auto max-w-3xl text-4xl font-black tracking-tight sm:text-6xl">Organiza la próxima gran mesa.</h1><p className="mx-auto mt-5 max-w-xl text-lg text-slate-300">Rondas justas, resultados ágiles y clasificación clara para Commander y cualquier TCG multijugador.</p><div className="mt-8 flex flex-wrap justify-center gap-3"><Link className={primary} to="/register">Crear cuenta</Link><Link className="rounded-lg border border-slate-500 px-4 py-2 font-semibold hover:bg-slate-800" to="/login">Iniciar sesión</Link></div></section><section className="mt-6 grid gap-4 md:grid-cols-3">{[['♟','Mesas equilibradas','Distribución válida de 3 y 4 jugadores.'],['✦','Resultados claros','Puntos, kills y desempates trazables.'],['⌁','Consulta pública','Comparte el estado sin exponer controles.']].map(([icon,title,text]) => <article key={title} className={panel}><span className="text-2xl text-amber-300">{icon}</span><h2 className="mt-3 font-bold">{title}</h2><p className="mt-1 text-sm text-slate-300">{text}</p></article>)}</section></Layout> }
@@ -95,7 +95,7 @@ function Auth({ screen }: { screen: 'login'|'register'|'recovery' }) {
     const email = String(data.get('email')).trim()
     const password = String(data.get('password'))
     if (register && !legalAccepted) {
-      setLegalError('You must accept the Terms & Conditions and Privacy Policy to create an account.')
+      setLegalError(i18n.t('app.auth.legalConsentRequired'))
       return
     }
     setBusy(true)
@@ -120,12 +120,12 @@ function Auth({ screen }: { screen: 'login'|'register'|'recovery' }) {
     }
   }
 
-  const passwordField = (name: string, label: string) => <label className="block text-sm font-medium">{label}<span className="relative mt-1 block"><input required name={name} minLength={6} type={showPassword ? 'text' : 'password'} className={`${field} mt-0 pr-12`} /><button type="button" aria-label={showPassword ? i18n.t('app.auth.hidePassword') : i18n.t('app.auth.showPassword')} title={showPassword ? i18n.t('app.auth.hidePassword') : i18n.t('app.auth.showPassword')} className="absolute inset-y-0 right-0 inline-flex w-11 items-center justify-center text-slate-400 hover:text-amber-300" onClick={() => setShowPassword(value => !value)}>{showPassword ? <EyeOff size={18} /> : <Eye size={18} />}</button></span></label>
-  const consent = <fieldset className="rounded-2xl border border-border bg-secondary/40 p-3"><legend className="sr-only">Legal agreement</legend><label className="flex cursor-pointer items-start gap-3 text-sm leading-5 text-foreground"><input required name="legalConsent" checked={legalAccepted} onChange={event => { setLegalAccepted(event.target.checked); if (event.target.checked) setLegalError('') }} type="checkbox" className="mt-1 size-4 accent-[#21B876]" /><span>I have read and agree to the <Link to="/terms" target="_blank" rel="noreferrer" className="font-semibold text-accent underline">Terms &amp; Conditions</Link> and <Link to="/privacy" target="_blank" rel="noreferrer" className="font-semibold text-accent underline">Privacy Policy</Link>.</span></label>{legalError && <p role="alert" className="mt-2 text-sm text-red-300">{legalError}</p>}</fieldset>
+  const passwordField = (name: string, label: string) => <label className="block text-sm font-medium">{label}<span className="relative mt-1 block"><input required name={name} minLength={6} type={showPassword ? 'text' : 'password'} className={`${field} mt-0 pr-12`} /><Button type="button" variant="ghost" size="sm" aria-label={showPassword ? i18n.t('app.auth.hidePassword') : i18n.t('app.auth.showPassword')} title={showPassword ? i18n.t('app.auth.hidePassword') : i18n.t('app.auth.showPassword')} className="absolute inset-y-0 right-0 w-11 text-muted-foreground hover:text-accent" onClick={() => setShowPassword(value => !value)}>{showPassword ? <EyeOff size={18} /> : <Eye size={18} />}</Button></span></label>
+  const consent = <fieldset className="rounded-2xl border border-border bg-secondary/40 p-3"><legend className="sr-only">{i18n.t('app.legalConsent.title')}</legend><label className="flex cursor-pointer items-start gap-3 text-sm leading-5 text-foreground"><input required name="legalConsent" checked={legalAccepted} onChange={event => { setLegalAccepted(event.target.checked); if (event.target.checked) setLegalError('') }} type="checkbox" className="mt-1 size-4 accent-[#21B876]" /><span>{i18n.t('app.auth.legalAgreement')} <Link to="/terms" target="_blank" rel="noreferrer" className="font-semibold text-accent underline">{i18n.t('app.auth.terms')}</Link>{i18n.t('app.auth.legalAgreementConnector')}<Link to="/privacy" target="_blank" rel="noreferrer" className="font-semibold text-accent underline">{i18n.t('app.auth.privacy')}</Link>{i18n.t('app.auth.legalAgreementSuffix')}</span></label>{legalError && <p role="alert" className="mt-2 text-sm text-red-300">{legalError}</p>}</fieldset>
 
-  return <Layout><div className="mx-auto max-w-md"><div className={panel}><h1 className="text-2xl font-black">{title}</h1><p className="mt-2 text-sm text-slate-300">{configured ? '' : i18n.t('app.auth.localMode')}</p>{message && <div className="mt-4"><Notice error={!message.includes(i18n.t('app.auth.recoverySent'))}>{message}</Notice></div>}<form className="mt-5 space-y-4" onSubmit={submit}>{register && <label className="block text-sm font-medium">{i18n.t('app.common.name')}<input required name="name" autoComplete="name" className={field} placeholder={i18n.t('app.auth.yourName')} /></label>}<label className="block text-sm font-medium">{i18n.t('app.common.email')}<input required name="email" type="email" autoComplete="email" className={field} placeholder="correo@gmail.com" /></label>{!recovery && <>{passwordField('password', i18n.t('app.common.password'))}{register && passwordField('confirmPassword', i18n.t('app.auth.confirmPassword'))}</>}{register && consent}<button disabled={busy} className={`${primary} w-full`}>{busy ? i18n.t('app.auth.processing') : recovery ? i18n.t('app.auth.sendInstructions') : i18n.t('app.auth.continue')}</button></form>{!recovery && <GoogleAuthButton requiresConsent={register} consentAccepted={legalAccepted} onConsentRequired={() => setLegalError('You must accept the Terms & Conditions and Privacy Policy to create an account.')} />}<Link className="mt-5 block text-center text-sm text-amber-300 underline" to={screen === 'login' ? '/register' : '/login'}>{screen === 'login' ? i18n.t('app.auth.noAccount') : i18n.t('app.auth.backToLogin')}</Link>{!recovery && <Link className="mx-auto mt-3 inline-flex w-full justify-center rounded-lg border border-slate-500 px-3 py-2 text-sm font-semibold text-slate-300 hover:bg-slate-800" to="/forgot-password">{i18n.t('app.auth.forgotPassword')}</Link>}</div></div></Layout>
+  return <Layout><div className="mx-auto max-w-md"><div className={panel}><h1 className="text-2xl font-black">{title}</h1><p className="mt-2 text-sm text-muted-foreground">{configured ? '' : i18n.t('app.auth.localMode')}</p>{message && <div className="mt-4"><Notice error={!message.includes(i18n.t('app.auth.recoverySent'))}>{message}</Notice></div>}<form className="mt-5 space-y-4" onSubmit={submit}>{register && <label className="block text-sm font-medium">{i18n.t('app.common.name')}<input required name="name" autoComplete="name" className={field} placeholder={i18n.t('app.auth.yourName')} /></label>}<label className="block text-sm font-medium">{i18n.t('app.common.email')}<input required name="email" type="email" autoComplete="email" className={field} placeholder="correo@gmail.com" /></label>{!recovery && <>{passwordField('password', i18n.t('app.common.password'))}{register && passwordField('confirmPassword', i18n.t('app.auth.confirmPassword'))}</>}{register && consent}<Button disabled={busy} className={`${primary} w-full`}>{busy ? i18n.t('app.auth.processing') : recovery ? i18n.t('app.auth.sendInstructions') : i18n.t('app.auth.continue')}</Button></form>{!recovery && <GoogleAuthButton requiresConsent={register} consentAccepted={legalAccepted} onConsentRequired={() => setLegalError(i18n.t('app.auth.legalConsentRequired'))} />}<Link className="mt-5 block text-center text-sm text-accent underline" to={screen === 'login' ? '/register' : '/login'}>{screen === 'login' ? i18n.t('app.auth.noAccount') : i18n.t('app.auth.backToLogin')}</Link>{!recovery && <Button asChild type="button" variant="outline" className="mt-3 w-full"><Link to="/forgot-password">{i18n.t('app.auth.forgotPassword')}</Link></Button>}</div></div></Layout>
 }
-function ConfirmedAccount() { const { user, loading } = useAuth(); return <Layout><div className="mx-auto max-w-md text-center"><section className={panel}><span className="text-4xl">✓</span><h1 className="mt-3 text-2xl font-black">{loading ? 'Confirmando tu cuenta…' : user ? '¡Cuenta confirmada!' : 'Revisa la confirmación'}</h1><p className="mt-3 text-slate-300">{user ? 'Ya puedes cerrar esta pestaña y volver a la ventana original. Entrarás al panel automáticamente.' : 'Estamos validando el enlace. Espera un momento o vuelve a abrir el enlace del correo.'}</p>{user&&<button type="button" className={`${primary} mt-5`} onClick={() => window.close()}>Cerrar pestaña</button>}</section></div></Layout> }
+function ConfirmedAccount() { const { user, loading } = useAuth(); return <Layout><div className="mx-auto max-w-md text-center"><section className={panel}><span className="text-4xl">✓</span><h1 className="mt-3 text-2xl font-black">{loading ? i18n.t('app.auth.confirming') : user ? i18n.t('app.auth.confirmed') : i18n.t('app.auth.reviewConfirmation')}</h1><p className="mt-3 text-muted-foreground">{user ? i18n.t('app.auth.confirmedDescription') : i18n.t('app.auth.confirmationDescription')}</p>{user&&<Button type="button" className={`${primary} mt-5`} onClick={() => window.close()}>{i18n.t('app.auth.closeTab')}</Button>}</section></div></Layout> }
 function OrganizerIdentity({ user }: { user: User | null }) {
   const { name, avatarUrl } = getUserProfile(user)
   const [avatarFailed, setAvatarFailed] = useState(false)
@@ -157,7 +157,7 @@ function Dashboard() {
             <OrganizerIdentity user={user} />
             <h1>{i18n.t('app.dashboard.title')}</h1>
           </div>
-          <button
+          <Button
             className={primary}
             onClick={() => {
               if (tournamentLimitReached) {
@@ -169,7 +169,7 @@ function Dashboard() {
           >
             <Plus size={16} aria-hidden />
             {i18n.t('app.dashboard.newTournament')}
-          </button>
+          </Button>
         </header>
         {!ready && (
           <div className="app-loading-note">
@@ -243,7 +243,10 @@ function Dashboard() {
                           />
                         ))}
                       </div>
-                      <button
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
                         className="app-action-delete"
                         onClick={(event) => {
                           event.stopPropagation();
@@ -251,7 +254,7 @@ function Dashboard() {
                         }}
                       >
                         {i18n.t('app.common.delete')}
-                      </button>
+                      </Button>
                     </div>
                   </article>
                 ))}
@@ -388,16 +391,12 @@ function TournamentCreateModal({ onClose }: { onClose: () => void }) {
           </label>
         </div>
         <div className="flex justify-end gap-3">
-          <button
-            type="button"
-            className="rounded-lg border border-slate-500 px-4 py-2 text-sm font-semibold hover:bg-slate-800"
-            onClick={onClose}
-          >
+          <Button type="button" variant="outline" className="app-button app-button--secondary" onClick={onClose}>
             {i18n.t('app.common.cancel')}
-          </button>
-          <button disabled={busy} className={primary}>
-            {busy ? 'Creando…' : i18n.t('app.createTournament.create')}
-          </button>
+          </Button>
+          <Button disabled={busy} className={primary}>
+            {busy ? i18n.t('app.createTournament.creating') : i18n.t('app.createTournament.create')}
+          </Button>
         </div>
       </form>
     </Modal>
@@ -494,9 +493,9 @@ function NewTournament() {
               />
             </label>
           </div>
-          <button disabled={busy} className={primary}>
-            {busy ? 'Creando…' : i18n.t('app.createTournament.create')}
-          </button>
+          <Button disabled={busy} className={primary}>
+            {busy ? i18n.t('app.createTournament.creating') : i18n.t('app.createTournament.create')}
+          </Button>
         </form>
       </div>
     </Layout>
@@ -557,7 +556,7 @@ function TournamentLayout() {
 function Current() { const { id } = useParams(); const tournament = useTournament(id); if (!tournament) throw new Error('Torneo no encontrado'); return tournament }
 function Overview() { const tournament = Current(); const current = tournament.rounds.at(-1); return <section className="overview-board"><header><p>{i18n.t('app.tournament.state')}</p><h2>{i18n.t('app.tournament.overview')}</h2></header><div className="overview-board__metrics"><Metric label={i18n.t('app.tournament.activePlayers')} value={tournament.players.filter(player => player.active).length} icon={Users} /><Metric label={i18n.t('app.tournament.rounds')} value={`${tournament.rounds.length}/${tournament.plannedRounds}`} icon={GitBranch} /><Metric label={i18n.t('app.tournament.currentTable')} value={current ? `R${current.number}` : '—'} icon={Table} /></div><TournamentInformation /></section> }
 function Statistics() { return <BattleLedger statistics={tournamentStatistics(Current())} /> }
-function TournamentInformation() { const tournament = Current(); const { id } = useParams(); const { updateTournament } = useTournaments(); const [information,setInformation] = useState(tournament.information); const [saved,setSaved] = useState(false); function save(event:FormEvent<HTMLFormElement>){event.preventDefault();updateTournament(id!,{information:information.trim()});setSaved(true);showToast(i18n.t('app.tournament.informationSaved'))} return <section className="notice-board"><header><span><Info size={16} aria-hidden /></span><div><h2>{i18n.t('app.tournament.information')}</h2><p>{i18n.t('app.tournament.informationHelp')}</p></div></header><form onSubmit={save}><textarea value={information} onChange={event=>{setInformation(event.target.value);setSaved(false)}} disabled={tournament.status==='finalizado'} maxLength={2000} rows={7} className={`${field} resize-y`} placeholder={i18n.t('app.tournament.informationPlaceholder')} /><div className="notice-board__actions"><span>{information.length}/2000</span><button disabled={tournament.status==='finalizado'} className={primary}>{i18n.t('app.tournament.saveInformation')}</button></div>{saved&&<p className="notice-board__saved">{i18n.t('app.tournament.informationSaved')}</p>}</form></section> }
+function TournamentInformation() { const tournament = Current(); const { id } = useParams(); const { updateTournament } = useTournaments(); const [information,setInformation] = useState(tournament.information); const [saved,setSaved] = useState(false); function save(event:FormEvent<HTMLFormElement>){event.preventDefault();updateTournament(id!,{information:information.trim()});setSaved(true);showToast(i18n.t('app.tournament.informationSaved'))} return <section className="notice-board"><header><span><Info size={16} aria-hidden /></span><div><h2>{i18n.t('app.tournament.information')}</h2><p>{i18n.t('app.tournament.informationHelp')}</p></div></header><form onSubmit={save}><textarea value={information} onChange={event=>{setInformation(event.target.value);setSaved(false)}} disabled={tournament.status==='finalizado'} maxLength={2000} rows={7} className={`${field} resize-y`} placeholder={i18n.t('app.tournament.informationPlaceholder')} /><div className="notice-board__actions"><span>{information.length}/2000</span><Button disabled={tournament.status==='finalizado'} className={primary}>{i18n.t('app.tournament.saveInformation')}</Button></div>{saved&&<p className="notice-board__saved">{i18n.t('app.tournament.informationSaved')}</p>}</form></section> }
 function Metric({ label, value, icon: Icon }: { label: string; value: string | number; icon: LucideIcon }) { return <article className="app-stat-pill"><span><Icon size={16} aria-hidden /></span><strong>{value}</strong><small>{label}</small></article> }
 function Players() {
   const tournament = Current()
@@ -573,9 +572,9 @@ function Players() {
   function edit(event: FormEvent<HTMLFormElement>) { event.preventDefault(); if (!editing) return; const result = renamePlayer(id!, editing.id, String(new FormData(event.currentTarget).get('name'))); setMessage(result ?? i18n.t('app.tournament.playerUpdated')); if (!result) setEditing(undefined) }
   const normalizedSearch = search.trim().toLocaleLowerCase()
   const filteredPlayers = tournament.players.filter(player => player.name.toLocaleLowerCase().includes(normalizedSearch))
-  return <section className="players-ledger"><header><div><p>{i18n.t('app.tournament.activeCount', { count: tournament.players.filter(player => player.active).length })}</p><h2>{i18n.t('app.tournament.players')}</h2></div><button disabled={tournament.status === 'finalizado'} className={primary} onClick={() => setAdding(true)}><Plus size={16} aria-hidden />{i18n.t('app.tournament.addPlayers')}</button></header><div className="players-ledger__sheet">{message && <Notice>{message}</Notice>}<label className="players-ledger__search"><span className="sr-only">{i18n.t('app.tournament.searchPlayers')}</span><input type="search" value={search} onChange={event => setSearch(event.target.value)} placeholder={i18n.t('app.tournament.searchPlayers')} className={field} /></label><div className="players-ledger__list">{filteredPlayers.map(player => <article key={player.id} className={`player-slip ${player.active ? '' : 'is-withdrawn'}`}><span className="player-slip__avatar" aria-hidden>{player.name.trim().slice(0, 1).toUpperCase()}</span><div><strong>{player.name}</strong><span className={`player-slip__status ${player.active ? 'is-active' : ''}`}>{player.active ? i18n.t('app.common.active') : i18n.t('app.common.withdrawn')}</span></div><div className="player-slip__actions"><button type="button" className="app-action-edit" onClick={() => setEditing(player)}>{i18n.t('app.common.edit')}</button><button type="button" className="app-action-muted" onClick={() => setPlayerToToggle(player)}>{player.active ? i18n.t('app.tournament.retire') : i18n.t('app.tournament.activate')}</button><button type="button" className="app-action-delete" onClick={() => setPlayerToDelete(player)}>{i18n.t('app.common.delete')}</button></div></article>)}{!filteredPlayers.length && <div className="app-empty-state"><span><Users aria-hidden /></span><p>{search ? i18n.t('app.tournament.noPlayersFound') : i18n.t('app.tournament.noPlayers')}</p></div>}</div></div>
-    {adding && <Modal title={i18n.t('app.tournament.addPlayersTitle')} description={i18n.t('app.tournament.addPlayersDescription')} onClose={() => setAdding(false)}><form className="space-y-4" onSubmit={add}><textarea required name="names" className={field} rows={7} placeholder={i18n.t('app.tournament.playerNames')} /><div className="flex justify-end gap-3"><button type="button" className="app-button app-button--secondary" onClick={() => setAdding(false)}>{i18n.t('app.common.cancel')}</button><button className={primary}>{i18n.t('app.tournament.addPlayers')}</button></div></form></Modal>}
-    {editing && <Modal title={i18n.t('app.tournament.editPlayer')} description={i18n.t('app.tournament.updatePlayer')} onClose={() => setEditing(undefined)}><form className="space-y-4" onSubmit={edit}><label className="block text-sm">{i18n.t('app.common.name')}<input autoFocus required name="name" defaultValue={editing.name} className={field} /></label><div className="flex justify-end gap-3"><button type="button" className="app-button app-button--secondary" onClick={() => setEditing(undefined)}>{i18n.t('app.common.cancel')}</button><button className={primary}>{i18n.t('app.common.save')}</button></div></form></Modal>}
+  return <section className="players-ledger"><header><div><p>{i18n.t('app.tournament.activeCount', { count: tournament.players.filter(player => player.active).length })}</p><h2>{i18n.t('app.tournament.players')}</h2></div><Button disabled={tournament.status === 'finalizado'} className={primary} onClick={() => setAdding(true)}><Plus size={16} aria-hidden />{i18n.t('app.tournament.addPlayers')}</Button></header><div className="players-ledger__sheet">{message && <Notice>{message}</Notice>}<label className="players-ledger__search"><span className="sr-only">{i18n.t('app.tournament.searchPlayers')}</span><input type="search" value={search} onChange={event => setSearch(event.target.value)} placeholder={i18n.t('app.tournament.searchPlayers')} className={field} /></label><div className="players-ledger__list">{filteredPlayers.map(player => <article key={player.id} className={`player-slip ${player.active ? '' : 'is-withdrawn'}`}><span className="player-slip__avatar" aria-hidden>{player.name.trim().slice(0, 1).toUpperCase()}</span><div><strong>{player.name}</strong><span className={`player-slip__status ${player.active ? 'is-active' : ''}`}>{player.active ? i18n.t('app.common.active') : i18n.t('app.common.withdrawn')}</span></div><div className="player-slip__actions"><Button type="button" variant="outline" size="sm" className="app-action-edit" onClick={() => setEditing(player)}>{i18n.t('app.common.edit')}</Button><Button type="button" variant="outline" size="sm" className="app-action-muted" onClick={() => setPlayerToToggle(player)}>{player.active ? i18n.t('app.tournament.retire') : i18n.t('app.tournament.activate')}</Button><Button type="button" variant="outline" size="sm" className="app-action-delete" onClick={() => setPlayerToDelete(player)}>{i18n.t('app.common.delete')}</Button></div></article>)}{!filteredPlayers.length && <div className="app-empty-state"><span><Users aria-hidden /></span><p>{search ? i18n.t('app.tournament.noPlayersFound') : i18n.t('app.tournament.noPlayers')}</p></div>}</div></div>
+    {adding && <Modal title={i18n.t('app.tournament.addPlayersTitle')} description={i18n.t('app.tournament.addPlayersDescription')} onClose={() => setAdding(false)}><form className="space-y-4" onSubmit={add}><textarea required name="names" className={field} rows={7} placeholder={i18n.t('app.tournament.playerNames')} /><div className="flex justify-end gap-3"><Button type="button" variant="outline" className="app-button app-button--secondary" onClick={() => setAdding(false)}>{i18n.t('app.common.cancel')}</Button><Button className={primary}>{i18n.t('app.tournament.addPlayers')}</Button></div></form></Modal>}
+    {editing && <Modal title={i18n.t('app.tournament.editPlayer')} description={i18n.t('app.tournament.updatePlayer')} onClose={() => setEditing(undefined)}><form className="space-y-4" onSubmit={edit}><label className="block text-sm">{i18n.t('app.common.name')}<input autoFocus required name="name" defaultValue={editing.name} className={field} /></label><div className="flex justify-end gap-3"><Button type="button" variant="outline" className="app-button app-button--secondary" onClick={() => setEditing(undefined)}>{i18n.t('app.common.cancel')}</Button><Button className={primary}>{i18n.t('app.common.save')}</Button></div></form></Modal>}
     {playerToToggle && <ConfirmModal title={playerToToggle.active ? i18n.t('app.tournament.retire') : i18n.t('app.tournament.activate')} description={playerToToggle.active ? i18n.t('app.tournament.retirePlayerDescription', { name: playerToToggle.name }) : i18n.t('app.tournament.activatePlayerDescription', { name: playerToToggle.name })} confirmLabel={playerToToggle.active ? i18n.t('app.tournament.retire') : i18n.t('app.tournament.activate')} onClose={() => setPlayerToToggle(undefined)} onConfirm={() => { togglePlayer(id!, playerToToggle.id); setPlayerToToggle(undefined) }} />}
     {playerToDelete && <ConfirmModal title={i18n.t('app.tournament.deletePlayer')} description={i18n.t('app.tournament.deletePlayerDescription', { name: playerToDelete.name })} confirmLabel={i18n.t('app.common.delete')} destructive onClose={() => setPlayerToDelete(undefined)} onConfirm={() => { const error = removePlayer(id!, playerToDelete.id); if (error) setMessage(error); setPlayerToDelete(undefined) }} />}
   </section>
@@ -602,12 +601,12 @@ function Rounds() {
 
   return <section className="rounds-deck">
     <div className="rounds-deck__header">
-      <h2 className="text-xl font-bold">{i18n.t('app.tournament.roundsAndTables')}<button type="button" className="app-help" aria-label={i18n.t('app.tournament.roundGenerationInfo.button')} aria-haspopup="dialog" title={i18n.t('app.tournament.roundGenerationInfo.button')} onClick={() => setShowRoundGenerationInfo(true)}><Info aria-hidden /></button></h2>
+      <h2 className="text-xl font-bold">{i18n.t('app.tournament.roundsAndTables')}<Button type="button" variant="ghost" size="sm" className="app-help" aria-label={i18n.t('app.tournament.roundGenerationInfo.button')} aria-haspopup="dialog" title={i18n.t('app.tournament.roundGenerationInfo.button')} onClick={() => setShowRoundGenerationInfo(true)}><Info aria-hidden /></Button></h2>
       <div className="flex flex-wrap justify-end gap-2">
-        <button disabled={selectedIndex<=0} className="app-button app-button--secondary" onClick={()=>setSelectedRoundId(tournament.rounds[selectedIndex-1].id)}>{i18n.t('app.common.previous')}</button>
-        <button disabled={selectedIndex>=tournament.rounds.length-1} className="app-button app-button--secondary" onClick={()=>setSelectedRoundId(tournament.rounds[selectedIndex+1].id)}>{i18n.t('app.common.next')}</button>
-        <button disabled={tournament.status === 'finalizado' || hasOpenRound || tournament.rounds.length>=tournament.plannedRounds} className={`${primary} inline-flex items-center gap-2`} onClick={() => setMessage(generateRound(id!) ?? i18n.t('app.tournament.roundGenerated'))}><RefreshCw size={16} />{i18n.t('app.tournament.generateRound')}</button>
-        <button disabled={!last} className="app-button app-button--danger" onClick={() => setDeletingLast(true)}><Trash2 size={16} />{i18n.t('app.tournament.deleteLast')}</button>
+        <Button disabled={selectedIndex<=0} variant="outline" className="app-button app-button--secondary" onClick={()=>setSelectedRoundId(tournament.rounds[selectedIndex-1].id)}>{i18n.t('app.common.previous')}</Button>
+        <Button disabled={selectedIndex>=tournament.rounds.length-1} variant="outline" className="app-button app-button--secondary" onClick={()=>setSelectedRoundId(tournament.rounds[selectedIndex+1].id)}>{i18n.t('app.common.next')}</Button>
+        <Button disabled={tournament.status === 'finalizado' || hasOpenRound || tournament.rounds.length>=tournament.plannedRounds} className={`${primary} inline-flex items-center gap-2`} onClick={() => setMessage(generateRound(id!) ?? i18n.t('app.tournament.roundGenerated'))}><RefreshCw size={16} />{i18n.t('app.tournament.generateRound')}</Button>
+        <Button disabled={!last} variant="outline" className="app-button app-button--danger" onClick={() => setDeletingLast(true)}><Trash2 size={16} />{i18n.t('app.tournament.deleteLast')}</Button>
       </div>
     </div>
     {message && <Notice error={message.includes('requieren') || message.includes('Completa') || message.includes('finalizado') || message.includes('Primero') || message.includes('Espera')}>{message}</Notice>}
@@ -616,14 +615,14 @@ function Rounds() {
         <div className="flex flex-wrap items-center gap-3"><h3 className="font-bold">{i18n.t('app.common.round',{number:selectedRound.number})} <span className="ml-2"><Badge>{selectedRound.status}</Badge></span></h3><RoundTimer round={selectedRound} /></div>
         <div className="flex flex-wrap gap-2">
           <Link className="app-button app-button--secondary" to={`/t/${tournament.publicSlug}?round=${selectedRound.id}`} target="_blank" rel="noreferrer"><Eye size={16} />{i18n.t('app.tournament.publicView')}<ExternalLink size={14} /></Link>
-          <button disabled={selectedRound.status !== 'borrador' || tournament.status === 'finalizado'} className={`${primary} inline-flex items-center gap-2`} onClick={() => setMessage(startRound(id!,selectedRound.id) ?? i18n.t('app.tournament.roundStarted'))}><Play size={16} fill="currentColor" />{i18n.t('app.tournament.startRound')}</button>
-          <button disabled={selectedRound.status !== 'activa' || tournament.status === 'finalizado'} className="app-button app-button--danger" onClick={() => setRoundToComplete(selectedRound)}><Square size={15} fill="currentColor" />{i18n.t('app.tournament.endRound')}</button>
+          <Button disabled={selectedRound.status !== 'borrador' || tournament.status === 'finalizado'} className={`${primary} inline-flex items-center gap-2`} onClick={() => setMessage(startRound(id!,selectedRound.id) ?? i18n.t('app.tournament.roundStarted'))}><Play size={16} fill="currentColor" />{i18n.t('app.tournament.startRound')}</Button>
+          <Button disabled={selectedRound.status !== 'activa' || tournament.status === 'finalizado'} variant="outline" className="app-button app-button--danger" onClick={() => setRoundToComplete(selectedRound)}><Square size={15} fill="currentColor" />{i18n.t('app.tournament.endRound')}</Button>
         </div>
       </div>
-      {selectedRound.status==='borrador' && <p className="mt-3 text-sm text-slate-300">{i18n.t('app.tournament.dragHelp')}</p>}
+      {selectedRound.status==='borrador' && <p className="mt-3 text-sm text-muted-foreground">{i18n.t('app.tournament.dragHelp')}</p>}
       <div className="rounds-deck__tables">{selectedRound.pods.map(pod => selectedRound.status === 'borrador' ? <DraftPodCard key={pod.id} pod={pod} names={names} draggedPlayer={draggedPlayer} isDropTarget={dropTargetPod===pod.id} onDragStart={playerId=>{setDraggedPlayer(playerId);setDropTargetPod(undefined)}} onDragEnter={()=>{if(draggedPlayer&&!pod.playerIds.includes(draggedPlayer))setDropTargetPod(pod.id)}} onDragEnd={()=>{setDraggedPlayer(undefined);setDropTargetPod(undefined)}} onDrop={playerId => { const error=movePlayer(id!,selectedRound.id,playerId,pod.id); if(error)setMessage(error); setDraggedPlayer(undefined); setDropTargetPod(undefined) }} /> : <PodCard key={pod.id} tournamentId={id!} roundId={selectedRound.id} pod={pod} readOnly={tournament.status === 'finalizado' || selectedRound.status !== 'activa'} names={names} editable={selectedRound.status === 'activa'} />)}</div>
     </article> : <div className="app-empty-state">{i18n.t('app.tournament.noRounds')}</div>}
-    {showRoundGenerationInfo && <Modal title={i18n.t('app.tournament.roundGenerationInfo.title')} description={i18n.t('app.tournament.roundGenerationInfo.description')} onClose={() => setShowRoundGenerationInfo(false)}><ul className="space-y-3 text-sm leading-6 text-slate-300"><li>{i18n.t('app.tournament.roundGenerationInfo.activePlayers')}</li><li>{i18n.t('app.tournament.roundGenerationInfo.tableSizes')}</li><li>{i18n.t('app.tournament.roundGenerationInfo.pairings')}</li><li>{i18n.t('app.tournament.roundGenerationInfo.reorganize')}</li></ul><div className="mt-5 flex justify-end"><button className={primary} onClick={() => setShowRoundGenerationInfo(false)}>{i18n.t('app.tournament.roundGenerationInfo.close')}</button></div></Modal>}
+    {showRoundGenerationInfo && <Modal title={i18n.t('app.tournament.roundGenerationInfo.title')} description={i18n.t('app.tournament.roundGenerationInfo.description')} onClose={() => setShowRoundGenerationInfo(false)}><ul className="space-y-3 text-sm leading-6 text-muted-foreground"><li>{i18n.t('app.tournament.roundGenerationInfo.activePlayers')}</li><li>{i18n.t('app.tournament.roundGenerationInfo.tableSizes')}</li><li>{i18n.t('app.tournament.roundGenerationInfo.pairings')}</li><li>{i18n.t('app.tournament.roundGenerationInfo.reorganize')}</li></ul><div className="mt-5 flex justify-end"><Button className={primary} onClick={() => setShowRoundGenerationInfo(false)}>{i18n.t('app.tournament.roundGenerationInfo.close')}</Button></div></Modal>}
     {deletingLast && last && <ConfirmModal title={i18n.t('app.tournament.deleteLastTitle')} description={last.pods.some(p=>p.results?.length) ? i18n.t('app.tournament.deleteLastWithResults') : i18n.t('app.tournament.deleteLastDescription')} confirmLabel={i18n.t('app.tournament.deleteRound')} destructive onClose={() => setDeletingLast(false)} onConfirm={() => { setMessage(deleteLastRound(id!) ?? i18n.t('app.tournament.lastRoundDeleted')); setDeletingLast(false) }} />}
     {roundToComplete && <ConfirmModal title={i18n.t('app.tournament.completeTitle',{number:roundToComplete.number})} description={i18n.t('app.tournament.completeDescription')} confirmLabel={i18n.t('app.tournament.endRound')} destructive onClose={() => setRoundToComplete(undefined)} onConfirm={() => { setMessage(completeRound(id!,roundToComplete.id) ?? i18n.t('app.tournament.roundCompleted')); setRoundToComplete(undefined) }} />}
   </section>
@@ -656,12 +655,12 @@ function PodCard({ tournamentId, roundId, pod, names, readOnly, editable }: { to
     <h4>{i18n.t('app.common.table',{number:pod.number})}</h4>
     {!editable && <div className="mt-3 grid gap-2">{pod.playerIds.map((playerId) => {
       const result = pod.results?.find((item) => item.playerId === playerId);
-      return <section className="overflow-hidden rounded-lg border border-slate-700 bg-slate-900" key={playerId}><h5 className="px-3 py-2 text-sm font-semibold">{names[playerId]}</h5>{result ? <div className="grid grid-cols-3 border-t border-slate-700 text-xs"><p className="border-r border-slate-700 px-3 py-2 text-slate-300">{i18n.t('app.common.points')} <strong className="ml-1 text-slate-100">{result.points}</strong></p><p className="border-r border-slate-700 px-3 py-2 text-slate-300">{i18n.t('app.common.kills')} <strong className="ml-1 text-slate-100">{result.kills}</strong></p><p className="px-3 py-2 text-slate-300">{i18n.t('app.common.outcome')} <strong className="ml-1 text-slate-100">{outcomeLabel(result.outcome)}</strong></p></div> : <p className="border-t border-slate-700 px-3 py-2 text-xs text-slate-400">{i18n.t('app.common.noResults')}</p>}</section>;
+      return <section className="pod-entry" key={playerId}><h5>{names[playerId]}</h5>{result ? <div className="pod-entry__metrics"><p>{i18n.t('app.common.points')} <strong>{result.points}</strong></p><p>{i18n.t('app.common.kills')} <strong>{result.kills}</strong></p><p>{i18n.t('app.common.outcome')} <strong>{outcomeLabel(result.outcome)}</strong></p></div> : <p className="pod-entry__pending">{i18n.t('app.common.noResults')}</p>}</section>;
     })}</div>}
     {editable && <form onSubmit={save} className="mt-3 space-y-4">
-      <p className="rounded-md bg-slate-900 px-3 py-2 text-xs text-slate-300">{i18n.t('app.tournament.registerResults')}</p>
-      <div className="grid gap-3">{pod.playerIds.map((playerId) => <section className="overflow-hidden rounded-lg border border-slate-700 bg-slate-900" key={playerId}><div className="flex flex-wrap items-center justify-between gap-2 px-4 py-3"><h5 className="text-sm font-semibold">{names[playerId]}</h5><OutcomeButtons playerId={playerId} outcome={pod.results?.find((result) => result.playerId === playerId)?.outcome}/></div><div className="grid grid-cols-2 border-t border-slate-700"><label className="border-r border-slate-700 p-3 text-xs font-semibold text-slate-300">{i18n.t('app.common.points')}<input required min="0" name={`points-${playerId}`} defaultValue={pod.results?.find((result) => result.playerId === playerId)?.points ?? ''} type="number" className="mt-2 w-full rounded-md border border-slate-600 bg-slate-950 px-3 py-2 text-sm text-slate-100 outline-none focus:border-amber-400" /></label><label className="p-3 text-xs font-semibold text-slate-300">{i18n.t('app.common.kills')}<input required min="0" max="5" name={`kills-${playerId}`} defaultValue={pod.results?.find((result) => result.playerId === playerId)?.kills ?? 0} type="number" className="mt-2 w-full rounded-md border border-slate-600 bg-slate-950 px-3 py-2 text-sm text-slate-100 outline-none focus:border-amber-400" /></label></div></section>)}</div>
-      <button disabled={readOnly} className={primary}>{i18n.t('app.common.save')}</button>
+      <p className="pod-results-help">{i18n.t('app.tournament.registerResults')}</p>
+      <div className="grid gap-3">{pod.playerIds.map((playerId) => <section className="pod-entry pod-entry--editable" key={playerId}><div className="pod-entry__header"><h5>{names[playerId]}</h5><OutcomeButtons playerId={playerId} outcome={pod.results?.find((result) => result.playerId === playerId)?.outcome}/></div><div className="pod-entry__fields"><label>{i18n.t('app.common.points')}<input required min="0" name={`points-${playerId}`} defaultValue={pod.results?.find((result) => result.playerId === playerId)?.points ?? ''} type="number" className={`${field} mt-2 py-2 text-sm`} /></label><label>{i18n.t('app.common.kills')}<input required min="0" max="5" name={`kills-${playerId}`} defaultValue={pod.results?.find((result) => result.playerId === playerId)?.kills ?? 0} type="number" className={`${field} mt-2 py-2 text-sm`} /></label></div></section>)}</div>
+      <Button disabled={readOnly} className={primary}>{i18n.t('app.common.save')}</Button>
     </form>}
   </div>
 }
@@ -672,7 +671,7 @@ function Standings() {
   const winRateHelp = i18n.t('app.common.winRateHelp')
   return <section className="standings-board"><header><p>{i18n.t('app.tournament.standings')}</p><h2>{i18n.t('app.tournament.standings')}</h2></header>
     {rows.length > 0 && <ol className="standings-podium">{rows.slice(0, 3).map(row => <li className={`standings-podium__place standings-podium__place--${row.rank}`} key={row.player.id}><span>#{row.rank}</span><i aria-hidden>{row.player.name.trim().slice(0, 1).toUpperCase()}</i><strong>{row.player.name}</strong><b>{row.points} <small>{i18n.t('app.common.points')}</small></b><em>{row.kills} ☠ · {row.winRate.toFixed(1)}%</em></li>)}</ol>}
-    <div className="standings-table"><table><thead><tr><th>#</th><th>{i18n.t('app.common.name')}</th><th>{i18n.t('app.common.points')}</th><th>{i18n.t('app.common.wins')}</th><th>{i18n.t('app.common.losses')}</th><th>{i18n.t('app.common.draws')}</th><th><span>{i18n.t('app.common.winRate')}<span title={winRateHelp} aria-label={winRateHelp} className="app-help"><Info size={15} strokeWidth={2}/></span></span></th><th>{i18n.t('app.common.kills')}</th><th><span>{i18n.t('app.tournament.opponentStrength')}<span title={opponentHelp} aria-label={opponentHelp} className="app-help"><Info size={15} strokeWidth={2}/></span></span></th><th>{i18n.t('app.tournament.rounds')}</th></tr></thead><tbody>{rows.map(row => <tr className={row.rank <= 3 ? `is-podium is-podium--${row.rank}` : ''} key={row.player.id}><td>{row.rank}</td><td><span className="standings-table__avatar" aria-hidden>{row.player.name.trim().slice(0, 1).toUpperCase()}</span>{row.player.name}{!row.player.active && <small>{i18n.t('app.common.withdrawn')}</small>}</td><td><strong>{row.points}</strong></td><td>{row.wins}</td><td>{row.losses}</td><td>{row.draws}</td><td>{row.winRate.toFixed(1)}%</td><td>{row.kills}</td><td>{row.opponentStrength}</td><td>{row.roundsPlayed}</td></tr>)}</tbody></table></div>
+    <div className="standings-table"><table><thead><tr><th>#</th><th>{i18n.t('app.common.name')}</th><th>{i18n.t('app.common.points')}</th><th>{i18n.t('app.common.wins')}</th><th>{i18n.t('app.common.losses')}</th><th>{i18n.t('app.common.draws')}</th><th><span>{i18n.t('app.common.winRate')}<span title={winRateHelp} aria-label={winRateHelp} role="img" className="app-help app-help--static"><Info size={15} strokeWidth={2}/></span></span></th><th>{i18n.t('app.common.kills')}</th><th><span>{i18n.t('app.tournament.opponentStrength')}<span title={opponentHelp} aria-label={opponentHelp} role="img" className="app-help app-help--static"><Info size={15} strokeWidth={2}/></span></span></th><th>{i18n.t('app.tournament.rounds')}</th></tr></thead><tbody>{rows.map(row => <tr className={row.rank <= 3 ? `is-podium is-podium--${row.rank}` : ''} key={row.player.id}><td>{row.rank}</td><td><span className="standings-table__avatar" aria-hidden>{row.player.name.trim().slice(0, 1).toUpperCase()}</span>{row.player.name}{!row.player.active && <small>{i18n.t('app.common.withdrawn')}</small>}</td><td><strong>{row.points}</strong></td><td>{row.wins}</td><td>{row.losses}</td><td>{row.draws}</td><td>{row.winRate.toFixed(1)}%</td><td>{row.kills}</td><td>{row.opponentStrength}</td><td>{row.roundsPlayed}</td></tr>)}</tbody></table></div>
   </section>
 }
 
@@ -684,7 +683,7 @@ function Settings() {
   const [finishing, setFinishing] = useState(false)
   function save(event: FormEvent<HTMLFormElement>) { event.preventDefault(); const form = new FormData(event.currentTarget); const plannedRounds = Number(form.get('rounds')); const maxPlayers = Number(form.get('maxPlayers')); const maxTables = Number(form.get('maxTables')); if (!Number.isInteger(plannedRounds) || plannedRounds < tournament.rounds.length || plannedRounds < 1) return setMessage(i18n.t('app.createTournament.invalidLimits')); if (!Number.isInteger(maxPlayers) || maxPlayers < tournament.players.length || !Number.isInteger(maxTables) || maxTables < 1) return setMessage(i18n.t('app.createTournament.invalidLimits')); updateTournament(id!, { name: String(form.get('name')).trim(), format: String(form.get('format')).trim(), plannedRounds, maxPlayers, maxTables, isPublic: true }); setMessage(''); showToast(i18n.t('app.tournament.settingsSaved')) }
   const canFinish = !tournament.rounds.some(round => round.status !== 'completada')
-  return <section className="settings-desk"><form onSubmit={save} className="settings-desk__form"><header><p>{i18n.t('app.tournament.settings')}</p><h2>{i18n.t('app.tournament.settingsTitle')}</h2></header>{message && <Notice error>{message}</Notice>}<div className="settings-desk__fields"><label>{i18n.t('app.common.name')}<input required name="name" defaultValue={tournament.name} className={field}/></label><label>{i18n.t('app.createTournament.format')}<input required name="format" defaultValue={tournament.format} className={field}/></label><label>{i18n.t('app.tournament.plannedRounds')}<input required type="number" min="1" name="rounds" defaultValue={tournament.plannedRounds} className={field}/></label><label>{i18n.t('app.createTournament.maxPlayers')}<input required type="number" min="3" name="maxPlayers" defaultValue={tournament.maxPlayers} className={field}/></label><label>{i18n.t('app.tournament.maxTablesPerRound')}<input required type="number" min="1" name="maxTables" defaultValue={tournament.maxTables} className={field}/></label></div><p className="settings-desk__hint">{i18n.t('app.tournament.pointsManual')}</p><div className="flex justify-end"><button disabled={tournament.status === 'finalizado'} className={primary}>{i18n.t('app.tournament.saveChanges')}</button></div></form><aside className="settings-desk__danger"><span aria-hidden>!</span><h2>{i18n.t('app.common.status')}</h2><p>{i18n.t('app.tournament.finishHelp')}</p>{tournament.status === 'finalizado' ? <button className="app-button app-button--secondary" onClick={() => { updateTournament(id!, { status: 'activo' }); showToast(i18n.t('app.tournament.tournamentReopened')) }}>{i18n.t('app.tournament.reopenTournament')}</button> : <button disabled={!canFinish} className="app-button app-button--danger" onClick={() => setFinishing(true)}>{i18n.t('app.tournament.finishTournament')}</button>}</aside>{finishing && <ConfirmModal title={i18n.t('app.tournament.finishTournament')} description={i18n.t('app.tournament.finishHelp')} confirmLabel={i18n.t('app.tournament.finishTournament')} destructive onClose={() => setFinishing(false)} onConfirm={() => { updateTournament(id!, { status: 'finalizado' }); showToast(i18n.t('app.tournament.tournamentFinished')); setFinishing(false) }} />}</section>
+  return <section className="settings-desk"><form onSubmit={save} className="settings-desk__form"><header><p>{i18n.t('app.tournament.settings')}</p><h2>{i18n.t('app.tournament.settingsTitle')}</h2></header>{message && <Notice error>{message}</Notice>}<div className="settings-desk__fields"><label>{i18n.t('app.common.name')}<input required name="name" defaultValue={tournament.name} className={field}/></label><label>{i18n.t('app.createTournament.format')}<input required name="format" defaultValue={tournament.format} className={field}/></label><label>{i18n.t('app.tournament.plannedRounds')}<input required type="number" min="1" name="rounds" defaultValue={tournament.plannedRounds} className={field}/></label><label>{i18n.t('app.createTournament.maxPlayers')}<input required type="number" min="3" name="maxPlayers" defaultValue={tournament.maxPlayers} className={field}/></label><label>{i18n.t('app.tournament.maxTablesPerRound')}<input required type="number" min="1" name="maxTables" defaultValue={tournament.maxTables} className={field}/></label></div><p className="settings-desk__hint">{i18n.t('app.tournament.pointsManual')}</p><div className="flex justify-end"><Button disabled={tournament.status === 'finalizado'} className={primary}>{i18n.t('app.tournament.saveChanges')}</Button></div></form><aside className="settings-desk__danger"><span aria-hidden>!</span><h2>{i18n.t('app.common.status')}</h2><p>{i18n.t('app.tournament.finishHelp')}</p>{tournament.status === 'finalizado' ? <Button className="app-button app-button--secondary" onClick={() => { updateTournament(id!, { status: 'activo' }); showToast(i18n.t('app.tournament.tournamentReopened')) }}>{i18n.t('app.tournament.reopenTournament')}</Button> : <Button disabled={!canFinish} variant="outline" className="app-button app-button--danger" onClick={() => setFinishing(true)}>{i18n.t('app.tournament.finishTournament')}</Button>}</aside>{finishing && <ConfirmModal title={i18n.t('app.tournament.finishTournament')} description={i18n.t('app.tournament.finishHelp')} confirmLabel={i18n.t('app.tournament.finishTournament')} destructive onClose={() => setFinishing(false)} onConfirm={() => { updateTournament(id!, { status: 'finalizado' }); showToast(i18n.t('app.tournament.tournamentFinished')); setFinishing(false) }} />}</section>
 }
 function PublicView() {
   const { slug } = useParams()
@@ -705,7 +704,7 @@ function AdminRoute() {
   const { configured, user, loading, isAdmin } = useAuth()
 
   if (!configured) return <Navigate to="/" replace />
-  if (loading) return <Layout><p className="text-sm text-slate-300">Verificando permisos de administración…</p></Layout>
+  if (loading) return <Layout><p className="text-sm text-muted-foreground">{i18n.t('app.admin.verifyingAccess')}</p></Layout>
   if (!user) return <Navigate to="/login" replace />
   if (!isAdmin) return <Navigate to="/dashboard" replace />
   return <AdminDashboard />
@@ -713,17 +712,17 @@ function AdminRoute() {
 
 const displayDate = (value: string) => {
   const date = new Date(value)
-  return Number.isNaN(date.getTime()) ? '—' : new Intl.DateTimeFormat('es-CR', { dateStyle: 'medium' }).format(date)
+  return Number.isNaN(date.getTime()) ? '—' : new Intl.DateTimeFormat(i18n.language.startsWith('en') ? 'en-US' : 'es-CR', { dateStyle: 'medium' }).format(date)
 }
 const displayDateTime = (value: string) => {
   const date = new Date(value)
   return Number.isNaN(date.getTime())
-    ? 'Sin registros'
-    : new Intl.DateTimeFormat('es-CR', { dateStyle: 'medium', timeStyle: 'short' }).format(date)
+    ? i18n.t('app.admin.noRecords')
+    : new Intl.DateTimeFormat(i18n.language.startsWith('en') ? 'en-US' : 'es-CR', { dateStyle: 'medium', timeStyle: 'short' }).format(date)
 }
 const accessOrigin = (access: LoginAccess) =>
   `${access.location} · ${access.browser} / ${access.operatingSystem}`
-const roleLabel = (role: AppRole) => role === 'super_admin' ? 'Super administrador' : role === 'admin' ? 'Administrador' : 'Organizador'
+const roleLabel = (role: AppRole) => i18n.t(`app.admin.roles.${role}`)
 
 function AdminDashboard() {
   const { user, isSuperAdmin } = useAuth();
@@ -748,7 +747,7 @@ function AdminDashboard() {
       setError(
         reason instanceof Error
           ? reason.message
-          : 'No se pudo cargar la información administrativa.',
+          : i18n.t('app.admin.loadOverviewFailed'),
       );
     } finally {
       setRefreshing(false);
@@ -763,7 +762,7 @@ function AdminDashboard() {
       setManagedUsers(await listManagedUsers());
     } catch (reason) {
       setError(
-        reason instanceof Error ? reason.message : 'No se pudieron cargar los perfiles editables.',
+        reason instanceof Error ? reason.message : i18n.t('app.admin.loadProfilesFailed'),
       );
     }
   };
@@ -773,7 +772,7 @@ function AdminDashboard() {
   const removeProfile = async (target: ManagedUser) => {
     if (
       !window.confirm(
-        `Eliminar la cuenta de ${target.displayName}? También se eliminarán sus torneos. Esta acción no se puede deshacer.`,
+        i18n.t('app.admin.deleteAccountConfirm', { name: target.displayName }),
       )
     )
       return;
@@ -781,13 +780,13 @@ function AdminDashboard() {
       await deleteManagedUser(target.id);
       await Promise.all([refresh(), refreshManagedUsers()]);
     } catch (reason) {
-      setError(reason instanceof Error ? reason.message : 'No se pudo eliminar la cuenta.');
+      setError(reason instanceof Error ? reason.message : i18n.t('app.admin.deleteAccountFailed'));
     }
   };
   const removeAdminTournament = async (target: AdminOverview['tournaments'][number]) => {
     if (
       !window.confirm(
-        `Eliminar el torneo ${target.name}? Se eliminarán sus jugadores, rondas y resultados. Esta acción no se puede deshacer.`,
+        i18n.t('app.admin.deleteTournamentConfirm', { name: target.name }),
       )
     )
       return;
@@ -796,7 +795,7 @@ function AdminDashboard() {
       await deleteRemoteTournament(target.id);
       await refresh();
     } catch (reason) {
-      setError(reason instanceof Error ? reason.message : 'No se pudo eliminar el torneo.');
+      setError(reason instanceof Error ? reason.message : i18n.t('app.admin.deleteTournamentFailed'));
     } finally {
       setDeletingTournament(undefined);
     }
@@ -826,24 +825,25 @@ function AdminDashboard() {
     <Layout wide>
       <div className="mb-6 flex flex-wrap items-start justify-between gap-4">
         <div>
-          <p className="inline-flex items-center gap-2 text-sm font-semibold text-amber-300">
+          <p className="inline-flex items-center gap-2 text-sm font-semibold text-accent">
             <ShieldCheck size={16} />
-            ACCESO RESTRINGIDO
+            {i18n.t('app.admin.restrictedAccess')}
           </p>
-          <h1 className="mt-1 text-3xl font-black">Administración</h1>
-          <p className="mt-2 max-w-2xl text-sm text-slate-300">
-            Vista global de la aplicación. Solo un super admin puede cambiar roles.
+          <h1 className="mt-1 text-3xl font-black">{i18n.t('app.admin.title')}</h1>
+          <p className="mt-2 max-w-2xl text-sm text-muted-foreground">
+            {i18n.t('app.admin.description')}
           </p>
         </div>
-        <button
+        <Button
           type="button"
-          className="inline-flex items-center gap-2 rounded-lg border border-slate-500 px-4 py-2 text-sm font-semibold hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-50"
+          variant="outline"
+          className="app-button app-button--secondary"
           disabled={refreshing}
           onClick={() => void refresh()}
         >
           <RefreshCw size={16} className={refreshing ? 'animate-spin' : ''} />
-          {refreshing ? 'Actualizando…' : 'Actualizar'}
-        </button>
+          {refreshing ? i18n.t('app.admin.refreshing') : i18n.t('app.admin.refresh')}
+        </Button>
       </div>
       {error && (
         <section className="mb-5 rounded-xl border border-red-700 bg-red-950 p-4 text-sm text-red-300">
@@ -853,77 +853,78 @@ function AdminDashboard() {
       <section className="mb-7 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <AdminMetric
           icon={<Users size={19} />}
-          label="Cuentas"
+          label={i18n.t('app.admin.metrics.accounts')}
           value={overview ? accountProfiles.length : '—'}
         />
         <AdminMetric
           icon={<ShieldCheck size={19} />}
-          label="Acceso admin"
+          label={i18n.t('app.admin.metrics.adminAccess')}
           value={overview?.profiles.filter((profile) => profile.role === 'admin').length ?? '—'}
         />
         <AdminMetric
           icon={<Trophy size={19} />}
-          label="Torneos activos"
+          label={i18n.t('app.admin.metrics.activeTournaments')}
           value={overview ? activeTournaments : '—'}
         />
         <AdminMetric
           icon={<Database size={19} />}
-          label="Jugadores registrados"
+          label={i18n.t('app.admin.metrics.registeredPlayers')}
           value={overview ? playerCount : '—'}
         />
       </section>
       {!overview && !error && (
-        <p className="text-sm text-slate-300">Cargando información de Supabase…</p>
+        <p className="text-sm text-muted-foreground">{i18n.t('app.admin.loadingOverview')}</p>
       )}
       {overview && (
         <>
-          <nav className="mb-7 flex gap-1 overflow-x-auto rounded-lg border border-slate-700 bg-slate-900 p-1">
+          <nav className="mb-7 flex gap-2 overflow-x-auto p-1">
             {(
               [
-                ['accounts', 'Cuentas'],
-                ['tournaments', 'Torneos'],
-                ['players', 'Jugadores activos'],
-                ['details', 'Datos completos'],
+                ['accounts', i18n.t('app.admin.tabs.accounts')],
+                ['tournaments', i18n.t('app.admin.tabs.tournaments')],
+                ['players', i18n.t('app.admin.tabs.players')],
+                ['details', i18n.t('app.admin.tabs.details')],
               ] as const
             ).map(([tab, label]) => (
-              <button
+              <Button
                 key={tab}
                 type="button"
                 onClick={() => setAdminTab(tab)}
-                className={`whitespace-nowrap rounded-md px-3 py-2 text-sm ${adminTab === tab ? 'bg-amber-400 font-bold text-slate-950' : 'hover:bg-slate-800'}`}
+                variant="outline"
+                className={`app-button whitespace-nowrap ${adminTab === tab ? 'app-button--primary' : 'app-button--secondary'}`}
               >
                 {label}
-              </button>
+              </Button>
             ))}
           </nav>
           <div className={adminTab === 'accounts' ? '' : 'hidden'}>
             <section className={`${panel} overflow-hidden p-0`}>
               <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-700 px-5 py-4">
                 <div>
-                  <h2 className="text-xl font-black">Cuentas</h2>
+                  <h2 className="text-xl font-black">{i18n.t('app.admin.tabs.accounts')}</h2>
                 </div>
                 <div className="flex items-center gap-2">
                   <input
                     value={profileSearch}
                     onChange={(event) => setProfileSearch(event.target.value)}
-                    className="w-52 rounded-lg border border-slate-600 bg-slate-950 px-3 py-2 text-sm text-slate-100 outline-none focus:border-amber-400"
-                    placeholder="Buscar cuenta"
+                    className={`${field} w-52`}
+                    placeholder={i18n.t('app.admin.accounts.search')}
                   />
-                  <span className="text-sm text-slate-400">{accountProfiles.length} en total</span>
+                  <span className="text-sm text-muted-foreground">{i18n.t('app.admin.total', { count: accountProfiles.length })}</span>
                 </div>
               </div>
               <div className="max-h-96 overflow-auto">
                 <table className="w-full min-w-[1080px] text-left text-sm">
                   <thead className="border-b border-slate-700 bg-slate-800 text-xs uppercase tracking-wide text-slate-400">
                     <tr>
-                      <th className="px-5 py-3 font-semibold">Organizador</th>
-                      <th className="px-5 py-3 font-semibold">Correo</th>
-                      <th className="px-5 py-3 font-semibold">Rol</th>
-                      <th className="px-5 py-3 font-semibold">Registro</th>
-                      <th className="px-5 py-3 font-semibold">Último acceso</th>
-                      <th className="px-5 py-3 font-semibold">Desde</th>
-                      <th className="px-5 py-3 font-semibold">ID</th>
-                      <th className="px-5 py-3 font-semibold">Acciones</th>
+                      <th className="px-5 py-3 font-semibold">{i18n.t('app.admin.accounts.organizer')}</th>
+                      <th className="px-5 py-3 font-semibold">{i18n.t('app.admin.accounts.email')}</th>
+                      <th className="px-5 py-3 font-semibold">{i18n.t('app.admin.accounts.role')}</th>
+                      <th className="px-5 py-3 font-semibold">{i18n.t('app.admin.accounts.registeredAt')}</th>
+                      <th className="px-5 py-3 font-semibold">{i18n.t('app.admin.accounts.lastAccess')}</th>
+                      <th className="px-5 py-3 font-semibold">{i18n.t('app.admin.accounts.origin')}</th>
+                      <th className="px-5 py-3 font-semibold">{i18n.t('app.admin.accounts.id')}</th>
+                      <th className="px-5 py-3 font-semibold">{i18n.t('app.common.actions')}</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -952,26 +953,26 @@ function AdminDashboard() {
                         </td>
                         <td className="whitespace-nowrap px-5 py-3 text-slate-300">
                           {!isSuperAdmin
-                            ? 'Restringido'
+                            ? i18n.t('app.admin.restricted')
                             : managedUsersById.get(profile.id)?.lastAccess
                             ? displayDateTime(managedUsersById.get(profile.id)!.lastAccess!.accessedAt)
-                            : 'Sin registros'}
+                            : i18n.t('app.admin.noRecords')}
                         </td>
                         <td
                           className="max-w-64 truncate px-5 py-3 text-slate-300"
                           title={
                             !isSuperAdmin
-                              ? 'Restringido'
+                              ? i18n.t('app.admin.restricted')
                               : managedUsersById.get(profile.id)?.lastAccess
                               ? `${accessOrigin(managedUsersById.get(profile.id)!.lastAccess!)} · ${managedUsersById.get(profile.id)!.lastAccess!.deviceType}`
-                              : 'Sin registros'
+                              : i18n.t('app.admin.noRecords')
                           }
                         >
                           {!isSuperAdmin
-                            ? 'Restringido'
+                            ? i18n.t('app.admin.restricted')
                             : managedUsersById.get(profile.id)?.lastAccess
                             ? accessOrigin(managedUsersById.get(profile.id)!.lastAccess!)
-                            : 'Sin registros'}
+                            : i18n.t('app.admin.noRecords')}
                         </td>
                         <td
                           className="max-w-44 truncate px-5 py-3 font-mono text-xs text-slate-400"
@@ -984,28 +985,32 @@ function AdminDashboard() {
                           profile.id !== user?.id &&
                           managedUsers.find((managed) => managed.id === profile.id) ? (
                             <div className="flex gap-2">
-                              <button
+                              <Button
                                 type="button"
-                                className="rounded-md border border-slate-500 px-2 py-1 text-xs font-semibold hover:bg-slate-800"
+                                variant="outline"
+                                size="sm"
+                                className="app-button app-button--secondary"
                                 onClick={() =>
                                   setEditingUser(
                                     managedUsers.find((managed) => managed.id === profile.id),
                                   )
                                 }
                               >
-                                Editar
-                              </button>
-                              <button
+                                {i18n.t('app.common.edit')}
+                              </Button>
+                              <Button
                                 type="button"
-                                className="rounded-md bg-red-700 px-2 py-1 text-xs font-bold text-white hover:bg-red-600"
+                                variant="outline"
+                                size="sm"
+                                className="app-button app-button--danger"
                                 onClick={() =>
                                   void removeProfile(
                                     managedUsers.find((managed) => managed.id === profile.id)!,
                                   )
                                 }
                               >
-                                Eliminar
-                              </button>
+                                {i18n.t('app.common.delete')}
+                              </Button>
                             </div>
                           ) : (
                             <span className="text-slate-400">—</span>
@@ -1016,7 +1021,7 @@ function AdminDashboard() {
                     {visibleProfiles.length === 0 && (
                       <tr>
                         <td colSpan={8} className="px-5 py-5 text-slate-400">
-                          No hay perfiles registrados.
+                          {i18n.t('app.admin.accounts.empty')}
                         </td>
                       </tr>
                     )}
@@ -1029,17 +1034,17 @@ function AdminDashboard() {
             <section className={`${panel} overflow-hidden p-0`}>
               <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-700 px-5 py-4">
                 <div>
-                  <h2 className="text-xl font-black">Torneos</h2>
+                  <h2 className="text-xl font-black">{i18n.t('app.admin.tabs.tournaments')}</h2>
                 </div>
                 <div className="flex items-center gap-2">
                   <input
                     value={tournamentSearch}
                     onChange={(event) => setTournamentSearch(event.target.value)}
-                    className="w-52 rounded-lg border border-slate-600 bg-slate-950 px-3 py-2 text-sm text-slate-100 outline-none focus:border-amber-400"
-                    placeholder="Buscar torneo"
+                    className={`${field} w-52`}
+                    placeholder={i18n.t('app.admin.tournaments.search')}
                   />
                   <span className="text-sm text-slate-400">
-                    {overview.tournaments.length} en total
+                    {i18n.t('app.admin.total', { count: overview.tournaments.length })}
                   </span>
                 </div>
               </div>
@@ -1047,13 +1052,13 @@ function AdminDashboard() {
                 <table className="w-full min-w-[780px] text-left text-sm">
                   <thead className="border-b border-slate-700 bg-slate-800 text-xs uppercase tracking-wide text-slate-400">
                     <tr>
-                      <th className="px-5 py-3 font-semibold">Torneo</th>
-                      <th className="px-5 py-3 font-semibold">Organizador</th>
-                      <th className="px-5 py-3 font-semibold">Estado</th>
-                      <th className="px-5 py-3 font-semibold">Participantes</th>
-                      <th className="px-5 py-3 font-semibold">Rondas</th>
-                      <th className="px-5 py-3 font-semibold">Visibilidad</th>
-                      <th className="px-5 py-3 font-semibold">Acciones</th>
+                      <th className="px-5 py-3 font-semibold">{i18n.t('app.admin.tournaments.tournament')}</th>
+                      <th className="px-5 py-3 font-semibold">{i18n.t('app.admin.tournaments.organizer')}</th>
+                      <th className="px-5 py-3 font-semibold">{i18n.t('app.common.status')}</th>
+                      <th className="px-5 py-3 font-semibold">{i18n.t('app.admin.tournaments.participants')}</th>
+                      <th className="px-5 py-3 font-semibold">{i18n.t('app.admin.tournaments.rounds')}</th>
+                      <th className="px-5 py-3 font-semibold">{i18n.t('app.admin.tournaments.visibility')}</th>
+                      <th className="px-5 py-3 font-semibold">{i18n.t('app.common.actions')}</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -1067,7 +1072,7 @@ function AdminDashboard() {
                         </td>
                         <td className="px-5 py-3 text-slate-300">
                           {profilesById.get(tournament.ownerId)?.displayName ??
-                            'Organizador eliminado'}
+                            i18n.t('app.admin.organizerRemoved')}
                         </td>
                         <td className="px-5 py-3">
                           <Badge>{tournament.status}</Badge>
@@ -1078,28 +1083,27 @@ function AdminDashboard() {
                           <span
                             className={tournament.isPublic ? 'text-emerald-300' : 'text-slate-400'}
                           >
-                            {tournament.isPublic ? 'Público' : 'Privado'}
+                            {tournament.isPublic ? i18n.t('app.admin.public') : i18n.t('app.admin.private')}
                           </span>
                         </td>
                         <td className="px-5 py-3">
                           {isSuperAdmin ? (
                             <div className="flex gap-2">
-                              <Link
-                                to={`/tournaments/${tournament.id}`}
-                                className="rounded-md border border-slate-500 px-2 py-1 text-xs font-semibold hover:bg-slate-800"
-                              >
-                                Gestionar
-                              </Link>
-                              <button
+                              <Button asChild variant="outline" size="sm" className="app-button app-button--secondary">
+                                <Link to={`/tournaments/${tournament.id}`}>{i18n.t('app.admin.manage')}</Link>
+                              </Button>
+                              <Button
                                 type="button"
                                 disabled={deletingTournament === tournament.id}
-                                className="rounded-md bg-red-700 px-2 py-1 text-xs font-bold text-white hover:bg-red-600 disabled:cursor-not-allowed disabled:opacity-50"
+                                variant="outline"
+                                size="sm"
+                                className="app-button app-button--danger"
                                 onClick={() => void removeAdminTournament(tournament)}
                               >
                                 {deletingTournament === tournament.id
-                                  ? 'Eliminando...'
-                                  : 'Eliminar'}
-                              </button>
+                                  ? i18n.t('app.admin.deleting')
+                                  : i18n.t('app.common.delete')}
+                              </Button>
                             </div>
                           ) : (
                             <span className="text-slate-400">—</span>
@@ -1110,7 +1114,7 @@ function AdminDashboard() {
                     {visibleTournaments.length === 0 && (
                       <tr>
                         <td colSpan={7} className="px-5 py-5 text-slate-400">
-                          No hay torneos registrados.
+                          {i18n.t('app.admin.tournaments.empty')}
                         </td>
                       </tr>
                     )}
@@ -1178,7 +1182,7 @@ function AdminDataInspector() {
           setError(
             reason instanceof Error
               ? reason.message
-              : 'No se pudo cargar el detalle de los torneos.',
+              : i18n.t('app.admin.details.loadFailed'),
           );
       });
     return () => {
@@ -1194,19 +1198,18 @@ function AdminDataInspector() {
   return (
     <section className={`${panel} mt-7`}>
       <div>
-        <h2 className="text-xl font-black">Datos completos</h2>
-        <p className="mt-1 text-sm text-slate-300">
-          Consulta de solo lectura de cada torneo, con reglas, jugadores, rondas, mesas y
-          resultados. No incluye credenciales ni datos de Authentication.
+        <h2 className="text-xl font-black">{i18n.t('app.admin.tabs.details')}</h2>
+        <p className="mt-1 text-sm text-muted-foreground">
+          {i18n.t('app.admin.details.description')}
         </p>
       </div>
       {error && <p className="mt-4 text-sm text-red-300">{error}</p>}
-      {!tournaments && !error && <p className="mt-4 text-sm text-slate-300">Cargando detalle…</p>}
+      {!tournaments && !error && <p className="mt-4 text-sm text-muted-foreground">{i18n.t('app.admin.details.loading')}</p>}
       <input
         value={search}
         onChange={(event) => setSearch(event.target.value)}
-        className="mt-4 w-full rounded-lg border border-slate-600 bg-slate-950 px-3 py-2 text-sm text-slate-100 outline-none focus:border-amber-400"
-        placeholder="Buscar detalle de torneo"
+        className={`${field} mt-4`}
+        placeholder={i18n.t('app.admin.details.search')}
       />
       <div className="mt-4 max-h-[34rem] space-y-3 overflow-y-auto pr-1">
         {visibleTournaments?.map((tournament) => (
@@ -1217,7 +1220,7 @@ function AdminDataInspector() {
             <summary className="cursor-pointer font-semibold">
               <span>{tournament.name}</span>
               <span className="ml-2 text-sm font-normal text-slate-400">
-                {tournament.players.length} jugadores · {tournament.rounds.length} rondas
+                {i18n.t('app.admin.details.summary', { players: tournament.players.length, rounds: tournament.rounds.length })}
               </span>
             </summary>
             <pre className="mt-4 max-h-96 overflow-auto rounded-md bg-slate-900 p-4 text-xs leading-relaxed text-slate-300">
@@ -1241,7 +1244,7 @@ function SuperAdminPlayerManagement() {
       setTournaments(await loadAllTournaments());
       setError(undefined);
     } catch (reason) {
-      setError(reason instanceof Error ? reason.message : 'No se pudieron cargar los jugadores.');
+      setError(reason instanceof Error ? reason.message : i18n.t('app.admin.players.loadFailed'));
     }
   };
   useEffect(() => {
@@ -1263,15 +1266,15 @@ function SuperAdminPlayerManagement() {
     return (
       <section className={`${panel} mt-7`}>
         <div>
-          <h2 className="text-xl font-black">Jugadores activos</h2>
-          <p className="mt-1 text-sm text-slate-300">Consulta de jugadores activos por torneo.</p>
+          <h2 className="text-xl font-black">{i18n.t('app.admin.tabs.players')}</h2>
+          <p className="mt-1 text-sm text-muted-foreground">{i18n.t('app.admin.players.description')}</p>
         </div>
         {error && <p className="mt-4 text-sm text-red-300">{error}</p>}
         <input
           value={search}
           onChange={(event) => setSearch(event.target.value)}
           className={`${field} mt-4`}
-          placeholder="Buscar jugador o torneo"
+          placeholder={i18n.t('app.admin.players.search')}
         />
         <div className="mt-3 max-h-96 space-y-2 overflow-y-auto pr-1">
           {players.map(({ tournament, player }) => (
@@ -1284,7 +1287,7 @@ function SuperAdminPlayerManagement() {
             </article>
           ))}
           {tournaments && players.length === 0 && (
-            <p className="text-sm text-slate-400">No hay jugadores activos que coincidan.</p>
+            <p className="text-sm text-muted-foreground">{i18n.t('app.admin.players.empty')}</p>
           )}
         </div>
       </section>
@@ -1303,7 +1306,7 @@ function SuperAdminPlayerManagement() {
       event.currentTarget.reset();
       await load();
     } catch (reason) {
-      setError(reason instanceof Error ? reason.message : 'No se pudo crear el jugador.');
+      setError(reason instanceof Error ? reason.message : i18n.t('app.admin.players.createFailed'));
     } finally {
       setBusy(false);
     }
@@ -1320,13 +1323,13 @@ function SuperAdminPlayerManagement() {
       await persistPlayer({ ...player, name });
       await load();
     } catch (reason) {
-      setError(reason instanceof Error ? reason.message : 'No se pudo actualizar el jugador.');
+      setError(reason instanceof Error ? reason.message : i18n.t('app.admin.players.updateFailed'));
     } finally {
       setBusy(false);
     }
   };
   const remove = async (player: Tournament['players'][number]) => {
-    if (!window.confirm(`Eliminar a ${player.name}?`)) return;
+    if (!window.confirm(i18n.t('app.admin.players.deleteConfirm', { name: player.name }))) return;
     setBusy(true);
     try {
       await removeRemotePlayer(player.id);
@@ -1335,7 +1338,7 @@ function SuperAdminPlayerManagement() {
       setError(
         reason instanceof Error
           ? reason.message
-          : 'No se puede eliminar un jugador con participaciones registradas.',
+          : i18n.t('app.admin.players.deleteFailed'),
       );
     } finally {
       setBusy(false);
@@ -1344,10 +1347,10 @@ function SuperAdminPlayerManagement() {
   return (
     <section className={[panel, 'mt-7 overflow-hidden p-0'].join(' ')}>
       <div className="px-5 pt-5">
-        <p className="text-sm font-semibold text-amber-300">SUPER ADMIN</p>
-        <h2 className="mt-1 text-xl font-black">Jugadores activos</h2>
-        <p className="mt-1 text-sm text-slate-300">
-          Crea cada jugador dentro de un torneo y administra sus datos desde aquí.
+        <p className="text-sm font-semibold text-accent">{i18n.t('app.admin.roles.super_admin')}</p>
+        <h2 className="mt-1 text-xl font-black">{i18n.t('app.admin.tabs.players')}</h2>
+        <p className="mt-1 text-sm text-muted-foreground">
+          {i18n.t('app.admin.players.createDescription')}
         </p>
         {error && <p className="mt-4 text-sm text-red-300">{error}</p>}
         <form
@@ -1356,7 +1359,7 @@ function SuperAdminPlayerManagement() {
         >
           <select required name="tournamentId" className={field} defaultValue="">
             <option value="" disabled>
-              Selecciona un torneo
+              {i18n.t('app.admin.players.selectTournament')}
             </option>
             {tournaments?.map((tournament) => (
               <option key={tournament.id} value={tournament.id}>
@@ -1364,29 +1367,29 @@ function SuperAdminPlayerManagement() {
               </option>
             ))}
           </select>
-          <input required name="name" className={field} placeholder="Nombre del jugador" />
-          <button disabled={busy} className={primary}>
-            Crear jugador
-          </button>
+          <input required name="name" className={field} placeholder={i18n.t('app.admin.players.playerName')} />
+          <Button disabled={busy} className={primary}>
+            {i18n.t('app.admin.players.create')}
+          </Button>
         </form>
       </div>
       <div className="mt-4 flex flex-wrap items-center justify-between gap-2 border-y border-slate-700 px-5 py-4">
         <input
           value={search}
           onChange={(event) => setSearch(event.target.value)}
-          className="w-64 rounded-lg border border-slate-600 bg-slate-950 px-3 py-2 text-sm text-slate-100 outline-none focus:border-amber-400"
-          placeholder="Buscar jugador o torneo"
+          className={`${field} w-64`}
+          placeholder={i18n.t('app.admin.players.search')}
         />
-        <span className="text-sm text-slate-400">{players.length} en total</span>
+        <span className="text-sm text-muted-foreground">{i18n.t('app.admin.total', { count: players.length })}</span>
       </div>
       <div className="max-h-[34rem] overflow-auto">
         <table className="w-full min-w-[680px] text-left text-sm">
           <thead className="border-b border-slate-700 bg-slate-800 text-xs uppercase tracking-wide text-slate-400">
             <tr>
-              <th className="px-5 py-3 font-semibold">Jugador</th>
-              <th className="px-5 py-3 font-semibold">Torneo</th>
-              <th className="px-5 py-3 font-semibold">Estado</th>
-              <th className="px-5 py-3 font-semibold">Acciones</th>
+              <th className="px-5 py-3 font-semibold">{i18n.t('app.common.name')}</th>
+              <th className="px-5 py-3 font-semibold">{i18n.t('app.admin.tournaments.tournament')}</th>
+              <th className="px-5 py-3 font-semibold">{i18n.t('app.common.status')}</th>
+              <th className="px-5 py-3 font-semibold">{i18n.t('app.common.actions')}</th>
             </tr>
           </thead>
           <tbody>
@@ -1400,23 +1403,24 @@ function SuperAdminPlayerManagement() {
                 <td className="px-5 py-3">
                   <strong className="block">{tournament.name}</strong>
                   <span className="text-xs text-slate-400">
-                    {playersByTournament.get(tournament.id) ?? 0} jugadores activos
+                    {i18n.t('app.admin.players.activeCount', { count: playersByTournament.get(tournament.id) ?? 0 })}
                   </span>
                 </td>
-                <td className="px-5 py-3 text-emerald-300">Activo</td>
+                <td className="px-5 py-3 text-emerald-300">{i18n.t('app.common.active')}</td>
                 <td className="px-5 py-3">
                   <div className="flex gap-2">
-                    <button disabled={busy} form={'player-' + player.id} className={primary}>
-                      Guardar
-                    </button>
-                    <button
+                    <Button disabled={busy} form={'player-' + player.id} className={primary}>
+                      {i18n.t('app.common.save')}
+                    </Button>
+                    <Button
                       disabled={busy}
                       type="button"
-                      className="rounded-lg bg-red-700 px-3 py-2 text-sm font-bold text-white hover:bg-red-600 disabled:opacity-50"
+                      variant="outline"
+                      className="app-button app-button--danger"
                       onClick={() => void remove(player)}
                     >
-                      Eliminar
-                    </button>
+                      {i18n.t('app.common.delete')}
+                    </Button>
                   </div>
                 </td>
               </tr>
@@ -1424,7 +1428,7 @@ function SuperAdminPlayerManagement() {
             {tournaments && players.length === 0 && (
               <tr>
                 <td colSpan={4} className="px-5 py-5 text-slate-400">
-                  No hay jugadores activos que coincidan.
+                  {i18n.t('app.admin.players.empty')}
                 </td>
               </tr>
             )}
@@ -1457,7 +1461,7 @@ function UserProfileModal({
       .catch((reason) => {
         if (active)
           setLoginHistoryError(
-            reason instanceof Error ? reason.message : 'No se pudo cargar el historial de accesos.',
+            reason instanceof Error ? reason.message : i18n.t('app.admin.profile.loadHistoryFailed'),
           );
       });
     return () => {
@@ -1477,51 +1481,51 @@ function UserProfileModal({
       });
       onSaved();
     } catch (reason) {
-      setError(reason instanceof Error ? reason.message : 'No se pudo actualizar el perfil.');
+      setError(reason instanceof Error ? reason.message : i18n.t('app.admin.profile.updateFailed'));
     } finally {
       setBusy(false);
     }
   };
   return (
     <Modal
-      title={`Editar perfil: ${user.displayName}`}
-      description="Deja la contraseña vacía para conservarla."
+      title={i18n.t('app.admin.profile.title', { name: user.displayName })}
+      description={i18n.t('app.admin.profile.description')}
       onClose={onClose}
     >
       <form onSubmit={save} className="space-y-4">
         {error && <p className="text-sm text-red-300">{error}</p>}
         <label className="block text-sm font-medium">
-          Nombre
+          {i18n.t('app.common.name')}
           <input required name="displayName" defaultValue={user.displayName} className={field} />
         </label>
         <label className="block text-sm font-medium">
-          Correo
+          {i18n.t('app.common.email')}
           <input required name="email" type="email" defaultValue={user.email} className={field} />
         </label>
         <label className="block text-sm font-medium">
-          Nueva contraseña
+          {i18n.t('app.admin.profile.newPassword')}
           <input name="password" minLength={6} type="password" className={field} />
         </label>
         <label className="block text-sm font-medium">
-          Rol
+          {i18n.t('app.admin.accounts.role')}
           <select
             name="role"
             defaultValue={user.role === 'admin' ? 'admin' : 'organizer'}
             className={field}
           >
-            <option value="organizer">Organizador</option>
-            <option value="admin">Administrador</option>
+            <option value="organizer">{i18n.t('app.admin.roles.organizer')}</option>
+            <option value="admin">{i18n.t('app.admin.roles.admin')}</option>
           </select>
         </label>
         <section className="border-t border-slate-700 pt-4">
-          <h3 className="font-semibold">Historial de inicios de sesión</h3>
-          <p className="mt-1 text-xs text-slate-400">Visible solo para superadministradores.</p>
+          <h3 className="font-semibold">{i18n.t('app.admin.profile.loginHistory')}</h3>
+          <p className="mt-1 text-xs text-muted-foreground">{i18n.t('app.admin.profile.superAdminOnly')}</p>
           {!loginHistory && !loginHistoryError && (
-            <p className="mt-3 text-sm text-slate-400">Cargando historial…</p>
+            <p className="mt-3 text-sm text-muted-foreground">{i18n.t('app.admin.profile.loadingHistory')}</p>
           )}
           {loginHistoryError && <p className="mt-3 text-sm text-red-300">{loginHistoryError}</p>}
           {loginHistory && loginHistory.length === 0 && (
-            <p className="mt-3 text-sm text-slate-400">No hay inicios de sesión registrados.</p>
+            <p className="mt-3 text-sm text-muted-foreground">{i18n.t('app.admin.profile.noHistory')}</p>
           )}
           {loginHistory && loginHistory.length > 0 && (
             <div className="mt-3 max-h-56 space-y-2 overflow-y-auto pr-1">
@@ -1546,16 +1550,17 @@ function UserProfileModal({
           )}
         </section>
         <div className="flex justify-end gap-3">
-          <button
+          <Button
             type="button"
-            className="rounded-lg border border-slate-500 px-4 py-2 text-sm font-semibold hover:bg-slate-800"
+            variant="outline"
+            className="app-button app-button--secondary"
             onClick={onClose}
           >
-            Cancelar
-          </button>
-          <button disabled={busy} className={primary}>
-            {busy ? 'Guardando…' : 'Guardar cambios'}
-          </button>
+            {i18n.t('app.common.cancel')}
+          </Button>
+          <Button disabled={busy} className={primary}>
+            {busy ? i18n.t('app.admin.profile.saving') : i18n.t('app.admin.profile.saveChanges')}
+          </Button>
         </div>
       </form>
     </Modal>

@@ -1,5 +1,9 @@
 # Prompts reutilizables para Codex
 
+## Auditoría de diseño
+
+> Usa `$tcg-ui-designer` para auditar esta pantalla. Confirma primero la implementación activa y consulta `docs/design-system.md`. No edites código: identifica los problemas más importantes y propone hasta dos mejoras que preserven la identidad visual, el responsive y los idiomas ES/EN.
+
 ## Orientación antes de una tarea amplia
 
 > Lee `AGENTS.md`, el `AGENTS.md` más específico de la carpeta objetivo y `docs/architecture.md`. Para backlog, consulta `PENDIENTES.md`; para decisiones existentes, consulta `docs/decisions/`. Identifica las rutas y archivos activos relacionados con la solicitud. No edites nada todavía; resume alcance, archivos relevantes, riesgos y validación mínima.
