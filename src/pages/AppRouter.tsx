@@ -591,6 +591,7 @@ function Rounds() {
   const [selectedRoundId,setSelectedRoundId] = useState<string>()
   const [draggedPlayer,setDraggedPlayer] = useState<string>()
   const [dropTargetPod,setDropTargetPod] = useState<string>()
+  const [showRoundGenerationInfo,setShowRoundGenerationInfo] = useState(false)
   const last = tournament.rounds.at(-1)
   const hasOpenRound = tournament.rounds.some(round=>round.status!=='completada')
   const names = Object.fromEntries(tournament.players.map(player => [player.id,player.name]))
@@ -601,7 +602,7 @@ function Rounds() {
 
   return <section className="rounds-deck">
     <div className="rounds-deck__header">
-      <h2 className="text-xl font-bold">{i18n.t('app.tournament.roundsAndTables')}</h2>
+      <h2 className="text-xl font-bold">{i18n.t('app.tournament.roundsAndTables')}<button type="button" className="app-help" aria-label={i18n.t('app.tournament.roundGenerationInfo.button')} aria-haspopup="dialog" title={i18n.t('app.tournament.roundGenerationInfo.button')} onClick={() => setShowRoundGenerationInfo(true)}><Info aria-hidden /></button></h2>
       <div className="flex flex-wrap justify-end gap-2">
         <button disabled={selectedIndex<=0} className="app-button app-button--secondary" onClick={()=>setSelectedRoundId(tournament.rounds[selectedIndex-1].id)}>{i18n.t('app.common.previous')}</button>
         <button disabled={selectedIndex>=tournament.rounds.length-1} className="app-button app-button--secondary" onClick={()=>setSelectedRoundId(tournament.rounds[selectedIndex+1].id)}>{i18n.t('app.common.next')}</button>
@@ -622,6 +623,7 @@ function Rounds() {
       {selectedRound.status==='borrador' && <p className="mt-3 text-sm text-slate-300">{i18n.t('app.tournament.dragHelp')}</p>}
       <div className="rounds-deck__tables">{selectedRound.pods.map(pod => selectedRound.status === 'borrador' ? <DraftPodCard key={pod.id} pod={pod} names={names} draggedPlayer={draggedPlayer} isDropTarget={dropTargetPod===pod.id} onDragStart={playerId=>{setDraggedPlayer(playerId);setDropTargetPod(undefined)}} onDragEnter={()=>{if(draggedPlayer&&!pod.playerIds.includes(draggedPlayer))setDropTargetPod(pod.id)}} onDragEnd={()=>{setDraggedPlayer(undefined);setDropTargetPod(undefined)}} onDrop={playerId => { const error=movePlayer(id!,selectedRound.id,playerId,pod.id); if(error)setMessage(error); setDraggedPlayer(undefined); setDropTargetPod(undefined) }} /> : <PodCard key={pod.id} tournamentId={id!} roundId={selectedRound.id} pod={pod} readOnly={tournament.status === 'finalizado' || selectedRound.status !== 'activa'} names={names} editable={selectedRound.status === 'activa'} />)}</div>
     </article> : <div className="app-empty-state">{i18n.t('app.tournament.noRounds')}</div>}
+    {showRoundGenerationInfo && <Modal title={i18n.t('app.tournament.roundGenerationInfo.title')} description={i18n.t('app.tournament.roundGenerationInfo.description')} onClose={() => setShowRoundGenerationInfo(false)}><ul className="space-y-3 text-sm leading-6 text-slate-300"><li>{i18n.t('app.tournament.roundGenerationInfo.activePlayers')}</li><li>{i18n.t('app.tournament.roundGenerationInfo.tableSizes')}</li><li>{i18n.t('app.tournament.roundGenerationInfo.pairings')}</li><li>{i18n.t('app.tournament.roundGenerationInfo.reorganize')}</li></ul><div className="mt-5 flex justify-end"><button className={primary} onClick={() => setShowRoundGenerationInfo(false)}>{i18n.t('app.tournament.roundGenerationInfo.close')}</button></div></Modal>}
     {deletingLast && last && <ConfirmModal title={i18n.t('app.tournament.deleteLastTitle')} description={last.pods.some(p=>p.results?.length) ? i18n.t('app.tournament.deleteLastWithResults') : i18n.t('app.tournament.deleteLastDescription')} confirmLabel={i18n.t('app.tournament.deleteRound')} destructive onClose={() => setDeletingLast(false)} onConfirm={() => { setMessage(deleteLastRound(id!) ?? i18n.t('app.tournament.lastRoundDeleted')); setDeletingLast(false) }} />}
     {roundToComplete && <ConfirmModal title={i18n.t('app.tournament.completeTitle',{number:roundToComplete.number})} description={i18n.t('app.tournament.completeDescription')} confirmLabel={i18n.t('app.tournament.endRound')} destructive onClose={() => setRoundToComplete(undefined)} onConfirm={() => { setMessage(completeRound(id!,roundToComplete.id) ?? i18n.t('app.tournament.roundCompleted')); setRoundToComplete(undefined) }} />}
   </section>

@@ -8,6 +8,7 @@
 - [x] Estadísticas por torneo: bitácora de batalla con hitos de juego, asistencia y mesas.
 - [ ] Notificaciones: avisar al iniciar una ronda, asignar mesa o terminar el torneo.
 - [ ] Temporizador visible: cuenta regresiva pública para la ronda actual.
+- [ ] Control de vidas: pantalla sencilla para llevar las vidas de los jugadores durante una partida.
 - [ ] Buscador y filtros: buscar torneos, jugadores y filtrar por formato o estado.
 - [ ] Modo oscuro y selector de tema.
 - [ ] Gestión de mazos: registrar comandante/deck, colores y enlace a Moxfield/Archidekt.

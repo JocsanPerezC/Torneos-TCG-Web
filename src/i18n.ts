@@ -74,6 +74,32 @@ Object.assign(resources.en.translation.landing.trial, {
   exitShort: 'Exit',
 })
 
+Object.assign(resources.es.translation.app.tournament, {
+  roundGenerationInfo: {
+    button: 'Cómo se generan las rondas',
+    title: 'Cómo se generan las rondas',
+    description: 'La app busca formar mesas equilibradas y reducir los emparejamientos repetidos.',
+    activePlayers: 'Participan solamente los jugadores activos del torneo.',
+    tableSizes: 'Las mesas se distribuyen entre 3 y 5 jugadores, respetando el máximo de mesas configurado.',
+    pairings: 'Se prioriza que los jugadores no compartan mesa repetidamente y, cuando es posible, que tengan puntuaciones similares.',
+    reorganize: 'Puedes reorganizar las mesas manualmente antes de iniciar la ronda.',
+    close: 'Entendido',
+  },
+})
+
+Object.assign(resources.en.translation.app.tournament, {
+  roundGenerationInfo: {
+    button: 'How rounds are generated',
+    title: 'How rounds are generated',
+    description: 'The app aims to create balanced tables and reduce repeat pairings.',
+    activePlayers: 'Only active tournament players are included.',
+    tableSizes: 'Tables are distributed between 3 and 5 players, respecting the configured table limit.',
+    pairings: 'The app prioritizes avoiding repeated opponents and, when possible, grouping players with similar scores.',
+    reorganize: 'You can rearrange the tables manually before starting the round.',
+    close: 'Got it',
+  },
+})
+
 Object.assign(resources.en.translation.app.tournament, {
   deleteLastTitle: 'Delete last round',
   deleteLastDescription: 'The tables in this round will be deleted.',
