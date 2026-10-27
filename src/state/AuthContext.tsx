@@ -5,6 +5,8 @@ import type { AppRole } from '../data/adminRepository';
 import { recordLoginAccess } from '../data/adminUsersRepository';
 import { legalConsentStorageKey, type LegalConsent } from '../legal';
 
+export type RegistrationRole = 'player' | 'organizer';
+
 // La confirmación por correo está desactivada temporalmente en Supabase.
 // Al reactivarla, restablecer el aviso correspondiente en la pantalla de registro.
 
@@ -13,11 +15,19 @@ type AuthStore = {
   role: AppRole | null;
   isAdmin: boolean;
   isSuperAdmin: boolean;
+  isPlayer: boolean;
+  requiresRoleSelection: boolean;
   requiresLegalConsent: boolean;
   loading: boolean;
   configured: boolean;
   signIn(email: string, password: string): Promise<void>;
-  signUp(name: string, email: string, password: string, consent: LegalConsent): Promise<void>;
+  signUp(
+    name: string,
+    email: string,
+    password: string,
+    consent: LegalConsent,
+  ): Promise<void>;
+  completeRegistrationRole(role: RegistrationRole): Promise<void>;
   isEmailRegistered(email: string): Promise<boolean>;
   resetPassword(email: string): Promise<void>;
   acceptLegalConsent(): Promise<void>;
@@ -27,6 +37,7 @@ const Context = createContext<AuthStore | null>(null);
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [role, setRole] = useState<AppRole | null>(null);
+  const [requiresRoleSelection, setRequiresRoleSelection] = useState(false);
   const [requiresLegalConsent, setRequiresLegalConsent] = useState(false);
   const [loading, setLoading] = useState(Boolean(supabase));
   useEffect(() => {
@@ -38,6 +49,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setUser(nextUser);
       if (!nextUser) {
         setRole(null);
+        setRequiresRoleSelection(false);
         setRequiresLegalConsent(false);
         setLoading(false);
         return;
@@ -58,15 +70,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setLoading(true);
       const { data, error } = await client
         .from('profiles')
-        .select('role, legal_consent_required')
+        .select('role, role_locked, legal_consent_required')
         .eq('id', nextUser.id)
         .maybeSingle();
       if (!active) return;
-      const profileRole = data?.role;
+      const roleSelectionNeeded = !error && data?.role_locked === false;
+      setRequiresRoleSelection(roleSelectionNeeded);
       setRole(
-        !error && (profileRole === 'admin' || profileRole === 'super_admin')
-          ? profileRole
-          : 'organizer',
+        roleSelectionNeeded
+          ? null
+          : !error &&
+              (data?.role === 'player' || data?.role === 'admin' || data?.role === 'super_admin')
+            ? data.role
+            : 'organizer',
       );
       setRequiresLegalConsent(Boolean(data?.legal_consent_required));
       setLoading(false);
@@ -89,6 +105,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       role,
       isAdmin: role === 'admin' || role === 'super_admin',
       isSuperAdmin: role === 'super_admin',
+      isPlayer: role === 'player',
+      requiresRoleSelection,
       requiresLegalConsent,
       loading,
       configured: Boolean(supabase),
@@ -111,11 +129,23 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           email,
           password,
           options: {
-            data: { display_name: name, legal_consent: true, terms_version: consent.termsVersion, privacy_version: consent.privacyVersion },
+            data: {
+              display_name: name,
+              legal_consent: true,
+              terms_version: consent.termsVersion,
+              privacy_version: consent.privacyVersion,
+            },
             emailRedirectTo: `${window.location.origin}/auth/confirmed`,
           },
         });
         if (error) throw error;
+      },
+      async completeRegistrationRole(nextRole) {
+        if (!supabase) return;
+        const { error } = await supabase.rpc('complete_signup_role', { next_role: nextRole });
+        if (error) throw error;
+        setRole(nextRole);
+        setRequiresRoleSelection(false);
       },
       async resetPassword(email) {
         if (!supabase) return;
@@ -139,7 +169,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         if (error) throw error;
       },
     }),
-    [user, role, loading, requiresLegalConsent],
+    [user, role, loading, requiresLegalConsent, requiresRoleSelection],
   );
   return <Context.Provider value={value}>{children}</Context.Provider>;
 }

@@ -32,10 +32,12 @@ export function GoogleAuthButton({
   requiresConsent = false,
   consentAccepted = false,
   onConsentRequired,
+  redirectPath = '/dashboard',
 }: {
   requiresConsent?: boolean;
   consentAccepted?: boolean;
   onConsentRequired?: () => void;
+  redirectPath?: string;
 }) {
   const [busy, setBusy] = useState(false);
   const { t } = useTranslation();
@@ -54,9 +56,12 @@ export function GoogleAuthButton({
     try {
       if (requiresConsent)
         sessionStorage.setItem(legalConsentStorageKey, JSON.stringify(currentLegalConsent));
+      const redirectUrl = new URL(`${window.location.origin}${redirectPath}`);
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
-        options: { redirectTo: `${window.location.origin}/dashboard` },
+        options: {
+          redirectTo: redirectUrl.toString(),
+        },
       });
       if (error) throw error;
     } catch (error) {

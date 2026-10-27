@@ -7,7 +7,7 @@ const corsHeaders = {
 };
 const unavailableLocation = 'Ubicación no disponible';
 
-type AssignableRole = 'organizer' | 'admin';
+type AssignableRole = 'player' | 'organizer' | 'admin';
 type LoginAccessRow = {
   account_id: string;
   accessed_at: string;
@@ -28,17 +28,14 @@ type LoginAccess = {
 };
 
 const validRole = (value: unknown): value is AssignableRole =>
-  value === 'organizer' || value === 'admin';
+  value === 'player' || value === 'organizer' || value === 'admin';
 const text = (value: unknown) => (typeof value === 'string' ? value.trim() : '');
 
 function clientIp(headers: Headers) {
   return (
     headers.get('cf-connecting-ip') ??
     headers.get('x-real-ip') ??
-    headers
-      .get('x-forwarded-for')
-      ?.split(',')[0]
-      ?.trim() ??
+    headers.get('x-forwarded-for')?.split(',')[0]?.trim() ??
     null
   );
 }
@@ -66,7 +63,8 @@ async function approximateLocation(ip: string | null) {
       city?: string;
       country_code?: string;
     };
-    if (!response.ok || !data.success || !text(data.city) || !text(data.country_code)) throw new Error();
+    if (!response.ok || !data.success || !text(data.city) || !text(data.country_code))
+      throw new Error();
     return { country: text(data.country_code), city: text(data.city) };
   } catch {
     return { country: unavailableLocation, city: unavailableLocation };
@@ -230,7 +228,9 @@ Deno.serve(async (request) => {
       if (!id) throw new Error('Cuenta inválida');
       const { data, error } = await adminClient
         .from('login_accesses')
-        .select('account_id, accessed_at, ip_address, country, city, browser, operating_system, device_type')
+        .select(
+          'account_id, accessed_at, ip_address, country, city, browser, operating_system, device_type',
+        )
         .eq('account_id', id)
         .order('accessed_at', { ascending: false });
       if (error) throw error;

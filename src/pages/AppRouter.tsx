@@ -6,6 +6,11 @@ import { useAuth } from '../state/AuthContext'
 import { LandingPage } from '../pages/LandingPage'
 import { PrivacyPolicyPage, TermsPage } from './LegalPages'
 import { TrialPage } from './TrialPage'
+import { ComponentShowcasePage } from './ComponentShowcasePage'
+import { CompleteRolePage } from './CompleteRolePage'
+import { JoinTournamentPage } from './JoinTournamentPage'
+import { PlayerDashboard } from './PlayerDashboard'
+import { ProfilePage } from './ProfilePage'
 import { deleteRemoteTournament, insertPlayers, loadAllTournaments, loadPublicTournament, persistPlayer, removeRemotePlayer } from '../data/tournamentRepository'
 import { loadAdminOverview, type AdminOverview, type AppRole, type AssignableRole } from '../data/adminRepository'
 import { deleteManagedUser, listManagedUserLoginHistory, listManagedUsers, updateManagedUser, type LoginAccess, type ManagedUser } from '../data/adminUsersRepository'
@@ -20,6 +25,7 @@ import { uid, type Pod, type ResultOutcome } from '../domain/types'
 import { maxTournamentsPerOrganizer, tournamentLimitMessage } from '../domain/tournamentLimits'
 import { tournamentStatistics } from '../domain/statistics'
 import { BattleLedger } from '../components/tournament/BattleLedger'
+import { TournamentJoinLink } from '../components/tournament/TournamentJoinLink'
 import { getUserProfile } from '../lib/userProfile'
 import i18n from '../i18n'
 import { currentLegalConsent } from '../legal'
@@ -45,6 +51,7 @@ function Header() {
       <Link to="/" className="app-shell-header__brand"><img src="/edh-tournaments-icon.svg" alt="" />EDH <span>Tournaments</span></Link>
       {!authScreen && <nav className="app-shell-header__actions" aria-label={i18n.t('landing.navigation.label')}>
       <Link to="/dashboard" aria-label={i18n.t('app.header.tournaments')} className="app-shell-header__link"><Trophy size={16} /><span className="hidden sm:inline">{i18n.t('app.header.tournaments')}</span></Link>
+        {configured && user && <Link to="/perfil" aria-label={i18n.t('app.profile.title')} className="app-shell-header__link"><SettingsIcon size={16} /><span className="hidden sm:inline">{i18n.t('app.profile.shortTitle')}</span></Link>}
         {isAdmin && <Link to="/admin" aria-label={i18n.t('app.header.administration')} className="app-shell-header__link app-shell-header__link--admin"><ShieldCheck size={16} /><span className="hidden sm:inline">{i18n.t('app.header.administration')}</span></Link>}
         {configured && user ? <Button type="button" variant="outline" size="sm" aria-label={i18n.t('app.header.signOut')} className="app-button--danger !text-[.82rem] !font-semibold" onClick={() => void signOut().catch(() => undefined).finally(() => navigate('/', { replace: true }))}><LogOut size={16} /><span className="hidden sm:inline">{i18n.t('app.header.signOut')}</span></Button> : <Link to="/login" aria-label={i18n.t('app.header.organizer')} className="app-shell-header__link"><Trophy size={16} /><span className="hidden sm:inline">{i18n.t('app.header.organizer')}</span></Link>}
         <LanguageSelector />
@@ -54,9 +61,14 @@ function Header() {
 }
 function CompletionRedirect() { const { id } = useParams(); const tournament = useTournament(id); const location = useLocation(); const navigate = useNavigate(); useEffect(() => { if (tournament && location.pathname.endsWith('/rounds') && sessionStorage.getItem('torneos-tcg.completed-tournament') === tournament.id) { sessionStorage.removeItem('torneos-tcg.completed-tournament'); navigate(`/tournaments/${tournament.id}/standings`, { replace: true }) } }, [tournament, location.pathname, navigate]); return null }
 function Layout({ children, wide = false }: { children: React.ReactNode; wide?: boolean }) { return <><Header /><CompletionRedirect /><main className={`mx-auto min-h-[calc(100vh-72px)] w-full ${wide ? 'max-w-7xl' : 'max-w-6xl'} px-4 pb-8 pt-24`}>{children}</main><ToastViewport /></> }
-export function AppRouter() { useTranslation(); return <Routes><Route path="/" element={<LandingPage />} /><Route path="/trial" element={<TrialPage />} /><Route path="/privacy" element={<PrivacyPolicyPage />} /><Route path="/terms" element={<TermsPage />} /><Route path="/legal-consent" element={<LegalConsent />} /><Route path="/login" element={<Auth screen="login" />} /><Route path="/register" element={<Auth screen="register" />} /><Route path="/forgot-password" element={<Auth screen="recovery" />} /><Route path="/auth/confirmed" element={<ConfirmedAccount />} /><Route path="/dashboard" element={<ConsentGuard><Dashboard /></ConsentGuard>} /><Route path="/admin" element={<ConsentGuard><AdminRoute /></ConsentGuard>} /><Route path="/tournaments/new" element={<ConsentGuard><NewTournament /></ConsentGuard>} /><Route path="/tournaments/:id/*" element={<ConsentGuard><TournamentLayout /></ConsentGuard>}><Route index element={<Overview />} /><Route path="players" element={<Players />} /><Route path="rounds" element={<Rounds />} /><Route path="standings" element={<Standings />} /><Route path="settings" element={<Settings />} /></Route><Route path="/t/:slug" element={<PublicView />} /><Route path="*" element={<Navigate to="/" replace />} /></Routes> }
+export function AppRouter() { useTranslation(); return <Routes><Route path="/" element={<LandingPage />} /><Route path="/trial" element={<TrialPage />} /><Route path="/privacy" element={<PrivacyPolicyPage />} /><Route path="/terms" element={<TermsPage />} /><Route path="/muestrario" element={<LocalOnly><ComponentShowcasePage /></LocalOnly>} /><Route path="/unirse" element={<ConsentGuard><Layout><JoinTournamentPage /></Layout></ConsentGuard>} /><Route path="/unirse/:token" element={<ConsentGuard><Layout><JoinTournamentPage /></Layout></ConsentGuard>} /><Route path="/perfil" element={<ConsentGuard><Layout><ProfilePage /></Layout></ConsentGuard>} /><Route path="/completar-perfil" element={<Layout><CompleteRolePage /></Layout>} /><Route path="/legal-consent" element={<LegalConsent />} /><Route path="/login" element={<Auth screen="login" />} /><Route path="/register" element={<Auth screen="register" />} /><Route path="/forgot-password" element={<Auth screen="recovery" />} /><Route path="/auth/confirmed" element={<ConfirmedAccount />} /><Route path="/dashboard" element={<ConsentGuard><Dashboard /></ConsentGuard>} /><Route path="/admin" element={<ConsentGuard><AdminRoute /></ConsentGuard>} /><Route path="/tournaments/new" element={<ConsentGuard><NewTournament /></ConsentGuard>} /><Route path="/tournaments/:id/*" element={<ConsentGuard><TournamentLayout /></ConsentGuard>}><Route index element={<Overview />} /><Route path="players" element={<Players />} /><Route path="rounds" element={<Rounds />} /><Route path="standings" element={<Standings />} /><Route path="settings" element={<Settings />} /></Route><Route path="/t/:slug" element={<PublicView />} /><Route path="*" element={<Navigate to="/" replace />} /></Routes> }
 
-function ConsentGuard({ children }: { children: React.ReactNode }) { const { user, requiresLegalConsent } = useAuth(); return user && requiresLegalConsent ? <Navigate to="/legal-consent" replace /> : <>{children}</> }
+function LocalOnly({ children }: { children: React.ReactNode }) {
+  const localHosts = ['localhost', '127.0.0.1', '::1']
+  return typeof window !== 'undefined' && localHosts.includes(window.location.hostname) ? <>{children}</> : <Navigate to="/" replace />
+}
+
+function ConsentGuard({ children }: { children: React.ReactNode }) { const { user, requiresLegalConsent, requiresRoleSelection } = useAuth(); const location = useLocation(); if (user && requiresRoleSelection) return <Navigate to={`/completar-perfil?next=${encodeURIComponent(`${location.pathname}${location.search}`)}`} replace />; return user && requiresLegalConsent ? <Navigate to="/legal-consent" replace /> : <>{children}</> }
 
 function LegalConsent() {
   const { user, requiresLegalConsent, acceptLegalConsent } = useAuth()
@@ -78,6 +90,7 @@ function Home() { return <Layout><section className="card-pattern overflow-hidde
 function Auth({ screen }: { screen: 'login'|'register'|'recovery' }) {
   const { configured, user, signIn, signUp, resetPassword } = useAuth()
   const navigate = useNavigate()
+  const [searchParams] = useSearchParams()
   const [message, setMessage] = useState('')
   const [busy, setBusy] = useState(false)
   const [showPassword, setShowPassword] = useState(false)
@@ -86,8 +99,10 @@ function Auth({ screen }: { screen: 'login'|'register'|'recovery' }) {
   const recovery = screen === 'recovery'
   const register = screen === 'register'
   const title = i18n.t(`app.auth.${screen}`)
+  const requestedPath = searchParams.get('next')
+  const returnPath = requestedPath?.startsWith('/unirse/') ? requestedPath : '/dashboard'
 
-  useEffect(() => { if (register && user) navigate('/dashboard', { replace: true }) }, [register, user, navigate])
+  useEffect(() => { if (register && user) navigate(returnPath, { replace: true }) }, [register, returnPath, user, navigate])
 
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
@@ -108,10 +123,10 @@ function Auth({ screen }: { screen: 'login'|'register'|'recovery' }) {
         const name = String(data.get('name')).trim()
         if (password !== String(data.get('confirmPassword'))) throw new Error(i18n.t('app.auth.passwordsMismatch'))
         await signUp(name, email, password, currentLegalConsent)
-        navigate('/dashboard', { replace: true })
+        navigate(returnPath, { replace: true })
       } else {
         await signIn(email, password)
-        navigate('/dashboard')
+        navigate(returnPath)
       }
     } catch (error) {
       setMessage(error instanceof Error ? error.message : i18n.t('app.auth.operationFailed'))
@@ -122,8 +137,7 @@ function Auth({ screen }: { screen: 'login'|'register'|'recovery' }) {
 
   const passwordField = (name: string, label: string) => <label className="block text-sm font-medium">{label}<span className="relative mt-1 block"><input required name={name} minLength={6} type={showPassword ? 'text' : 'password'} className={`${field} mt-0 pr-12`} /><Button type="button" variant="ghost" size="sm" aria-label={showPassword ? i18n.t('app.auth.hidePassword') : i18n.t('app.auth.showPassword')} title={showPassword ? i18n.t('app.auth.hidePassword') : i18n.t('app.auth.showPassword')} className="absolute inset-y-0 right-0 w-11 text-muted-foreground hover:text-accent" onClick={() => setShowPassword(value => !value)}>{showPassword ? <EyeOff size={18} /> : <Eye size={18} />}</Button></span></label>
   const consent = <fieldset className="rounded-2xl border border-border bg-secondary/40 p-3"><legend className="sr-only">{i18n.t('app.legalConsent.title')}</legend><label className="flex cursor-pointer items-start gap-3 text-sm leading-5 text-foreground"><input required name="legalConsent" checked={legalAccepted} onChange={event => { setLegalAccepted(event.target.checked); if (event.target.checked) setLegalError('') }} type="checkbox" className="mt-1 size-4 accent-[#21B876]" /><span>{i18n.t('app.auth.legalAgreement')} <Link to="/terms" target="_blank" rel="noreferrer" className="font-semibold text-accent underline">{i18n.t('app.auth.terms')}</Link>{i18n.t('app.auth.legalAgreementConnector')}<Link to="/privacy" target="_blank" rel="noreferrer" className="font-semibold text-accent underline">{i18n.t('app.auth.privacy')}</Link>{i18n.t('app.auth.legalAgreementSuffix')}</span></label>{legalError && <p role="alert" className="mt-2 text-sm text-red-300">{legalError}</p>}</fieldset>
-
-  return <Layout><div className="mx-auto max-w-md"><div className={panel}><h1 className="text-2xl font-black">{title}</h1><p className="mt-2 text-sm text-muted-foreground">{configured ? '' : i18n.t('app.auth.localMode')}</p>{message && <div className="mt-4"><Notice error={!message.includes(i18n.t('app.auth.recoverySent'))}>{message}</Notice></div>}<form className="mt-5 space-y-4" onSubmit={submit}>{register && <label className="block text-sm font-medium">{i18n.t('app.common.name')}<input required name="name" autoComplete="name" className={field} placeholder={i18n.t('app.auth.yourName')} /></label>}<label className="block text-sm font-medium">{i18n.t('app.common.email')}<input required name="email" type="email" autoComplete="email" className={field} placeholder="correo@gmail.com" /></label>{!recovery && <>{passwordField('password', i18n.t('app.common.password'))}{register && passwordField('confirmPassword', i18n.t('app.auth.confirmPassword'))}</>}{register && consent}<Button disabled={busy} className={`${primary} w-full`}>{busy ? i18n.t('app.auth.processing') : recovery ? i18n.t('app.auth.sendInstructions') : i18n.t('app.auth.continue')}</Button></form>{!recovery && <GoogleAuthButton requiresConsent={register} consentAccepted={legalAccepted} onConsentRequired={() => setLegalError(i18n.t('app.auth.legalConsentRequired'))} />}<Link className="mt-5 block text-center text-sm text-accent underline" to={screen === 'login' ? '/register' : '/login'}>{screen === 'login' ? i18n.t('app.auth.noAccount') : i18n.t('app.auth.backToLogin')}</Link>{!recovery && <Button asChild type="button" variant="outline" className="mt-3 w-full"><Link to="/forgot-password">{i18n.t('app.auth.forgotPassword')}</Link></Button>}</div></div></Layout>
+  return <Layout><div className="mx-auto max-w-md"><div className={panel}><h1 className="text-2xl font-black">{title}</h1><p className="mt-2 text-sm text-muted-foreground">{configured ? '' : i18n.t('app.auth.localMode')}</p>{message && <div className="mt-4"><Notice error={!message.includes(i18n.t('app.auth.recoverySent'))}>{message}</Notice></div>}<form className="mt-5 space-y-4" onSubmit={submit}>{register && <label className="block text-sm font-medium">{i18n.t('app.common.name')}<input required name="name" autoComplete="name" className={field} placeholder={i18n.t('app.auth.yourName')} /></label>}<label className="block text-sm font-medium">{i18n.t('app.common.email')}<input required name="email" type="email" autoComplete="email" className={field} placeholder="correo@gmail.com" /></label>{!recovery && <>{passwordField('password', i18n.t('app.common.password'))}{register && passwordField('confirmPassword', i18n.t('app.auth.confirmPassword'))}</>}{register && consent}<Button disabled={busy} className={`${primary} w-full`}>{busy ? i18n.t('app.auth.processing') : recovery ? i18n.t('app.auth.sendInstructions') : i18n.t('app.auth.continue')}</Button></form>{!recovery && <GoogleAuthButton requiresConsent={register} consentAccepted={legalAccepted} redirectPath={returnPath} onConsentRequired={() => setLegalError(i18n.t('app.auth.legalConsentRequired'))} />}<Link className="mt-5 block text-center text-sm text-accent underline" to={screen === 'login' ? '/register' : '/login'}>{screen === 'login' ? i18n.t('app.auth.noAccount') : i18n.t('app.auth.backToLogin')}</Link>{!recovery && <Button asChild type="button" variant="outline" className="mt-3 w-full"><Link to="/forgot-password">{i18n.t('app.auth.forgotPassword')}</Link></Button>}</div></div></Layout>
 }
 function ConfirmedAccount() { const { user, loading } = useAuth(); return <Layout><div className="mx-auto max-w-md text-center"><section className={panel}><span className="text-4xl">✓</span><h1 className="mt-3 text-2xl font-black">{loading ? i18n.t('app.auth.confirming') : user ? i18n.t('app.auth.confirmed') : i18n.t('app.auth.reviewConfirmation')}</h1><p className="mt-3 text-muted-foreground">{user ? i18n.t('app.auth.confirmedDescription') : i18n.t('app.auth.confirmationDescription')}</p>{user&&<Button type="button" className={`${primary} mt-5`} onClick={() => window.close()}>{i18n.t('app.auth.closeTab')}</Button>}</section></div></Layout> }
 function OrganizerIdentity({ user }: { user: User | null }) {
@@ -141,13 +155,14 @@ function OrganizerIdentity({ user }: { user: User | null }) {
 
 function Dashboard() {
   const { tournaments, ready, remoteError, removeTournament } = useTournaments();
-  const { configured, user, loading } = useAuth();
+  const { configured, isPlayer, user, loading } = useAuth();
   const [tournamentToDelete, setTournamentToDelete] = useState<Tournament>();
   const [creating, setCreating] = useState(false);
   const navigate = useNavigate();
   const ownTournaments = tournaments.filter((tournament) => tournament.ownerId === user?.id);
   const tournamentLimitReached = ownTournaments.length >= maxTournamentsPerOrganizer;
   if (configured && !loading && !user) return <Navigate to="/login" replace />;
+  if (isPlayer) return <Layout><PlayerDashboard /></Layout>;
 
   return (
     <Layout>
@@ -404,9 +419,11 @@ function TournamentCreateModal({ onClose }: { onClose: () => void }) {
 }
 function NewTournament() {
   const { createTournament } = useTournaments();
+  const { isPlayer } = useAuth();
   const navigate = useNavigate();
   const [error, setError] = useState('');
   const [busy, setBusy] = useState(false);
+  if (isPlayer) return <Navigate to="/dashboard" replace />;
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const values = new FormData(event.currentTarget);
@@ -505,6 +522,8 @@ function NewTournament() {
 function TournamentLayout() {
   const { id } = useParams();
   const tournament = useTournament(id);
+  const { isPlayer } = useAuth();
+  if (isPlayer) return <Navigate to="/dashboard" replace />;
   if (!tournament)
     return (
       <Layout>
@@ -683,7 +702,7 @@ function Settings() {
   const [finishing, setFinishing] = useState(false)
   function save(event: FormEvent<HTMLFormElement>) { event.preventDefault(); const form = new FormData(event.currentTarget); const plannedRounds = Number(form.get('rounds')); const maxPlayers = Number(form.get('maxPlayers')); const maxTables = Number(form.get('maxTables')); if (!Number.isInteger(plannedRounds) || plannedRounds < tournament.rounds.length || plannedRounds < 1) return setMessage(i18n.t('app.createTournament.invalidLimits')); if (!Number.isInteger(maxPlayers) || maxPlayers < tournament.players.length || !Number.isInteger(maxTables) || maxTables < 1) return setMessage(i18n.t('app.createTournament.invalidLimits')); updateTournament(id!, { name: String(form.get('name')).trim(), format: String(form.get('format')).trim(), plannedRounds, maxPlayers, maxTables, isPublic: true }); setMessage(''); showToast(i18n.t('app.tournament.settingsSaved')) }
   const canFinish = !tournament.rounds.some(round => round.status !== 'completada')
-  return <section className="settings-desk"><form onSubmit={save} className="settings-desk__form"><header><p>{i18n.t('app.tournament.settings')}</p><h2>{i18n.t('app.tournament.settingsTitle')}</h2></header>{message && <Notice error>{message}</Notice>}<div className="settings-desk__fields"><label>{i18n.t('app.common.name')}<input required name="name" defaultValue={tournament.name} className={field}/></label><label>{i18n.t('app.createTournament.format')}<input required name="format" defaultValue={tournament.format} className={field}/></label><label>{i18n.t('app.tournament.plannedRounds')}<input required type="number" min="1" name="rounds" defaultValue={tournament.plannedRounds} className={field}/></label><label>{i18n.t('app.createTournament.maxPlayers')}<input required type="number" min="3" name="maxPlayers" defaultValue={tournament.maxPlayers} className={field}/></label><label>{i18n.t('app.tournament.maxTablesPerRound')}<input required type="number" min="1" name="maxTables" defaultValue={tournament.maxTables} className={field}/></label></div><p className="settings-desk__hint">{i18n.t('app.tournament.pointsManual')}</p><div className="flex justify-end"><Button disabled={tournament.status === 'finalizado'} className={primary}>{i18n.t('app.tournament.saveChanges')}</Button></div></form><aside className="settings-desk__danger"><span aria-hidden>!</span><h2>{i18n.t('app.common.status')}</h2><p>{i18n.t('app.tournament.finishHelp')}</p>{tournament.status === 'finalizado' ? <Button className="app-button app-button--secondary" onClick={() => { updateTournament(id!, { status: 'activo' }); showToast(i18n.t('app.tournament.tournamentReopened')) }}>{i18n.t('app.tournament.reopenTournament')}</Button> : <Button disabled={!canFinish} variant="outline" className="app-button app-button--danger" onClick={() => setFinishing(true)}>{i18n.t('app.tournament.finishTournament')}</Button>}</aside>{finishing && <ConfirmModal title={i18n.t('app.tournament.finishTournament')} description={i18n.t('app.tournament.finishHelp')} confirmLabel={i18n.t('app.tournament.finishTournament')} destructive onClose={() => setFinishing(false)} onConfirm={() => { updateTournament(id!, { status: 'finalizado' }); showToast(i18n.t('app.tournament.tournamentFinished')); setFinishing(false) }} />}</section>
+  return <section className="settings-desk"><div className="min-w-0"><form onSubmit={save} className="settings-desk__form"><header><p>{i18n.t('app.tournament.settings')}</p><h2>{i18n.t('app.tournament.settingsTitle')}</h2></header>{message && <Notice error>{message}</Notice>}<div className="settings-desk__fields"><label>{i18n.t('app.common.name')}<input required name="name" defaultValue={tournament.name} className={field}/></label><label>{i18n.t('app.createTournament.format')}<input required name="format" defaultValue={tournament.format} className={field}/></label><label>{i18n.t('app.tournament.plannedRounds')}<input required type="number" min="1" name="rounds" defaultValue={tournament.plannedRounds} className={field}/></label><label>{i18n.t('app.createTournament.maxPlayers')}<input required type="number" min="3" name="maxPlayers" defaultValue={tournament.maxPlayers} className={field}/></label><label>{i18n.t('app.tournament.maxTablesPerRound')}<input required type="number" min="1" name="maxTables" defaultValue={tournament.maxTables} className={field}/></label></div><p className="settings-desk__hint">{i18n.t('app.tournament.pointsManual')}</p><div className="flex justify-end"><Button disabled={tournament.status === 'finalizado'} className={primary}>{i18n.t('app.tournament.saveChanges')}</Button></div></form><TournamentJoinLink tournamentId={tournament.id} /></div><aside className="settings-desk__danger"><span aria-hidden>!</span><h2>{i18n.t('app.common.status')}</h2><p>{i18n.t('app.tournament.finishHelp')}</p>{tournament.status === 'finalizado' ? <Button className="app-button app-button--secondary" onClick={() => { updateTournament(id!, { status: 'activo' }); showToast(i18n.t('app.tournament.tournamentReopened')) }}>{i18n.t('app.tournament.reopenTournament')}</Button> : <Button disabled={!canFinish} variant="outline" className="app-button app-button--danger" onClick={() => setFinishing(true)}>{i18n.t('app.tournament.finishTournament')}</Button>}</aside>{finishing && <ConfirmModal title={i18n.t('app.tournament.finishTournament')} description={i18n.t('app.tournament.finishHelp')} confirmLabel={i18n.t('app.tournament.finishTournament')} destructive onClose={() => setFinishing(false)} onConfirm={() => { updateTournament(id!, { status: 'finalizado' }); showToast(i18n.t('app.tournament.tournamentFinished')); setFinishing(false) }} />}</section>
 }
 function PublicView() {
   const { slug } = useParams()
@@ -1510,9 +1529,10 @@ function UserProfileModal({
           {i18n.t('app.admin.accounts.role')}
           <select
             name="role"
-            defaultValue={user.role === 'admin' ? 'admin' : 'organizer'}
+            defaultValue={user.role === 'admin' ? 'admin' : user.role === 'player' ? 'player' : 'organizer'}
             className={field}
           >
+            <option value="player">{i18n.t('app.admin.roles.player')}</option>
             <option value="organizer">{i18n.t('app.admin.roles.organizer')}</option>
             <option value="admin">{i18n.t('app.admin.roles.admin')}</option>
           </select>

@@ -1,6 +1,6 @@
 import { supabase } from '../lib/supabase';
 
-export type AppRole = 'organizer' | 'admin' | 'super_admin';
+export type AppRole = 'player' | 'organizer' | 'admin' | 'super_admin';
 export type AssignableRole = Exclude<AppRole, 'super_admin'>;
 
 export type AdminProfile = {
@@ -59,7 +59,13 @@ export async function loadAdminOverview(): Promise<AdminOverview> {
       id: String(row.id),
       displayName: String(row.display_name ?? 'Sin nombre'),
       role:
-        row.role === 'super_admin' ? 'super_admin' : row.role === 'admin' ? 'admin' : 'organizer',
+        row.role === 'super_admin'
+          ? 'super_admin'
+          : row.role === 'admin'
+            ? 'admin'
+            : row.role === 'player'
+              ? 'player'
+              : 'organizer',
       createdAt: String(row.created_at),
     })),
     tournaments: rows(tournamentsResponse.data).map((row) => ({
