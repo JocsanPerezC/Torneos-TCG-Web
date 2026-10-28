@@ -440,6 +440,9 @@ const resources = {
           unavailable: 'Esta vista pública no está disponible.',
           eyebrow: 'INFORMACIÓN DEL TORNEO',
           firstRound: 'Las mesas aparecerán cuando el organizador genere la primera ronda.',
+          back: 'Volver a mis torneos',
+          rounds: 'Todas las rondas',
+          podium: 'Podio',
         },
         statistics: {
           title: 'Estadísticas',
@@ -919,6 +922,9 @@ const resources = {
           unavailable: 'This public view is unavailable.',
           eyebrow: 'TOURNAMENT INFORMATION',
           firstRound: 'Tables will appear when the organizer generates the first round.',
+          back: 'Back to my tournaments',
+          rounds: 'All rounds',
+          podium: 'Podium',
         },
         statistics: {
           title: 'Statistics',
@@ -1028,6 +1034,21 @@ Object.assign(resources.en.translation.app.tournament, {
   completeDescription:
     'The round will be locked after all results are validated and the elapsed time is saved.',
   roundCompleted: 'Round completed. Standings updated.',
+  manualParticipant: 'Manual',
+  accountParticipant: 'Account linked',
+  resolveManualNameConflict:
+    'Rename the manual participant {{names}} before generating a round; a linked account uses the same name.',
+  resolveManualNameConflictFallback:
+    'Rename the manual participant with the duplicate name before generating a round.',
+});
+
+Object.assign(resources.es.translation.app.tournament, {
+  manualParticipant: 'Manual',
+  accountParticipant: 'Cuenta vinculada',
+  resolveManualNameConflict:
+    'Renombra al participante manual {{names}} antes de generar una ronda; una cuenta vinculada usa el mismo nombre.',
+  resolveManualNameConflictFallback:
+    'Renombra al participante manual que tiene el nombre duplicado antes de generar una ronda.',
 });
 
 Object.assign(resources.es.translation.app.common, {
@@ -1707,7 +1728,9 @@ Object.assign(resources.es.translation.app, {
       'Pega el enlace de invitación o escribe el código que compartió el organizador.',
     code: 'Enlace o código',
     codePlaceholder: 'Pega aquí la invitación',
-    open: 'Ver invitación',
+    open: 'Unirse al torneo',
+    joining: 'Uniéndote al torneo…',
+    tryAnother: 'Usar otra invitación',
     playerOnlyTitle: 'Esta invitación es para jugadores',
     playerOnlyDescription: 'Las cuentas de organizador no pueden inscribirse en torneos.',
     back: 'Volver a mis torneos',
@@ -1812,7 +1835,9 @@ Object.assign(resources.en.translation.app, {
     manualDescription: 'Paste the invitation link or enter the code shared by the organizer.',
     code: 'Link or code',
     codePlaceholder: 'Paste the invitation here',
-    open: 'View invitation',
+    open: 'Join tournament',
+    joining: 'Joining the tournament…',
+    tryAnother: 'Use another invitation',
     playerOnlyTitle: 'This invitation is for players',
     playerOnlyDescription: 'Organizer accounts cannot join tournaments.',
     back: 'Back to my tournaments',

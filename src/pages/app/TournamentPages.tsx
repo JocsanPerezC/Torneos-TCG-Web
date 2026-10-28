@@ -406,11 +406,11 @@ function Rounds() {
               tournament.rounds.length >= tournament.plannedRounds
             }
             className={`${primary} inline-flex items-center gap-2`}
-            onClick={() =>
-              setMessage(
-                generateRound(id!) ?? 'Ronda generada. Iníciala cuando las mesas estén listas.',
+            onClick={() => {
+              void generateRound(id!).then((error) =>
+                setMessage(error ?? 'Ronda generada. Iníciala cuando las mesas estén listas.'),
               )
-            }
+            }}
           >
             <RefreshCw size={16} />
             Generar siguiente ronda

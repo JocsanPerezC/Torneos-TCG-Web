@@ -178,7 +178,9 @@ export function TournamentJoinLink({ tournamentId }: { tournamentId: string }) {
                 variant="outline"
                 className="app-button app-button--secondary"
                 disabled={!code}
-                onClick={() => void copy(code, t('app.joinLink.codeCopied'))}
+                onClick={() => {
+                  if (code) void copy(code, t('app.joinLink.codeCopied'));
+                }}
               >
                 <Copy size={16} aria-hidden="true" />
                 {t('app.joinLink.copyCode')}

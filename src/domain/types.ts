@@ -1,7 +1,7 @@
 export type TournamentStatus = 'activo' | 'finalizado'
 export type RoundStatus = 'borrador' | 'activa' | 'completada'
 export type ResultOutcome = 'win' | 'loss' | 'draw'
-export interface Player { id: string; name: string; active: boolean; tieBreaker: number }
+export interface Player { id: string; name: string; active: boolean; tieBreaker: number; profileId?: string }
 export interface Result { playerId: string; points: number; kills: number; outcome?: ResultOutcome }
 export interface Pod { id: string; number: number; playerIds: string[]; results?: Result[]; notes?: string }
 export interface Round { id: string; number: number; status: RoundStatus; seed: number; startedAt?: string; endedAt?: string; pods: Pod[] }

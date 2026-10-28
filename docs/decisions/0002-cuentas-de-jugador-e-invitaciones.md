@@ -13,7 +13,9 @@ Se añade el rol inmutable `player`. Después de autenticarse por primera vez, u
 
 `players.profile_id` es opcional. Un registro nulo representa un participante manual; un valor presente enlaza una inscripción a una cuenta `player`. Cada torneo admite a lo sumo una inscripción vinculada por cuenta.
 
-Los organizadores comparten una única invitación activa por torneo. El token no adivinable se entrega como enlace o QR, se puede rotar o revocar y se procesa solo mediante funciones `security definer`. La inscripción verifica rol, cupo, estado activo y nombre de participante antes de crear el vínculo.
+Un nombre puede coincidir temporalmente entre una cuenta vinculada y un participante manual, para no impedir una inscripción legítima. Antes de generar cualquier ronda, el organizador debe renombrar al participante manual; la aplicación y la base de datos rechazan la generación mientras la ambigüedad exista.
+
+Los organizadores comparten una única invitación activa por torneo. El token no adivinable se entrega como enlace o QR, se puede rotar o revocar y se procesa solo mediante funciones `security definer`. La misma invitación tiene un código manual corto, único y fácil de compartir; ambos formatos se resuelven exclusivamente mediante esas funciones. La inscripción verifica rol, cupo, estado activo y nombre de participante antes de crear el vínculo.
 
 ## Consecuencias
 

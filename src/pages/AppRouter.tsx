@@ -44,6 +44,7 @@ import {
 } from '../data/adminUsersRepository';
 import type { Tournament } from '../domain/types';
 import {
+  ArrowLeft,
   Archive,
   CircleX,
   Database,
@@ -75,6 +76,7 @@ import { LanguageSelector } from '../components/ui/LanguageSelector';
 import { uid, type Pod, type ResultOutcome } from '../domain/types';
 import { tournamentLimitMessage } from '../domain/tournamentLimits';
 import { tournamentStatistics } from '../domain/statistics';
+import { standings } from '../domain/scoring';
 import { BattleLedger } from '../components/tournament/BattleLedger';
 import { TournamentJoinLink } from '../components/tournament/TournamentJoinLink';
 import {
@@ -1318,6 +1320,10 @@ function Players() {
                 <strong>{player.name}</strong>
                 <span className={`player-slip__status ${player.active ? 'is-active' : ''}`}>
                   {player.active ? i18n.t('app.common.active') : i18n.t('app.common.withdrawn')}
+                  {' · '}
+                  {player.profileId
+                    ? i18n.t('app.tournament.accountParticipant')
+                    : i18n.t('app.tournament.manualParticipant')}
                 </span>
               </div>
               <div className="player-slip__actions">
@@ -1476,6 +1482,7 @@ function Rounds() {
   const [draggedPlayer, setDraggedPlayer] = useState<string>();
   const [dropTargetPod, setDropTargetPod] = useState<string>();
   const [showRoundGenerationInfo, setShowRoundGenerationInfo] = useState(false);
+  const [generatingRound, setGeneratingRound] = useState(false);
   const last = tournament.rounds.at(-1);
   const hasOpenRound = tournament.rounds.some((round) => round.status !== 'completada');
   const names = Object.fromEntries(tournament.players.map((player) => [player.id, player.name]));
@@ -1527,12 +1534,16 @@ function Rounds() {
             disabled={
               tournament.status === 'finalizado' ||
               hasOpenRound ||
-              tournament.rounds.length >= tournament.plannedRounds
+              tournament.rounds.length >= tournament.plannedRounds ||
+              generatingRound
             }
             className={`${primary} inline-flex items-center gap-2`}
-            onClick={() =>
-              setMessage(generateRound(id!) ?? i18n.t('app.tournament.roundGenerated'))
-            }
+            onClick={() => {
+              setGeneratingRound(true);
+              void generateRound(id!)
+                .then((error) => setMessage(error ?? i18n.t('app.tournament.roundGenerated')))
+                .finally(() => setGeneratingRound(false));
+            }}
           >
             <RefreshCw size={16} />
             {i18n.t('app.tournament.generateRound')}
@@ -1555,7 +1566,9 @@ function Rounds() {
             message.includes('Completa') ||
             message.includes('finalizado') ||
             message.includes('Primero') ||
-            message.includes('Espera')
+            message.includes('Espera') ||
+            message.includes('Renombra') ||
+            message.includes('Rename')
           }
         >
           {message}
@@ -2178,6 +2191,7 @@ function Settings() {
 function PublicView() {
   const { slug } = useParams();
   const [searchParams] = useSearchParams();
+  const { user } = useAuth();
   const [tournament, setTournament] = useState<Tournament>();
   const [loading, setLoading] = useState(true);
   useEffect(() => {
@@ -2215,10 +2229,15 @@ function PublicView() {
     tournament.rounds.find((item) => item.id === searchParams.get('round')) ??
     tournament.rounds.at(-1);
   const names = Object.fromEntries(tournament.players.map((player) => [player.id, player.name]));
+  const rows = standings(tournament);
   return (
     <main className="public-scoreboard">
       <div className="public-scoreboard__wrap">
         <header className="public-scoreboard__masthead">
+          <Link to={user ? '/dashboard' : '/'} className="public-scoreboard__back">
+            <ArrowLeft size={16} aria-hidden />
+            {i18n.t('app.public.back')}
+          </Link>
           <a href="/" className="public-scoreboard__brand">
             <img src="/edh-tournaments-icon.svg" alt="" />
             EDH Tournaments
@@ -2236,10 +2255,24 @@ function PublicView() {
             </div>
           </section>
         )}
+        {tournament.rounds.length > 1 && (
+          <nav className="public-round-picker" aria-label={i18n.t('app.public.rounds')}>
+            {tournament.rounds.map((item) => (
+              <Link
+                key={item.id}
+                to={`/t/${tournament.publicSlug}?round=${item.id}`}
+                className={item.id === round?.id ? 'is-current' : undefined}
+                aria-current={item.id === round?.id ? 'page' : undefined}
+              >
+                {i18n.t('app.common.round', { number: item.number })}
+              </Link>
+            ))}
+          </nav>
+        )}
         {round ? (
           <section className="public-round">
             <header>
-              <div>
+              <div className="public-round__heading">
                 <p>{i18n.t('app.common.round', { number: round.number })}</p>
                 <Badge>{round.status}</Badge>
               </div>
@@ -2289,6 +2322,32 @@ function PublicView() {
             <p>{i18n.t('app.public.firstRound')}</p>
           </section>
         )}
+        {rows.length > 0 && (
+          <section className="public-podium" aria-labelledby="public-podium-title">
+            <h2 id="public-podium-title">{i18n.t('app.public.podium')}</h2>
+            <ol className="standings-podium">
+              {rows.slice(0, 3).map((row) => (
+                <li
+                  className={`standings-podium__place standings-podium__place--${row.rank}`}
+                  key={row.player.id}
+                >
+                  <span>#{row.rank}</span>
+                  <i aria-hidden>{row.player.name.trim().slice(0, 1).toUpperCase()}</i>
+                  <strong>{row.player.name}</strong>
+                  <b>
+                    {row.points} <small>{i18n.t('app.common.points')}</small>
+                  </b>
+                  <em>
+                    {row.kills} ☠ · {row.winRate.toFixed(1)}%
+                  </em>
+                </li>
+              ))}
+            </ol>
+          </section>
+        )}
+        <section className="public-scoreboard__statistics">
+          <BattleLedger statistics={tournamentStatistics(tournament)} />
+        </section>
       </div>
     </main>
   );
