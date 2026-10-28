@@ -56,7 +56,7 @@ export function ToastViewport() {
   }, [items]);
 
   return (
-    <div className="pointer-events-none fixed right-5 bottom-5 z-50 flex max-w-sm flex-col gap-3">
+    <div className="pointer-events-none fixed right-5 top-5 z-50 flex max-w-sm flex-col gap-3">
       {items.map((toast) => (
         <div
           key={toast.id}

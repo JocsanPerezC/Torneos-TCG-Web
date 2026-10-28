@@ -1,35 +1,497 @@
-import i18n from 'i18next'
-import { initReactI18next } from 'react-i18next'
+import i18n from 'i18next';
+import { initReactI18next } from 'react-i18next';
 
-export const supportedLanguages = ['es', 'en'] as const
+export const supportedLanguages = ['es', 'en'] as const;
 
 const resources = {
   es: {
     translation: {
       language: { label: 'Idioma', es: 'Español', en: 'English' },
       landing: {
-        navigation: { label: 'Navegación', menu: 'Abrir menú', howItWorks: 'Cómo funciona', scoring: 'Puntuación', faq: 'Preguntas frecuentes', dashboard: 'Ir a mis torneos', login: 'Iniciar sesión', createAccount: 'Crear cuenta' },
-        hero: { eyebrow: 'COMANDER, SIN LA LIBRETA MANCHADA', title: 'Vos ponés las cartas. Nosotros llevamos las cuentas.', description: 'Armá mesas, registrá lo que pasó y compartí posiciones sin perseguir a nadie por WhatsApp. Commander, otros TCG y todas esas reglas que tu grupo inventó.', noAccount: 'Tus amistades no necesitan cuenta. Solo ganas de ganarte.' },
-        preview: { ariaLabel: 'Mesa Commander en vivo', eyebrow: 'MESA EN VIVO', tournamentName: 'Commander de sábado', live: 'En vivo', currentRound: 'Ronda', roundValue: '2 de 3', activeTables: 'Mesas', players: 'Jugadores', kills: 'kills', liveLog: 'Lina registró una baja', updated: 'Actualizada hace un momento', standings: 'Clasificación', player: 'JUGADOR', detail: 'DETALLE', points: 'PTS', strength: 'Fuerza: {{value}}' },
-        concept: { eyebrow: 'LA JUGADA EN TRES PASOS', title: 'De “¿quién va con quién?” a posiciones listas.', description: 'La app sigue el recorrido que ya hacés en la mesa; solo le ahorra drama a tu libreta.', step1Title: 'Repartí la mesa', step1Description: 'Armá pods de 3 a 5 personas sin hacer Tetris humano.', step2Title: 'Anotá la batalla', step2Description: 'Puntos, kills y resultados antes de que alguien los recuerde distinto.', step3Title: 'Mirá el tablero', step3Description: 'La clasificación se acomoda sola. Magia, pero de la útil.' },
-        features: { eyebrow: 'TU REGLA, TU MARCADOR', title: 'Mové una ficha. Mirá cómo cambia todo.', description: 'Cada grupo puntúa Commander a su manera. Probá el marcador: la clasificación responde al toque.', win: 'Victoria', kill: 'Kill', draw: 'Empate', rulesTitle: 'Puntuación de ejemplo', rulesHint: 'Ajustala como juega tu mesa.', rulesFootnote: 'No hay una policía de puntos. Por dicha.', decrease: 'Bajar puntos de {{label}}', increase: 'Subir puntos de {{label}}', previewLabel: 'CLASIFICACIÓN DE PRUEBA', previewLive: 'se reordena', points: 'pts', previewNote: 'Los números cambian; la rivalidad queda.' },
-        benefits: { eyebrow: 'HECHA PARA LA MESA', title: 'Más tapete. Menos planilla.', description: 'La organización debería desaparecer justo cuando empieza la partida.', mapLabel: 'TODO EN SU LUGAR', marginNote: 'La única regla fija: nadie debería perder por una suma mal hecha.', groupTitle: 'Traé a tu gente', groupDescription: 'Agregá nombres, retirados y quien llegó tarde sin romper la ronda.', gameTitle: 'Jugá lo que juegan', gameDescription: 'Commander, otro TCG o un formato casero con demasiadas excepciones.', simpleTitle: 'Compartí sin perseguir', simpleDescription: 'Mandá un enlace público y dejá que la clasificación hable por vos.' },
-        faq: { eyebrow: 'PREGUNTAS DE ÚLTIMA HORA', title: 'Antes de barajar, por si acaso.', description: 'Las dudas que suelen salir mientras alguien busca tierras básicas.', accountQuestion: '¿Mis amistades necesitan una cuenta?', accountAnswer: 'No. Solo quien organiza inicia sesión. El resto entra al enlace público, mira mesas y opina de los emparejamientos como corresponde.', scoringQuestion: '¿Puedo usar otra puntuación?', scoringAnswer: 'Sí. Configurá los puntos que use tu grupo para victorias, kills, empates o cualquier regla que ya haya sobrevivido varias discusiones.', gameQuestion: '¿Sirve para otros TCG?', gameAnswer: 'Sí. El nombre, formato y puntuación se adaptan a lo que juegue tu comunidad. No le contamos a nadie si no es Commander.', shareQuestion: '¿Cómo comparto la clasificación?', shareAnswer: 'Cada torneo público tiene un enlace de solo lectura. Mandalo al grupo y evitá las fotos borrosas de una libreta.' },
-        idea: { eyebrow: 'UNA IDEA NACIDA EN LA MESA', title: 'Torneos más simples, para cada tienda.', description: 'EDH Tournaments nace para que cada tienda pueda crear torneos con sus propias reglas, agregar jugadores, generar rondas y mostrar la clasificación en un solo lugar, de una manera más sencilla y agradable.', supportNote: 'Tu aporte ayuda a mantener el proyecto y sumar mejoras para más mesas.', flowLabel: 'Cómo funciona la plataforma', rules: 'Tus reglas', players: 'Tus jugadores', rounds: 'Tus rondas', standings: 'Tu clasificación' },
-        cta: { eyebrow: 'ÚLTIMA LLAMADA A MESA', title: '¿Cuándo es la próxima mesa?', description: 'Creá el torneo antes de que alguien diga “yo llevo las cuentas” y desaparezca en la ronda dos.', button: 'Crear mi primer torneo', sideNote: 'Mulligan gratis. Caos organizado.' },
-        trial: { action: 'Hacer una prueba', actionShort: 'Probar', createAccount: 'Crear cuenta', exit: 'Salir del modo prueba', ctaDescription: 'Probá el flujo completo antes de crear tu cuenta. Tus datos se quedan solo en esta pestaña.', eyebrow: 'MODO PRUEBA', createTitle: 'Armá un torneo de prueba', createDescription: 'Probá el recorrido de una mesa real: agregá jugadores, registrá resultados y mirá cómo se ordena el torneo.', reloadWarning: 'Modo prueba: los datos se eliminarán al recargar esta página.', invalidSetup: 'Completá una configuración válida: al menos 3 jugadores y 1 mesa.', tournamentName: 'Nombre del torneo', namePlaceholder: 'Commander de sábado', format: 'Juego o formato', plannedRounds: 'Rondas planificadas', maxPlayers: 'Máximo de jugadores', maxTables: 'Máximo de mesas', create: 'Crear torneo de prueba', unlock: 'Crear una cuenta', navigation: 'Navegación del torneo de prueba', tabs: { overview: 'Resumen', players: 'Jugadores', rounds: 'Rondas', standings: 'Clasificación', statistics: 'Estadísticas', settings: 'Configuración', history: 'Historial' }, active: 'activo', finished: 'finalizado', overviewTitle: 'Estado del torneo', activePlayers: 'Jugadores activos', rounds: 'Rondas', currentRound: 'Ronda actual', currentRoundLabel: 'Ronda {{number}}', readyForPlayers: 'Todo listo para la primera mesa', readyForPlayersDescription: 'Agregá al menos tres jugadores para generar la primera ronda.', roundStatus: { borrador: 'La ronda está lista para iniciar.', activa: 'Registrá los puntos, kills y resultados de cada mesa.', completada: 'Resultados guardados. Ya podés generar la siguiente ronda.' }, playerCount: '{{count}} de {{max}} jugadores', players: 'jugadores', noPlayers: 'Todavía no hay jugadores en la mesa.', addPlayers: 'Agregar jugadores', addPlayersDescription: 'Escribí un nombre por línea.', playersPlaceholder: 'Ana\nBruno\nCarla', playerLimit: 'El torneo admite un máximo de {{count}} jugadores.', playersAdded: '{{count}} jugador(es) agregado(s).', duplicatePlayer: 'Esos jugadores ya estaban agregados.', enterPlayer: 'Escribí al menos un nombre nuevo.', roundsDescription: 'Generá una ronda, iniciála y anotá los resultados de cada mesa.', generateRound: 'Generar ronda', noRounds: 'Todavía no hay rondas. Agregá jugadores y generá la primera.', finishedReadOnly: 'El torneo finalizado es solo de lectura.', completeCurrentRound: 'Terminá la ronda actual antes de generar otra.', allRoundsGenerated: 'Ya se generaron todas las rondas planificadas.', minimumPlayers: 'Se requieren al menos tres jugadores activos para generar una ronda.', roundGenerated: 'Ronda generada. Iniciála cuando las mesas estén listas.', roundStarted: 'Ronda iniciada. El cronómetro está corriendo.', completeResults: 'Completá puntos y kills válidos para todas las mesas.', completeOutcomes: 'Elegí un resultado para cada jugador antes de terminar la ronda.', roundCompleted: 'Ronda terminada. La clasificación se actualizó.', startRound: 'Iniciar ronda', completeRound: 'Terminar ronda', table: 'Mesa', points: 'Puntos', kills: 'Kills', outcome: 'Resultado', chooseOutcome: 'Elegí un resultado', win: 'Victoria', loss: 'Derrota', draw: 'Empate', standingsDescription: 'El podio está a la vista; el resto del tablero espera tu cuenta.', player: 'Jugador', noStandings: 'La clasificación aparecerá cuando guardés resultados.', standingsLocked: 'Creá una cuenta para desbloquear la clasificación completa.', statisticsTitle: 'Las estadísticas están tras un hechizo', statisticsLocked: 'Las estadísticas avanzadas están esperando su invocador. Creá una cuenta para desbloquearlas.', settingsTitle: 'Configuración del torneo', settingsLocked: 'Creá una cuenta para modificar la configuración del torneo.', finishTitle: 'Cerrar la mesa', finishDescription: 'Podés terminar este torneo de prueba cuando no haya rondas pendientes.', finish: 'Finalizar torneo', finishIncomplete: 'Terminá la ronda actual antes de finalizar el torneo.', tournamentFinished: 'Torneo de prueba finalizado.', historyTitle: 'El archivo de mesas espera tu cuenta', historyLocked: 'Creá una cuenta para guardar y consultar el historial de tus torneos terminados.' },
-        footer: { tagline: 'Para mesas donde el único problema debería ser el maná.', privacy: 'Privacidad', terms: 'Términos', copyright: 'Copyright © 2026 Jocsan Pérez Coto', support: 'Apoyar el proyecto', github: 'GitHub de Jocsan Pérez Coto', fanContent: 'EDH Tournaments es Fan Content no oficial permitido bajo la Fan Content Policy. No está aprobado ni respaldado por Wizards. Parte del material utilizado es propiedad de Wizards of the Coast. © Wizards of the Coast LLC.' },
+        navigation: {
+          label: 'Navegación',
+          menu: 'Abrir menú',
+          howItWorks: 'Cómo funciona',
+          scoring: 'Puntuación',
+          faq: 'Preguntas frecuentes',
+          dashboard: 'Ir a mis torneos',
+          login: 'Iniciar sesión',
+          createAccount: 'Crear cuenta',
+        },
+        hero: {
+          eyebrow: 'COMANDER, SIN LA LIBRETA MANCHADA',
+          title: 'Vos ponés las cartas. Nosotros llevamos las cuentas.',
+          description:
+            'Armá mesas, registrá lo que pasó y compartí posiciones sin perseguir a nadie por WhatsApp. Commander, otros TCG y todas esas reglas que tu grupo inventó.',
+          noAccount: 'Tus amistades no necesitan cuenta. Solo ganas de ganarte.',
+        },
+        preview: {
+          ariaLabel: 'Mesa Commander en vivo',
+          eyebrow: 'MESA EN VIVO',
+          tournamentName: 'Commander de sábado',
+          live: 'En vivo',
+          currentRound: 'Ronda',
+          roundValue: '2 de 3',
+          activeTables: 'Mesas',
+          players: 'Jugadores',
+          kills: 'kills',
+          liveLog: 'Lina registró una baja',
+          updated: 'Actualizada hace un momento',
+          standings: 'Clasificación',
+          player: 'JUGADOR',
+          detail: 'DETALLE',
+          points: 'PTS',
+          strength: 'Fuerza: {{value}}',
+        },
+        concept: {
+          eyebrow: 'LA JUGADA EN TRES PASOS',
+          title: 'De “¿quién va con quién?” a posiciones listas.',
+          description:
+            'La app sigue el recorrido que ya hacés en la mesa; solo le ahorra drama a tu libreta.',
+          step1Title: 'Repartí la mesa',
+          step1Description: 'Armá pods de 3 a 5 personas sin hacer Tetris humano.',
+          step2Title: 'Anotá la batalla',
+          step2Description:
+            'Puntos, kills y resultados antes de que alguien los recuerde distinto.',
+          step3Title: 'Mirá el tablero',
+          step3Description: 'La clasificación se acomoda sola. Magia, pero de la útil.',
+        },
+        features: {
+          eyebrow: 'TU REGLA, TU MARCADOR',
+          title: 'Mové una ficha. Mirá cómo cambia todo.',
+          description:
+            'Cada grupo puntúa Commander a su manera. Probá el marcador: la clasificación responde al toque.',
+          win: 'Victoria',
+          kill: 'Kill',
+          draw: 'Empate',
+          rulesTitle: 'Puntuación de ejemplo',
+          rulesHint: 'Ajustala como juega tu mesa.',
+          rulesFootnote: 'No hay una policía de puntos. Por dicha.',
+          decrease: 'Bajar puntos de {{label}}',
+          increase: 'Subir puntos de {{label}}',
+          previewLabel: 'CLASIFICACIÓN DE PRUEBA',
+          previewLive: 'se reordena',
+          points: 'pts',
+          previewNote: 'Los números cambian; la rivalidad queda.',
+        },
+        benefits: {
+          eyebrow: 'HECHA PARA LA MESA',
+          title: 'Más tapete. Menos planilla.',
+          description: 'La organización debería desaparecer justo cuando empieza la partida.',
+          mapLabel: 'TODO EN SU LUGAR',
+          marginNote: 'La única regla fija: nadie debería perder por una suma mal hecha.',
+          groupTitle: 'Traé a tu gente',
+          groupDescription: 'Agregá nombres, retirados y quien llegó tarde sin romper la ronda.',
+          gameTitle: 'Jugá lo que juegan',
+          gameDescription: 'Commander, otro TCG o un formato casero con demasiadas excepciones.',
+          simpleTitle: 'Compartí sin perseguir',
+          simpleDescription: 'Mandá un enlace público y dejá que la clasificación hable por vos.',
+        },
+        faq: {
+          eyebrow: 'PREGUNTAS DE ÚLTIMA HORA',
+          title: 'Antes de barajar, por si acaso.',
+          description: 'Las dudas que suelen salir mientras alguien busca tierras básicas.',
+          accountQuestion: '¿Mis amistades necesitan una cuenta?',
+          accountAnswer:
+            'No. Solo quien organiza inicia sesión. El resto entra al enlace público, mira mesas y opina de los emparejamientos como corresponde.',
+          scoringQuestion: '¿Puedo usar otra puntuación?',
+          scoringAnswer:
+            'Sí. Configurá los puntos que use tu grupo para victorias, kills, empates o cualquier regla que ya haya sobrevivido varias discusiones.',
+          gameQuestion: '¿Sirve para otros TCG?',
+          gameAnswer:
+            'Sí. El nombre, formato y puntuación se adaptan a lo que juegue tu comunidad. No le contamos a nadie si no es Commander.',
+          shareQuestion: '¿Cómo comparto la clasificación?',
+          shareAnswer:
+            'Cada torneo público tiene un enlace de solo lectura. Mandalo al grupo y evitá las fotos borrosas de una libreta.',
+        },
+        idea: {
+          eyebrow: 'UNA IDEA NACIDA EN LA MESA',
+          title: 'Torneos más simples, para cada tienda.',
+          description:
+            'EDH Tournaments nace para que cada tienda pueda crear torneos con sus propias reglas, agregar jugadores, generar rondas y mostrar la clasificación en un solo lugar, de una manera más sencilla y agradable.',
+          supportNote: 'Tu aporte ayuda a mantener el proyecto y sumar mejoras para más mesas.',
+          flowLabel: 'Cómo funciona la plataforma',
+          rules: 'Tus reglas',
+          players: 'Tus jugadores',
+          rounds: 'Tus rondas',
+          standings: 'Tu clasificación',
+        },
+        cta: {
+          eyebrow: 'ÚLTIMA LLAMADA A MESA',
+          title: '¿Cuándo es la próxima mesa?',
+          description:
+            'Creá el torneo antes de que alguien diga “yo llevo las cuentas” y desaparezca en la ronda dos.',
+          button: 'Crear mi primer torneo',
+          sideNote: 'Mulligan gratis. Caos organizado.',
+        },
+        trial: {
+          action: 'Hacer una prueba',
+          actionShort: 'Probar',
+          createAccount: 'Crear cuenta',
+          exit: 'Salir del modo prueba',
+          ctaDescription:
+            'Probá el flujo completo antes de crear tu cuenta. Tus datos se quedan solo en esta pestaña.',
+          eyebrow: 'MODO PRUEBA',
+          createTitle: 'Armá un torneo de prueba',
+          createDescription:
+            'Probá el recorrido de una mesa real: agregá jugadores, registrá resultados y mirá cómo se ordena el torneo.',
+          reloadWarning: 'Modo prueba: los datos se eliminarán al recargar esta página.',
+          invalidSetup: 'Completá una configuración válida: al menos 3 jugadores y 1 mesa.',
+          tournamentName: 'Nombre del torneo',
+          namePlaceholder: 'Commander de sábado',
+          format: 'Juego o formato',
+          plannedRounds: 'Rondas planificadas',
+          maxPlayers: 'Máximo de jugadores',
+          maxTables: 'Máximo de mesas',
+          create: 'Crear torneo de prueba',
+          unlock: 'Crear una cuenta',
+          navigation: 'Navegación del torneo de prueba',
+          tabs: {
+            overview: 'Resumen',
+            players: 'Jugadores',
+            rounds: 'Rondas',
+            standings: 'Clasificación',
+            statistics: 'Estadísticas',
+            settings: 'Configuración',
+            history: 'Historial',
+          },
+          active: 'activo',
+          finished: 'finalizado',
+          overviewTitle: 'Estado del torneo',
+          activePlayers: 'Jugadores activos',
+          rounds: 'Rondas',
+          currentRound: 'Ronda actual',
+          currentRoundLabel: 'Ronda {{number}}',
+          readyForPlayers: 'Todo listo para la primera mesa',
+          readyForPlayersDescription:
+            'Agregá al menos tres jugadores para generar la primera ronda.',
+          roundStatus: {
+            borrador: 'La ronda está lista para iniciar.',
+            activa: 'Registrá los puntos, kills y resultados de cada mesa.',
+            completada: 'Resultados guardados. Ya podés generar la siguiente ronda.',
+          },
+          playerCount: '{{count}} de {{max}} jugadores',
+          players: 'jugadores',
+          noPlayers: 'Todavía no hay jugadores en la mesa.',
+          addPlayers: 'Agregar jugadores',
+          addPlayersDescription: 'Escribí un nombre por línea.',
+          playersPlaceholder: 'Ana\nBruno\nCarla',
+          playerLimit: 'El torneo admite un máximo de {{count}} jugadores.',
+          playersAdded: '{{count}} jugador(es) agregado(s).',
+          duplicatePlayer: 'Esos jugadores ya estaban agregados.',
+          enterPlayer: 'Escribí al menos un nombre nuevo.',
+          roundsDescription: 'Generá una ronda, iniciála y anotá los resultados de cada mesa.',
+          generateRound: 'Generar ronda',
+          noRounds: 'Todavía no hay rondas. Agregá jugadores y generá la primera.',
+          finishedReadOnly: 'El torneo finalizado es solo de lectura.',
+          completeCurrentRound: 'Terminá la ronda actual antes de generar otra.',
+          allRoundsGenerated: 'Ya se generaron todas las rondas planificadas.',
+          minimumPlayers: 'Se requieren al menos tres jugadores activos para generar una ronda.',
+          roundGenerated: 'Ronda generada. Iniciála cuando las mesas estén listas.',
+          roundStarted: 'Ronda iniciada. El cronómetro está corriendo.',
+          completeResults: 'Completá puntos y kills válidos para todas las mesas.',
+          completeOutcomes: 'Elegí un resultado para cada jugador antes de terminar la ronda.',
+          roundCompleted: 'Ronda terminada. La clasificación se actualizó.',
+          startRound: 'Iniciar ronda',
+          completeRound: 'Terminar ronda',
+          table: 'Mesa',
+          points: 'Puntos',
+          kills: 'Kills',
+          outcome: 'Resultado',
+          chooseOutcome: 'Elegí un resultado',
+          win: 'Victoria',
+          loss: 'Derrota',
+          draw: 'Empate',
+          standingsDescription: 'El podio está a la vista; el resto del tablero espera tu cuenta.',
+          player: 'Jugador',
+          noStandings: 'La clasificación aparecerá cuando guardés resultados.',
+          standingsLocked: 'Creá una cuenta para desbloquear la clasificación completa.',
+          statisticsTitle: 'Las estadísticas están tras un hechizo',
+          statisticsLocked:
+            'Las estadísticas avanzadas están esperando su invocador. Creá una cuenta para desbloquearlas.',
+          settingsTitle: 'Configuración del torneo',
+          settingsLocked: 'Creá una cuenta para modificar la configuración del torneo.',
+          finishTitle: 'Cerrar la mesa',
+          finishDescription:
+            'Podés terminar este torneo de prueba cuando no haya rondas pendientes.',
+          finish: 'Finalizar torneo',
+          finishIncomplete: 'Terminá la ronda actual antes de finalizar el torneo.',
+          tournamentFinished: 'Torneo de prueba finalizado.',
+          historyTitle: 'El archivo de mesas espera tu cuenta',
+          historyLocked:
+            'Creá una cuenta para guardar y consultar el historial de tus torneos terminados.',
+        },
+        footer: {
+          tagline: 'Para mesas donde el único problema debería ser el maná.',
+          privacy: 'Privacidad',
+          terms: 'Términos',
+          copyright: 'Copyright © 2026 Jocsan Pérez Coto',
+          support: 'Apoyar el proyecto',
+          github: 'GitHub de Jocsan Pérez Coto',
+          fanContent:
+            'EDH Tournaments es Fan Content no oficial permitido bajo la Fan Content Policy. No está aprobado ni respaldado por Wizards. Parte del material utilizado es propiedad de Wizards of the Coast. © Wizards of the Coast LLC.',
+        },
       },
       app: {
-        messages: { completeResults: 'Completa los puntos y kills válidos de todas las mesas antes de terminar la ronda.', outcomeRequired: 'Selecciona Victoria, Derrota o Empate para cada jugador de la mesa.', required: 'Completa este campo.', playerNameMax: 'Cada nombre de jugador admite un máximo de 80 caracteres.', nameMax: 'El nombre admite un máximo de 80 caracteres.', formatMax: 'El formato admite un máximo de 50 caracteres.', emailMax: 'El correo admite un máximo de 254 caracteres.', passwordMax: 'La contraseña admite un máximo de 128 caracteres.', roundsRange: 'Las rondas deben estar entre 1 y 30.', maxPlayersRange: 'El máximo de jugadores debe estar entre 3 y 50.', maxTablesRange: 'El máximo de mesas debe estar entre 1 y 25.', scoringRange: 'La puntuación debe estar entre 0 y 100.', pointsRange: 'Los puntos deben ser enteros no negativos.', killsRange: 'Los kills deben estar entre 0 y 5.' },
-        common: { cancel: 'Cancelar', save: 'Guardar', delete: 'Eliminar', edit: 'Editar', previous: 'Anterior', next: 'Siguiente', name: 'Nombre', email: 'Correo', password: 'Contraseña', points: 'Puntos', kills: 'Kills', outcome: 'Resultado', win: 'Victoria', loss: 'Derrota', draw: 'Empate', wins: 'Victorias', losses: 'Derrotas', draws: 'Empates', winRate: 'Win rate', winRateHelp: '((Victorias + Empates × 0,5) ÷ (Victorias + Derrotas + Empates)) × 100. Una mesa cuenta solo si todas las personas tienen un resultado seleccionado.', active: 'Activo', withdrawn: 'Retirado', loading: 'Cargando…', status: 'Estado', actions: 'Acciones', round: 'Ronda {{number}}', table: 'Mesa {{number}}', noResults: 'Resultados pendientes.', draft: 'En espera', activeStatus: 'activa', completed: 'completada', tournamentActive: 'activo', finished: 'finalizado' },
-        header: { tournaments: 'Mis torneos', administration: 'Administración', signOut: 'Cerrar sesión', organizer: 'Organizador', organizerPanel: 'Panel de {{name}}' },
-        auth: { login: 'Inicia sesión', register: 'Crea tu cuenta', recovery: 'Recupera tu contraseña', confirmPassword: 'Confirmar contraseña', yourName: 'Tu nombre', continue: 'Continuar', sendInstructions: 'Enviar instrucciones', processing: 'Procesando…', noAccount: '¿No tienes cuenta? Regístrate', backToLogin: 'Volver al inicio de sesión', forgotPassword: 'Olvidé mi contraseña', hidePassword: 'Ocultar contraseña', showPassword: 'Mostrar contraseña', localMode: 'Configura Supabase para activar el acceso real; el modo demo no requiere cuenta.', passwordsMismatch: 'Las contraseñas no coinciden.', recoverySent: 'Revisa tu correo para continuar con la recuperación.', operationFailed: 'No se pudo completar la operación.', confirming: 'Confirmando tu cuenta…', confirmed: '¡Cuenta confirmada!', reviewConfirmation: 'Revisa la confirmación', confirmedDescription: 'Ya puedes cerrar esta pestaña y volver a la ventana original. Entrarás al panel automáticamente.', confirmationDescription: 'Estamos validando el enlace. Espera un momento o vuelve a abrir el enlace del correo.', closeTab: 'Cerrar pestaña', googleUnavailable: 'Supabase no está configurado para iniciar sesión con Google.', googleFailed: 'No se pudo iniciar sesión con Google.', continueWith: 'o continuar con', redirectingGoogle: 'Redirigiendo a Google…', signInGoogle: 'Iniciar sesión con Google', continueGoogle: 'Continuar con Google' },
-        dashboard: { title: 'Mis torneos', newTournament: 'Nuevo torneo', loading: 'Barajando tus torneos…', active: 'En juego', finished: 'Archivo de mesa', noTournaments: 'Todavía no hay nada por acá. Cuando aparezca una mesa, la dejamos lista.', playersAndRounds: '{{players}} activos · {{rounds}} rondas', deleteTitle: 'Eliminar torneo', deleteDescription: 'Eliminarás “{{name}}” y todas sus rondas, mesas y resultados. Esta acción no se puede deshacer.' },
-        createTournament: { title: 'Nuevo torneo', description: 'Define lo básico ahora; podrás ajustar la configuración después.', format: 'Formato', gameOrFormat: 'Juego o formato', plannedRounds: 'Rondas planificadas', maxPlayers: 'Máximo de jugadores', maxTables: 'Máximo de mesas', create: 'Crear torneo', invalidLimits: 'Indica límites válidos: al menos 3 jugadores y 1 mesa.', namePlaceholder: 'Commander de sábado' },
-        tournament: { overview: 'Resumen', players: 'Jugadores', rounds: 'Rondas', standings: 'Clasificación', settings: 'Configuración', notFound: 'Torneo no encontrado.', state: 'Estado del torneo', activePlayers: 'Jugadores activos', activeCount: '{{count}} activos', currentTable: 'Mesa actual', tablesGenerated: '{{count}} mesas generadas.', resultsRecorded: 'Resultados registrados.', registerResults: 'Registra los resultados de cada mesa.', goToRounds: 'Ir a rondas', information: 'Información del torneo', informationHelp: 'Escribe reglas, horarios, ubicación, premios o cualquier detalle importante.', informationPlaceholder: 'Ejemplo: Inscripción a las 10:00 a. m. en la tienda. Lleva tu lista de mazo y confirma tu asistencia.', saveInformation: 'Guardar información', informationSaved: 'Información guardada.', settingsSaved: 'Cambios guardados.', resultSaved: 'Resultado de la ronda {{round}}, mesa {{table}} guardado. La clasificación se actualizó.', tournamentDeleted: 'Torneo eliminado.', tournamentFinished: 'Torneo finalizado.', tournamentReopened: 'Torneo reabierto.', playersAdded: '{{count}} jugadores agregados.', roundsAndTables: 'Rondas y mesas', generateRound: 'Generar siguiente ronda', roundGenerated: 'Ronda generada. Iníciala cuando las mesas estén listas.', deleteLast: 'Eliminar última', deleteLastTitle: 'Eliminar última ronda', deleteLastDescription: 'Se eliminarán las mesas de esta ronda.', deleteLastWithResults: 'Se eliminarán las mesas y resultados de esta ronda. Esta acción no se puede deshacer.', deleteRound: 'Eliminar ronda', lastRoundDeleted: 'Última ronda eliminada y clasificación recalculada.', completeTitle: 'Terminar ronda {{number}}', completeDescription: 'La ronda se bloqueará después de validar todos los resultados y guardar el tiempo transcurrido.', roundCompleted: 'Ronda terminada. La clasificación se actualizó.', publicView: 'Vista pública', startRound: 'Iniciar ronda', roundStarted: 'Ronda iniciada. El cronómetro está en marcha.', endRound: 'Terminar ronda', dragHelp: 'Arrastra un jugador hacia otra mesa para reorganizarla. Cada mesa debe quedar con 3 a 5 jugadores.', dropHere: 'Suelta aquí', noRounds: 'No hay rondas todavía. Agrega al menos tres jugadores activos y genera la primera.', addPlayers: 'Agregar jugadores', searchPlayers: 'Buscar jugadores…', noPlayers: 'Aún no hay jugadores.', noPlayersFound: 'No se encontraron jugadores.', addPlayersTitle: 'Agregar jugadores', addPlayersDescription: 'Escribe un nombre por línea. No se permiten nombres repetidos.', playerNames: 'Ana\nBruno\nCarla', editPlayer: 'Editar jugador', updatePlayer: 'Actualiza el nombre del participante.', playerUpdated: 'Nombre actualizado.', retire: 'Retirar', activate: 'Activar', deletePlayer: 'Eliminar jugador', deletePlayerDescription: '¿Eliminar a {{name}}? No se puede eliminar a alguien que ya esté en una ronda.', retirePlayerDescription: '{{name}} no se incluirá en las próximas rondas.', activatePlayerDescription: '{{name}} volverá a incluirse en las próximas rondas.', playerDeleted: 'Jugador eliminado.', playerRetired: 'Jugador retirado.', playerActivated: 'Jugador activado.', results: 'Resultados', opponentStrength: 'Fuerza de oponentes', opponentHelp: 'Suma de los puntos obtenidos por las personas contra quienes jugaste.', settingsTitle: 'Configuración del torneo', saveChanges: 'Guardar cambios', plannedRounds: 'Rondas planificadas', maxTablesPerRound: 'Máximo de mesas por ronda', pointsManual: 'Los puntos se registran manualmente en cada mesa.', finishTournament: 'Finalizar torneo', reopenTournament: 'Reabrir torneo', finishHelp: 'Finalizar bloquea las ediciones. Puede reabrirse mediante confirmación.' },
-        public: { loading: 'Cargando ronda…', unavailable: 'Esta vista pública no está disponible.', eyebrow: 'INFORMACIÓN DEL TORNEO', firstRound: 'Las mesas aparecerán cuando el organizador genere la primera ronda.' },
-        statistics: { title: 'Estadísticas', eyebrow: 'Bitácora de batalla', subtitle: 'Las historias que la clasificación no se atreve a contar.', completedRounds: 'rondas terminadas', hunter: 'Cazador', unstoppable: 'Imparable', perfectAttendance: 'Asistencia perfecta', rivals: 'Rivales frecuentes', closestTable: 'Mesa más reñida', comeback: 'Remontada', drawRoyalty: 'Rey/Reina del empate', bestRound: 'Mejor ronda', bloodiestTable: 'Mesa más sangrienta', punchingBag: 'Punching bag', losingStreak: 'Mala racha', constant: 'Constante', tableHead: 'Cabeza de mesa', noData: 'Aún no hay una ronda cerrada. La bitácora espera sangre... o al menos puntos.', copy: { hunter: '{{names}} se llevó {{count}} cabezas.', unstoppable: '{{names}} no ha perdido en {{count}} rondas.', attendance: '{{names}}: no hubo silla vacía.', attendanceMany: 'Los {{count}} jugadores no dejaron ni una silla vacía.', rivals: '{{names}} ya se saben los mulligans: {{count}} mesas juntos.', closestTable: 'Mesa {{table}}, ronda {{round}}: apenas {{count}} puntos de diferencia.', comeback: '{{names}} escaló {{count}} puestos. Qué remontada.', draws: '{{names}} firmó {{count}} empates.', bestRound: '{{names}} plantó {{count}} puntos en una sola ronda.', bloodiestTable: 'Mesa {{table}}, ronda {{round}}: {{count}} kills. Nadie salió limpio.', punchingBag: '{{names}} cayó {{count}} veces. Volvió por más.', losingStreak: '{{names}} se comió {{count}} derrotas seguidas.', constant: '{{names}} varió solo {{count}} puntos entre rondas.', tableHead: '{{names}} presidió {{count}} mesas.' }, empty: { hunter: 'El hacha sigue limpia.', unstoppable: 'Nadie encadenó victorias todavía.', attendance: 'La lista de asistencia aún se está escribiendo.', rivals: 'Todavía no hay revancha que contar.', closestTable: 'Falta una mesa resuelta para medir la tensión.', comeback: 'Con una sola ronda, nadie puede remontar.', draws: 'Los empates siguen escondidos.', bestRound: 'Aún no hay puntajes que presumir.', bloodiestTable: 'La mesa sigue demasiado pacífica.', punchingBag: 'Nadie ha caído dos veces todavía.', losingStreak: 'Todavía no hay una mala racha.', constant: 'Hacen falta dos rondas para medir la constancia.', tableHead: 'Nadie se ha adueñado de una mesa todavía.' } },
+        messages: {
+          completeResults:
+            'Completa los puntos y kills válidos de todas las mesas antes de terminar la ronda.',
+          outcomeRequired: 'Selecciona Victoria, Derrota o Empate para cada jugador de la mesa.',
+          required: 'Completa este campo.',
+          playerNameMax: 'Cada nombre de jugador admite un máximo de 80 caracteres.',
+          nameMax: 'El nombre admite un máximo de 80 caracteres.',
+          formatMax: 'El formato admite un máximo de 50 caracteres.',
+          emailMax: 'El correo admite un máximo de 254 caracteres.',
+          passwordMax: 'La contraseña admite un máximo de 128 caracteres.',
+          roundsRange: 'Las rondas deben estar entre 1 y 30.',
+          maxPlayersRange: 'El máximo de jugadores debe estar entre 3 y 50.',
+          maxTablesRange: 'El máximo de mesas debe estar entre 1 y 25.',
+          scoringRange: 'La puntuación debe estar entre 0 y 100.',
+          pointsRange: 'Los puntos deben ser enteros no negativos.',
+          killsRange: 'Los kills deben estar entre 0 y 5.',
+        },
+        common: {
+          cancel: 'Cancelar',
+          save: 'Guardar',
+          delete: 'Eliminar',
+          edit: 'Editar',
+          previous: 'Anterior',
+          next: 'Siguiente',
+          name: 'Nombre',
+          email: 'Correo',
+          password: 'Contraseña',
+          points: 'Puntos',
+          kills: 'Kills',
+          outcome: 'Resultado',
+          win: 'Victoria',
+          loss: 'Derrota',
+          draw: 'Empate',
+          wins: 'Victorias',
+          losses: 'Derrotas',
+          draws: 'Empates',
+          winRate: 'Win rate',
+          winRateHelp:
+            '((Victorias + Empates × 0,5) ÷ (Victorias + Derrotas + Empates)) × 100. Una mesa cuenta solo si todas las personas tienen un resultado seleccionado.',
+          active: 'Activo',
+          withdrawn: 'Retirado',
+          loading: 'Cargando…',
+          status: 'Estado',
+          actions: 'Acciones',
+          round: 'Ronda {{number}}',
+          table: 'Mesa {{number}}',
+          noResults: 'Resultados pendientes.',
+          draft: 'En espera',
+          activeStatus: 'activa',
+          completed: 'completada',
+          tournamentActive: 'activo',
+          finished: 'finalizado',
+        },
+        header: {
+          tournaments: 'Mis torneos',
+          administration: 'Administración',
+          signOut: 'Cerrar sesión',
+          organizer: 'Organizador',
+          organizerPanel: 'Panel de {{name}}',
+        },
+        auth: {
+          login: 'Inicia sesión',
+          register: 'Crea tu cuenta',
+          recovery: 'Recupera tu contraseña',
+          confirmPassword: 'Confirmar contraseña',
+          yourName: 'Tu nombre',
+          continue: 'Continuar',
+          sendInstructions: 'Enviar instrucciones',
+          processing: 'Procesando…',
+          noAccount: '¿No tienes cuenta? Regístrate',
+          backToLogin: 'Volver al inicio de sesión',
+          forgotPassword: 'Olvidé mi contraseña',
+          hidePassword: 'Ocultar contraseña',
+          showPassword: 'Mostrar contraseña',
+          localMode:
+            'Configura Supabase para activar el acceso real; el modo demo no requiere cuenta.',
+          passwordsMismatch: 'Las contraseñas no coinciden.',
+          recoverySent: 'Revisa tu correo para continuar con la recuperación.',
+          operationFailed: 'No se pudo completar la operación.',
+          confirming: 'Confirmando tu cuenta…',
+          confirmed: '¡Cuenta confirmada!',
+          reviewConfirmation: 'Revisa la confirmación',
+          confirmedDescription:
+            'Ya puedes cerrar esta pestaña y volver a la ventana original. Entrarás al panel automáticamente.',
+          confirmationDescription:
+            'Estamos validando el enlace. Espera un momento o vuelve a abrir el enlace del correo.',
+          closeTab: 'Cerrar pestaña',
+          googleUnavailable: 'Supabase no está configurado para iniciar sesión con Google.',
+          googleFailed: 'No se pudo iniciar sesión con Google.',
+          continueWith: 'o continuar con',
+          redirectingGoogle: 'Redirigiendo a Google…',
+          signInGoogle: 'Iniciar sesión con Google',
+          continueGoogle: 'Continuar con Google',
+        },
+        dashboard: {
+          title: 'Mis torneos',
+          newTournament: 'Nuevo torneo',
+          loading: 'Barajando tus torneos…',
+          active: 'En juego',
+          finished: 'Archivo de mesa',
+          noTournaments: 'Todavía no hay nada por acá. Cuando aparezca una mesa, la dejamos lista.',
+          playersAndRounds: '{{players}} activos · {{rounds}} rondas',
+          deleteTitle: 'Eliminar torneo',
+          deleteDescription:
+            'Eliminarás “{{name}}” y todas sus rondas, mesas y resultados. Esta acción no se puede deshacer.',
+        },
+        createTournament: {
+          title: 'Nuevo torneo',
+          description: 'Define lo básico ahora; podrás ajustar la configuración después.',
+          format: 'Formato',
+          gameOrFormat: 'Juego o formato',
+          plannedRounds: 'Rondas planificadas',
+          maxPlayers: 'Máximo de jugadores',
+          maxTables: 'Máximo de mesas',
+          create: 'Crear torneo',
+          invalidLimits: 'Indica límites válidos: al menos 3 jugadores y 1 mesa.',
+          namePlaceholder: 'Commander de sábado',
+        },
+        tournament: {
+          overview: 'Resumen',
+          players: 'Jugadores',
+          rounds: 'Rondas',
+          standings: 'Clasificación',
+          settings: 'Configuración',
+          notFound: 'Torneo no encontrado.',
+          state: 'Estado del torneo',
+          activePlayers: 'Jugadores activos',
+          activeCount: '{{count}} activos',
+          currentTable: 'Mesa actual',
+          tablesGenerated: '{{count}} mesas generadas.',
+          resultsRecorded: 'Resultados registrados.',
+          registerResults: 'Registra los resultados de cada mesa.',
+          goToRounds: 'Ir a rondas',
+          information: 'Información del torneo',
+          informationHelp:
+            'Escribe reglas, horarios, ubicación, premios o cualquier detalle importante.',
+          informationPlaceholder:
+            'Ejemplo: Inscripción a las 10:00 a. m. en la tienda. Lleva tu lista de mazo y confirma tu asistencia.',
+          saveInformation: 'Guardar información',
+          informationSaved: 'Información guardada.',
+          settingsSaved: 'Cambios guardados.',
+          resultSaved:
+            'Resultado de la ronda {{round}}, mesa {{table}} guardado. La clasificación se actualizó.',
+          tournamentDeleted: 'Torneo eliminado.',
+          tournamentFinished: 'Torneo finalizado.',
+          tournamentReopened: 'Torneo reabierto.',
+          playersAdded: '{{count}} jugadores agregados.',
+          roundsAndTables: 'Rondas y mesas',
+          generateRound: 'Generar siguiente ronda',
+          roundGenerated: 'Ronda generada. Iníciala cuando las mesas estén listas.',
+          deleteLast: 'Eliminar última',
+          deleteLastTitle: 'Eliminar última ronda',
+          deleteLastDescription: 'Se eliminarán las mesas de esta ronda.',
+          deleteLastWithResults:
+            'Se eliminarán las mesas y resultados de esta ronda. Esta acción no se puede deshacer.',
+          deleteRound: 'Eliminar ronda',
+          lastRoundDeleted: 'Última ronda eliminada y clasificación recalculada.',
+          completeTitle: 'Terminar ronda {{number}}',
+          completeDescription:
+            'La ronda se bloqueará después de validar todos los resultados y guardar el tiempo transcurrido.',
+          roundCompleted: 'Ronda terminada. La clasificación se actualizó.',
+          publicView: 'Vista pública',
+          startRound: 'Iniciar ronda',
+          roundStarted: 'Ronda iniciada. El cronómetro está en marcha.',
+          endRound: 'Terminar ronda',
+          dragHelp:
+            'Arrastra un jugador hacia otra mesa para reorganizarla. Cada mesa debe quedar con 3 a 5 jugadores.',
+          dropHere: 'Suelta aquí',
+          noRounds:
+            'No hay rondas todavía. Agrega al menos tres jugadores activos y genera la primera.',
+          addPlayers: 'Agregar jugadores',
+          searchPlayers: 'Buscar jugadores…',
+          noPlayers: 'Aún no hay jugadores.',
+          noPlayersFound: 'No se encontraron jugadores.',
+          addPlayersTitle: 'Agregar jugadores',
+          addPlayersDescription: 'Escribe un nombre por línea. No se permiten nombres repetidos.',
+          playerNames: 'Ana\nBruno\nCarla',
+          editPlayer: 'Editar jugador',
+          updatePlayer: 'Actualiza el nombre del participante.',
+          playerUpdated: 'Nombre actualizado.',
+          retire: 'Retirar',
+          activate: 'Activar',
+          deletePlayer: 'Eliminar jugador',
+          deletePlayerDescription:
+            '¿Eliminar a {{name}}? No se puede eliminar a alguien que ya esté en una ronda.',
+          retirePlayerDescription: '{{name}} no se incluirá en las próximas rondas.',
+          activatePlayerDescription: '{{name}} volverá a incluirse en las próximas rondas.',
+          playerDeleted: 'Jugador eliminado.',
+          playerRetired: 'Jugador retirado.',
+          playerActivated: 'Jugador activado.',
+          results: 'Resultados',
+          opponentStrength: 'Fuerza de oponentes',
+          opponentHelp: 'Suma de los puntos obtenidos por las personas contra quienes jugaste.',
+          settingsTitle: 'Configuración del torneo',
+          saveChanges: 'Guardar cambios',
+          plannedRounds: 'Rondas planificadas',
+          maxTablesPerRound: 'Máximo de mesas por ronda',
+          pointsManual: 'Los puntos se registran manualmente en cada mesa.',
+          finishTournament: 'Finalizar torneo',
+          reopenTournament: 'Reabrir torneo',
+          finishHelp: 'Finalizar bloquea las ediciones. Puede reabrirse mediante confirmación.',
+        },
+        public: {
+          loading: 'Cargando ronda…',
+          unavailable: 'Esta vista pública no está disponible.',
+          eyebrow: 'INFORMACIÓN DEL TORNEO',
+          firstRound: 'Las mesas aparecerán cuando el organizador genere la primera ronda.',
+        },
+        statistics: {
+          title: 'Estadísticas',
+          eyebrow: 'Bitácora de batalla',
+          subtitle: 'Las historias que la clasificación no se atreve a contar.',
+          completedRounds: 'rondas terminadas',
+          hunter: 'Cazador',
+          unstoppable: 'Imparable',
+          perfectAttendance: 'Asistencia perfecta',
+          rivals: 'Rivales frecuentes',
+          closestTable: 'Mesa más reñida',
+          comeback: 'Remontada',
+          drawRoyalty: 'Rey/Reina del empate',
+          bestRound: 'Mejor ronda',
+          bloodiestTable: 'Mesa más sangrienta',
+          punchingBag: 'Punching bag',
+          losingStreak: 'Mala racha',
+          constant: 'Constante',
+          tableHead: 'Cabeza de mesa',
+          noData: 'Aún no hay una ronda cerrada. La bitácora espera sangre... o al menos puntos.',
+          copy: {
+            hunter: '{{names}} se llevó {{count}} cabezas.',
+            unstoppable: '{{names}} no ha perdido en {{count}} rondas.',
+            attendance: '{{names}}: no hubo silla vacía.',
+            attendanceMany: 'Los {{count}} jugadores no dejaron ni una silla vacía.',
+            rivals: '{{names}} ya se saben los mulligans: {{count}} mesas juntos.',
+            closestTable: 'Mesa {{table}}, ronda {{round}}: apenas {{count}} puntos de diferencia.',
+            comeback: '{{names}} escaló {{count}} puestos. Qué remontada.',
+            draws: '{{names}} firmó {{count}} empates.',
+            bestRound: '{{names}} plantó {{count}} puntos en una sola ronda.',
+            bloodiestTable: 'Mesa {{table}}, ronda {{round}}: {{count}} kills. Nadie salió limpio.',
+            punchingBag: '{{names}} cayó {{count}} veces. Volvió por más.',
+            losingStreak: '{{names}} se comió {{count}} derrotas seguidas.',
+            constant: '{{names}} varió solo {{count}} puntos entre rondas.',
+            tableHead: '{{names}} presidió {{count}} mesas.',
+          },
+          empty: {
+            hunter: 'El hacha sigue limpia.',
+            unstoppable: 'Nadie encadenó victorias todavía.',
+            attendance: 'La lista de asistencia aún se está escribiendo.',
+            rivals: 'Todavía no hay revancha que contar.',
+            closestTable: 'Falta una mesa resuelta para medir la tensión.',
+            comeback: 'Con una sola ronda, nadie puede remontar.',
+            draws: 'Los empates siguen escondidos.',
+            bestRound: 'Aún no hay puntajes que presumir.',
+            bloodiestTable: 'La mesa sigue demasiado pacífica.',
+            punchingBag: 'Nadie ha caído dos veces todavía.',
+            losingStreak: 'Todavía no hay una mala racha.',
+            constant: 'Hacen falta dos rondas para medir la constancia.',
+            tableHead: 'Nadie se ha adueñado de una mesa todavía.',
+          },
+        },
       },
     },
   },
@@ -37,42 +499,493 @@ const resources = {
     translation: {
       language: { label: 'Language', es: 'Español', en: 'English' },
       landing: {
-        navigation: { label: 'Navigation', menu: 'Open menu', howItWorks: 'How it works', scoring: 'Scoring', faq: 'FAQ', dashboard: 'My tournaments', login: 'Sign in', createAccount: 'Create account' },
-        hero: { eyebrow: 'COMMANDER, NO STAINED NOTEBOOK', title: 'You bring the cards. We keep score.', description: 'Build tables, record what happened, and share standings without chasing anyone on WhatsApp. Commander, other TCGs, and every rule your group invented.', noAccount: 'Your friends do not need an account. Just the urge to win.' },
-        preview: { ariaLabel: 'Live Commander table', eyebrow: 'LIVE TABLE', tournamentName: 'Saturday Commander', live: 'Live', currentRound: 'Round', roundValue: '2 of 3', activeTables: 'Tables', players: 'Players', kills: 'kills', liveLog: 'Lina recorded a kill', updated: 'Updated just now', standings: 'Standings', player: 'PLAYER', detail: 'DETAIL', points: 'PTS', strength: 'Strength: {{value}}' },
-        concept: { eyebrow: 'THE PLAY IN THREE STEPS', title: 'From “who is with who?” to ready standings.', description: 'The app follows the flow you already use at the table; it only saves your notebook some drama.', step1Title: 'Deal the table', step1Description: 'Build pods of 3 to 5 players without playing human Tetris.', step2Title: 'Write down the battle', step2Description: 'Points, kills, and results before anyone remembers them differently.', step3Title: 'See the board', step3Description: 'Standings arrange themselves. Magic, but the useful kind.' },
-        features: { eyebrow: 'YOUR RULE, YOUR SCOREBOARD', title: 'Move a counter. Watch everything change.', description: 'Every Commander group scores its own way. Try the board: standings react right away.', win: 'Win', kill: 'Kill', draw: 'Draw', rulesTitle: 'Example scoring', rulesHint: 'Adjust it to how your table plays.', rulesFootnote: 'There is no points police. Thankfully.', decrease: 'Lower {{label}} points', increase: 'Raise {{label}} points', previewLabel: 'PRACTICE STANDINGS', previewLive: 'reordering', points: 'pts', previewNote: 'Numbers change; rivalries remain.' },
-        benefits: { eyebrow: 'MADE FOR THE TABLE', title: 'More playmat. Less spreadsheet.', description: 'Organization should disappear right when the game starts.', mapLabel: 'EVERYTHING IN ITS PLACE', marginNote: 'The one fixed rule: nobody should lose to a bad sum.', groupTitle: 'Bring your people', groupDescription: 'Add names, withdrawals, and the late arrival without breaking the round.', gameTitle: 'Play what you play', gameDescription: 'Commander, another TCG, or a home format with way too many exceptions.', simpleTitle: 'Share without chasing', simpleDescription: 'Send a public link and let the standings speak for you.' },
-        faq: { eyebrow: 'LAST-MINUTE QUESTIONS', title: 'Before shuffling, just in case.', description: 'The questions that come up while someone looks for basic lands.', accountQuestion: 'Do my friends need an account?', accountAnswer: 'No. Only the organizer signs in. Everyone else opens the public link, sees the tables, and judges pairings as tradition demands.', scoringQuestion: 'Can I use a different scoring system?', scoringAnswer: 'Yes. Set the points your group uses for wins, kills, draws, or any rule that has already survived several debates.', gameQuestion: 'Does it work for other TCGs?', gameAnswer: 'Yes. Name, format, and scoring adapt to whatever your community plays. We will not tell anyone if it is not Commander.', shareQuestion: 'How do I share the standings?', shareAnswer: 'Every public tournament has a read-only link. Send it to the group and skip the blurry notebook photos.' },
-        idea: { eyebrow: 'AN IDEA BORN AT THE TABLE', title: 'Simpler tournaments for every store.', description: 'EDH Tournaments was created so every store can run tournaments with its own rules, add players, generate rounds, and show standings in one place, in a simpler and more pleasant way.', supportNote: 'Your contribution helps keep the project running and bring improvements to more tables.', flowLabel: 'How the platform works', rules: 'Your rules', players: 'Your players', rounds: 'Your rounds', standings: 'Your standings' },
-        cta: { eyebrow: 'LAST CALL TO TABLE', title: 'When is the next table?', description: 'Create the tournament before someone says “I will keep score” and vanishes in round two.', button: 'Create my first tournament', sideNote: 'Free mulligan. Organized chaos.' },
-        trial: { action: 'Try it out', actionShort: 'Try it', createAccount: 'Create account', exit: 'Exit trial mode', ctaDescription: 'Try the full flow before creating an account. Your data stays only in this tab.', eyebrow: 'TRIAL MODE', createTitle: 'Set up a trial tournament', createDescription: 'Try a real table flow: add players, record results, and see how the tournament takes shape.', reloadWarning: 'Trial mode: data will be deleted when this page reloads.', invalidSetup: 'Enter a valid setup: at least 3 players and 1 table.', tournamentName: 'Tournament name', namePlaceholder: 'Saturday Commander', format: 'Game or format', plannedRounds: 'Planned rounds', maxPlayers: 'Maximum players', maxTables: 'Maximum tables', create: 'Create trial tournament', unlock: 'Create an account', navigation: 'Trial tournament navigation', tabs: { overview: 'Overview', players: 'Players', rounds: 'Rounds', standings: 'Standings', statistics: 'Statistics', settings: 'Settings', history: 'History' }, active: 'active', finished: 'finished', overviewTitle: 'Tournament status', activePlayers: 'Active players', rounds: 'Rounds', currentRound: 'Current round', currentRoundLabel: 'Round {{number}}', readyForPlayers: 'Everything is ready for the first table', readyForPlayersDescription: 'Add at least three players to generate the first round.', roundStatus: { borrador: 'The round is ready to start.', activa: 'Record points, kills, and results for each table.', completada: 'Results saved. You can generate the next round now.' }, playerCount: '{{count}} of {{max}} players', players: 'players', noPlayers: 'There are no players at the table yet.', addPlayers: 'Add players', addPlayersDescription: 'Enter one name per line.', playersPlaceholder: 'Ana\nBruno\nCarla', playerLimit: 'The tournament allows a maximum of {{count}} players.', playersAdded: '{{count}} player(s) added.', duplicatePlayer: 'Those players have already been added.', enterPlayer: 'Enter at least one new name.', roundsDescription: 'Generate a round, start it, and record results for every table.', generateRound: 'Generate round', noRounds: 'There are no rounds yet. Add players and generate the first one.', finishedReadOnly: 'A finished tournament is read-only.', completeCurrentRound: 'Finish the current round before generating another one.', allRoundsGenerated: 'All planned rounds have already been generated.', minimumPlayers: 'At least three active players are required to generate a round.', roundGenerated: 'Round generated. Start it when the tables are ready.', roundStarted: 'Round started. The timer is running.', completeResults: 'Complete valid points and kills for every table.', completeOutcomes: 'Choose an outcome for every player before ending the round.', roundCompleted: 'Round completed. Standings updated.', startRound: 'Start round', completeRound: 'End round', table: 'Table', points: 'Points', kills: 'Kills', outcome: 'Outcome', chooseOutcome: 'Choose an outcome', win: 'Win', loss: 'Loss', draw: 'Draw', standingsDescription: 'The podium is visible; the rest of the board is waiting for your account.', player: 'Player', noStandings: 'Standings will appear when you save results.', standingsLocked: 'Create an account to unlock the full standings.', statisticsTitle: 'Statistics are behind a spell', statisticsLocked: 'Advanced statistics are waiting for their summoner. Create an account to unlock them.', settingsTitle: 'Tournament settings', settingsLocked: 'Create an account to change tournament settings.', finishTitle: 'Close the table', finishDescription: 'You can finish this trial tournament when there are no pending rounds.', finish: 'Finish tournament', finishIncomplete: 'Finish the current round before finishing the tournament.', tournamentFinished: 'Trial tournament finished.', historyTitle: 'The table archive is waiting for your account', historyLocked: 'Create an account to save and view your finished tournament history.' },
-        footer: { tagline: 'For tables where mana should be the only problem.', privacy: 'Privacy', terms: 'Terms', copyright: 'Copyright © 2026 Jocsan Pérez Coto', support: 'Support the project', github: 'Jocsan Pérez Coto on GitHub', fanContent: 'EDH Tournaments is unofficial Fan Content permitted under the Fan Content Policy. It is not approved or endorsed by Wizards. Portions of the materials used are property of Wizards of the Coast. © Wizards of the Coast LLC.' },
+        navigation: {
+          label: 'Navigation',
+          menu: 'Open menu',
+          howItWorks: 'How it works',
+          scoring: 'Scoring',
+          faq: 'FAQ',
+          dashboard: 'My tournaments',
+          login: 'Sign in',
+          createAccount: 'Create account',
+        },
+        hero: {
+          eyebrow: 'COMMANDER, NO STAINED NOTEBOOK',
+          title: 'You bring the cards. We keep score.',
+          description:
+            'Build tables, record what happened, and share standings without chasing anyone on WhatsApp. Commander, other TCGs, and every rule your group invented.',
+          noAccount: 'Your friends do not need an account. Just the urge to win.',
+        },
+        preview: {
+          ariaLabel: 'Live Commander table',
+          eyebrow: 'LIVE TABLE',
+          tournamentName: 'Saturday Commander',
+          live: 'Live',
+          currentRound: 'Round',
+          roundValue: '2 of 3',
+          activeTables: 'Tables',
+          players: 'Players',
+          kills: 'kills',
+          liveLog: 'Lina recorded a kill',
+          updated: 'Updated just now',
+          standings: 'Standings',
+          player: 'PLAYER',
+          detail: 'DETAIL',
+          points: 'PTS',
+          strength: 'Strength: {{value}}',
+        },
+        concept: {
+          eyebrow: 'THE PLAY IN THREE STEPS',
+          title: 'From “who is with who?” to ready standings.',
+          description:
+            'The app follows the flow you already use at the table; it only saves your notebook some drama.',
+          step1Title: 'Deal the table',
+          step1Description: 'Build pods of 3 to 5 players without playing human Tetris.',
+          step2Title: 'Write down the battle',
+          step2Description: 'Points, kills, and results before anyone remembers them differently.',
+          step3Title: 'See the board',
+          step3Description: 'Standings arrange themselves. Magic, but the useful kind.',
+        },
+        features: {
+          eyebrow: 'YOUR RULE, YOUR SCOREBOARD',
+          title: 'Move a counter. Watch everything change.',
+          description:
+            'Every Commander group scores its own way. Try the board: standings react right away.',
+          win: 'Win',
+          kill: 'Kill',
+          draw: 'Draw',
+          rulesTitle: 'Example scoring',
+          rulesHint: 'Adjust it to how your table plays.',
+          rulesFootnote: 'There is no points police. Thankfully.',
+          decrease: 'Lower {{label}} points',
+          increase: 'Raise {{label}} points',
+          previewLabel: 'PRACTICE STANDINGS',
+          previewLive: 'reordering',
+          points: 'pts',
+          previewNote: 'Numbers change; rivalries remain.',
+        },
+        benefits: {
+          eyebrow: 'MADE FOR THE TABLE',
+          title: 'More playmat. Less spreadsheet.',
+          description: 'Organization should disappear right when the game starts.',
+          mapLabel: 'EVERYTHING IN ITS PLACE',
+          marginNote: 'The one fixed rule: nobody should lose to a bad sum.',
+          groupTitle: 'Bring your people',
+          groupDescription:
+            'Add names, withdrawals, and the late arrival without breaking the round.',
+          gameTitle: 'Play what you play',
+          gameDescription: 'Commander, another TCG, or a home format with way too many exceptions.',
+          simpleTitle: 'Share without chasing',
+          simpleDescription: 'Send a public link and let the standings speak for you.',
+        },
+        faq: {
+          eyebrow: 'LAST-MINUTE QUESTIONS',
+          title: 'Before shuffling, just in case.',
+          description: 'The questions that come up while someone looks for basic lands.',
+          accountQuestion: 'Do my friends need an account?',
+          accountAnswer:
+            'No. Only the organizer signs in. Everyone else opens the public link, sees the tables, and judges pairings as tradition demands.',
+          scoringQuestion: 'Can I use a different scoring system?',
+          scoringAnswer:
+            'Yes. Set the points your group uses for wins, kills, draws, or any rule that has already survived several debates.',
+          gameQuestion: 'Does it work for other TCGs?',
+          gameAnswer:
+            'Yes. Name, format, and scoring adapt to whatever your community plays. We will not tell anyone if it is not Commander.',
+          shareQuestion: 'How do I share the standings?',
+          shareAnswer:
+            'Every public tournament has a read-only link. Send it to the group and skip the blurry notebook photos.',
+        },
+        idea: {
+          eyebrow: 'AN IDEA BORN AT THE TABLE',
+          title: 'Simpler tournaments for every store.',
+          description:
+            'EDH Tournaments was created so every store can run tournaments with its own rules, add players, generate rounds, and show standings in one place, in a simpler and more pleasant way.',
+          supportNote:
+            'Your contribution helps keep the project running and bring improvements to more tables.',
+          flowLabel: 'How the platform works',
+          rules: 'Your rules',
+          players: 'Your players',
+          rounds: 'Your rounds',
+          standings: 'Your standings',
+        },
+        cta: {
+          eyebrow: 'LAST CALL TO TABLE',
+          title: 'When is the next table?',
+          description:
+            'Create the tournament before someone says “I will keep score” and vanishes in round two.',
+          button: 'Create my first tournament',
+          sideNote: 'Free mulligan. Organized chaos.',
+        },
+        trial: {
+          action: 'Try it out',
+          actionShort: 'Try it',
+          createAccount: 'Create account',
+          exit: 'Exit trial mode',
+          ctaDescription:
+            'Try the full flow before creating an account. Your data stays only in this tab.',
+          eyebrow: 'TRIAL MODE',
+          createTitle: 'Set up a trial tournament',
+          createDescription:
+            'Try a real table flow: add players, record results, and see how the tournament takes shape.',
+          reloadWarning: 'Trial mode: data will be deleted when this page reloads.',
+          invalidSetup: 'Enter a valid setup: at least 3 players and 1 table.',
+          tournamentName: 'Tournament name',
+          namePlaceholder: 'Saturday Commander',
+          format: 'Game or format',
+          plannedRounds: 'Planned rounds',
+          maxPlayers: 'Maximum players',
+          maxTables: 'Maximum tables',
+          create: 'Create trial tournament',
+          unlock: 'Create an account',
+          navigation: 'Trial tournament navigation',
+          tabs: {
+            overview: 'Overview',
+            players: 'Players',
+            rounds: 'Rounds',
+            standings: 'Standings',
+            statistics: 'Statistics',
+            settings: 'Settings',
+            history: 'History',
+          },
+          active: 'active',
+          finished: 'finished',
+          overviewTitle: 'Tournament status',
+          activePlayers: 'Active players',
+          rounds: 'Rounds',
+          currentRound: 'Current round',
+          currentRoundLabel: 'Round {{number}}',
+          readyForPlayers: 'Everything is ready for the first table',
+          readyForPlayersDescription: 'Add at least three players to generate the first round.',
+          roundStatus: {
+            borrador: 'The round is ready to start.',
+            activa: 'Record points, kills, and results for each table.',
+            completada: 'Results saved. You can generate the next round now.',
+          },
+          playerCount: '{{count}} of {{max}} players',
+          players: 'players',
+          noPlayers: 'There are no players at the table yet.',
+          addPlayers: 'Add players',
+          addPlayersDescription: 'Enter one name per line.',
+          playersPlaceholder: 'Ana\nBruno\nCarla',
+          playerLimit: 'The tournament allows a maximum of {{count}} players.',
+          playersAdded: '{{count}} player(s) added.',
+          duplicatePlayer: 'Those players have already been added.',
+          enterPlayer: 'Enter at least one new name.',
+          roundsDescription: 'Generate a round, start it, and record results for every table.',
+          generateRound: 'Generate round',
+          noRounds: 'There are no rounds yet. Add players and generate the first one.',
+          finishedReadOnly: 'A finished tournament is read-only.',
+          completeCurrentRound: 'Finish the current round before generating another one.',
+          allRoundsGenerated: 'All planned rounds have already been generated.',
+          minimumPlayers: 'At least three active players are required to generate a round.',
+          roundGenerated: 'Round generated. Start it when the tables are ready.',
+          roundStarted: 'Round started. The timer is running.',
+          completeResults: 'Complete valid points and kills for every table.',
+          completeOutcomes: 'Choose an outcome for every player before ending the round.',
+          roundCompleted: 'Round completed. Standings updated.',
+          startRound: 'Start round',
+          completeRound: 'End round',
+          table: 'Table',
+          points: 'Points',
+          kills: 'Kills',
+          outcome: 'Outcome',
+          chooseOutcome: 'Choose an outcome',
+          win: 'Win',
+          loss: 'Loss',
+          draw: 'Draw',
+          standingsDescription:
+            'The podium is visible; the rest of the board is waiting for your account.',
+          player: 'Player',
+          noStandings: 'Standings will appear when you save results.',
+          standingsLocked: 'Create an account to unlock the full standings.',
+          statisticsTitle: 'Statistics are behind a spell',
+          statisticsLocked:
+            'Advanced statistics are waiting for their summoner. Create an account to unlock them.',
+          settingsTitle: 'Tournament settings',
+          settingsLocked: 'Create an account to change tournament settings.',
+          finishTitle: 'Close the table',
+          finishDescription:
+            'You can finish this trial tournament when there are no pending rounds.',
+          finish: 'Finish tournament',
+          finishIncomplete: 'Finish the current round before finishing the tournament.',
+          tournamentFinished: 'Trial tournament finished.',
+          historyTitle: 'The table archive is waiting for your account',
+          historyLocked: 'Create an account to save and view your finished tournament history.',
+        },
+        footer: {
+          tagline: 'For tables where mana should be the only problem.',
+          privacy: 'Privacy',
+          terms: 'Terms',
+          copyright: 'Copyright © 2026 Jocsan Pérez Coto',
+          support: 'Support the project',
+          github: 'Jocsan Pérez Coto on GitHub',
+          fanContent:
+            'EDH Tournaments is unofficial Fan Content permitted under the Fan Content Policy. It is not approved or endorsed by Wizards. Portions of the materials used are property of Wizards of the Coast. © Wizards of the Coast LLC.',
+        },
       },
       app: {
-        messages: { completeResults: 'Complete valid points and kills for every table before ending the round.', outcomeRequired: 'Select Win, Loss, or Draw for every player at the table.', required: 'Complete this field.', playerNameMax: 'Each player name can have a maximum of 80 characters.', nameMax: 'The name can have a maximum of 80 characters.', formatMax: 'The format can have a maximum of 50 characters.', emailMax: 'The email can have a maximum of 254 characters.', passwordMax: 'The password can have a maximum of 128 characters.', roundsRange: 'Rounds must be between 1 and 30.', maxPlayersRange: 'The maximum number of players must be between 3 and 50.', maxTablesRange: 'The maximum number of tables must be between 1 and 25.', scoringRange: 'Scoring must be between 0 and 100.', pointsRange: 'Points must be non-negative integers.', killsRange: 'Kills must be between 0 and 5.' },
-        common: { cancel: 'Cancel', save: 'Save', delete: 'Delete', edit: 'Edit', previous: 'Previous', next: 'Next', name: 'Name', email: 'Email', password: 'Password', points: 'Points', kills: 'Kills', outcome: 'Outcome', win: 'Win', loss: 'Loss', draw: 'Draw', wins: 'Wins', losses: 'Losses', draws: 'Draws', winRate: 'Win rate', winRateHelp: '((Wins + Draws × 0.5) ÷ (Wins + Losses + Draws)) × 100. A table counts only when every player has a selected outcome.', active: 'Active', withdrawn: 'Withdrawn', loading: 'Loading…', status: 'Status', actions: 'Actions', round: 'Round {{number}}', table: 'Table {{number}}', noResults: 'Results pending.', draft: 'Waiting', activeStatus: 'active', completed: 'completed', tournamentActive: 'active', finished: 'finished' },
-        header: { tournaments: 'My tournaments', administration: 'Administration', signOut: 'Sign out', organizer: 'Organizer', organizerPanel: '{{name}}’s dashboard' },
-        auth: { login: 'Sign in', register: 'Create your account', recovery: 'Recover your password', confirmPassword: 'Confirm password', yourName: 'Your name', continue: 'Continue', sendInstructions: 'Send instructions', processing: 'Processing…', noAccount: 'Don’t have an account? Sign up', backToLogin: 'Back to sign in', forgotPassword: 'Forgot my password', hidePassword: 'Hide password', showPassword: 'Show password', localMode: 'Configure Supabase to enable real access; demo mode does not require an account.', passwordsMismatch: 'Passwords do not match.', recoverySent: 'Check your email to continue with recovery.', operationFailed: 'The operation could not be completed.', confirming: 'Confirming your account…', confirmed: 'Account confirmed!', reviewConfirmation: 'Review the confirmation', confirmedDescription: 'You can now close this tab and return to the original window. You will enter the dashboard automatically.', confirmationDescription: 'We are validating the link. Please wait a moment or open the email link again.', closeTab: 'Close tab', googleUnavailable: 'Supabase is not configured for Google sign-in.', googleFailed: 'Google sign-in could not be started.', continueWith: 'or continue with', redirectingGoogle: 'Redirecting to Google…', signInGoogle: 'Sign in with Google', continueGoogle: 'Continue with Google' },
-        dashboard: { title: 'My tournaments', newTournament: 'New tournament', loading: 'Shuffling your tournaments…', active: 'At the table', finished: 'Table archive', noTournaments: 'Nothing here yet. When a table appears, we will keep it tidy.', playersAndRounds: '{{players}} active · {{rounds}} rounds', deleteTitle: 'Delete tournament', deleteDescription: 'You will delete “{{name}}” and all of its rounds, tables, and results. This cannot be undone.' },
-        createTournament: { title: 'New tournament', description: 'Set the basics now; you can adjust settings later.', format: 'Format', gameOrFormat: 'Game or format', plannedRounds: 'Planned rounds', maxPlayers: 'Maximum players', maxTables: 'Maximum tables', create: 'Create tournament', invalidLimits: 'Enter valid limits: at least 3 players and 1 table.', namePlaceholder: 'Saturday Commander' },
-        tournament: { overview: 'Overview', players: 'Players', rounds: 'Rounds', standings: 'Standings', settings: 'Settings', notFound: 'Tournament not found.', state: 'Tournament status', activePlayers: 'Active players', activeCount: '{{count}} active', currentTable: 'Current table', tablesGenerated: '{{count}} tables generated.', resultsRecorded: 'Results recorded.', registerResults: 'Record results for each table.', goToRounds: 'Go to rounds', information: 'Tournament information', informationHelp: 'Add rules, schedules, location, prizes, or any important details.', informationPlaceholder: 'Example: Registration at 10:00 a.m. at the store. Bring your deck list and confirm attendance.', saveInformation: 'Save information', informationSaved: 'Information saved.', settingsSaved: 'Changes saved.', resultSaved: 'Round {{round}}, table {{table}} result saved. Standings updated.', tournamentDeleted: 'Tournament deleted.', tournamentFinished: 'Tournament finished.', tournamentReopened: 'Tournament reopened.', playersAdded: '{{count}} players added.', roundsAndTables: 'Rounds and tables', generateRound: 'Generate next round', roundGenerated: 'Round generated. Start it when the tables are ready.', deleteLast: 'Delete last', publicView: 'Public view', startRound: 'Start round', roundStarted: 'Round started. The timer is running.', endRound: 'End round', dragHelp: 'Drag a player to another table to reorganize it. Each table must have 3 to 5 players.', dropHere: 'Drop here', noRounds: 'There are no rounds yet. Add at least three active players and generate the first one.', addPlayers: 'Add players', searchPlayers: 'Search players…', noPlayers: 'There are no players yet.', noPlayersFound: 'No players were found.', addPlayersTitle: 'Add players', addPlayersDescription: 'Enter one name per line. Duplicate names are not allowed.', playerNames: 'Ana\nBruno\nCarla', editPlayer: 'Edit player', updatePlayer: 'Update the participant’s name.', playerUpdated: 'Player name updated.', retire: 'Withdraw', activate: 'Activate', deletePlayer: 'Delete player', deletePlayerDescription: 'Delete {{name}}? A player who is already in a round cannot be deleted.', retirePlayerDescription: '{{name}} will not be included in future rounds.', activatePlayerDescription: '{{name}} will be included in future rounds again.', playerDeleted: 'Player deleted.', playerRetired: 'Player withdrawn.', playerActivated: 'Player activated.', results: 'Results', opponentStrength: 'Opponent strength', opponentHelp: 'Sum of the points earned by the people you played against.', settingsTitle: 'Tournament settings', saveChanges: 'Save changes', plannedRounds: 'Planned rounds', maxTablesPerRound: 'Maximum tables per round', pointsManual: 'Points are entered manually for each table.', finishTournament: 'Finish tournament', reopenTournament: 'Reopen tournament', finishHelp: 'Finishing locks edits. It can be reopened after confirmation.' },
-        public: { loading: 'Loading round…', unavailable: 'This public view is unavailable.', eyebrow: 'TOURNAMENT INFORMATION', firstRound: 'Tables will appear when the organizer generates the first round.' },
-        statistics: { title: 'Statistics', eyebrow: 'Battle log', subtitle: 'The stories the standings are too shy to tell.', completedRounds: 'completed rounds', hunter: 'Hunter', unstoppable: 'Unstoppable', perfectAttendance: 'Perfect attendance', rivals: 'Frequent rivals', closestTable: 'Closest table', comeback: 'Comeback', drawRoyalty: 'Draw royalty', bestRound: 'Best round', bloodiestTable: 'Bloodiest table', punchingBag: 'Punching bag', losingStreak: 'Cold streak', constant: 'Steady hand', tableHead: 'Table head', noData: 'No round has been closed yet. The log is waiting for blood... or at least points.', copy: { hunter: '{{names}} claimed {{count}} heads.', unstoppable: '{{names}} has not lost in {{count}} rounds.', attendance: '{{names}} left no chair empty.', attendanceMany: 'All {{count}} players left no chair empty.', rivals: '{{names}} know each other’s mulligans: {{count}} shared tables.', closestTable: 'Table {{table}}, round {{round}}: only {{count}} points apart.', comeback: '{{names}} climbed {{count}} places. What a comeback.', draws: '{{names}} signed {{count}} draws.', bestRound: '{{names}} posted {{count}} points in one round.', bloodiestTable: 'Table {{table}}, round {{round}}: {{count}} kills. Nobody left clean.', punchingBag: '{{names}} fell {{count}} times and came back for more.', losingStreak: '{{names}} took {{count}} losses in a row.', constant: '{{names}} only varied {{count}} points between rounds.', tableHead: '{{names}} ruled {{count}} tables.' }, empty: { hunter: 'The axe is still clean.', unstoppable: 'Nobody has chained wins yet.', attendance: 'The attendance sheet is still being written.', rivals: 'There is no rematch to tell yet.', closestTable: 'A resolved table is needed to measure the tension.', comeback: 'With one round, nobody can mount a comeback.', draws: 'Draws are still hiding.', bestRound: 'There are no scores to brag about yet.', bloodiestTable: 'The table is still too peaceful.', punchingBag: 'Nobody has fallen twice yet.', losingStreak: 'There is no cold streak yet.', constant: 'Two rounds are needed to measure consistency.', tableHead: 'Nobody owns a table yet.' } },
+        messages: {
+          completeResults:
+            'Complete valid points and kills for every table before ending the round.',
+          outcomeRequired: 'Select Win, Loss, or Draw for every player at the table.',
+          required: 'Complete this field.',
+          playerNameMax: 'Each player name can have a maximum of 80 characters.',
+          nameMax: 'The name can have a maximum of 80 characters.',
+          formatMax: 'The format can have a maximum of 50 characters.',
+          emailMax: 'The email can have a maximum of 254 characters.',
+          passwordMax: 'The password can have a maximum of 128 characters.',
+          roundsRange: 'Rounds must be between 1 and 30.',
+          maxPlayersRange: 'The maximum number of players must be between 3 and 50.',
+          maxTablesRange: 'The maximum number of tables must be between 1 and 25.',
+          scoringRange: 'Scoring must be between 0 and 100.',
+          pointsRange: 'Points must be non-negative integers.',
+          killsRange: 'Kills must be between 0 and 5.',
+        },
+        common: {
+          cancel: 'Cancel',
+          save: 'Save',
+          delete: 'Delete',
+          edit: 'Edit',
+          previous: 'Previous',
+          next: 'Next',
+          name: 'Name',
+          email: 'Email',
+          password: 'Password',
+          points: 'Points',
+          kills: 'Kills',
+          outcome: 'Outcome',
+          win: 'Win',
+          loss: 'Loss',
+          draw: 'Draw',
+          wins: 'Wins',
+          losses: 'Losses',
+          draws: 'Draws',
+          winRate: 'Win rate',
+          winRateHelp:
+            '((Wins + Draws × 0.5) ÷ (Wins + Losses + Draws)) × 100. A table counts only when every player has a selected outcome.',
+          active: 'Active',
+          withdrawn: 'Withdrawn',
+          loading: 'Loading…',
+          status: 'Status',
+          actions: 'Actions',
+          round: 'Round {{number}}',
+          table: 'Table {{number}}',
+          noResults: 'Results pending.',
+          draft: 'Waiting',
+          activeStatus: 'active',
+          completed: 'completed',
+          tournamentActive: 'active',
+          finished: 'finished',
+        },
+        header: {
+          tournaments: 'My tournaments',
+          administration: 'Administration',
+          signOut: 'Sign out',
+          organizer: 'Organizer',
+          organizerPanel: '{{name}}’s dashboard',
+        },
+        auth: {
+          login: 'Sign in',
+          register: 'Create your account',
+          recovery: 'Recover your password',
+          confirmPassword: 'Confirm password',
+          yourName: 'Your name',
+          continue: 'Continue',
+          sendInstructions: 'Send instructions',
+          processing: 'Processing…',
+          noAccount: 'Don’t have an account? Sign up',
+          backToLogin: 'Back to sign in',
+          forgotPassword: 'Forgot my password',
+          hidePassword: 'Hide password',
+          showPassword: 'Show password',
+          localMode:
+            'Configure Supabase to enable real access; demo mode does not require an account.',
+          passwordsMismatch: 'Passwords do not match.',
+          recoverySent: 'Check your email to continue with recovery.',
+          operationFailed: 'The operation could not be completed.',
+          confirming: 'Confirming your account…',
+          confirmed: 'Account confirmed!',
+          reviewConfirmation: 'Review the confirmation',
+          confirmedDescription:
+            'You can now close this tab and return to the original window. You will enter the dashboard automatically.',
+          confirmationDescription:
+            'We are validating the link. Please wait a moment or open the email link again.',
+          closeTab: 'Close tab',
+          googleUnavailable: 'Supabase is not configured for Google sign-in.',
+          googleFailed: 'Google sign-in could not be started.',
+          continueWith: 'or continue with',
+          redirectingGoogle: 'Redirecting to Google…',
+          signInGoogle: 'Sign in with Google',
+          continueGoogle: 'Continue with Google',
+        },
+        dashboard: {
+          title: 'My tournaments',
+          newTournament: 'New tournament',
+          loading: 'Shuffling your tournaments…',
+          active: 'At the table',
+          finished: 'Table archive',
+          noTournaments: 'Nothing here yet. When a table appears, we will keep it tidy.',
+          playersAndRounds: '{{players}} active · {{rounds}} rounds',
+          deleteTitle: 'Delete tournament',
+          deleteDescription:
+            'You will delete “{{name}}” and all of its rounds, tables, and results. This cannot be undone.',
+        },
+        createTournament: {
+          title: 'New tournament',
+          description: 'Set the basics now; you can adjust settings later.',
+          format: 'Format',
+          gameOrFormat: 'Game or format',
+          plannedRounds: 'Planned rounds',
+          maxPlayers: 'Maximum players',
+          maxTables: 'Maximum tables',
+          create: 'Create tournament',
+          invalidLimits: 'Enter valid limits: at least 3 players and 1 table.',
+          namePlaceholder: 'Saturday Commander',
+        },
+        tournament: {
+          overview: 'Overview',
+          players: 'Players',
+          rounds: 'Rounds',
+          standings: 'Standings',
+          settings: 'Settings',
+          notFound: 'Tournament not found.',
+          state: 'Tournament status',
+          activePlayers: 'Active players',
+          activeCount: '{{count}} active',
+          currentTable: 'Current table',
+          tablesGenerated: '{{count}} tables generated.',
+          resultsRecorded: 'Results recorded.',
+          registerResults: 'Record results for each table.',
+          goToRounds: 'Go to rounds',
+          information: 'Tournament information',
+          informationHelp: 'Add rules, schedules, location, prizes, or any important details.',
+          informationPlaceholder:
+            'Example: Registration at 10:00 a.m. at the store. Bring your deck list and confirm attendance.',
+          saveInformation: 'Save information',
+          informationSaved: 'Information saved.',
+          settingsSaved: 'Changes saved.',
+          resultSaved: 'Round {{round}}, table {{table}} result saved. Standings updated.',
+          tournamentDeleted: 'Tournament deleted.',
+          tournamentFinished: 'Tournament finished.',
+          tournamentReopened: 'Tournament reopened.',
+          playersAdded: '{{count}} players added.',
+          roundsAndTables: 'Rounds and tables',
+          generateRound: 'Generate next round',
+          roundGenerated: 'Round generated. Start it when the tables are ready.',
+          deleteLast: 'Delete last',
+          publicView: 'Public view',
+          startRound: 'Start round',
+          roundStarted: 'Round started. The timer is running.',
+          endRound: 'End round',
+          dragHelp:
+            'Drag a player to another table to reorganize it. Each table must have 3 to 5 players.',
+          dropHere: 'Drop here',
+          noRounds:
+            'There are no rounds yet. Add at least three active players and generate the first one.',
+          addPlayers: 'Add players',
+          searchPlayers: 'Search players…',
+          noPlayers: 'There are no players yet.',
+          noPlayersFound: 'No players were found.',
+          addPlayersTitle: 'Add players',
+          addPlayersDescription: 'Enter one name per line. Duplicate names are not allowed.',
+          playerNames: 'Ana\nBruno\nCarla',
+          editPlayer: 'Edit player',
+          updatePlayer: 'Update the participant’s name.',
+          playerUpdated: 'Player name updated.',
+          retire: 'Withdraw',
+          activate: 'Activate',
+          deletePlayer: 'Delete player',
+          deletePlayerDescription:
+            'Delete {{name}}? A player who is already in a round cannot be deleted.',
+          retirePlayerDescription: '{{name}} will not be included in future rounds.',
+          activatePlayerDescription: '{{name}} will be included in future rounds again.',
+          playerDeleted: 'Player deleted.',
+          playerRetired: 'Player withdrawn.',
+          playerActivated: 'Player activated.',
+          results: 'Results',
+          opponentStrength: 'Opponent strength',
+          opponentHelp: 'Sum of the points earned by the people you played against.',
+          settingsTitle: 'Tournament settings',
+          saveChanges: 'Save changes',
+          plannedRounds: 'Planned rounds',
+          maxTablesPerRound: 'Maximum tables per round',
+          pointsManual: 'Points are entered manually for each table.',
+          finishTournament: 'Finish tournament',
+          reopenTournament: 'Reopen tournament',
+          finishHelp: 'Finishing locks edits. It can be reopened after confirmation.',
+        },
+        public: {
+          loading: 'Loading round…',
+          unavailable: 'This public view is unavailable.',
+          eyebrow: 'TOURNAMENT INFORMATION',
+          firstRound: 'Tables will appear when the organizer generates the first round.',
+        },
+        statistics: {
+          title: 'Statistics',
+          eyebrow: 'Battle log',
+          subtitle: 'The stories the standings are too shy to tell.',
+          completedRounds: 'completed rounds',
+          hunter: 'Hunter',
+          unstoppable: 'Unstoppable',
+          perfectAttendance: 'Perfect attendance',
+          rivals: 'Frequent rivals',
+          closestTable: 'Closest table',
+          comeback: 'Comeback',
+          drawRoyalty: 'Draw royalty',
+          bestRound: 'Best round',
+          bloodiestTable: 'Bloodiest table',
+          punchingBag: 'Punching bag',
+          losingStreak: 'Cold streak',
+          constant: 'Steady hand',
+          tableHead: 'Table head',
+          noData:
+            'No round has been closed yet. The log is waiting for blood... or at least points.',
+          copy: {
+            hunter: '{{names}} claimed {{count}} heads.',
+            unstoppable: '{{names}} has not lost in {{count}} rounds.',
+            attendance: '{{names}} left no chair empty.',
+            attendanceMany: 'All {{count}} players left no chair empty.',
+            rivals: '{{names}} know each other’s mulligans: {{count}} shared tables.',
+            closestTable: 'Table {{table}}, round {{round}}: only {{count}} points apart.',
+            comeback: '{{names}} climbed {{count}} places. What a comeback.',
+            draws: '{{names}} signed {{count}} draws.',
+            bestRound: '{{names}} posted {{count}} points in one round.',
+            bloodiestTable: 'Table {{table}}, round {{round}}: {{count}} kills. Nobody left clean.',
+            punchingBag: '{{names}} fell {{count}} times and came back for more.',
+            losingStreak: '{{names}} took {{count}} losses in a row.',
+            constant: '{{names}} only varied {{count}} points between rounds.',
+            tableHead: '{{names}} ruled {{count}} tables.',
+          },
+          empty: {
+            hunter: 'The axe is still clean.',
+            unstoppable: 'Nobody has chained wins yet.',
+            attendance: 'The attendance sheet is still being written.',
+            rivals: 'There is no rematch to tell yet.',
+            closestTable: 'A resolved table is needed to measure the tension.',
+            comeback: 'With one round, nobody can mount a comeback.',
+            draws: 'Draws are still hiding.',
+            bestRound: 'There are no scores to brag about yet.',
+            bloodiestTable: 'The table is still too peaceful.',
+            punchingBag: 'Nobody has fallen twice yet.',
+            losingStreak: 'There is no cold streak yet.',
+            constant: 'Two rounds are needed to measure consistency.',
+            tableHead: 'Nobody owns a table yet.',
+          },
+        },
       },
     },
   },
-} as const
+} as const;
 
 Object.assign(resources.es.translation.landing.trial, {
   createAccountShort: 'Cuenta',
   exitShort: 'Salir',
-})
+});
 
 Object.assign(resources.en.translation.landing.trial, {
   createAccountShort: 'Account',
   exitShort: 'Exit',
-})
+});
 
 Object.assign(resources.es.translation.app.tournament, {
   roundGenerationInfo: {
@@ -80,12 +993,14 @@ Object.assign(resources.es.translation.app.tournament, {
     title: 'Cómo se generan las rondas',
     description: 'La app busca formar mesas equilibradas y reducir los emparejamientos repetidos.',
     activePlayers: 'Participan solamente los jugadores activos del torneo.',
-    tableSizes: 'Las mesas se distribuyen entre 3 y 5 jugadores, respetando el máximo de mesas configurado.',
-    pairings: 'Se prioriza que los jugadores no compartan mesa repetidamente y, cuando es posible, que tengan puntuaciones similares.',
+    tableSizes:
+      'Las mesas se distribuyen entre 3 y 5 jugadores, respetando el máximo de mesas configurado.',
+    pairings:
+      'Se prioriza que los jugadores no compartan mesa repetidamente y, cuando es posible, que tengan puntuaciones similares.',
     reorganize: 'Puedes reorganizar las mesas manualmente antes de iniciar la ronda.',
     close: 'Entendido',
   },
-})
+});
 
 Object.assign(resources.en.translation.app.tournament, {
   roundGenerationInfo: {
@@ -93,31 +1008,35 @@ Object.assign(resources.en.translation.app.tournament, {
     title: 'How rounds are generated',
     description: 'The app aims to create balanced tables and reduce repeat pairings.',
     activePlayers: 'Only active tournament players are included.',
-    tableSizes: 'Tables are distributed between 3 and 5 players, respecting the configured table limit.',
-    pairings: 'The app prioritizes avoiding repeated opponents and, when possible, grouping players with similar scores.',
+    tableSizes:
+      'Tables are distributed between 3 and 5 players, respecting the configured table limit.',
+    pairings:
+      'The app prioritizes avoiding repeated opponents and, when possible, grouping players with similar scores.',
     reorganize: 'You can rearrange the tables manually before starting the round.',
     close: 'Got it',
   },
-})
+});
 
 Object.assign(resources.en.translation.app.tournament, {
   deleteLastTitle: 'Delete last round',
   deleteLastDescription: 'The tables in this round will be deleted.',
-  deleteLastWithResults: 'The tables and results in this round will be deleted. This cannot be undone.',
+  deleteLastWithResults:
+    'The tables and results in this round will be deleted. This cannot be undone.',
   deleteRound: 'Delete round',
   lastRoundDeleted: 'Last round deleted and standings recalculated.',
   completeTitle: 'End round {{number}}',
-  completeDescription: 'The round will be locked after all results are validated and the elapsed time is saved.',
+  completeDescription:
+    'The round will be locked after all results are validated and the elapsed time is saved.',
   roundCompleted: 'Round completed. Standings updated.',
-})
+});
 
 Object.assign(resources.es.translation.app.common, {
   close: 'Cerrar',
-})
+});
 
 Object.assign(resources.en.translation.app.common, {
   close: 'Close',
-})
+});
 
 Object.assign(resources.es.translation.app.auth, {
   legalAgreement: 'He leído y acepto los',
@@ -125,8 +1044,9 @@ Object.assign(resources.es.translation.app.auth, {
   terms: 'Términos y condiciones',
   privacy: 'Política de privacidad',
   legalAgreementSuffix: '.',
-  legalConsentRequired: 'Debes aceptar los Términos y condiciones y la Política de privacidad para crear una cuenta.',
-})
+  legalConsentRequired:
+    'Debes aceptar los Términos y condiciones y la Política de privacidad para crear una cuenta.',
+});
 
 Object.assign(resources.en.translation.app.auth, {
   legalAgreement: 'I have read and agree to the',
@@ -134,14 +1054,16 @@ Object.assign(resources.en.translation.app.auth, {
   terms: 'Terms & Conditions',
   privacy: 'Privacy Policy',
   legalAgreementSuffix: '.',
-  legalConsentRequired: 'You must accept the Terms & Conditions and Privacy Policy to create an account.',
-})
+  legalConsentRequired:
+    'You must accept the Terms & Conditions and Privacy Policy to create an account.',
+});
 
 Object.assign(resources.es.translation.app, {
   legalConsent: {
     title: 'Acepta los documentos legales',
     description: 'Antes de usar tu nueva cuenta, revisa y acepta los siguientes documentos.',
-    required: 'Debes aceptar los Términos y condiciones y la Política de privacidad para continuar.',
+    required:
+      'Debes aceptar los Términos y condiciones y la Política de privacidad para continuar.',
     saveFailed: 'No se pudo guardar tu aceptación. Inténtalo de nuevo.',
     saving: 'Guardando…',
   },
@@ -154,9 +1076,11 @@ Object.assign(resources.es.translation.app, {
     refreshing: 'Actualizando…',
     loadOverviewFailed: 'No se pudo cargar la información administrativa.',
     loadProfilesFailed: 'No se pudieron cargar los perfiles editables.',
-    deleteAccountConfirm: '¿Eliminar la cuenta de {{name}}? También se eliminarán sus torneos. Esta acción no se puede deshacer.',
+    deleteAccountConfirm:
+      '¿Eliminar la cuenta de {{name}}? También se eliminarán sus torneos. Esta acción no se puede deshacer.',
     deleteAccountFailed: 'No se pudo eliminar la cuenta.',
-    deleteTournamentConfirm: '¿Eliminar el torneo {{name}}? Se eliminarán sus jugadores, rondas y resultados. Esta acción no se puede deshacer.',
+    deleteTournamentConfirm:
+      '¿Eliminar el torneo {{name}}? Se eliminarán sus jugadores, rondas y resultados. Esta acción no se puede deshacer.',
     deleteTournamentFailed: 'No se pudo eliminar el torneo.',
     loadingOverview: 'Cargando información de Supabase…',
     total: '{{count}} en total',
@@ -168,15 +1092,76 @@ Object.assign(resources.es.translation.app, {
     manage: 'Gestionar',
     deleting: 'Eliminando…',
     roles: { organizer: 'Organizador', admin: 'Administrador', super_admin: 'Superadministrador' },
-    metrics: { accounts: 'Cuentas', adminAccess: 'Acceso admin', activeTournaments: 'Torneos activos', registeredPlayers: 'Jugadores registrados' },
-    tabs: { accounts: 'Cuentas', tournaments: 'Torneos', players: 'Jugadores activos', details: 'Datos completos' },
-    accounts: { search: 'Buscar cuenta', organizer: 'Organizador', email: 'Correo', role: 'Rol', registeredAt: 'Registro', lastAccess: 'Último acceso', origin: 'Desde', id: 'ID', empty: 'No hay perfiles registrados.' },
-    tournaments: { search: 'Buscar torneo', tournament: 'Torneo', organizer: 'Organizador', participants: 'Participantes', rounds: 'Rondas', visibility: 'Visibilidad', empty: 'No hay torneos registrados.' },
-    details: { description: 'Consulta de solo lectura de cada torneo, con reglas, jugadores, rondas, mesas y resultados. No incluye credenciales ni datos de autenticación.', loading: 'Cargando detalle…', search: 'Buscar detalle de torneo', loadFailed: 'No se pudo cargar el detalle de los torneos.', summary: '{{players}} jugadores · {{rounds}} rondas' },
-    players: { description: 'Consulta de jugadores activos por torneo.', search: 'Buscar jugador o torneo', empty: 'No hay jugadores activos que coincidan.', loadFailed: 'No se pudieron cargar los jugadores.', createDescription: 'Crea cada jugador dentro de un torneo y administra sus datos desde aquí.', selectTournament: 'Selecciona un torneo', playerName: 'Nombre del jugador', create: 'Crear jugador', activeCount: '{{count}} jugadores activos', createFailed: 'No se pudo crear el jugador.', updateFailed: 'No se pudo actualizar el jugador.', deleteConfirm: '¿Eliminar a {{name}}?', deleteFailed: 'No se puede eliminar un jugador con participaciones registradas.' },
-    profile: { title: 'Editar perfil: {{name}}', description: 'Deja la contraseña vacía para conservarla.', newPassword: 'Nueva contraseña', loginHistory: 'Historial de inicios de sesión', superAdminOnly: 'Visible solo para superadministradores.', loadingHistory: 'Cargando historial…', noHistory: 'No hay inicios de sesión registrados.', loadHistoryFailed: 'No se pudo cargar el historial de accesos.', saveChanges: 'Guardar cambios', saving: 'Guardando…', updateFailed: 'No se pudo actualizar el perfil.' },
+    metrics: {
+      accounts: 'Cuentas',
+      adminAccess: 'Acceso admin',
+      activeTournaments: 'Torneos activos',
+      registeredPlayers: 'Jugadores registrados',
+    },
+    tabs: {
+      accounts: 'Cuentas',
+      tournaments: 'Torneos',
+      players: 'Jugadores activos',
+      details: 'Datos completos',
+    },
+    accounts: {
+      search: 'Buscar cuenta',
+      organizer: 'Organizador',
+      email: 'Correo',
+      role: 'Rol',
+      registeredAt: 'Registro',
+      lastAccess: 'Último acceso',
+      origin: 'Desde',
+      id: 'ID',
+      empty: 'No hay perfiles registrados.',
+    },
+    tournaments: {
+      search: 'Buscar torneo',
+      tournament: 'Torneo',
+      organizer: 'Organizador',
+      participants: 'Participantes',
+      rounds: 'Rondas',
+      visibility: 'Visibilidad',
+      empty: 'No hay torneos registrados.',
+    },
+    details: {
+      description:
+        'Consulta de solo lectura de cada torneo, con reglas, jugadores, rondas, mesas y resultados. No incluye credenciales ni datos de autenticación.',
+      loading: 'Cargando detalle…',
+      search: 'Buscar detalle de torneo',
+      loadFailed: 'No se pudo cargar el detalle de los torneos.',
+      summary: '{{players}} jugadores · {{rounds}} rondas',
+    },
+    players: {
+      description: 'Consulta de jugadores activos por torneo.',
+      search: 'Buscar jugador o torneo',
+      empty: 'No hay jugadores activos que coincidan.',
+      loadFailed: 'No se pudieron cargar los jugadores.',
+      createDescription: 'Crea cada jugador dentro de un torneo y administra sus datos desde aquí.',
+      selectTournament: 'Selecciona un torneo',
+      playerName: 'Nombre del jugador',
+      create: 'Crear jugador',
+      activeCount: '{{count}} jugadores activos',
+      createFailed: 'No se pudo crear el jugador.',
+      updateFailed: 'No se pudo actualizar el jugador.',
+      deleteConfirm: '¿Eliminar a {{name}}?',
+      deleteFailed: 'No se puede eliminar un jugador con participaciones registradas.',
+    },
+    profile: {
+      title: 'Editar perfil: {{name}}',
+      description: 'Deja la contraseña vacía para conservarla.',
+      newPassword: 'Nueva contraseña',
+      loginHistory: 'Historial de inicios de sesión',
+      superAdminOnly: 'Visible solo para superadministradores.',
+      loadingHistory: 'Cargando historial…',
+      noHistory: 'No hay inicios de sesión registrados.',
+      loadHistoryFailed: 'No se pudo cargar el historial de accesos.',
+      saveChanges: 'Guardar cambios',
+      saving: 'Guardando…',
+      updateFailed: 'No se pudo actualizar el perfil.',
+    },
   },
-})
+});
 
 Object.assign(resources.en.translation.app, {
   legalConsent: {
@@ -195,9 +1180,11 @@ Object.assign(resources.en.translation.app, {
     refreshing: 'Refreshing…',
     loadOverviewFailed: 'The administrative information could not be loaded.',
     loadProfilesFailed: 'The editable profiles could not be loaded.',
-    deleteAccountConfirm: 'Delete {{name}}’s account? Their tournaments will also be deleted. This cannot be undone.',
+    deleteAccountConfirm:
+      'Delete {{name}}’s account? Their tournaments will also be deleted. This cannot be undone.',
     deleteAccountFailed: 'The account could not be deleted.',
-    deleteTournamentConfirm: 'Delete {{name}}? Its players, rounds, and results will be deleted. This cannot be undone.',
+    deleteTournamentConfirm:
+      'Delete {{name}}? Its players, rounds, and results will be deleted. This cannot be undone.',
     deleteTournamentFailed: 'The tournament could not be deleted.',
     loadingOverview: 'Loading Supabase information…',
     total: '{{count}} total',
@@ -209,23 +1196,84 @@ Object.assign(resources.en.translation.app, {
     manage: 'Manage',
     deleting: 'Deleting…',
     roles: { organizer: 'Organizer', admin: 'Administrator', super_admin: 'Super administrator' },
-    metrics: { accounts: 'Accounts', adminAccess: 'Admin access', activeTournaments: 'Active tournaments', registeredPlayers: 'Registered players' },
-    tabs: { accounts: 'Accounts', tournaments: 'Tournaments', players: 'Active players', details: 'Full data' },
-    accounts: { search: 'Search accounts', organizer: 'Organizer', email: 'Email', role: 'Role', registeredAt: 'Registered', lastAccess: 'Last access', origin: 'From', id: 'ID', empty: 'There are no registered profiles.' },
-    tournaments: { search: 'Search tournaments', tournament: 'Tournament', organizer: 'Organizer', participants: 'Participants', rounds: 'Rounds', visibility: 'Visibility', empty: 'There are no registered tournaments.' },
-    details: { description: 'Read-only view of every tournament, including rules, players, rounds, tables, and results. It does not include credentials or authentication data.', loading: 'Loading details…', search: 'Search tournament details', loadFailed: 'Tournament details could not be loaded.', summary: '{{players}} players · {{rounds}} rounds' },
-    players: { description: 'View active players by tournament.', search: 'Search player or tournament', empty: 'No active players match.', loadFailed: 'Players could not be loaded.', createDescription: 'Create each player within a tournament and manage their data here.', selectTournament: 'Select a tournament', playerName: 'Player name', create: 'Create player', activeCount: '{{count}} active players', createFailed: 'The player could not be created.', updateFailed: 'The player could not be updated.', deleteConfirm: 'Delete {{name}}?', deleteFailed: 'A player with recorded participation cannot be deleted.' },
-    profile: { title: 'Edit profile: {{name}}', description: 'Leave the password blank to keep it.', newPassword: 'New password', loginHistory: 'Sign-in history', superAdminOnly: 'Visible only to super administrators.', loadingHistory: 'Loading history…', noHistory: 'There are no sign-ins recorded.', loadHistoryFailed: 'The access history could not be loaded.', saveChanges: 'Save changes', saving: 'Saving…', updateFailed: 'The profile could not be updated.' },
+    metrics: {
+      accounts: 'Accounts',
+      adminAccess: 'Admin access',
+      activeTournaments: 'Active tournaments',
+      registeredPlayers: 'Registered players',
+    },
+    tabs: {
+      accounts: 'Accounts',
+      tournaments: 'Tournaments',
+      players: 'Active players',
+      details: 'Full data',
+    },
+    accounts: {
+      search: 'Search accounts',
+      organizer: 'Organizer',
+      email: 'Email',
+      role: 'Role',
+      registeredAt: 'Registered',
+      lastAccess: 'Last access',
+      origin: 'From',
+      id: 'ID',
+      empty: 'There are no registered profiles.',
+    },
+    tournaments: {
+      search: 'Search tournaments',
+      tournament: 'Tournament',
+      organizer: 'Organizer',
+      participants: 'Participants',
+      rounds: 'Rounds',
+      visibility: 'Visibility',
+      empty: 'There are no registered tournaments.',
+    },
+    details: {
+      description:
+        'Read-only view of every tournament, including rules, players, rounds, tables, and results. It does not include credentials or authentication data.',
+      loading: 'Loading details…',
+      search: 'Search tournament details',
+      loadFailed: 'Tournament details could not be loaded.',
+      summary: '{{players}} players · {{rounds}} rounds',
+    },
+    players: {
+      description: 'View active players by tournament.',
+      search: 'Search player or tournament',
+      empty: 'No active players match.',
+      loadFailed: 'Players could not be loaded.',
+      createDescription: 'Create each player within a tournament and manage their data here.',
+      selectTournament: 'Select a tournament',
+      playerName: 'Player name',
+      create: 'Create player',
+      activeCount: '{{count}} active players',
+      createFailed: 'The player could not be created.',
+      updateFailed: 'The player could not be updated.',
+      deleteConfirm: 'Delete {{name}}?',
+      deleteFailed: 'A player with recorded participation cannot be deleted.',
+    },
+    profile: {
+      title: 'Edit profile: {{name}}',
+      description: 'Leave the password blank to keep it.',
+      newPassword: 'New password',
+      loginHistory: 'Sign-in history',
+      superAdminOnly: 'Visible only to super administrators.',
+      loadingHistory: 'Loading history…',
+      noHistory: 'There are no sign-ins recorded.',
+      loadHistoryFailed: 'The access history could not be loaded.',
+      saveChanges: 'Save changes',
+      saving: 'Saving…',
+      updateFailed: 'The profile could not be updated.',
+    },
   },
-})
+});
 
 Object.assign(resources.es.translation.app.createTournament, {
   creating: 'Creando…',
-})
+});
 
 Object.assign(resources.en.translation.app.createTournament, {
   creating: 'Creating…',
-})
+});
 
 Object.assign(resources.es.translation.app, {
   legal: {
@@ -233,38 +1281,140 @@ Object.assign(resources.es.translation.app, {
     privacy: {
       title: 'Política de privacidad',
       updated: 'Fecha de vigencia y última actualización: 22 de septiembre de 2026',
-      intro: 'Esta Política de privacidad explica cómo EDH Tournaments maneja la información personal cuando utilizas la plataforma. Es una descripción operativa de la aplicación actual y no constituye asesoría legal.',
+      intro:
+        'Esta Política de privacidad explica cómo EDH Tournaments maneja la información personal cuando utilizas la plataforma. Es una descripción operativa de la aplicación actual y no constituye asesoría legal.',
       sections: [
-        { title: '1. Responsable del tratamiento y contacto', paragraphs: ['El responsable del tratamiento es [NOMBRE DEL RESPONSABLE], ubicado en [PAÍS O DIRECCIÓN]. Para solicitudes o consultas de privacidad, escribe a [CONTACT EMAIL].'] },
-        { title: '2. Información que procesamos', paragraphs: ['Información de la cuenta. Cuando te registras con correo electrónico, EDH Tournaments procesa tu dirección de correo y nombre para mostrar. Supabase Auth gestiona la autenticación de contraseñas; la aplicación no recibe ni almacena hashes de contraseñas.', 'Información de inicio de sesión con Google. Si eliges iniciar sesión con Google, Supabase Auth proporciona la autenticación mediante la información básica de identidad de OpenID Connect de Google. Puede incluir el nombre y correo facilitados por Google. EDH Tournaments utiliza esta información para crear o identificar tu cuenta y mostrar tu nombre. No solicitamos acceso a Gmail, Google Drive, contactos, calendarios ni otros datos de Google.', 'Contenido de torneos. Los organizadores pueden proporcionar nombres de torneos, formatos, nombres de jugadores, rondas, asignaciones de mesa, puntuaciones, eliminaciones, clasificaciones e información opcional. Los torneos públicos pueden mostrar el contenido relevante mediante su enlace público.', 'Almacenamiento técnico. La aplicación utiliza el almacenamiento local del navegador para el idioma elegido, datos locales de demostración cuando el backend alojado no está configurado, y datos de autenticación o sesión necesarios para Supabase Auth. No hemos identificado herramientas de publicidad o analítica en el código fuente de la aplicación.'] },
-        { title: '3. Por qué usamos la información', paragraphs: ['Usamos la información de la cuenta para autenticar usuarios, mantener su perfil de organizador y ofrecer recuperación de cuenta. Usamos el contenido de los torneos para operar las funciones de gestión y, cuando un organizador hace público un torneo, para mostrar su vista pública. Usamos el almacenamiento técnico estrictamente necesario para mantener la aplicación funcionando y conservar el idioma o sesión seleccionados.'] },
-        { title: '4. Base legal y consentimiento', paragraphs: ['Procesamos información según sea necesario para prestar el servicio solicitado por la persona usuaria y, cuando corresponde, con base en su aceptación de los Términos y condiciones y esta Política de privacidad. Las cuentas nuevas registran la fecha y versión de esa aceptación. Puedes retirar el consentimiento o solicitar eliminación como se describe abajo; esto puede impedir el uso continuado de funciones que dependan de la cuenta.'] },
-        { title: '5. Proveedores de servicio y transferencias internacionales', paragraphs: ['Supabase proporciona los servicios de autenticación y base de datos para la aplicación de producción configurada. Google proporciona el servicio de identidad para iniciar sesión con Google cuando se utiliza esa opción. Google Fonts se carga para mostrar la tipografía del sitio. Estos proveedores pueden procesar información en países distintos al tuyo. No identificamos otros servicios de terceros de analítica, publicidad, correo electrónico, alojamiento o API de Google en el código fuente de la aplicación.', 'La información obtenida mediante inicio de sesión con Google se accede únicamente para autenticación básica, se utiliza solo para crear o identificar la cuenta, se almacena solo según sea necesario para el perfil y flujo de autenticación, y no se vende ni comparte para publicidad. Se elimina con la cuenta cuando corresponde, sujeto a los límites de conservación indicados abajo. Este uso está sujeto a la Política de datos de usuario de los servicios de API de Google, incluidos sus requisitos de uso limitado.'] },
-        { title: '6. Conservación y seguridad', paragraphs: ['Conservamos la información de cuentas y torneos mientras la cuenta o torneo relacionado permanezca activo y durante un período limitado posterior cuando sea razonablemente necesario para seguridad, prevención de fraude, atención de disputas u obligaciones legales. Aplicamos salvaguardas técnicas y organizativas razonables, pero ningún servicio en línea puede garantizar seguridad absoluta.'] },
-        { title: '7. Tus derechos y eliminación de cuenta', paragraphs: ['Sujeto a la ley aplicable, puedes solicitar acceso, corrección, actualización, eliminación o restricción de tu información personal, y retirar el consentimiento. Para solicitar la eliminación de tu cuenta y datos, escribe a [CONTACT EMAIL] desde el correo de la cuenta con el asunto “Solicitud de eliminación de cuenta”. Podemos solicitar verificación de identidad antes de actuar. La eliminación puede retirar la cuenta y sus datos de torneos asociados; puede conservarse información limitada cuando sea necesaria para seguridad, prevención de fraude u obligaciones legales.'] },
-        { title: '8. Cookies, almacenamiento local y menores de edad', paragraphs: ['La aplicación no utiliza intencionalmente cookies no esenciales de analítica o publicidad. Solo utiliza el almacenamiento local y las tecnologías de sesión descritas arriba, además del almacenamiento estrictamente necesario de proveedores para autenticación. No ofrecemos deliberadamente el servicio a menores de edad cuando la ley aplicable requiere consentimiento parental. Si crees que un menor proporcionó información personal sin autorización adecuada, contáctanos en [CONTACT EMAIL].'] },
-        { title: '9. Costa Rica y cambios a la política', paragraphs: ['Esta política busca leerse de forma coherente con los principios generales de la Ley N.º 8968 de Costa Rica sobre Protección de la Persona frente al Tratamiento de sus Datos Personales. No representa una garantía de cumplimiento legal ni asesoría legal. Podemos actualizar esta política para reflejar cambios al servicio o requisitos legales; la fecha de actualización aparecerá al inicio de esta página.'] },
+        {
+          title: '1. Responsable del tratamiento y contacto',
+          paragraphs: [
+            'El responsable del tratamiento es [NOMBRE DEL RESPONSABLE], ubicado en [PAÍS O DIRECCIÓN]. Para solicitudes o consultas de privacidad, escribe a [CONTACT EMAIL].',
+          ],
+        },
+        {
+          title: '2. Información que procesamos',
+          paragraphs: [
+            'Información de la cuenta. Cuando te registras con correo electrónico, EDH Tournaments procesa tu dirección de correo y nombre para mostrar. Supabase Auth gestiona la autenticación de contraseñas; la aplicación no recibe ni almacena hashes de contraseñas.',
+            'Información de inicio de sesión con Google. Si eliges iniciar sesión con Google, Supabase Auth proporciona la autenticación mediante la información básica de identidad de OpenID Connect de Google. Puede incluir el nombre y correo facilitados por Google. EDH Tournaments utiliza esta información para crear o identificar tu cuenta y mostrar tu nombre. No solicitamos acceso a Gmail, Google Drive, contactos, calendarios ni otros datos de Google.',
+            'Contenido de torneos. Los organizadores pueden proporcionar nombres de torneos, formatos, nombres de jugadores, rondas, asignaciones de mesa, puntuaciones, eliminaciones, clasificaciones e información opcional. Los torneos públicos pueden mostrar el contenido relevante mediante su enlace público.',
+            'Almacenamiento técnico. La aplicación utiliza el almacenamiento local del navegador para el idioma elegido, datos locales de demostración cuando el backend alojado no está configurado, y datos de autenticación o sesión necesarios para Supabase Auth. No hemos identificado herramientas de publicidad o analítica en el código fuente de la aplicación.',
+          ],
+        },
+        {
+          title: '3. Por qué usamos la información',
+          paragraphs: [
+            'Usamos la información de la cuenta para autenticar usuarios, mantener su perfil de organizador y ofrecer recuperación de cuenta. Usamos el contenido de los torneos para operar las funciones de gestión y, cuando un organizador hace público un torneo, para mostrar su vista pública. Usamos el almacenamiento técnico estrictamente necesario para mantener la aplicación funcionando y conservar el idioma o sesión seleccionados.',
+          ],
+        },
+        {
+          title: '4. Base legal y consentimiento',
+          paragraphs: [
+            'Procesamos información según sea necesario para prestar el servicio solicitado por la persona usuaria y, cuando corresponde, con base en su aceptación de los Términos y condiciones y esta Política de privacidad. Las cuentas nuevas registran la fecha y versión de esa aceptación. Puedes retirar el consentimiento o solicitar eliminación como se describe abajo; esto puede impedir el uso continuado de funciones que dependan de la cuenta.',
+          ],
+        },
+        {
+          title: '5. Proveedores de servicio y transferencias internacionales',
+          paragraphs: [
+            'Supabase proporciona los servicios de autenticación y base de datos para la aplicación de producción configurada. Google proporciona el servicio de identidad para iniciar sesión con Google cuando se utiliza esa opción. Google Fonts se carga para mostrar la tipografía del sitio. Estos proveedores pueden procesar información en países distintos al tuyo. No identificamos otros servicios de terceros de analítica, publicidad, correo electrónico, alojamiento o API de Google en el código fuente de la aplicación.',
+            'La información obtenida mediante inicio de sesión con Google se accede únicamente para autenticación básica, se utiliza solo para crear o identificar la cuenta, se almacena solo según sea necesario para el perfil y flujo de autenticación, y no se vende ni comparte para publicidad. Se elimina con la cuenta cuando corresponde, sujeto a los límites de conservación indicados abajo. Este uso está sujeto a la Política de datos de usuario de los servicios de API de Google, incluidos sus requisitos de uso limitado.',
+          ],
+        },
+        {
+          title: '6. Conservación y seguridad',
+          paragraphs: [
+            'Conservamos la información de cuentas y torneos mientras la cuenta o torneo relacionado permanezca activo y durante un período limitado posterior cuando sea razonablemente necesario para seguridad, prevención de fraude, atención de disputas u obligaciones legales. Aplicamos salvaguardas técnicas y organizativas razonables, pero ningún servicio en línea puede garantizar seguridad absoluta.',
+          ],
+        },
+        {
+          title: '7. Tus derechos y eliminación de cuenta',
+          paragraphs: [
+            'Sujeto a la ley aplicable, puedes solicitar acceso, corrección, actualización, eliminación o restricción de tu información personal, y retirar el consentimiento. Para solicitar la eliminación de tu cuenta y datos, escribe a [CONTACT EMAIL] desde el correo de la cuenta con el asunto “Solicitud de eliminación de cuenta”. Podemos solicitar verificación de identidad antes de actuar. La eliminación puede retirar la cuenta y sus datos de torneos asociados; puede conservarse información limitada cuando sea necesaria para seguridad, prevención de fraude u obligaciones legales.',
+          ],
+        },
+        {
+          title: '8. Cookies, almacenamiento local y menores de edad',
+          paragraphs: [
+            'La aplicación no utiliza intencionalmente cookies no esenciales de analítica o publicidad. Solo utiliza el almacenamiento local y las tecnologías de sesión descritas arriba, además del almacenamiento estrictamente necesario de proveedores para autenticación. No ofrecemos deliberadamente el servicio a menores de edad cuando la ley aplicable requiere consentimiento parental. Si crees que un menor proporcionó información personal sin autorización adecuada, contáctanos en [CONTACT EMAIL].',
+          ],
+        },
+        {
+          title: '9. Costa Rica y cambios a la política',
+          paragraphs: [
+            'Esta política busca leerse de forma coherente con los principios generales de la Ley N.º 8968 de Costa Rica sobre Protección de la Persona frente al Tratamiento de sus Datos Personales. No representa una garantía de cumplimiento legal ni asesoría legal. Podemos actualizar esta política para reflejar cambios al servicio o requisitos legales; la fecha de actualización aparecerá al inicio de esta página.',
+          ],
+        },
       ],
     },
     terms: {
       title: 'Términos y condiciones',
       updated: 'Fecha de vigencia y última actualización: 22 de septiembre de 2026',
-      intro: 'Estos Términos y condiciones rigen el uso de EDH Tournaments. Son una descripción operativa del servicio actual y no constituyen asesoría legal.',
+      intro:
+        'Estos Términos y condiciones rigen el uso de EDH Tournaments. Son una descripción operativa del servicio actual y no constituyen asesoría legal.',
       sections: [
-        { title: '1. Servicio y parte responsable', paragraphs: ['EDH Tournaments es una plataforma para que organizadores creen torneos multijugador de TCG, administren participantes, rondas, resultados y clasificaciones, y opcionalmente compartan una vista pública del torneo. El servicio es operado por [NOMBRE DEL RESPONSABLE], disponible en [CONTACT EMAIL].'] },
-        { title: '2. Elegibilidad y cuentas', paragraphs: ['Debes proporcionar información precisa, mantener seguras las credenciales de tu cuenta y utilizar una dirección de correo que controles. Eres responsable de la actividad realizada mediante tu cuenta. Las personas usuarias existentes pueden iniciar sesión mediante el método de autenticación disponible para su cuenta. Crear una cuenta nueva exige aceptar estos Términos y la Política de privacidad.'] },
-        { title: '3. Uso aceptable', paragraphs: ['Puedes utilizar el servicio para organizar y seguir torneos legales de TCG. No debes intentar acceder a la cuenta de otra persona, interferir con el servicio, eludir controles de seguridad, enviar código malicioso, infringir derechos de terceros ni usar la plataforma para actividades ilegales, abusivas, engañosas o dañinas.'] },
-        { title: '4. Contenido de usuarios y torneos públicos', paragraphs: ['Sigues siendo responsable del contenido de torneos que envíes, incluidos nombres de participantes, puntuaciones, resultados e información opcional. Debes tener una base adecuada para proporcionar esa información. Si haces público un torneo, entiendes que su vista pública puede exponer los detalles destinados a participantes y espectadores. No publiques información personal sensible mediante los campos del torneo.'] },
-        { title: '5. Propiedad intelectual', paragraphs: ['El software, la marca y el diseño de la plataforma siguen siendo propiedad de sus respectivos titulares. Conservas los derechos sobre el contenido que envías y otorgas al servicio el permiso limitado necesario para almacenar, mostrar y procesar ese contenido para operar la plataforma y su vista pública de torneos.'] },
-        { title: '6. Contenido de fans no oficial', paragraphs: ['EDH Tournaments es contenido de fans no oficial permitido conforme a la Política de contenido de fans. No está aprobado ni respaldado por Wizards. Partes de los materiales utilizados son propiedad de Wizards of the Coast. © Wizards of the Coast LLC.', 'EDH Tournaments es una plataforma comunitaria independiente de torneos. Los organizadores son responsables de obtener los permisos requeridos para sus torneos y no deben presentar un torneo como oficial, patrocinado o aprobado por Wizards salvo que estén autorizados.'] },
-        { title: '7. Disponibilidad, cambios y terceros', paragraphs: ['Podemos mantener, modificar, suspender o descontinuar partes del servicio cuando sea razonablemente necesario. No prometemos disponibilidad ininterrumpida ni libre de errores. La autenticación y la infraestructura pueden depender de servicios de terceros, incluidos Supabase e inicio de sesión con Google, cada uno sujeto a sus propios términos y prácticas de privacidad.'] },
-        { title: '8. Suspensión, cancelación y eliminación', paragraphs: ['Podemos suspender o retirar el acceso cuando sea razonablemente necesario para proteger el servicio, sus usuarios o derechos legales. Puedes dejar de usar el servicio en cualquier momento. Para solicitar la eliminación de tu cuenta y datos personales relacionados, sigue el proceso de la Política de privacidad contactando a [CONTACT EMAIL]; puede requerirse verificación de identidad.'] },
-        { title: '9. Responsabilidad', paragraphs: ['En la medida permitida por la ley aplicable, el servicio se proporciona según disponibilidad. No garantizamos resultados de torneos, disponibilidad de datos, compatibilidad ni acceso ininterrumpido. Nada de estos Términos excluye responsabilidad que legalmente no pueda excluirse.'] },
-        { title: '10. Cambios, ley aplicable y contacto', paragraphs: ['Podemos actualizar estos Términos cuando cambie el servicio o los requisitos aplicables. La fecha de vigencia se mostrará al inicio de esta página. La ley aplicable y jurisdicción deben ser confirmadas por [NOMBRE DEL RESPONSABLE] con un profesional legal calificado. Las preguntas sobre estos Términos pueden enviarse a [CONTACT EMAIL].'] },
+        {
+          title: '1. Servicio y parte responsable',
+          paragraphs: [
+            'EDH Tournaments es una plataforma para que organizadores creen torneos multijugador de TCG, administren participantes, rondas, resultados y clasificaciones, y opcionalmente compartan una vista pública del torneo. El servicio es operado por [NOMBRE DEL RESPONSABLE], disponible en [CONTACT EMAIL].',
+          ],
+        },
+        {
+          title: '2. Elegibilidad y cuentas',
+          paragraphs: [
+            'Debes proporcionar información precisa, mantener seguras las credenciales de tu cuenta y utilizar una dirección de correo que controles. Eres responsable de la actividad realizada mediante tu cuenta. Las personas usuarias existentes pueden iniciar sesión mediante el método de autenticación disponible para su cuenta. Crear una cuenta nueva exige aceptar estos Términos y la Política de privacidad.',
+          ],
+        },
+        {
+          title: '3. Uso aceptable',
+          paragraphs: [
+            'Puedes utilizar el servicio para organizar y seguir torneos legales de TCG. No debes intentar acceder a la cuenta de otra persona, interferir con el servicio, eludir controles de seguridad, enviar código malicioso, infringir derechos de terceros ni usar la plataforma para actividades ilegales, abusivas, engañosas o dañinas.',
+          ],
+        },
+        {
+          title: '4. Contenido de usuarios y torneos públicos',
+          paragraphs: [
+            'Sigues siendo responsable del contenido de torneos que envíes, incluidos nombres de participantes, puntuaciones, resultados e información opcional. Debes tener una base adecuada para proporcionar esa información. Si haces público un torneo, entiendes que su vista pública puede exponer los detalles destinados a participantes y espectadores. No publiques información personal sensible mediante los campos del torneo.',
+          ],
+        },
+        {
+          title: '5. Propiedad intelectual',
+          paragraphs: [
+            'El software, la marca y el diseño de la plataforma siguen siendo propiedad de sus respectivos titulares. Conservas los derechos sobre el contenido que envías y otorgas al servicio el permiso limitado necesario para almacenar, mostrar y procesar ese contenido para operar la plataforma y su vista pública de torneos.',
+          ],
+        },
+        {
+          title: '6. Contenido de fans no oficial',
+          paragraphs: [
+            'EDH Tournaments es contenido de fans no oficial permitido conforme a la Política de contenido de fans. No está aprobado ni respaldado por Wizards. Partes de los materiales utilizados son propiedad de Wizards of the Coast. © Wizards of the Coast LLC.',
+            'EDH Tournaments es una plataforma comunitaria independiente de torneos. Los organizadores son responsables de obtener los permisos requeridos para sus torneos y no deben presentar un torneo como oficial, patrocinado o aprobado por Wizards salvo que estén autorizados.',
+          ],
+        },
+        {
+          title: '7. Disponibilidad, cambios y terceros',
+          paragraphs: [
+            'Podemos mantener, modificar, suspender o descontinuar partes del servicio cuando sea razonablemente necesario. No prometemos disponibilidad ininterrumpida ni libre de errores. La autenticación y la infraestructura pueden depender de servicios de terceros, incluidos Supabase e inicio de sesión con Google, cada uno sujeto a sus propios términos y prácticas de privacidad.',
+          ],
+        },
+        {
+          title: '8. Suspensión, cancelación y eliminación',
+          paragraphs: [
+            'Podemos suspender o retirar el acceso cuando sea razonablemente necesario para proteger el servicio, sus usuarios o derechos legales. Puedes dejar de usar el servicio en cualquier momento. Para solicitar la eliminación de tu cuenta y datos personales relacionados, sigue el proceso de la Política de privacidad contactando a [CONTACT EMAIL]; puede requerirse verificación de identidad.',
+          ],
+        },
+        {
+          title: '9. Responsabilidad',
+          paragraphs: [
+            'En la medida permitida por la ley aplicable, el servicio se proporciona según disponibilidad. No garantizamos resultados de torneos, disponibilidad de datos, compatibilidad ni acceso ininterrumpido. Nada de estos Términos excluye responsabilidad que legalmente no pueda excluirse.',
+          ],
+        },
+        {
+          title: '10. Cambios, ley aplicable y contacto',
+          paragraphs: [
+            'Podemos actualizar estos Términos cuando cambie el servicio o los requisitos aplicables. La fecha de vigencia se mostrará al inicio de esta página. La ley aplicable y jurisdicción deben ser confirmadas por [NOMBRE DEL RESPONSABLE] con un profesional legal calificado. Las preguntas sobre estos Términos pueden enviarse a [CONTACT EMAIL].',
+          ],
+        },
       ],
     },
   },
-})
+});
 
 Object.assign(resources.en.translation.app, {
   legal: {
@@ -272,43 +1422,146 @@ Object.assign(resources.en.translation.app, {
     privacy: {
       title: 'Privacy Policy',
       updated: 'Effective date and last updated: September 22, 2026',
-      intro: 'This Privacy Policy explains how EDH Tournaments handles personal information when you use the platform. It is an operational description of the current application and is not legal advice.',
+      intro:
+        'This Privacy Policy explains how EDH Tournaments handles personal information when you use the platform. It is an operational description of the current application and is not legal advice.',
       sections: [
-        { title: '1. Data controller and contact', paragraphs: ['The data controller is [DATA CONTROLLER NAME], located in [COUNTRY OR ADDRESS]. For privacy requests or questions, contact [CONTACT EMAIL].'] },
-        { title: '2. Information we process', paragraphs: ['Account information. When you register with email, EDH Tournaments processes your email address and display name. Password authentication is handled by Supabase Auth; the application does not receive or store password hashes.', 'Google Sign-In information. When you choose Google Sign-In, authentication is provided through Supabase Auth using Google’s basic OpenID Connect identity information. This may include the name and email address supplied by Google. EDH Tournaments uses the information to create or identify your account and display your name. We do not request access to Gmail, Google Drive, contacts, calendars, or other Google data.', 'Tournament content. Organizers may provide tournament names, formats, player names, rounds, table assignments, scores, kills, standings, and optional tournament information. Public tournaments can make the relevant tournament content available through their public link.', 'Technical storage. The application uses browser local storage for the selected language, local demo data when the hosted backend is not configured, and authentication or session data required by Supabase Auth. We have not identified advertising or analytics tools in the application source.'] },
-        { title: '3. Why we use information', paragraphs: ['We use account information to authenticate users, maintain their organizer profile, and provide account recovery. We use tournament content to operate the tournament-management features and, when an organizer makes a tournament public, to provide its public view. We use strictly necessary technical storage to keep the application working and to maintain the selected language or session.'] },
-        { title: '4. Legal basis and consent', paragraphs: ['We process information as needed to provide the service requested by the user and, where required, based on the user’s acceptance of the Terms & Conditions and this Privacy Policy. New accounts record the date and version of that acceptance. Users may withdraw consent or request deletion as described below; this may prevent continued use of account-dependent features.'] },
-        { title: '5. Service providers and international transfers', paragraphs: ['Supabase provides authentication and database services for the configured production application. Google provides the Google Sign-In identity service when that option is used. Google Fonts is loaded to display the site typeface. These providers may process information in countries other than your own. We do not identify any other third-party analytics, advertising, email, hosting, or Google API service in the application source.', 'Information obtained through Google Sign-In is accessed only for basic authentication, used only to create or identify the account, stored only as needed for the account profile and authentication flow, and is not sold or shared for advertising. It is deleted with the account where applicable, subject to the retention limits below. This use is subject to the Google API Services User Data Policy, including its Limited Use requirements.'] },
-        { title: '6. Retention and security', paragraphs: ['We retain account and tournament information while the account or related tournament remains active, and for a limited period afterward when reasonably necessary for security, fraud prevention, dispute handling, or legal obligations. We use reasonable technical and organizational safeguards, but no online service can guarantee absolute security.'] },
-        { title: '7. Your rights and account deletion', paragraphs: ['Subject to applicable law, you may request access, correction, updating, deletion, or restriction of your personal information, and may withdraw consent. To request account and data deletion, email [CONTACT EMAIL] from the account email address with the subject “Account deletion request.” We may request identity verification before acting. Deletion may remove the account and its associated tournament data; limited information may be retained where necessary for security, fraud prevention, or legal obligations.'] },
-        { title: '8. Cookies, local storage, and children', paragraphs: ['The application does not intentionally use non-essential analytics or advertising cookies. It uses only the local storage and session technologies described above, plus any strictly necessary provider storage for authentication. We do not knowingly offer the service to children where parental consent is required by applicable law. If you believe a child has provided personal information without appropriate authorization, contact us at [CONTACT EMAIL].'] },
-        { title: '9. Costa Rica and policy changes', paragraphs: ['This policy is intended to be read consistently with the general principles of Costa Rica’s Law No. 8968 on the Protection of the Person with Regard to the Processing of Personal Data. It does not represent a guarantee of legal compliance or legal advice. We may update this policy to reflect changes to the service or legal requirements; the updated date will appear at the top of this page.'] },
+        {
+          title: '1. Data controller and contact',
+          paragraphs: [
+            'The data controller is [DATA CONTROLLER NAME], located in [COUNTRY OR ADDRESS]. For privacy requests or questions, contact [CONTACT EMAIL].',
+          ],
+        },
+        {
+          title: '2. Information we process',
+          paragraphs: [
+            'Account information. When you register with email, EDH Tournaments processes your email address and display name. Password authentication is handled by Supabase Auth; the application does not receive or store password hashes.',
+            'Google Sign-In information. When you choose Google Sign-In, authentication is provided through Supabase Auth using Google’s basic OpenID Connect identity information. This may include the name and email address supplied by Google. EDH Tournaments uses the information to create or identify your account and display your name. We do not request access to Gmail, Google Drive, contacts, calendars, or other Google data.',
+            'Tournament content. Organizers may provide tournament names, formats, player names, rounds, table assignments, scores, kills, standings, and optional tournament information. Public tournaments can make the relevant tournament content available through their public link.',
+            'Technical storage. The application uses browser local storage for the selected language, local demo data when the hosted backend is not configured, and authentication or session data required by Supabase Auth. We have not identified advertising or analytics tools in the application source.',
+          ],
+        },
+        {
+          title: '3. Why we use information',
+          paragraphs: [
+            'We use account information to authenticate users, maintain their organizer profile, and provide account recovery. We use tournament content to operate the tournament-management features and, when an organizer makes a tournament public, to provide its public view. We use strictly necessary technical storage to keep the application working and to maintain the selected language or session.',
+          ],
+        },
+        {
+          title: '4. Legal basis and consent',
+          paragraphs: [
+            'We process information as needed to provide the service requested by the user and, where required, based on the user’s acceptance of the Terms & Conditions and this Privacy Policy. New accounts record the date and version of that acceptance. Users may withdraw consent or request deletion as described below; this may prevent continued use of account-dependent features.',
+          ],
+        },
+        {
+          title: '5. Service providers and international transfers',
+          paragraphs: [
+            'Supabase provides authentication and database services for the configured production application. Google provides the Google Sign-In identity service when that option is used. Google Fonts is loaded to display the site typeface. These providers may process information in countries other than your own. We do not identify any other third-party analytics, advertising, email, hosting, or Google API service in the application source.',
+            'Information obtained through Google Sign-In is accessed only for basic authentication, used only to create or identify the account, stored only as needed for the account profile and authentication flow, and is not sold or shared for advertising. It is deleted with the account where applicable, subject to the retention limits below. This use is subject to the Google API Services User Data Policy, including its Limited Use requirements.',
+          ],
+        },
+        {
+          title: '6. Retention and security',
+          paragraphs: [
+            'We retain account and tournament information while the account or related tournament remains active, and for a limited period afterward when reasonably necessary for security, fraud prevention, dispute handling, or legal obligations. We use reasonable technical and organizational safeguards, but no online service can guarantee absolute security.',
+          ],
+        },
+        {
+          title: '7. Your rights and account deletion',
+          paragraphs: [
+            'Subject to applicable law, you may request access, correction, updating, deletion, or restriction of your personal information, and may withdraw consent. To request account and data deletion, email [CONTACT EMAIL] from the account email address with the subject “Account deletion request.” We may request identity verification before acting. Deletion may remove the account and its associated tournament data; limited information may be retained where necessary for security, fraud prevention, or legal obligations.',
+          ],
+        },
+        {
+          title: '8. Cookies, local storage, and children',
+          paragraphs: [
+            'The application does not intentionally use non-essential analytics or advertising cookies. It uses only the local storage and session technologies described above, plus any strictly necessary provider storage for authentication. We do not knowingly offer the service to children where parental consent is required by applicable law. If you believe a child has provided personal information without appropriate authorization, contact us at [CONTACT EMAIL].',
+          ],
+        },
+        {
+          title: '9. Costa Rica and policy changes',
+          paragraphs: [
+            'This policy is intended to be read consistently with the general principles of Costa Rica’s Law No. 8968 on the Protection of the Person with Regard to the Processing of Personal Data. It does not represent a guarantee of legal compliance or legal advice. We may update this policy to reflect changes to the service or legal requirements; the updated date will appear at the top of this page.',
+          ],
+        },
       ],
     },
     terms: {
       title: 'Terms & Conditions',
       updated: 'Effective date and last updated: September 22, 2026',
-      intro: 'These Terms & Conditions govern use of EDH Tournaments. They are an operational description of the current service and are not legal advice.',
+      intro:
+        'These Terms & Conditions govern use of EDH Tournaments. They are an operational description of the current service and are not legal advice.',
       sections: [
-        { title: '1. Service and responsible party', paragraphs: ['EDH Tournaments is a platform for organizers to create multiplayer TCG tournaments, manage participants, rounds, results, and standings, and optionally share a public tournament view. The service is operated by [DATA CONTROLLER NAME], reachable at [CONTACT EMAIL].'] },
-        { title: '2. Eligibility and accounts', paragraphs: ['You must provide accurate information, keep your account credentials secure, and use an email address you control. You are responsible for activity performed through your account. Existing users may sign in through the authentication method available for their account. New account creation requires acceptance of these Terms and the Privacy Policy.'] },
-        { title: '3. Acceptable use', paragraphs: ['You may use the service to organize and follow lawful TCG tournaments. You must not attempt to access another person’s account, interfere with the service, bypass security controls, submit malicious code, infringe others’ rights, or use the platform for unlawful, abusive, deceptive, or harmful activity.'] },
-        { title: '4. User content and public tournaments', paragraphs: ['You remain responsible for tournament content you submit, including participant names, scores, results, and optional information. You must have an appropriate basis to provide that information. If you make a tournament public, you understand that its public view can expose the tournament details intended for participants and spectators. Do not publish sensitive personal information through tournament fields.'] },
-        { title: '5. Intellectual property', paragraphs: ['The platform’s software, branding, and design remain the property of their respective owners. You retain rights in the content you submit, while granting the service the limited permission necessary to store, display, and process that content to operate the platform and its public tournament view.'] },
-        { title: '6. Unofficial Fan Content', paragraphs: ['EDH Tournaments is unofficial Fan Content permitted under the Fan Content Policy. Not approved or endorsed by Wizards. Portions of the materials used are property of Wizards of the Coast. © Wizards of the Coast LLC.', 'EDH Tournaments is an independent community tournament platform. Organizers are responsible for obtaining any permissions required for their tournaments and must not represent a tournament as official, sponsored, or approved by Wizards unless they are authorized to do so.'] },
-        { title: '7. Availability, changes, and third parties', paragraphs: ['We may maintain, modify, suspend, or discontinue parts of the service when reasonably necessary. We do not promise uninterrupted or error-free availability. Authentication and infrastructure may rely on third-party services, including Supabase and Google Sign-In, each governed by its own terms and privacy practices.'] },
-        { title: '8. Suspension, cancellation, and deletion', paragraphs: ['We may suspend or remove access where reasonably necessary to protect the service, users, or legal rights. You may stop using the service at any time. To request deletion of your account and related personal data, follow the process in the Privacy Policy by contacting [CONTACT EMAIL]; identity verification may be required.'] },
-        { title: '9. Liability', paragraphs: ['To the extent permitted by applicable law, the service is provided on an “as available” basis. We do not guarantee tournament outcomes, data availability, compatibility, or uninterrupted access. Nothing in these Terms excludes liability that cannot legally be excluded.'] },
-        { title: '10. Changes, governing law, and contact', paragraphs: ['We may update these Terms when the service or applicable requirements change. The effective date will be shown at the top of this page. Applicable law and venue should be confirmed by [DATA CONTROLLER NAME] with a qualified legal professional. Questions about these Terms can be sent to [CONTACT EMAIL].'] },
+        {
+          title: '1. Service and responsible party',
+          paragraphs: [
+            'EDH Tournaments is a platform for organizers to create multiplayer TCG tournaments, manage participants, rounds, results, and standings, and optionally share a public tournament view. The service is operated by [DATA CONTROLLER NAME], reachable at [CONTACT EMAIL].',
+          ],
+        },
+        {
+          title: '2. Eligibility and accounts',
+          paragraphs: [
+            'You must provide accurate information, keep your account credentials secure, and use an email address you control. You are responsible for activity performed through your account. Existing users may sign in through the authentication method available for their account. New account creation requires acceptance of these Terms and the Privacy Policy.',
+          ],
+        },
+        {
+          title: '3. Acceptable use',
+          paragraphs: [
+            'You may use the service to organize and follow lawful TCG tournaments. You must not attempt to access another person’s account, interfere with the service, bypass security controls, submit malicious code, infringe others’ rights, or use the platform for unlawful, abusive, deceptive, or harmful activity.',
+          ],
+        },
+        {
+          title: '4. User content and public tournaments',
+          paragraphs: [
+            'You remain responsible for tournament content you submit, including participant names, scores, results, and optional information. You must have an appropriate basis to provide that information. If you make a tournament public, you understand that its public view can expose the tournament details intended for participants and spectators. Do not publish sensitive personal information through tournament fields.',
+          ],
+        },
+        {
+          title: '5. Intellectual property',
+          paragraphs: [
+            'The platform’s software, branding, and design remain the property of their respective owners. You retain rights in the content you submit, while granting the service the limited permission necessary to store, display, and process that content to operate the platform and its public tournament view.',
+          ],
+        },
+        {
+          title: '6. Unofficial Fan Content',
+          paragraphs: [
+            'EDH Tournaments is unofficial Fan Content permitted under the Fan Content Policy. Not approved or endorsed by Wizards. Portions of the materials used are property of Wizards of the Coast. © Wizards of the Coast LLC.',
+            'EDH Tournaments is an independent community tournament platform. Organizers are responsible for obtaining any permissions required for their tournaments and must not represent a tournament as official, sponsored, or approved by Wizards unless they are authorized to do so.',
+          ],
+        },
+        {
+          title: '7. Availability, changes, and third parties',
+          paragraphs: [
+            'We may maintain, modify, suspend, or discontinue parts of the service when reasonably necessary. We do not promise uninterrupted or error-free availability. Authentication and infrastructure may rely on third-party services, including Supabase and Google Sign-In, each governed by its own terms and privacy practices.',
+          ],
+        },
+        {
+          title: '8. Suspension, cancellation, and deletion',
+          paragraphs: [
+            'We may suspend or remove access where reasonably necessary to protect the service, users, or legal rights. You may stop using the service at any time. To request deletion of your account and related personal data, follow the process in the Privacy Policy by contacting [CONTACT EMAIL]; identity verification may be required.',
+          ],
+        },
+        {
+          title: '9. Liability',
+          paragraphs: [
+            'To the extent permitted by applicable law, the service is provided on an “as available” basis. We do not guarantee tournament outcomes, data availability, compatibility, or uninterrupted access. Nothing in these Terms excludes liability that cannot legally be excluded.',
+          ],
+        },
+        {
+          title: '10. Changes, governing law, and contact',
+          paragraphs: [
+            'We may update these Terms when the service or applicable requirements change. The effective date will be shown at the top of this page. Applicable law and venue should be confirmed by [DATA CONTROLLER NAME] with a qualified legal professional. Questions about these Terms can be sent to [CONTACT EMAIL].',
+          ],
+        },
       ],
     },
   },
-})
+});
 
 Object.assign(resources.es.translation.app, {
   showcase: {
     title: 'Muestrario de componentes',
-    description: 'Referencia local para revisar controles, estados y patrones reutilizables de la aplicación.',
+    description:
+      'Referencia local para revisar controles, estados y patrones reutilizables de la aplicación.',
     buttons: 'Botones',
     primary: 'Acción principal',
     secondary: 'Acción secundaria',
@@ -332,19 +1585,21 @@ Object.assign(resources.es.translation.app, {
     emptyState: 'Este espacio muestra cómo se presenta un estado vacío.',
     modalTitle: 'Modal de muestra',
     modalDescription: 'El foco queda contenido dentro del diálogo.',
-    modalContent: 'Úsalo para confirmar o completar una tarea que necesita atención antes de continuar.',
+    modalContent:
+      'Úsalo para confirmar o completar una tarea que necesita atención antes de continuar.',
     accordion: 'Acordeón',
     accordionFirst: 'Contenido desplegable',
     accordionFirstDescription: 'Este patrón permite mostrar detalles sin saturar la pantalla.',
     accordionSecond: 'Estado interactivo',
     accordionSecondDescription: 'Puedes abrirlo con el teclado o con un toque.',
   },
-})
+});
 
 Object.assign(resources.en.translation.app, {
   showcase: {
     title: 'Component showcase',
-    description: 'A local reference for reviewing reusable controls, states, and application patterns.',
+    description:
+      'A local reference for reviewing reusable controls, states, and application patterns.',
     buttons: 'Buttons',
     primary: 'Primary action',
     secondary: 'Secondary action',
@@ -375,7 +1630,7 @@ Object.assign(resources.en.translation.app, {
     accordionSecond: 'Interactive state',
     accordionSecondDescription: 'You can open it with the keyboard or a tap.',
   },
-})
+});
 
 Object.assign(resources.es.translation.app.auth, {
   roleQuestion: '¿Cómo usarás la plataforma?',
@@ -385,7 +1640,7 @@ Object.assign(resources.es.translation.app.auth, {
   rolePlayerDescription: 'Únete a torneos, consulta tus mesas e historial.',
   roleOrganizer: 'Organizador',
   roleOrganizerDescription: 'Crea torneos, administra participantes y comparte invitaciones.',
-})
+});
 
 Object.assign(resources.en.translation.app.auth, {
   roleQuestion: 'How will you use the platform?',
@@ -395,13 +1650,44 @@ Object.assign(resources.en.translation.app.auth, {
   rolePlayerDescription: 'Join tournaments and review your tables and history.',
   roleOrganizer: 'Organizer',
   roleOrganizerDescription: 'Create tournaments, manage participants, and share invitations.',
-})
+});
 
 Object.assign(resources.es.translation.app, {
+  shell: {
+    navigation: 'Navegación principal',
+    mobileNavigation: 'Navegación móvil',
+    tournamentNavigation: 'Navegación del torneo',
+    collapseNavigation: 'Contraer navegación',
+    expandNavigation: 'Expandir navegación',
+    home: 'Inicio',
+    myTournaments: 'Mis torneos',
+    tournamentsShort: 'Torneos',
+    newTournament: 'Nuevo torneo',
+    joinTournament: 'Unirse a torneo',
+    profile: 'Perfil',
+    administration: 'Administración',
+    signOut: 'Cerrar sesión',
+    backToTournaments: 'Volver a mis torneos',
+    overview: 'Resumen',
+    players: 'Jugadores',
+    rounds: 'Rondas',
+    standings: 'Clasificación',
+    standingsShort: 'Posiciones',
+    statistics: 'Estadísticas',
+    statisticsShort: 'Estadísticas',
+    settingsAndInvitations: 'Ajustes e invitaciones',
+    settingsShort: 'Ajustes',
+  },
   playerDashboard: {
     title: 'Mis torneos',
     description: 'Consulta los torneos en los que estás inscrito y tu historial de mesas.',
     join: 'Unirse a torneo',
+    nextTournament: 'Tu próximo torneo',
+    openTournament: 'Abrir torneo',
+    joinPrompt: '¿Tienes una invitación?',
+    joinPromptDescription:
+      'Pega el enlace o código que compartió el organizador para sumarte a la mesa.',
+    historyDescription: 'Torneos que ya terminaste.',
     active: 'En juego',
     history: 'Historial',
     progress: '{{current}} de {{total}} rondas',
@@ -409,9 +1695,16 @@ Object.assign(resources.es.translation.app, {
     emptyHistory: 'Los torneos terminados aparecerán aquí.',
     loadFailed: 'No se pudieron cargar tus torneos.',
   },
+  organizerDashboard: {
+    activeFocus: 'En marcha',
+    continueTournament: 'Continuar torneo',
+    invitations: 'Invitaciones y QR',
+    otherActive: 'Otros torneos activos',
+  },
   join: {
     title: 'Unirse a un torneo',
-    manualDescription: 'Pega el enlace de invitación o escribe el código que compartió el organizador.',
+    manualDescription:
+      'Pega el enlace de invitación o escribe el código que compartió el organizador.',
     code: 'Enlace o código',
     codePlaceholder: 'Pega aquí la invitación',
     open: 'Ver invitación',
@@ -419,7 +1712,8 @@ Object.assign(resources.es.translation.app, {
     playerOnlyDescription: 'Las cuentas de organizador no pueden inscribirse en torneos.',
     back: 'Volver a mis torneos',
     unavailableTitle: 'Invitación no disponible',
-    unavailableDescription: 'El enlace puede haber sido revocado, el torneo terminó o ya no hay cupos.',
+    unavailableDescription:
+      'El enlace puede haber sido revocado, el torneo terminó o ya no hay cupos.',
     tournamentDetails: '{{format}} · {{slots}} cupos disponibles',
     playerName: 'Nombre para este torneo',
     confirm: 'Confirmar inscripción',
@@ -427,14 +1721,18 @@ Object.assign(resources.es.translation.app, {
   },
   joinLink: {
     title: 'Invitar jugadores',
-    description: 'Comparte este enlace o el código QR con cuentas de jugador. Los participantes agregados manualmente siguen disponibles.',
+    description:
+      'Comparte este enlace o el código QR con cuentas de jugador. Los participantes agregados manualmente siguen disponibles.',
     create: 'Crear invitación',
     created: 'Invitación creada.',
     createFailed: 'No se pudo crear la invitación.',
     loadFailed: 'No se pudo cargar la invitación.',
     url: 'Enlace de inscripción',
+    code: 'Código de invitación',
     copy: 'Copiar enlace',
     copied: 'Enlace copiado.',
+    copyCode: 'Copiar código',
+    codeCopied: 'Código copiado.',
     copyFailed: 'No se pudo copiar el enlace.',
     rotate: 'Generar otro enlace',
     revoke: 'Revocar enlace',
@@ -442,31 +1740,72 @@ Object.assign(resources.es.translation.app, {
     revoked: 'Invitación revocada.',
     revokeFailed: 'No se pudo revocar la invitación.',
     qrAlt: 'Código QR para unirse al torneo',
+    qrFailed: 'No se pudo generar el código QR.',
   },
   profile: {
     title: 'Mi perfil',
     shortTitle: 'Perfil',
     description: 'Administra tu información personal. Tu rol se asigna al crear la cuenta.',
     role: 'Rol de cuenta',
-    roleHelp: 'Solo un superadministrador puede modificar este rol.',
-    roles: { player: 'Jugador', organizer: 'Organizador', admin: 'Administrador', super_admin: 'Superadministrador' },
+    roles: {
+      player: 'Jugador',
+      organizer: 'Organizador',
+      admin: 'Administrador',
+      super_admin: 'Superadministrador',
+    },
     saved: 'Perfil actualizado.',
     saveFailed: 'No se pudo actualizar el perfil.',
     saving: 'Guardando…',
   },
-})
+});
 
 Object.assign(resources.en.translation.app, {
+  shell: {
+    navigation: 'Main navigation',
+    mobileNavigation: 'Mobile navigation',
+    tournamentNavigation: 'Tournament navigation',
+    collapseNavigation: 'Collapse navigation',
+    expandNavigation: 'Expand navigation',
+    home: 'Home',
+    myTournaments: 'My tournaments',
+    tournamentsShort: 'Tournaments',
+    newTournament: 'New tournament',
+    joinTournament: 'Join tournament',
+    profile: 'Profile',
+    administration: 'Administration',
+    signOut: 'Sign out',
+    backToTournaments: 'Back to my tournaments',
+    overview: 'Overview',
+    players: 'Players',
+    rounds: 'Rounds',
+    standings: 'Standings',
+    standingsShort: 'Standings',
+    statistics: 'Statistics',
+    statisticsShort: 'Statistics',
+    settingsAndInvitations: 'Settings and invitations',
+    settingsShort: 'Settings',
+  },
   playerDashboard: {
     title: 'My tournaments',
     description: 'Review the tournaments you joined and your table history.',
     join: 'Join a tournament',
+    nextTournament: 'Your next tournament',
+    openTournament: 'Open tournament',
+    joinPrompt: 'Have an invitation?',
+    joinPromptDescription: 'Paste the link or code shared by the organizer to join the table.',
+    historyDescription: 'Tournaments you have already finished.',
     active: 'At the table',
     history: 'History',
     progress: '{{current}} of {{total}} rounds',
     emptyActive: 'You have not joined an active tournament yet.',
     emptyHistory: 'Finished tournaments will appear here.',
     loadFailed: 'Your tournaments could not be loaded.',
+  },
+  organizerDashboard: {
+    activeFocus: 'In progress',
+    continueTournament: 'Continue tournament',
+    invitations: 'Invitations and QR',
+    otherActive: 'Other active tournaments',
   },
   join: {
     title: 'Join a tournament',
@@ -478,7 +1817,8 @@ Object.assign(resources.en.translation.app, {
     playerOnlyDescription: 'Organizer accounts cannot join tournaments.',
     back: 'Back to my tournaments',
     unavailableTitle: 'Invitation unavailable',
-    unavailableDescription: 'The link may have been revoked, the tournament ended, or there are no remaining slots.',
+    unavailableDescription:
+      'The link may have been revoked, the tournament ended, or there are no remaining slots.',
     tournamentDetails: '{{format}} · {{slots}} spots available',
     playerName: 'Name for this tournament',
     confirm: 'Confirm registration',
@@ -486,14 +1826,18 @@ Object.assign(resources.en.translation.app, {
   },
   joinLink: {
     title: 'Invite players',
-    description: 'Share this link or QR code with player accounts. Manually added participants remain available.',
+    description:
+      'Share this link or QR code with player accounts. Manually added participants remain available.',
     create: 'Create invitation',
     created: 'Invitation created.',
     createFailed: 'The invitation could not be created.',
     loadFailed: 'The invitation could not be loaded.',
     url: 'Registration link',
+    code: 'Invitation code',
     copy: 'Copy link',
     copied: 'Link copied.',
+    copyCode: 'Copy code',
+    codeCopied: 'Code copied.',
     copyFailed: 'The link could not be copied.',
     rotate: 'Generate a new link',
     revoke: 'Revoke link',
@@ -501,38 +1845,50 @@ Object.assign(resources.en.translation.app, {
     revoked: 'Invitation revoked.',
     revokeFailed: 'The invitation could not be revoked.',
     qrAlt: 'QR code to join the tournament',
+    qrFailed: 'The QR code could not be generated.',
   },
   profile: {
     title: 'My profile',
     shortTitle: 'Profile',
-    description: 'Manage your personal information. Your role is assigned when the account is created.',
+    description:
+      'Manage your personal information. Your role is assigned when the account is created.',
     role: 'Account role',
-    roleHelp: 'Only a super administrator can change this role.',
-    roles: { player: 'Player', organizer: 'Organizer', admin: 'Administrator', super_admin: 'Super administrator' },
+    roles: {
+      player: 'Player',
+      organizer: 'Organizer',
+      admin: 'Administrator',
+      super_admin: 'Super administrator',
+    },
     saved: 'Profile updated.',
     saveFailed: 'The profile could not be updated.',
     saving: 'Saving…',
   },
-})
+});
 
 Object.assign(
-  (resources.es.translation.app as unknown as { admin: { roles: Record<string, string> } }).admin.roles,
+  (resources.es.translation.app as unknown as { admin: { roles: Record<string, string> } }).admin
+    .roles,
   { player: 'Jugador' },
-)
+);
 Object.assign(
-  (resources.en.translation.app as unknown as { admin: { roles: Record<string, string> } }).admin.roles,
+  (resources.en.translation.app as unknown as { admin: { roles: Record<string, string> } }).admin
+    .roles,
   { player: 'Player' },
-)
+);
 
-const initialLanguage = typeof window === 'undefined' ? 'es' : localStorage.getItem('torneos-tcg.language') ?? (navigator.language.startsWith('en') ? 'en' : 'es')
+const initialLanguage =
+  typeof window === 'undefined'
+    ? 'es'
+    : (localStorage.getItem('torneos-tcg.language') ??
+      (navigator.language.startsWith('en') ? 'en' : 'es'));
 
 void i18n.use(initReactI18next).init({
   resources,
   lng: initialLanguage,
   fallbackLng: 'es',
   interpolation: { escapeValue: false },
-})
+});
 
-i18n.on('languageChanged', language => localStorage.setItem('torneos-tcg.language', language))
+i18n.on('languageChanged', (language) => localStorage.setItem('torneos-tcg.language', language));
 
-export default i18n
+export default i18n;

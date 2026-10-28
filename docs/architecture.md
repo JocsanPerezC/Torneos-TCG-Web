@@ -36,7 +36,7 @@ Los organizadores generan un enlace revocable y su QR asociado. Una cuenta `play
 
 ### Autenticación y permisos
 
-`AuthContext` expone la sesión y los roles. Los roles de aplicación son `player`, `organizer`, `admin` y `super_admin`. Al iniciar sesión por primera vez, una cuenta nueva escoge entre `player` y `organizer`; la selección queda bloqueada y solo un `super_admin` puede modificarla. Hasta completar esa selección, las funciones de organización e inscripción permanecen bloqueadas por RLS, triggers y funciones de Supabase, no solo por la interfaz.
+`AuthContext` expone la sesión y los roles. Los roles de aplicación son `player`, `organizer`, `admin` y `super_admin`. Al iniciar sesión por primera vez, una cuenta nueva escoge entre `player` y `organizer`; la selección queda bloqueada y solo un `super_admin` puede modificarla. `admin` y `super_admin` entran a la consola administrativa y no pueden crear torneos; esa acción se reserva al rol `organizer`. Hasta completar la selección, las funciones de organización e inscripción permanecen bloqueadas por RLS, triggers y funciones de Supabase, no solo por la interfaz.
 
 ### Internacionalización
 

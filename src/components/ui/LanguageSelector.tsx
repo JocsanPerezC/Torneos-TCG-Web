@@ -3,7 +3,12 @@ import { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { supportedLanguages } from '../../i18n'
 
-export function LanguageSelector() {
+type LanguageSelectorProps = {
+  align?: 'start' | 'end'
+  direction?: 'up' | 'down'
+}
+
+export function LanguageSelector({ align = 'end', direction = 'down' }: LanguageSelectorProps) {
   const { i18n, t } = useTranslation()
   const [open, setOpen] = useState(false)
   const selectorRef = useRef<HTMLDivElement>(null)
@@ -30,7 +35,7 @@ export function LanguageSelector() {
       <span>{language.toUpperCase()}</span>
       <ChevronDown size={14} aria-hidden="true" className={`transition-transform ${open ? 'rotate-180' : ''}`} />
     </button>
-    {open && <div role="listbox" aria-label={t('language.label')} className="absolute right-0 top-[calc(100%+0.5rem)] z-50 min-w-36 overflow-hidden rounded-2xl border border-border bg-card p-1.5 shadow-xl">
+    {open && <div role="listbox" aria-label={t('language.label')} className={`absolute ${align === 'start' ? 'left-0' : 'right-0'} ${direction === 'up' ? 'bottom-[calc(100%+0.5rem)]' : 'top-[calc(100%+0.5rem)]'} z-50 min-w-36 overflow-hidden rounded-2xl border border-border bg-card p-1.5 shadow-xl`}>
       {supportedLanguages.map(code => <button key={code} type="button" role="option" aria-selected={language === code} onClick={() => { void i18n.changeLanguage(code); setOpen(false) }} className={`flex w-full items-center justify-between rounded-xl px-3 py-2 text-left text-sm font-semibold transition-colors ${language === code ? 'bg-primary text-primary-foreground' : 'text-foreground hover:bg-secondary'}`}><span>{t(`language.${code}`)}</span><span className="text-xs opacity-75">{code.toUpperCase()}</span></button>)}
     </div>}
   </div>

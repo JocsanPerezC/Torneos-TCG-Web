@@ -63,7 +63,6 @@ export function ProfilePage() {
             {t('app.profile.role')}
           </span>
           <strong className="mt-1 block">{t(`app.profile.roles.${role ?? 'organizer'}`)}</strong>
-          <p className="mb-0 mt-2 text-sm text-muted-foreground">{t('app.profile.roleHelp')}</p>
         </div>
         {message && (
           <p role="status" className="text-sm font-semibold text-muted-foreground">

@@ -18,6 +18,7 @@ Los organizadores comparten una única invitación activa por torneo. El token n
 ## Consecuencias
 
 - Los jugadores solo consultan sus propios torneos mediante una función de lectura acotada.
+- Las cuentas `admin` y `super_admin` usan la consola administrativa y no pueden crear torneos; esa capacidad pertenece solo a `organizer`.
 - Los participantes manuales continúan disponibles para el organizador y entran al emparejamiento igual que los vinculados.
 - Las políticas, triggers y RPCs de Supabase impiden que un jugador cree torneos o que una cuenta que no sea `player` se inscriba.
 - El QR se genera localmente a partir del enlace activo; no se envía el token a servicios externos.

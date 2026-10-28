@@ -63,6 +63,7 @@ Sin configurar Supabase, la aplicación funciona en **modo demostración**: usa 
    ```env
    VITE_SUPABASE_URL=https://tu-proyecto.supabase.co
    VITE_SUPABASE_ANON_KEY=tu-clave-anon-publica
+   VITE_PUBLIC_APP_URL=https://tu-dominio.com
    ```
 
 3. Instala la CLI de Supabase e inicia sesión; después vincula el proyecto y aplica la migración:
@@ -77,6 +78,16 @@ Sin configurar Supabase, la aplicación funciona en **modo demostración**: usa 
 4. En Authentication configura las URLs de redirección de tu entorno para recuperación de contraseña. Nunca uses ni expongas `service_role` en el frontend.
 
 La migración crea perfiles, torneos, reglas, jugadores, rondas, mesas, asignaciones y resultados, con restricciones de integridad, trigger para no repetir a una persona en la misma ronda, índices y RLS por propietario. La vista `published_tournament_snapshot` es el punto de lectura previsto para anónimos; para publicar datos de mesas/resultados completos en producción, añade vistas específicas limitadas a torneos `is_public`.
+
+## Probar invitaciones desde un celular
+
+`localhost` solo existe en la computadora que ejecuta la aplicación. Para que un QR funcione en un celular conectado a la misma red Wi-Fi, agrega la IP local que Vite muestra al arrancar en `.env.local` y reinicia `npm run dev`:
+
+```env
+VITE_PUBLIC_APP_URL=http://TU_IP_LOCAL:5173
+```
+
+Vite queda disponible en la red local. Abre el enlace `Network` que muestra la terminal o usa esa misma IP en el navegador de la computadora antes de generar el QR. En producción, configura `VITE_PUBLIC_APP_URL` con el dominio HTTPS publicado.
 
 ## Arquitectura
 

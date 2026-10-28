@@ -1,237 +1,924 @@
-import { Link, NavLink, Navigate, Route, Routes, useLocation, useNavigate, useParams, useSearchParams } from 'react-router-dom'
-import { useEffect, useRef, useState, type FormEvent } from 'react'
-import { useTranslation } from 'react-i18next'
-import { useTournament, useTournaments } from '../state/TournamentContext'
-import { useAuth } from '../state/AuthContext'
-import { LandingPage } from '../pages/LandingPage'
-import { PrivacyPolicyPage, TermsPage } from './LegalPages'
-import { TrialPage } from './TrialPage'
-import { ComponentShowcasePage } from './ComponentShowcasePage'
-import { CompleteRolePage } from './CompleteRolePage'
-import { JoinTournamentPage } from './JoinTournamentPage'
-import { PlayerDashboard } from './PlayerDashboard'
-import { ProfilePage } from './ProfilePage'
-import { deleteRemoteTournament, insertPlayers, loadAllTournaments, loadPublicTournament, persistPlayer, removeRemotePlayer } from '../data/tournamentRepository'
-import { loadAdminOverview, type AdminOverview, type AppRole, type AssignableRole } from '../data/adminRepository'
-import { deleteManagedUser, listManagedUserLoginHistory, listManagedUsers, updateManagedUser, type LoginAccess, type ManagedUser } from '../data/adminUsersRepository'
-import type { Tournament } from '../domain/types'
-import { Archive, BarChart3, CircleX, Database, Equal, Eye, EyeOff, ExternalLink, GitBranch, Inbox, Info, LayoutDashboard, LogOut, Play, Plus, RefreshCw, Settings as SettingsIcon, ShieldCheck, Square, Table, Trash2, Trophy, Users, type LucideIcon } from 'lucide-react'
-import { Modal } from '../components/ui/modal'
-import { Button } from '../components/ui/button'
-import { showToast, ToastViewport } from '../components/ui/toast'
-import { GoogleAuthButton } from '../components/auth/GoogleAuthButton'
-import { LanguageSelector } from '../components/ui/LanguageSelector'
-import { uid, type Pod, type ResultOutcome } from '../domain/types'
-import { maxTournamentsPerOrganizer, tournamentLimitMessage } from '../domain/tournamentLimits'
-import { tournamentStatistics } from '../domain/statistics'
-import { BattleLedger } from '../components/tournament/BattleLedger'
-import { TournamentJoinLink } from '../components/tournament/TournamentJoinLink'
-import { getUserProfile } from '../lib/userProfile'
-import i18n from '../i18n'
-import { currentLegalConsent } from '../legal'
-import type { User } from '@supabase/supabase-js'
+import {
+  Link,
+  Navigate,
+  Route,
+  Routes,
+  useLocation,
+  useNavigate,
+  useParams,
+  useSearchParams,
+} from 'react-router-dom';
+import { useEffect, useRef, useState, type FormEvent } from 'react';
+import { useTranslation } from 'react-i18next';
+import { useTournament, useTournaments } from '../state/TournamentContext';
+import { useAuth } from '../state/AuthContext';
+import { LandingPage } from '../pages/LandingPage';
+import { PrivacyPolicyPage, TermsPage } from './LegalPages';
+import { TrialPage } from './TrialPage';
+import { ComponentShowcasePage } from './ComponentShowcasePage';
+import { CompleteRolePage } from './CompleteRolePage';
+import { JoinTournamentPage } from './JoinTournamentPage';
+import { PlayerDashboard } from './PlayerDashboard';
+import { ProfilePage } from './ProfilePage';
+import {
+  deleteRemoteTournament,
+  insertPlayers,
+  loadAllTournaments,
+  loadPublicTournament,
+  persistPlayer,
+  removeRemotePlayer,
+} from '../data/tournamentRepository';
+import {
+  loadAdminOverview,
+  type AdminOverview,
+  type AppRole,
+  type AssignableRole,
+} from '../data/adminRepository';
+import {
+  deleteManagedUser,
+  listManagedUserLoginHistory,
+  listManagedUsers,
+  updateManagedUser,
+  type LoginAccess,
+  type ManagedUser,
+} from '../data/adminUsersRepository';
+import type { Tournament } from '../domain/types';
+import {
+  Archive,
+  CircleX,
+  Database,
+  Equal,
+  Eye,
+  EyeOff,
+  ExternalLink,
+  GitBranch,
+  Inbox,
+  Info,
+  LogOut,
+  Play,
+  Plus,
+  RefreshCw,
+  Settings as SettingsIcon,
+  ShieldCheck,
+  Square,
+  Table,
+  Trash2,
+  Trophy,
+  Users,
+  type LucideIcon,
+} from 'lucide-react';
+import { Modal } from '../components/ui/modal';
+import { Button } from '../components/ui/button';
+import { showToast, ToastViewport } from '../components/ui/toast';
+import { GoogleAuthButton } from '../components/auth/GoogleAuthButton';
+import { LanguageSelector } from '../components/ui/LanguageSelector';
+import { uid, type Pod, type ResultOutcome } from '../domain/types';
+import { tournamentLimitMessage } from '../domain/tournamentLimits';
+import { tournamentStatistics } from '../domain/statistics';
+import { BattleLedger } from '../components/tournament/BattleLedger';
+import { TournamentJoinLink } from '../components/tournament/TournamentJoinLink';
+import {
+  AuthenticatedShell,
+  type TournamentNavigation,
+} from '../components/layout/AuthenticatedShell';
+import { getUserProfile } from '../lib/userProfile';
+import i18n from '../i18n';
+import { currentLegalConsent } from '../legal';
+import type { User } from '@supabase/supabase-js';
 
-const primary = 'app-button app-button--primary'
-const panel = 'app-panel'
-const field = 'app-field'
-const statusColor: Record<string, string> = { borrador: 'border-[#E7E2D2] bg-[#F4F1E7] text-muted-foreground', activa: 'border-[#BDE8CC] bg-[#E5F7EC] text-[#168050]', completada: 'border-[#D6DEFF] bg-[#E9EDFF] text-[#3D5AFB]', activo: 'border-[#BDE8CC] bg-[#E5F7EC] text-[#168050]', finalizado: 'border-[#DDD0FF] bg-[#F0E9FF] text-[#5B1FE0]' }
-function Badge({ children }: { children: string }) { const labels:Record<string,string>={borrador:i18n.t('app.common.draft'),activa:i18n.t('app.common.activeStatus'),completada:i18n.t('app.common.completed'),activo:i18n.t('app.common.tournamentActive'),finalizado:i18n.t('app.common.finished')}; return <span className={`app-badge ${statusColor[children] ?? 'bg-transparent text-muted-foreground'}`}>{labels[children] ?? children}</span> }
-function RoundTimer({ round }: { round: Tournament['rounds'][number] }) { const [now,setNow]=useState(0); useEffect(()=>{if(round.status!=='activa'||!round.startedAt)return;const update=()=>setNow(Date.now());update();const interval=window.setInterval(update,1000);return()=>window.clearInterval(interval)},[round.status,round.startedAt]); if(!round.startedAt)return null; const elapsed=Math.max(0,(round.endedAt?Date.parse(round.endedAt):now)-Date.parse(round.startedAt)); const hours=Math.floor(elapsed/3_600_000); const minutes=Math.floor(elapsed%3_600_000/60_000); const seconds=Math.floor(elapsed%60_000/1_000); const clock=[hours,minutes,seconds].map(value=>String(value).padStart(2,'0')).join(':'); return <span className="round-timer" aria-label={i18n.t('app.tournament.round', { number: round.number })}>{clock}</span> }
-function Notice({ children, error = false }: { children: React.ReactNode; error?: boolean }) { const validationMessages=[i18n.t('app.messages.completeResults'),i18n.t('app.messages.outcomeRequired')]; const isError=error||(typeof children==='string'&&validationMessages.includes(children)); const shown=useRef<{children:React.ReactNode;error:boolean}|undefined>(undefined); useEffect(()=>{const previous=shown.current;if(previous&&previous.children===children&&previous.error===isError)return;shown.current={children,error:isError};showToast(children,isError)},[children,isError]); return null }
-function ConfirmModal({ title, description, confirmLabel, destructive=false, onClose, onConfirm }: { title:string; description:string; confirmLabel?:string; destructive?:boolean; onClose:()=>void; onConfirm:()=>void }) { return <Modal title={title} description={description} onClose={onClose}><div className="flex flex-wrap justify-end gap-3"><Button type="button" variant="outline" className="app-button app-button--secondary" onClick={onClose}>{i18n.t('app.common.cancel')}</Button><Button type="button" variant="outline" className={destructive ? 'app-button app-button--danger' : primary} onClick={onConfirm}>{confirmLabel ?? i18n.t('app.common.save')}</Button></div></Modal> }
+const primary = 'app-button app-button--primary';
+const panel = 'app-panel';
+const field = 'app-field';
+const statusColor: Record<string, string> = {
+  borrador: 'border-[#E7E2D2] bg-[#F4F1E7] text-muted-foreground',
+  activa: 'border-[#BDE8CC] bg-[#E5F7EC] text-[#168050]',
+  completada: 'border-[#D6DEFF] bg-[#E9EDFF] text-[#3D5AFB]',
+  activo: 'border-[#BDE8CC] bg-[#E5F7EC] text-[#168050]',
+  finalizado: 'border-[#DDD0FF] bg-[#F0E9FF] text-[#5B1FE0]',
+};
+function Badge({ children }: { children: string }) {
+  const labels: Record<string, string> = {
+    borrador: i18n.t('app.common.draft'),
+    activa: i18n.t('app.common.activeStatus'),
+    completada: i18n.t('app.common.completed'),
+    activo: i18n.t('app.common.tournamentActive'),
+    finalizado: i18n.t('app.common.finished'),
+  };
+  return (
+    <span
+      className={`app-badge ${statusColor[children] ?? 'bg-transparent text-muted-foreground'}`}
+    >
+      {labels[children] ?? children}
+    </span>
+  );
+}
+function RoundTimer({ round }: { round: Tournament['rounds'][number] }) {
+  const [now, setNow] = useState(0);
+  useEffect(() => {
+    if (round.status !== 'activa' || !round.startedAt) return;
+    const update = () => setNow(Date.now());
+    update();
+    const interval = window.setInterval(update, 1000);
+    return () => window.clearInterval(interval);
+  }, [round.status, round.startedAt]);
+  if (!round.startedAt) return null;
+  const elapsed = Math.max(
+    0,
+    (round.endedAt ? Date.parse(round.endedAt) : now) - Date.parse(round.startedAt),
+  );
+  const hours = Math.floor(elapsed / 3_600_000);
+  const minutes = Math.floor((elapsed % 3_600_000) / 60_000);
+  const seconds = Math.floor((elapsed % 60_000) / 1_000);
+  const clock = [hours, minutes, seconds].map((value) => String(value).padStart(2, '0')).join(':');
+  return (
+    <span
+      className="round-timer"
+      aria-label={i18n.t('app.tournament.round', { number: round.number })}
+    >
+      {clock}
+    </span>
+  );
+}
+function Notice({ children, error = false }: { children: React.ReactNode; error?: boolean }) {
+  const validationMessages = [
+    i18n.t('app.messages.completeResults'),
+    i18n.t('app.messages.outcomeRequired'),
+  ];
+  const isError = error || (typeof children === 'string' && validationMessages.includes(children));
+  const shown = useRef<{ children: React.ReactNode; error: boolean } | undefined>(undefined);
+  useEffect(() => {
+    const previous = shown.current;
+    if (previous && previous.children === children && previous.error === isError) return;
+    shown.current = { children, error: isError };
+    showToast(children, isError);
+  }, [children, isError]);
+  return null;
+}
+function ConfirmModal({
+  title,
+  description,
+  confirmLabel,
+  destructive = false,
+  onClose,
+  onConfirm,
+}: {
+  title: string;
+  description: string;
+  confirmLabel?: string;
+  destructive?: boolean;
+  onClose: () => void;
+  onConfirm: () => void;
+}) {
+  return (
+    <Modal title={title} description={description} onClose={onClose}>
+      <div className="flex flex-wrap justify-end gap-3">
+        <Button
+          type="button"
+          variant="outline"
+          className="app-button app-button--secondary"
+          onClick={onClose}
+        >
+          {i18n.t('app.common.cancel')}
+        </Button>
+        <Button
+          type="button"
+          variant="outline"
+          className={destructive ? 'app-button app-button--danger' : primary}
+          onClick={onConfirm}
+        >
+          {confirmLabel ?? i18n.t('app.common.save')}
+        </Button>
+      </div>
+    </Modal>
+  );
+}
 
 function Header() {
-  const { user, configured, isAdmin, signOut } = useAuth()
-  const navigate = useNavigate()
-  const location = useLocation()
-  const authScreen = ['/login', '/register', '/forgot-password', '/auth/confirmed'].includes(location.pathname)
+  const { user, configured, isAdmin, signOut } = useAuth();
+  const navigate = useNavigate();
+  const location = useLocation();
+  const authScreen = ['/login', '/register', '/forgot-password', '/auth/confirmed'].includes(
+    location.pathname,
+  );
 
-  return <header className="app-header app-shell-header">
-    <div className="app-shell-header__bar mx-auto max-w-6xl">
-      <Link to="/" className="app-shell-header__brand"><img src="/edh-tournaments-icon.svg" alt="" />EDH <span>Tournaments</span></Link>
-      {!authScreen && <nav className="app-shell-header__actions" aria-label={i18n.t('landing.navigation.label')}>
-      <Link to="/dashboard" aria-label={i18n.t('app.header.tournaments')} className="app-shell-header__link"><Trophy size={16} /><span className="hidden sm:inline">{i18n.t('app.header.tournaments')}</span></Link>
-        {configured && user && <Link to="/perfil" aria-label={i18n.t('app.profile.title')} className="app-shell-header__link"><SettingsIcon size={16} /><span className="hidden sm:inline">{i18n.t('app.profile.shortTitle')}</span></Link>}
-        {isAdmin && <Link to="/admin" aria-label={i18n.t('app.header.administration')} className="app-shell-header__link app-shell-header__link--admin"><ShieldCheck size={16} /><span className="hidden sm:inline">{i18n.t('app.header.administration')}</span></Link>}
-        {configured && user ? <Button type="button" variant="outline" size="sm" aria-label={i18n.t('app.header.signOut')} className="app-button--danger !text-[.82rem] !font-semibold" onClick={() => void signOut().catch(() => undefined).finally(() => navigate('/', { replace: true }))}><LogOut size={16} /><span className="hidden sm:inline">{i18n.t('app.header.signOut')}</span></Button> : <Link to="/login" aria-label={i18n.t('app.header.organizer')} className="app-shell-header__link"><Trophy size={16} /><span className="hidden sm:inline">{i18n.t('app.header.organizer')}</span></Link>}
-        <LanguageSelector />
-      </nav>}
-    </div>
-  </header>
+  return (
+    <header className="app-header app-shell-header">
+      <div className="app-shell-header__bar mx-auto max-w-6xl">
+        <Link to="/" className="app-shell-header__brand">
+          <img src="/edh-tournaments-icon.svg" alt="" />
+          EDH <span>Tournaments</span>
+        </Link>
+        {!authScreen && (
+          <nav
+            className="app-shell-header__actions"
+            aria-label={i18n.t('landing.navigation.label')}
+          >
+            {isAdmin ? (
+              <Link
+                to="/admin"
+                aria-label={i18n.t('app.header.administration')}
+                className="app-shell-header__link app-shell-header__link--admin"
+              >
+                <ShieldCheck size={16} />
+                <span className="hidden sm:inline">{i18n.t('app.header.administration')}</span>
+              </Link>
+            ) : (
+              <Link
+                to="/dashboard"
+                aria-label={i18n.t('app.header.tournaments')}
+                className="app-shell-header__link"
+              >
+                <Trophy size={16} />
+                <span className="hidden sm:inline">{i18n.t('app.header.tournaments')}</span>
+              </Link>
+            )}
+            {configured && user && (
+              <Link
+                to="/perfil"
+                aria-label={i18n.t('app.profile.title')}
+                className="app-shell-header__link"
+              >
+                <SettingsIcon size={16} />
+                <span className="hidden sm:inline">{i18n.t('app.profile.shortTitle')}</span>
+              </Link>
+            )}
+            {configured && user ? (
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                aria-label={i18n.t('app.header.signOut')}
+                className="app-button--danger !text-[.82rem] !font-semibold"
+                onClick={() =>
+                  void signOut()
+                    .catch(() => undefined)
+                    .finally(() => navigate('/', { replace: true }))
+                }
+              >
+                <LogOut size={16} />
+                <span className="hidden sm:inline">{i18n.t('app.header.signOut')}</span>
+              </Button>
+            ) : (
+              <Link
+                to="/login"
+                aria-label={i18n.t('app.header.organizer')}
+                className="app-shell-header__link"
+              >
+                <Trophy size={16} />
+                <span className="hidden sm:inline">{i18n.t('app.header.organizer')}</span>
+              </Link>
+            )}
+            <LanguageSelector />
+          </nav>
+        )}
+      </div>
+    </header>
+  );
 }
-function CompletionRedirect() { const { id } = useParams(); const tournament = useTournament(id); const location = useLocation(); const navigate = useNavigate(); useEffect(() => { if (tournament && location.pathname.endsWith('/rounds') && sessionStorage.getItem('torneos-tcg.completed-tournament') === tournament.id) { sessionStorage.removeItem('torneos-tcg.completed-tournament'); navigate(`/tournaments/${tournament.id}/standings`, { replace: true }) } }, [tournament, location.pathname, navigate]); return null }
-function Layout({ children, wide = false }: { children: React.ReactNode; wide?: boolean }) { return <><Header /><CompletionRedirect /><main className={`mx-auto min-h-[calc(100vh-72px)] w-full ${wide ? 'max-w-7xl' : 'max-w-6xl'} px-4 pb-8 pt-24`}>{children}</main><ToastViewport /></> }
-export function AppRouter() { useTranslation(); return <Routes><Route path="/" element={<LandingPage />} /><Route path="/trial" element={<TrialPage />} /><Route path="/privacy" element={<PrivacyPolicyPage />} /><Route path="/terms" element={<TermsPage />} /><Route path="/muestrario" element={<LocalOnly><ComponentShowcasePage /></LocalOnly>} /><Route path="/unirse" element={<ConsentGuard><Layout><JoinTournamentPage /></Layout></ConsentGuard>} /><Route path="/unirse/:token" element={<ConsentGuard><Layout><JoinTournamentPage /></Layout></ConsentGuard>} /><Route path="/perfil" element={<ConsentGuard><Layout><ProfilePage /></Layout></ConsentGuard>} /><Route path="/completar-perfil" element={<Layout><CompleteRolePage /></Layout>} /><Route path="/legal-consent" element={<LegalConsent />} /><Route path="/login" element={<Auth screen="login" />} /><Route path="/register" element={<Auth screen="register" />} /><Route path="/forgot-password" element={<Auth screen="recovery" />} /><Route path="/auth/confirmed" element={<ConfirmedAccount />} /><Route path="/dashboard" element={<ConsentGuard><Dashboard /></ConsentGuard>} /><Route path="/admin" element={<ConsentGuard><AdminRoute /></ConsentGuard>} /><Route path="/tournaments/new" element={<ConsentGuard><NewTournament /></ConsentGuard>} /><Route path="/tournaments/:id/*" element={<ConsentGuard><TournamentLayout /></ConsentGuard>}><Route index element={<Overview />} /><Route path="players" element={<Players />} /><Route path="rounds" element={<Rounds />} /><Route path="standings" element={<Standings />} /><Route path="settings" element={<Settings />} /></Route><Route path="/t/:slug" element={<PublicView />} /><Route path="*" element={<Navigate to="/" replace />} /></Routes> }
+function CompletionRedirect() {
+  const { id } = useParams();
+  const tournament = useTournament(id);
+  const location = useLocation();
+  const navigate = useNavigate();
+  useEffect(() => {
+    if (
+      tournament &&
+      location.pathname.endsWith('/rounds') &&
+      sessionStorage.getItem('torneos-tcg.completed-tournament') === tournament.id
+    ) {
+      sessionStorage.removeItem('torneos-tcg.completed-tournament');
+      navigate(`/tournaments/${tournament.id}/standings`, { replace: true });
+    }
+  }, [tournament, location.pathname, navigate]);
+  return null;
+}
+function Layout({
+  children,
+  wide = false,
+  tournament,
+}: {
+  children: React.ReactNode;
+  wide?: boolean;
+  tournament?: TournamentNavigation;
+}) {
+  const { configured, requiresLegalConsent, requiresRoleSelection, user } = useAuth();
+  const useSidebar = configured && user && !requiresLegalConsent && !requiresRoleSelection;
+  return useSidebar ? (
+    <>
+      <AuthenticatedShell wide={wide} tournament={tournament}>
+        <CompletionRedirect />
+        {children}
+      </AuthenticatedShell>
+      <ToastViewport />
+    </>
+  ) : (
+    <>
+      <Header />
+      <CompletionRedirect />
+      <main
+        className={`mx-auto min-h-[calc(100vh-72px)] w-full ${wide ? 'max-w-7xl' : 'max-w-6xl'} px-4 pb-8 pt-24`}
+      >
+        {children}
+      </main>
+      <ToastViewport />
+    </>
+  );
+}
+export function AppRouter() {
+  useTranslation();
+  return (
+    <Routes>
+      <Route path="/" element={<LandingPage />} />
+      <Route path="/trial" element={<TrialPage />} />
+      <Route path="/privacy" element={<PrivacyPolicyPage />} />
+      <Route path="/terms" element={<TermsPage />} />
+      <Route
+        path="/muestrario"
+        element={
+          <LocalOnly>
+            <ComponentShowcasePage />
+          </LocalOnly>
+        }
+      />
+      <Route
+        path="/unirse"
+        element={
+          <ConsentGuard>
+            <Layout>
+              <JoinTournamentPage />
+            </Layout>
+          </ConsentGuard>
+        }
+      />
+      <Route
+        path="/unirse/:token"
+        element={
+          <ConsentGuard>
+            <Layout>
+              <JoinTournamentPage />
+            </Layout>
+          </ConsentGuard>
+        }
+      />
+      <Route
+        path="/perfil"
+        element={
+          <ConsentGuard>
+            <Layout>
+              <ProfilePage />
+            </Layout>
+          </ConsentGuard>
+        }
+      />
+      <Route
+        path="/completar-perfil"
+        element={
+          <Layout>
+            <CompleteRolePage />
+          </Layout>
+        }
+      />
+      <Route path="/legal-consent" element={<LegalConsent />} />
+      <Route path="/login" element={<Auth screen="login" />} />
+      <Route path="/register" element={<Auth screen="register" />} />
+      <Route path="/forgot-password" element={<Auth screen="recovery" />} />
+      <Route path="/auth/confirmed" element={<ConfirmedAccount />} />
+      <Route
+        path="/dashboard"
+        element={
+          <ConsentGuard>
+            <Dashboard />
+          </ConsentGuard>
+        }
+      />
+      <Route
+        path="/admin"
+        element={
+          <ConsentGuard>
+            <AdminRoute />
+          </ConsentGuard>
+        }
+      />
+      <Route
+        path="/tournaments/new"
+        element={
+          <ConsentGuard>
+            <NewTournament />
+          </ConsentGuard>
+        }
+      />
+      <Route
+        path="/tournaments/:id/*"
+        element={
+          <ConsentGuard>
+            <TournamentLayout />
+          </ConsentGuard>
+        }
+      >
+        <Route index element={<Overview />} />
+        <Route path="players" element={<Players />} />
+        <Route path="rounds" element={<Rounds />} />
+        <Route path="standings" element={<Standings />} />
+        <Route path="settings" element={<Settings />} />
+      </Route>
+      <Route path="/t/:slug" element={<PublicView />} />
+      <Route path="*" element={<Navigate to="/" replace />} />
+    </Routes>
+  );
+}
 
 function LocalOnly({ children }: { children: React.ReactNode }) {
-  const localHosts = ['localhost', '127.0.0.1', '::1']
-  return typeof window !== 'undefined' && localHosts.includes(window.location.hostname) ? <>{children}</> : <Navigate to="/" replace />
+  const localHosts = ['localhost', '127.0.0.1', '::1'];
+  return typeof window !== 'undefined' && localHosts.includes(window.location.hostname) ? (
+    <>{children}</>
+  ) : (
+    <Navigate to="/" replace />
+  );
 }
 
-function ConsentGuard({ children }: { children: React.ReactNode }) { const { user, requiresLegalConsent, requiresRoleSelection } = useAuth(); const location = useLocation(); if (user && requiresRoleSelection) return <Navigate to={`/completar-perfil?next=${encodeURIComponent(`${location.pathname}${location.search}`)}`} replace />; return user && requiresLegalConsent ? <Navigate to="/legal-consent" replace /> : <>{children}</> }
+function ConsentGuard({ children }: { children: React.ReactNode }) {
+  const { user, requiresLegalConsent, requiresRoleSelection } = useAuth();
+  const location = useLocation();
+  if (user && requiresRoleSelection)
+    return (
+      <Navigate
+        to={`/completar-perfil?next=${encodeURIComponent(`${location.pathname}${location.search}`)}`}
+        replace
+      />
+    );
+  return user && requiresLegalConsent ? <Navigate to="/legal-consent" replace /> : <>{children}</>;
+}
 
 function LegalConsent() {
-  const { user, requiresLegalConsent, acceptLegalConsent } = useAuth()
-  const navigate = useNavigate()
-  const [accepted, setAccepted] = useState(false)
-  const [error, setError] = useState('')
-  const [busy, setBusy] = useState(false)
-  if (!user || !requiresLegalConsent) return <Navigate to="/dashboard" replace />
+  const { user, requiresLegalConsent, acceptLegalConsent } = useAuth();
+  const navigate = useNavigate();
+  const [accepted, setAccepted] = useState(false);
+  const [error, setError] = useState('');
+  const [busy, setBusy] = useState(false);
+  if (!user || !requiresLegalConsent) return <Navigate to="/dashboard" replace />;
   async function submit(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault()
-    if (!accepted) return setError(i18n.t('app.legalConsent.required'))
-    setBusy(true)
-    try { await acceptLegalConsent(); navigate('/dashboard', { replace: true }) } catch { setError(i18n.t('app.legalConsent.saveFailed')) } finally { setBusy(false) }
+    event.preventDefault();
+    if (!accepted) return setError(i18n.t('app.legalConsent.required'));
+    setBusy(true);
+    try {
+      await acceptLegalConsent();
+      navigate('/dashboard', { replace: true });
+    } catch {
+      setError(i18n.t('app.legalConsent.saveFailed'));
+    } finally {
+      setBusy(false);
+    }
   }
-  return <Layout><div className="mx-auto max-w-md"><section className={`${panel} space-y-4`}><h1 className="text-2xl font-black">{i18n.t('app.legalConsent.title')}</h1><p className="text-sm text-muted-foreground">{i18n.t('app.legalConsent.description')}</p><form onSubmit={submit} className="space-y-4"><label className="flex cursor-pointer items-start gap-3 rounded-2xl border border-border bg-secondary/40 p-3 text-sm leading-5"><input required checked={accepted} onChange={event => { setAccepted(event.target.checked); if (event.target.checked) setError('') }} type="checkbox" className="mt-1 size-4 accent-[#21B876]" /><span>{i18n.t('app.auth.legalAgreement')} <Link to="/terms" target="_blank" rel="noreferrer" className="font-semibold text-accent underline">{i18n.t('app.auth.terms')}</Link>{i18n.t('app.auth.legalAgreementConnector')}<Link to="/privacy" target="_blank" rel="noreferrer" className="font-semibold text-accent underline">{i18n.t('app.auth.privacy')}</Link>{i18n.t('app.auth.legalAgreementSuffix')}</span></label>{error && <p role="alert" className="text-sm text-red-300">{error}</p>}<Button disabled={busy} className={`${primary} w-full`}>{busy ? i18n.t('app.legalConsent.saving') : i18n.t('app.auth.continue')}</Button></form></section></div></Layout>
+  return (
+    <Layout>
+      <div className="mx-auto max-w-md">
+        <section className={`${panel} space-y-4`}>
+          <h1 className="text-2xl font-black">{i18n.t('app.legalConsent.title')}</h1>
+          <p className="text-sm text-muted-foreground">{i18n.t('app.legalConsent.description')}</p>
+          <form onSubmit={submit} className="space-y-4">
+            <label className="flex cursor-pointer items-start gap-3 rounded-2xl border border-border bg-secondary/40 p-3 text-sm leading-5">
+              <input
+                required
+                checked={accepted}
+                onChange={(event) => {
+                  setAccepted(event.target.checked);
+                  if (event.target.checked) setError('');
+                }}
+                type="checkbox"
+                className="mt-1 size-4 accent-[#21B876]"
+              />
+              <span>
+                {i18n.t('app.auth.legalAgreement')}{' '}
+                <Link
+                  to="/terms"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="font-semibold text-accent underline"
+                >
+                  {i18n.t('app.auth.terms')}
+                </Link>
+                {i18n.t('app.auth.legalAgreementConnector')}
+                <Link
+                  to="/privacy"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="font-semibold text-accent underline"
+                >
+                  {i18n.t('app.auth.privacy')}
+                </Link>
+                {i18n.t('app.auth.legalAgreementSuffix')}
+              </span>
+            </label>
+            {error && (
+              <p role="alert" className="text-sm text-red-300">
+                {error}
+              </p>
+            )}
+            <Button disabled={busy} className={`${primary} w-full`}>
+              {busy ? i18n.t('app.legalConsent.saving') : i18n.t('app.auth.continue')}
+            </Button>
+          </form>
+        </section>
+      </div>
+    </Layout>
+  );
 }
 
-function Home() { return <Layout><section className="card-pattern overflow-hidden rounded-2xl border border-amber-300/30 bg-slate-900 px-6 py-18 text-center sm:px-12"><p className="mb-4 text-sm font-bold tracking-[.2em] text-amber-300">TORNEOS MULTIJUGADOR</p><h1 className="mx-auto max-w-3xl text-4xl font-black tracking-tight sm:text-6xl">Organiza la próxima gran mesa.</h1><p className="mx-auto mt-5 max-w-xl text-lg text-slate-300">Rondas justas, resultados ágiles y clasificación clara para Commander y cualquier TCG multijugador.</p><div className="mt-8 flex flex-wrap justify-center gap-3"><Link className={primary} to="/register">Crear cuenta</Link><Link className="rounded-lg border border-slate-500 px-4 py-2 font-semibold hover:bg-slate-800" to="/login">Iniciar sesión</Link></div></section><section className="mt-6 grid gap-4 md:grid-cols-3">{[['♟','Mesas equilibradas','Distribución válida de 3 y 4 jugadores.'],['✦','Resultados claros','Puntos, kills y desempates trazables.'],['⌁','Consulta pública','Comparte el estado sin exponer controles.']].map(([icon,title,text]) => <article key={title} className={panel}><span className="text-2xl text-amber-300">{icon}</span><h2 className="mt-3 font-bold">{title}</h2><p className="mt-1 text-sm text-slate-300">{text}</p></article>)}</section></Layout> }
-function Auth({ screen }: { screen: 'login'|'register'|'recovery' }) {
-  const { configured, user, signIn, signUp, resetPassword } = useAuth()
-  const navigate = useNavigate()
-  const [searchParams] = useSearchParams()
-  const [message, setMessage] = useState('')
-  const [busy, setBusy] = useState(false)
-  const [showPassword, setShowPassword] = useState(false)
-  const [legalAccepted, setLegalAccepted] = useState(false)
-  const [legalError, setLegalError] = useState('')
-  const recovery = screen === 'recovery'
-  const register = screen === 'register'
-  const title = i18n.t(`app.auth.${screen}`)
-  const requestedPath = searchParams.get('next')
-  const returnPath = requestedPath?.startsWith('/unirse/') ? requestedPath : '/dashboard'
+function Home() {
+  return (
+    <Layout>
+      <section className="card-pattern overflow-hidden rounded-2xl border border-amber-300/30 bg-slate-900 px-6 py-18 text-center sm:px-12">
+        <p className="mb-4 text-sm font-bold tracking-[.2em] text-amber-300">
+          TORNEOS MULTIJUGADOR
+        </p>
+        <h1 className="mx-auto max-w-3xl text-4xl font-black tracking-tight sm:text-6xl">
+          Organiza la próxima gran mesa.
+        </h1>
+        <p className="mx-auto mt-5 max-w-xl text-lg text-slate-300">
+          Rondas justas, resultados ágiles y clasificación clara para Commander y cualquier TCG
+          multijugador.
+        </p>
+        <div className="mt-8 flex flex-wrap justify-center gap-3">
+          <Link className={primary} to="/register">
+            Crear cuenta
+          </Link>
+          <Link
+            className="rounded-lg border border-slate-500 px-4 py-2 font-semibold hover:bg-slate-800"
+            to="/login"
+          >
+            Iniciar sesión
+          </Link>
+        </div>
+      </section>
+      <section className="mt-6 grid gap-4 md:grid-cols-3">
+        {[
+          ['♟', 'Mesas equilibradas', 'Distribución válida de 3 y 4 jugadores.'],
+          ['✦', 'Resultados claros', 'Puntos, kills y desempates trazables.'],
+          ['⌁', 'Consulta pública', 'Comparte el estado sin exponer controles.'],
+        ].map(([icon, title, text]) => (
+          <article key={title} className={panel}>
+            <span className="text-2xl text-amber-300">{icon}</span>
+            <h2 className="mt-3 font-bold">{title}</h2>
+            <p className="mt-1 text-sm text-slate-300">{text}</p>
+          </article>
+        ))}
+      </section>
+    </Layout>
+  );
+}
+function Auth({ screen }: { screen: 'login' | 'register' | 'recovery' }) {
+  const { configured, user, signIn, signUp, resetPassword } = useAuth();
+  const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const [message, setMessage] = useState('');
+  const [busy, setBusy] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [legalAccepted, setLegalAccepted] = useState(false);
+  const [legalError, setLegalError] = useState('');
+  const recovery = screen === 'recovery';
+  const register = screen === 'register';
+  const title = i18n.t(`app.auth.${screen}`);
+  const requestedPath = searchParams.get('next');
+  const returnPath = requestedPath?.startsWith('/unirse/') ? requestedPath : '/dashboard';
 
-  useEffect(() => { if (register && user) navigate(returnPath, { replace: true }) }, [register, returnPath, user, navigate])
+  useEffect(() => {
+    if (register && user) navigate(returnPath, { replace: true });
+  }, [register, returnPath, user, navigate]);
 
   async function submit(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault()
-    const data = new FormData(event.currentTarget)
-    const email = String(data.get('email')).trim()
-    const password = String(data.get('password'))
+    event.preventDefault();
+    const data = new FormData(event.currentTarget);
+    const email = String(data.get('email')).trim();
+    const password = String(data.get('password'));
     if (register && !legalAccepted) {
-      setLegalError(i18n.t('app.auth.legalConsentRequired'))
-      return
+      setLegalError(i18n.t('app.auth.legalConsentRequired'));
+      return;
     }
-    setBusy(true)
-    setMessage('')
+    setBusy(true);
+    setMessage('');
     try {
       if (recovery) {
-        await resetPassword(email)
-        setMessage(i18n.t('app.auth.recoverySent'))
+        await resetPassword(email);
+        setMessage(i18n.t('app.auth.recoverySent'));
       } else if (register) {
-        const name = String(data.get('name')).trim()
-        if (password !== String(data.get('confirmPassword'))) throw new Error(i18n.t('app.auth.passwordsMismatch'))
-        await signUp(name, email, password, currentLegalConsent)
-        navigate(returnPath, { replace: true })
+        const name = String(data.get('name')).trim();
+        if (password !== String(data.get('confirmPassword')))
+          throw new Error(i18n.t('app.auth.passwordsMismatch'));
+        await signUp(name, email, password, currentLegalConsent);
+        navigate(returnPath, { replace: true });
       } else {
-        await signIn(email, password)
-        navigate(returnPath)
+        await signIn(email, password);
+        navigate(returnPath);
       }
     } catch (error) {
-      setMessage(error instanceof Error ? error.message : i18n.t('app.auth.operationFailed'))
+      setMessage(error instanceof Error ? error.message : i18n.t('app.auth.operationFailed'));
     } finally {
-      setBusy(false)
+      setBusy(false);
     }
   }
 
-  const passwordField = (name: string, label: string) => <label className="block text-sm font-medium">{label}<span className="relative mt-1 block"><input required name={name} minLength={6} type={showPassword ? 'text' : 'password'} className={`${field} mt-0 pr-12`} /><Button type="button" variant="ghost" size="sm" aria-label={showPassword ? i18n.t('app.auth.hidePassword') : i18n.t('app.auth.showPassword')} title={showPassword ? i18n.t('app.auth.hidePassword') : i18n.t('app.auth.showPassword')} className="absolute inset-y-0 right-0 w-11 text-muted-foreground hover:text-accent" onClick={() => setShowPassword(value => !value)}>{showPassword ? <EyeOff size={18} /> : <Eye size={18} />}</Button></span></label>
-  const consent = <fieldset className="rounded-2xl border border-border bg-secondary/40 p-3"><legend className="sr-only">{i18n.t('app.legalConsent.title')}</legend><label className="flex cursor-pointer items-start gap-3 text-sm leading-5 text-foreground"><input required name="legalConsent" checked={legalAccepted} onChange={event => { setLegalAccepted(event.target.checked); if (event.target.checked) setLegalError('') }} type="checkbox" className="mt-1 size-4 accent-[#21B876]" /><span>{i18n.t('app.auth.legalAgreement')} <Link to="/terms" target="_blank" rel="noreferrer" className="font-semibold text-accent underline">{i18n.t('app.auth.terms')}</Link>{i18n.t('app.auth.legalAgreementConnector')}<Link to="/privacy" target="_blank" rel="noreferrer" className="font-semibold text-accent underline">{i18n.t('app.auth.privacy')}</Link>{i18n.t('app.auth.legalAgreementSuffix')}</span></label>{legalError && <p role="alert" className="mt-2 text-sm text-red-300">{legalError}</p>}</fieldset>
-  return <Layout><div className="mx-auto max-w-md"><div className={panel}><h1 className="text-2xl font-black">{title}</h1><p className="mt-2 text-sm text-muted-foreground">{configured ? '' : i18n.t('app.auth.localMode')}</p>{message && <div className="mt-4"><Notice error={!message.includes(i18n.t('app.auth.recoverySent'))}>{message}</Notice></div>}<form className="mt-5 space-y-4" onSubmit={submit}>{register && <label className="block text-sm font-medium">{i18n.t('app.common.name')}<input required name="name" autoComplete="name" className={field} placeholder={i18n.t('app.auth.yourName')} /></label>}<label className="block text-sm font-medium">{i18n.t('app.common.email')}<input required name="email" type="email" autoComplete="email" className={field} placeholder="correo@gmail.com" /></label>{!recovery && <>{passwordField('password', i18n.t('app.common.password'))}{register && passwordField('confirmPassword', i18n.t('app.auth.confirmPassword'))}</>}{register && consent}<Button disabled={busy} className={`${primary} w-full`}>{busy ? i18n.t('app.auth.processing') : recovery ? i18n.t('app.auth.sendInstructions') : i18n.t('app.auth.continue')}</Button></form>{!recovery && <GoogleAuthButton requiresConsent={register} consentAccepted={legalAccepted} redirectPath={returnPath} onConsentRequired={() => setLegalError(i18n.t('app.auth.legalConsentRequired'))} />}<Link className="mt-5 block text-center text-sm text-accent underline" to={screen === 'login' ? '/register' : '/login'}>{screen === 'login' ? i18n.t('app.auth.noAccount') : i18n.t('app.auth.backToLogin')}</Link>{!recovery && <Button asChild type="button" variant="outline" className="mt-3 w-full"><Link to="/forgot-password">{i18n.t('app.auth.forgotPassword')}</Link></Button>}</div></div></Layout>
+  const passwordField = (name: string, label: string) => (
+    <label className="block text-sm font-medium">
+      {label}
+      <span className="relative mt-1 block">
+        <input
+          required
+          name={name}
+          minLength={6}
+          type={showPassword ? 'text' : 'password'}
+          className={`${field} mt-0 pr-12`}
+        />
+        <Button
+          type="button"
+          variant="ghost"
+          size="sm"
+          aria-label={
+            showPassword ? i18n.t('app.auth.hidePassword') : i18n.t('app.auth.showPassword')
+          }
+          title={showPassword ? i18n.t('app.auth.hidePassword') : i18n.t('app.auth.showPassword')}
+          className="absolute inset-y-0 right-0 w-11 text-muted-foreground hover:text-accent"
+          onClick={() => setShowPassword((value) => !value)}
+        >
+          {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+        </Button>
+      </span>
+    </label>
+  );
+  const consent = (
+    <fieldset className="rounded-2xl border border-border bg-secondary/40 p-3">
+      <legend className="sr-only">{i18n.t('app.legalConsent.title')}</legend>
+      <label className="flex cursor-pointer items-start gap-3 text-sm leading-5 text-foreground">
+        <input
+          required
+          name="legalConsent"
+          checked={legalAccepted}
+          onChange={(event) => {
+            setLegalAccepted(event.target.checked);
+            if (event.target.checked) setLegalError('');
+          }}
+          type="checkbox"
+          className="mt-1 size-4 accent-[#21B876]"
+        />
+        <span>
+          {i18n.t('app.auth.legalAgreement')}{' '}
+          <Link
+            to="/terms"
+            target="_blank"
+            rel="noreferrer"
+            className="font-semibold text-accent underline"
+          >
+            {i18n.t('app.auth.terms')}
+          </Link>
+          {i18n.t('app.auth.legalAgreementConnector')}
+          <Link
+            to="/privacy"
+            target="_blank"
+            rel="noreferrer"
+            className="font-semibold text-accent underline"
+          >
+            {i18n.t('app.auth.privacy')}
+          </Link>
+          {i18n.t('app.auth.legalAgreementSuffix')}
+        </span>
+      </label>
+      {legalError && (
+        <p role="alert" className="mt-2 text-sm text-red-300">
+          {legalError}
+        </p>
+      )}
+    </fieldset>
+  );
+  return (
+    <Layout>
+      <div className="mx-auto max-w-md">
+        <div className={panel}>
+          <h1 className="text-2xl font-black">{title}</h1>
+          <p className="mt-2 text-sm text-muted-foreground">
+            {configured ? '' : i18n.t('app.auth.localMode')}
+          </p>
+          {message && (
+            <div className="mt-4">
+              <Notice error={!message.includes(i18n.t('app.auth.recoverySent'))}>{message}</Notice>
+            </div>
+          )}
+          <form className="mt-5 space-y-4" onSubmit={submit}>
+            {register && (
+              <label className="block text-sm font-medium">
+                {i18n.t('app.common.name')}
+                <input
+                  required
+                  name="name"
+                  autoComplete="name"
+                  className={field}
+                  placeholder={i18n.t('app.auth.yourName')}
+                />
+              </label>
+            )}
+            <label className="block text-sm font-medium">
+              {i18n.t('app.common.email')}
+              <input
+                required
+                name="email"
+                type="email"
+                autoComplete="email"
+                className={field}
+                placeholder="correo@gmail.com"
+              />
+            </label>
+            {!recovery && (
+              <>
+                {passwordField('password', i18n.t('app.common.password'))}
+                {register && passwordField('confirmPassword', i18n.t('app.auth.confirmPassword'))}
+              </>
+            )}
+            {register && consent}
+            <Button disabled={busy} className={`${primary} w-full`}>
+              {busy
+                ? i18n.t('app.auth.processing')
+                : recovery
+                  ? i18n.t('app.auth.sendInstructions')
+                  : i18n.t('app.auth.continue')}
+            </Button>
+          </form>
+          {!recovery && (
+            <GoogleAuthButton
+              requiresConsent={register}
+              consentAccepted={legalAccepted}
+              redirectPath={returnPath}
+              onConsentRequired={() => setLegalError(i18n.t('app.auth.legalConsentRequired'))}
+            />
+          )}
+          <Link
+            className="mt-5 block text-center text-sm text-accent underline"
+            to={screen === 'login' ? '/register' : '/login'}
+          >
+            {screen === 'login' ? i18n.t('app.auth.noAccount') : i18n.t('app.auth.backToLogin')}
+          </Link>
+          {!recovery && (
+            <Button asChild type="button" variant="outline" className="mt-3 w-full">
+              <Link to="/forgot-password">{i18n.t('app.auth.forgotPassword')}</Link>
+            </Button>
+          )}
+        </div>
+      </div>
+    </Layout>
+  );
 }
-function ConfirmedAccount() { const { user, loading } = useAuth(); return <Layout><div className="mx-auto max-w-md text-center"><section className={panel}><span className="text-4xl">✓</span><h1 className="mt-3 text-2xl font-black">{loading ? i18n.t('app.auth.confirming') : user ? i18n.t('app.auth.confirmed') : i18n.t('app.auth.reviewConfirmation')}</h1><p className="mt-3 text-muted-foreground">{user ? i18n.t('app.auth.confirmedDescription') : i18n.t('app.auth.confirmationDescription')}</p>{user&&<Button type="button" className={`${primary} mt-5`} onClick={() => window.close()}>{i18n.t('app.auth.closeTab')}</Button>}</section></div></Layout> }
+function ConfirmedAccount() {
+  const { user, loading } = useAuth();
+  return (
+    <Layout>
+      <div className="mx-auto max-w-md text-center">
+        <section className={panel}>
+          <span className="text-4xl">✓</span>
+          <h1 className="mt-3 text-2xl font-black">
+            {loading
+              ? i18n.t('app.auth.confirming')
+              : user
+                ? i18n.t('app.auth.confirmed')
+                : i18n.t('app.auth.reviewConfirmation')}
+          </h1>
+          <p className="mt-3 text-muted-foreground">
+            {user
+              ? i18n.t('app.auth.confirmedDescription')
+              : i18n.t('app.auth.confirmationDescription')}
+          </p>
+          {user && (
+            <Button type="button" className={`${primary} mt-5`} onClick={() => window.close()}>
+              {i18n.t('app.auth.closeTab')}
+            </Button>
+          )}
+        </section>
+      </div>
+    </Layout>
+  );
+}
 function OrganizerIdentity({ user }: { user: User | null }) {
-  const { name, avatarUrl } = getUserProfile(user)
-  const [avatarFailed, setAvatarFailed] = useState(false)
-  const avatarSource = avatarFailed || !avatarUrl ? '/default-avatar.svg' : avatarUrl
+  const { name, avatarUrl } = getUserProfile(user);
+  const [avatarFailed, setAvatarFailed] = useState(false);
+  const avatarSource = avatarFailed || !avatarUrl ? '/default-avatar.svg' : avatarUrl;
 
-  return <p className="flex items-center gap-2 text-sm text-amber-300">
-    <span className="inline-flex h-7 w-7 shrink-0 overflow-hidden rounded-full border border-amber-300/40 bg-slate-800 text-xs font-bold text-amber-200">
-      <img src={avatarSource} alt="" referrerPolicy="no-referrer" className="h-full w-full object-cover" onError={() => setAvatarFailed(true)} />
-    </span>
-    <span>{i18n.t('app.header.organizerPanel', { name })}</span>
-  </p>
+  return (
+    <p className="flex items-center gap-2 text-sm text-amber-300">
+      <span className="inline-flex h-7 w-7 shrink-0 overflow-hidden rounded-full border border-amber-300/40 bg-slate-800 text-xs font-bold text-amber-200">
+        <img
+          src={avatarSource}
+          alt=""
+          referrerPolicy="no-referrer"
+          className="h-full w-full object-cover"
+          onError={() => setAvatarFailed(true)}
+        />
+      </span>
+      <span>{i18n.t('app.header.organizerPanel', { name })}</span>
+    </p>
+  );
 }
 
 function Dashboard() {
-  const { tournaments, ready, remoteError, removeTournament } = useTournaments();
-  const { configured, isPlayer, user, loading } = useAuth();
-  const [tournamentToDelete, setTournamentToDelete] = useState<Tournament>();
-  const [creating, setCreating] = useState(false);
-  const navigate = useNavigate();
-  const ownTournaments = tournaments.filter((tournament) => tournament.ownerId === user?.id);
-  const tournamentLimitReached = ownTournaments.length >= maxTournamentsPerOrganizer;
+  const { configured, isAdmin, isPlayer, user, loading } = useAuth();
   if (configured && !loading && !user) return <Navigate to="/login" replace />;
-  if (isPlayer) return <Layout><PlayerDashboard /></Layout>;
-
+  if (isAdmin) return <Navigate to="/admin" replace />;
+  if (isPlayer)
+    return (
+      <Layout>
+        <PlayerDashboard />
+      </Layout>
+    );
   return (
     <Layout>
-      <div className="dashboard-board">
-        <header className="dashboard-board__header">
-          <div>
-            <OrganizerIdentity user={user} />
-            <h1>{i18n.t('app.dashboard.title')}</h1>
-          </div>
-          <Button
-            className={primary}
-            onClick={() => {
-              if (tournamentLimitReached) {
-                showToast(tournamentLimitMessage, true);
-                return;
-              }
-              setCreating(true);
-            }}
-          >
-            <Plus size={16} aria-hidden />
+      <OrganizerDashboard />
+    </Layout>
+  );
+}
+
+function OrganizerDashboard() {
+  const { tournaments, ready, remoteError, removeTournament } = useTournaments();
+  const { user } = useAuth();
+  const [tournamentToDelete, setTournamentToDelete] = useState<Tournament>();
+  const ownTournaments = tournaments.filter((tournament) => tournament.ownerId === user?.id);
+  const activeTournaments = ownTournaments.filter((tournament) => tournament.status === 'activo');
+  const featuredTournament = activeTournaments[0];
+  return (
+    <div className="dashboard-board organizer-dashboard">
+      <header className="dashboard-board__header" id="my-tournaments">
+        <div>
+          <OrganizerIdentity user={user} />
+          <h1>{i18n.t('app.dashboard.title')}</h1>
+        </div>
+        <Button asChild className={primary}>
+          <Link to="/tournaments/new">
+            <Plus aria-hidden />
             {i18n.t('app.dashboard.newTournament')}
-          </Button>
-        </header>
-        {!ready && (
-          <div className="app-loading-note">
-            <i />
-            <span>{i18n.t('app.dashboard.loading')}</span>
+          </Link>
+        </Button>
+      </header>
+      {!ready && (
+        <div className="app-loading-note">
+          <i />
+          <span>{i18n.t('app.dashboard.loading')}</span>
+        </div>
+      )}
+      {remoteError && (
+        <div className="mb-4">
+          <Notice error>{remoteError}</Notice>
+        </div>
+      )}
+      {featuredTournament && (
+        <section
+          className="dashboard-focus organizer-dashboard__focus"
+          aria-labelledby="active-tournament-title"
+        >
+          <div>
+            <span className="dashboard-focus__icon">
+              <Play aria-hidden />
+            </span>
+            <p>{i18n.t('app.organizerDashboard.activeFocus')}</p>
+            <h2 id="active-tournament-title">{featuredTournament.name}</h2>
+            <span className="dashboard-focus__meta">
+              {i18n.t('app.dashboard.playersAndRounds', {
+                players: featuredTournament.players.filter((player) => player.active).length,
+                rounds: `${featuredTournament.rounds.length}/${featuredTournament.plannedRounds}`,
+              })}
+            </span>
           </div>
-        )}
-        {remoteError && (
-          <div className="mb-4">
-            <Notice error>{remoteError}</Notice>
+          <div className="organizer-dashboard__focus-actions">
+            <Button asChild variant="outline" className="app-button app-button--secondary">
+              <Link to={`/tournaments/${featuredTournament.id}/settings`}>
+                {i18n.t('app.organizerDashboard.invitations')}
+              </Link>
+            </Button>
+            <Button asChild className={primary}>
+              <Link to={`/tournaments/${featuredTournament.id}/rounds`}>
+                {i18n.t('app.organizerDashboard.continueTournament')}
+              </Link>
+            </Button>
           </div>
-        )}
-        {(['activo', 'finalizado'] as const).map((status) => {
-          const sectionTournaments = ownTournaments.filter(
-            (tournament) => tournament.status === status,
-          );
-          const SectionIcon = status === 'activo' ? Play : Archive;
-          return (
-            <section key={status} className="dashboard-shelf">
-              <header>
-                <span>
-                  <SectionIcon size={14} aria-hidden />
-                </span>
-                <h2>
-                  {status === 'activo'
-                    ? i18n.t('app.dashboard.active')
-                    : i18n.t('app.dashboard.finished')}
-                </h2>
-              </header>
-              <div className="dashboard-shelf__grid">
-                {sectionTournaments.map((tournament) => (
-                  <article
-                    key={tournament.id}
-                    role="link"
-                    tabIndex={0}
-                    className="tournament-ticket"
-                    onClick={(event) => {
-                      if (!(event.target as HTMLElement).closest('button'))
-                        navigate(`/tournaments/${tournament.id}`);
-                    }}
-                    onKeyDown={(event) => {
-                      if (event.key === 'Enter' || event.key === ' ') {
-                        event.preventDefault();
-                        navigate(`/tournaments/${tournament.id}`);
-                      }
-                    }}
-                  >
+        </section>
+      )}
+      {(['activo', 'finalizado'] as const).map((status) => {
+        const sectionTournaments = ownTournaments.filter(
+          (tournament) => tournament.status === status && tournament.id !== featuredTournament?.id,
+        );
+        if (status === 'activo' && !sectionTournaments.length && featuredTournament) return null;
+        const SectionIcon = status === 'activo' ? Play : Archive;
+        return (
+          <section key={status} className="dashboard-shelf">
+            <header>
+              <span>
+                <SectionIcon size={14} aria-hidden />
+              </span>
+              <h2>
+                {status === 'activo'
+                  ? featuredTournament
+                    ? i18n.t('app.organizerDashboard.otherActive')
+                    : i18n.t('app.dashboard.active')
+                  : i18n.t('app.dashboard.finished')}
+              </h2>
+            </header>
+            <div className="dashboard-shelf__grid">
+              {sectionTournaments.map((tournament) => (
+                <article key={tournament.id} className="tournament-ticket">
+                  <Link to={`/tournaments/${tournament.id}`} className="tournament-ticket__link">
                     <div className="tournament-ticket__top">
                       <span>{tournament.format}</span>
                       <Badge>{tournament.status}</Badge>
@@ -243,186 +930,75 @@ function Dashboard() {
                         rounds: `${tournament.rounds.length}/${tournament.plannedRounds}`,
                       })}
                     </p>
-                    <div className="tournament-ticket__bottom">
-                      <div
-                        className="round-pips"
-                        aria-label={i18n.t('app.dashboard.playersAndRounds', {
-                          players: tournament.players.filter((player) => player.active).length,
-                          rounds: `${tournament.rounds.length}/${tournament.plannedRounds}`,
-                        })}
-                      >
-                        {Array.from({ length: tournament.plannedRounds }, (_, round) => (
-                          <i
-                            className={round < tournament.rounds.length ? 'is-done' : ''}
-                            key={round}
-                          />
-                        ))}
-                      </div>
-                      <Button
-                        type="button"
-                        variant="outline"
-                        size="sm"
-                        className="app-action-delete"
-                        onClick={(event) => {
-                          event.stopPropagation();
-                          setTournamentToDelete(tournament);
-                        }}
-                      >
-                        {i18n.t('app.common.delete')}
-                      </Button>
+                  </Link>
+                  <div className="tournament-ticket__bottom">
+                    <div
+                      className="round-pips"
+                      aria-label={i18n.t('app.dashboard.playersAndRounds', {
+                        players: tournament.players.filter((player) => player.active).length,
+                        rounds: `${tournament.rounds.length}/${tournament.plannedRounds}`,
+                      })}
+                    >
+                      {Array.from({ length: tournament.plannedRounds }, (_, round) => (
+                        <i
+                          className={round < tournament.rounds.length ? 'is-done' : ''}
+                          key={round}
+                        />
+                      ))}
                     </div>
-                  </article>
-                ))}
-                {ready && sectionTournaments.length === 0 && (
-                  <div className="app-empty-state">
-                    <span>
-                      <Inbox aria-hidden />
-                    </span>
-                    <p>{i18n.t('app.dashboard.noTournaments')}</p>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      className="app-action-delete"
+                      onClick={(event) => {
+                        event.stopPropagation();
+                        setTournamentToDelete(tournament);
+                      }}
+                    >
+                      {i18n.t('app.common.delete')}
+                    </Button>
                   </div>
-                )}
-              </div>
-            </section>
-          );
-        })}
-        {creating && <TournamentCreateModal onClose={() => setCreating(false)} />}
-        {tournamentToDelete && (
-          <ConfirmModal
-            title={i18n.t('app.dashboard.deleteTitle')}
-            description={i18n.t('app.dashboard.deleteDescription', {
-              name: tournamentToDelete.name,
-            })}
-            confirmLabel={i18n.t('app.dashboard.deleteTitle')}
-            destructive
-            onClose={() => setTournamentToDelete(undefined)}
-            onConfirm={() => {
-              removeTournament(tournamentToDelete.id);
-              setTournamentToDelete(undefined);
-            }}
-          />
-        )}
-      </div>
-    </Layout>
+                </article>
+              ))}
+              {ready && sectionTournaments.length === 0 && (
+                <div className="app-empty-state">
+                  <span>
+                    <Inbox aria-hidden />
+                  </span>
+                  <p>{i18n.t('app.dashboard.noTournaments')}</p>
+                </div>
+              )}
+            </div>
+          </section>
+        );
+      })}
+      {tournamentToDelete && (
+        <ConfirmModal
+          title={i18n.t('app.dashboard.deleteTitle')}
+          description={i18n.t('app.dashboard.deleteDescription', {
+            name: tournamentToDelete.name,
+          })}
+          confirmLabel={i18n.t('app.dashboard.deleteTitle')}
+          destructive
+          onClose={() => setTournamentToDelete(undefined)}
+          onConfirm={() => {
+            removeTournament(tournamentToDelete.id);
+            setTournamentToDelete(undefined);
+          }}
+        />
+      )}
+    </div>
   );
 }
 
-function TournamentCreateModal({ onClose }: { onClose: () => void }) {
-  const { createTournament } = useTournaments();
-  const navigate = useNavigate();
-  const [error, setError] = useState('');
-  const [busy, setBusy] = useState(false);
-
-  async function submit(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    const form = new FormData(event.currentTarget);
-    const plannedRounds = Number(form.get('rounds'));
-    const maxPlayers = Number(form.get('maxPlayers'));
-    const maxTables = Number(form.get('maxTables'));
-    if (
-      !Number.isInteger(plannedRounds) ||
-      plannedRounds < 1 ||
-      !Number.isInteger(maxPlayers) ||
-      maxPlayers < 3 ||
-      !Number.isInteger(maxTables) ||
-      maxTables < 1
-    ) {
-      setError(i18n.t('app.createTournament.invalidLimits'));
-      return;
-    }
-    setBusy(true);
-    try {
-      const tournament = await createTournament({
-        name: String(form.get('name')),
-        format: String(form.get('format')),
-        plannedRounds,
-        maxPlayers,
-        maxTables,
-        isPublic: true,
-      });
-      onClose();
-      navigate(`/tournaments/${tournament.id}`);
-    } catch (reason) {
-      setError(reason instanceof Error ? reason.message : tournamentLimitMessage);
-    } finally {
-      setBusy(false);
-    }
-  }
-
-  return (
-    <Modal
-      title={i18n.t('app.createTournament.title')}
-      description={i18n.t('app.createTournament.description')}
-      onClose={onClose}
-    >
-      <form className="space-y-4" onSubmit={submit}>
-        {error && <Notice error>{error}</Notice>}
-        <div className="grid gap-3 sm:grid-cols-2">
-          <label className="text-sm sm:col-span-2">
-            {i18n.t('app.common.name')}
-            <input
-              autoFocus
-              required
-              name="name"
-              className={field}
-              placeholder={i18n.t('app.createTournament.namePlaceholder')}
-            />
-          </label>
-          <label className="text-sm">
-            {i18n.t('app.createTournament.format')}
-            <input name="format" defaultValue="Commander" className={field} />
-          </label>
-          <label className="text-sm">
-            {i18n.t('app.tournament.rounds')}
-            <input
-              required
-              name="rounds"
-              defaultValue="3"
-              min="1"
-              type="number"
-              className={field}
-            />
-          </label>
-          <label className="text-sm">
-            {i18n.t('app.createTournament.maxPlayers')}
-            <input
-              required
-              name="maxPlayers"
-              defaultValue="32"
-              min="3"
-              type="number"
-              className={field}
-            />
-          </label>
-          <label className="text-sm">
-            {i18n.t('app.createTournament.maxTables')}
-            <input
-              required
-              name="maxTables"
-              defaultValue="8"
-              min="1"
-              type="number"
-              className={field}
-            />
-          </label>
-        </div>
-        <div className="flex justify-end gap-3">
-          <Button type="button" variant="outline" className="app-button app-button--secondary" onClick={onClose}>
-            {i18n.t('app.common.cancel')}
-          </Button>
-          <Button disabled={busy} className={primary}>
-            {busy ? i18n.t('app.createTournament.creating') : i18n.t('app.createTournament.create')}
-          </Button>
-        </div>
-      </form>
-    </Modal>
-  );
-}
 function NewTournament() {
   const { createTournament } = useTournaments();
-  const { isPlayer } = useAuth();
+  const { isAdmin, isPlayer } = useAuth();
   const navigate = useNavigate();
   const [error, setError] = useState('');
   const [busy, setBusy] = useState(false);
+  if (isAdmin) return <Navigate to="/admin" replace />;
   if (isPlayer) return <Navigate to="/dashboard" replace />;
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -522,7 +1098,8 @@ function NewTournament() {
 function TournamentLayout() {
   const { id } = useParams();
   const tournament = useTournament(id);
-  const { isPlayer } = useAuth();
+  const { isAdmin, isPlayer } = useAuth();
+  if (isAdmin) return <Navigate to="/admin" replace />;
   if (isPlayer) return <Navigate to="/dashboard" replace />;
   if (!tournament)
     return (
@@ -530,17 +1107,8 @@ function TournamentLayout() {
         <Notice error>{i18n.t('app.tournament.notFound')}</Notice>
       </Layout>
     );
-  const base = `/tournaments/${tournament.id}`;
-  const tabs: [string, LucideIcon, string][] = [
-    ['', LayoutDashboard, i18n.t('app.tournament.overview')],
-    ['players', Users, i18n.t('app.tournament.players')],
-    ['rounds', GitBranch, i18n.t('app.tournament.rounds')],
-    ['standings', Trophy, i18n.t('app.tournament.standings')],
-    ['statistics', BarChart3, i18n.t('app.statistics.title')],
-    ['settings', SettingsIcon, i18n.t('app.tournament.settings')],
-  ];
   return (
-    <Layout>
+    <Layout wide tournament={{ id: tournament.id, name: tournament.name }}>
       <header className="tournament-masthead">
         <div>
           <p>{tournament.format}</p>
@@ -548,19 +1116,6 @@ function TournamentLayout() {
         </div>
         <Badge>{tournament.status}</Badge>
       </header>
-      <nav className="tournament-tabs" aria-label={i18n.t('landing.navigation.label')}>
-        {tabs.map(([suffix, Icon, label]) => (
-          <NavLink
-            end={!suffix}
-            className={({ isActive }) => `tournament-tabs__tab ${isActive ? 'is-active' : ''}`}
-            key={label}
-            to={`${base}${suffix ? `/${suffix}` : ''}`}
-          >
-            <Icon size={16} aria-hidden />
-            {label}
-          </NavLink>
-        ))}
-      </nav>
       <Routes>
         <Route index element={<Overview />} />
         <Route path="players" element={<Players />} />
@@ -572,84 +1127,702 @@ function TournamentLayout() {
     </Layout>
   );
 }
-function Current() { const { id } = useParams(); const tournament = useTournament(id); if (!tournament) throw new Error('Torneo no encontrado'); return tournament }
-function Overview() { const tournament = Current(); const current = tournament.rounds.at(-1); return <section className="overview-board"><header><p>{i18n.t('app.tournament.state')}</p><h2>{i18n.t('app.tournament.overview')}</h2></header><div className="overview-board__metrics"><Metric label={i18n.t('app.tournament.activePlayers')} value={tournament.players.filter(player => player.active).length} icon={Users} /><Metric label={i18n.t('app.tournament.rounds')} value={`${tournament.rounds.length}/${tournament.plannedRounds}`} icon={GitBranch} /><Metric label={i18n.t('app.tournament.currentTable')} value={current ? `R${current.number}` : '—'} icon={Table} /></div><TournamentInformation /></section> }
-function Statistics() { return <BattleLedger statistics={tournamentStatistics(Current())} /> }
-function TournamentInformation() { const tournament = Current(); const { id } = useParams(); const { updateTournament } = useTournaments(); const [information,setInformation] = useState(tournament.information); const [saved,setSaved] = useState(false); function save(event:FormEvent<HTMLFormElement>){event.preventDefault();updateTournament(id!,{information:information.trim()});setSaved(true);showToast(i18n.t('app.tournament.informationSaved'))} return <section className="notice-board"><header><span><Info size={16} aria-hidden /></span><div><h2>{i18n.t('app.tournament.information')}</h2><p>{i18n.t('app.tournament.informationHelp')}</p></div></header><form onSubmit={save}><textarea value={information} onChange={event=>{setInformation(event.target.value);setSaved(false)}} disabled={tournament.status==='finalizado'} maxLength={2000} rows={7} className={`${field} resize-y`} placeholder={i18n.t('app.tournament.informationPlaceholder')} /><div className="notice-board__actions"><span>{information.length}/2000</span><Button disabled={tournament.status==='finalizado'} className={primary}>{i18n.t('app.tournament.saveInformation')}</Button></div>{saved&&<p className="notice-board__saved">{i18n.t('app.tournament.informationSaved')}</p>}</form></section> }
-function Metric({ label, value, icon: Icon }: { label: string; value: string | number; icon: LucideIcon }) { return <article className="app-stat-pill"><span><Icon size={16} aria-hidden /></span><strong>{value}</strong><small>{label}</small></article> }
+function Current() {
+  const { id } = useParams();
+  const tournament = useTournament(id);
+  if (!tournament) throw new Error('Torneo no encontrado');
+  return tournament;
+}
+function Overview() {
+  const tournament = Current();
+  const current = tournament.rounds.at(-1);
+  return (
+    <section className="overview-board">
+      <header>
+        <p>{i18n.t('app.tournament.state')}</p>
+        <h2>{i18n.t('app.tournament.overview')}</h2>
+      </header>
+      <div className="overview-board__metrics">
+        <Metric
+          label={i18n.t('app.tournament.activePlayers')}
+          value={tournament.players.filter((player) => player.active).length}
+          icon={Users}
+        />
+        <Metric
+          label={i18n.t('app.tournament.rounds')}
+          value={`${tournament.rounds.length}/${tournament.plannedRounds}`}
+          icon={GitBranch}
+        />
+        <Metric
+          label={i18n.t('app.tournament.currentTable')}
+          value={current ? `R${current.number}` : '—'}
+          icon={Table}
+        />
+      </div>
+      <TournamentInformation />
+    </section>
+  );
+}
+function Statistics() {
+  return <BattleLedger statistics={tournamentStatistics(Current())} />;
+}
+function TournamentInformation() {
+  const tournament = Current();
+  const { id } = useParams();
+  const { updateTournament } = useTournaments();
+  const [information, setInformation] = useState(tournament.information);
+  const [saved, setSaved] = useState(false);
+  function save(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    updateTournament(id!, { information: information.trim() });
+    setSaved(true);
+    showToast(i18n.t('app.tournament.informationSaved'));
+  }
+  return (
+    <section className="notice-board">
+      <header>
+        <span>
+          <Info size={16} aria-hidden />
+        </span>
+        <div>
+          <h2>{i18n.t('app.tournament.information')}</h2>
+          <p>{i18n.t('app.tournament.informationHelp')}</p>
+        </div>
+      </header>
+      <form onSubmit={save}>
+        <textarea
+          value={information}
+          onChange={(event) => {
+            setInformation(event.target.value);
+            setSaved(false);
+          }}
+          disabled={tournament.status === 'finalizado'}
+          maxLength={2000}
+          rows={7}
+          className={`${field} resize-y`}
+          placeholder={i18n.t('app.tournament.informationPlaceholder')}
+        />
+        <div className="notice-board__actions">
+          <span>{information.length}/2000</span>
+          <Button disabled={tournament.status === 'finalizado'} className={primary}>
+            {i18n.t('app.tournament.saveInformation')}
+          </Button>
+        </div>
+        {saved && (
+          <p className="notice-board__saved">{i18n.t('app.tournament.informationSaved')}</p>
+        )}
+      </form>
+    </section>
+  );
+}
+function Metric({
+  label,
+  value,
+  icon: Icon,
+}: {
+  label: string;
+  value: string | number;
+  icon: LucideIcon;
+}) {
+  return (
+    <article className="app-stat-pill">
+      <span>
+        <Icon size={16} aria-hidden />
+      </span>
+      <strong>{value}</strong>
+      <small>{label}</small>
+    </article>
+  );
+}
 function Players() {
-  const tournament = Current()
-  const { id } = useParams()
-  const { addPlayers, togglePlayer, removePlayer, renamePlayer } = useTournaments()
-  const [message, setMessage] = useState('')
-  const [adding, setAdding] = useState(false)
-  const [search, setSearch] = useState('')
-  const [editing, setEditing] = useState<Tournament['players'][number]>()
-  const [playerToToggle, setPlayerToToggle] = useState<Tournament['players'][number]>()
-  const [playerToDelete, setPlayerToDelete] = useState<Tournament['players'][number]>()
-  function add(event: FormEvent<HTMLFormElement>) { event.preventDefault(); const result = addPlayers(id!, String(new FormData(event.currentTarget).get('names')).split('\n')); setMessage(result.error ?? (result.added ? i18n.t('app.tournament.playersAdded', { count: result.added }) : i18n.t('app.tournament.noPlayers'))); setAdding(false) }
-  function edit(event: FormEvent<HTMLFormElement>) { event.preventDefault(); if (!editing) return; const result = renamePlayer(id!, editing.id, String(new FormData(event.currentTarget).get('name'))); setMessage(result ?? i18n.t('app.tournament.playerUpdated')); if (!result) setEditing(undefined) }
-  const normalizedSearch = search.trim().toLocaleLowerCase()
-  const filteredPlayers = tournament.players.filter(player => player.name.toLocaleLowerCase().includes(normalizedSearch))
-  return <section className="players-ledger"><header><div><p>{i18n.t('app.tournament.activeCount', { count: tournament.players.filter(player => player.active).length })}</p><h2>{i18n.t('app.tournament.players')}</h2></div><Button disabled={tournament.status === 'finalizado'} className={primary} onClick={() => setAdding(true)}><Plus size={16} aria-hidden />{i18n.t('app.tournament.addPlayers')}</Button></header><div className="players-ledger__sheet">{message && <Notice>{message}</Notice>}<label className="players-ledger__search"><span className="sr-only">{i18n.t('app.tournament.searchPlayers')}</span><input type="search" value={search} onChange={event => setSearch(event.target.value)} placeholder={i18n.t('app.tournament.searchPlayers')} className={field} /></label><div className="players-ledger__list">{filteredPlayers.map(player => <article key={player.id} className={`player-slip ${player.active ? '' : 'is-withdrawn'}`}><span className="player-slip__avatar" aria-hidden>{player.name.trim().slice(0, 1).toUpperCase()}</span><div><strong>{player.name}</strong><span className={`player-slip__status ${player.active ? 'is-active' : ''}`}>{player.active ? i18n.t('app.common.active') : i18n.t('app.common.withdrawn')}</span></div><div className="player-slip__actions"><Button type="button" variant="outline" size="sm" className="app-action-edit" onClick={() => setEditing(player)}>{i18n.t('app.common.edit')}</Button><Button type="button" variant="outline" size="sm" className="app-action-muted" onClick={() => setPlayerToToggle(player)}>{player.active ? i18n.t('app.tournament.retire') : i18n.t('app.tournament.activate')}</Button><Button type="button" variant="outline" size="sm" className="app-action-delete" onClick={() => setPlayerToDelete(player)}>{i18n.t('app.common.delete')}</Button></div></article>)}{!filteredPlayers.length && <div className="app-empty-state"><span><Users aria-hidden /></span><p>{search ? i18n.t('app.tournament.noPlayersFound') : i18n.t('app.tournament.noPlayers')}</p></div>}</div></div>
-    {adding && <Modal title={i18n.t('app.tournament.addPlayersTitle')} description={i18n.t('app.tournament.addPlayersDescription')} onClose={() => setAdding(false)}><form className="space-y-4" onSubmit={add}><textarea required name="names" className={field} rows={7} placeholder={i18n.t('app.tournament.playerNames')} /><div className="flex justify-end gap-3"><Button type="button" variant="outline" className="app-button app-button--secondary" onClick={() => setAdding(false)}>{i18n.t('app.common.cancel')}</Button><Button className={primary}>{i18n.t('app.tournament.addPlayers')}</Button></div></form></Modal>}
-    {editing && <Modal title={i18n.t('app.tournament.editPlayer')} description={i18n.t('app.tournament.updatePlayer')} onClose={() => setEditing(undefined)}><form className="space-y-4" onSubmit={edit}><label className="block text-sm">{i18n.t('app.common.name')}<input autoFocus required name="name" defaultValue={editing.name} className={field} /></label><div className="flex justify-end gap-3"><Button type="button" variant="outline" className="app-button app-button--secondary" onClick={() => setEditing(undefined)}>{i18n.t('app.common.cancel')}</Button><Button className={primary}>{i18n.t('app.common.save')}</Button></div></form></Modal>}
-    {playerToToggle && <ConfirmModal title={playerToToggle.active ? i18n.t('app.tournament.retire') : i18n.t('app.tournament.activate')} description={playerToToggle.active ? i18n.t('app.tournament.retirePlayerDescription', { name: playerToToggle.name }) : i18n.t('app.tournament.activatePlayerDescription', { name: playerToToggle.name })} confirmLabel={playerToToggle.active ? i18n.t('app.tournament.retire') : i18n.t('app.tournament.activate')} onClose={() => setPlayerToToggle(undefined)} onConfirm={() => { togglePlayer(id!, playerToToggle.id); setPlayerToToggle(undefined) }} />}
-    {playerToDelete && <ConfirmModal title={i18n.t('app.tournament.deletePlayer')} description={i18n.t('app.tournament.deletePlayerDescription', { name: playerToDelete.name })} confirmLabel={i18n.t('app.common.delete')} destructive onClose={() => setPlayerToDelete(undefined)} onConfirm={() => { const error = removePlayer(id!, playerToDelete.id); if (error) setMessage(error); setPlayerToDelete(undefined) }} />}
-  </section>
+  const tournament = Current();
+  const { id } = useParams();
+  const { addPlayers, togglePlayer, removePlayer, renamePlayer } = useTournaments();
+  const [message, setMessage] = useState('');
+  const [adding, setAdding] = useState(false);
+  const [search, setSearch] = useState('');
+  const [editing, setEditing] = useState<Tournament['players'][number]>();
+  const [playerToToggle, setPlayerToToggle] = useState<Tournament['players'][number]>();
+  const [playerToDelete, setPlayerToDelete] = useState<Tournament['players'][number]>();
+  function add(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    const result = addPlayers(
+      id!,
+      String(new FormData(event.currentTarget).get('names')).split('\n'),
+    );
+    setMessage(
+      result.error ??
+        (result.added
+          ? i18n.t('app.tournament.playersAdded', { count: result.added })
+          : i18n.t('app.tournament.noPlayers')),
+    );
+    setAdding(false);
+  }
+  function edit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    if (!editing) return;
+    const result = renamePlayer(
+      id!,
+      editing.id,
+      String(new FormData(event.currentTarget).get('name')),
+    );
+    setMessage(result ?? i18n.t('app.tournament.playerUpdated'));
+    if (!result) setEditing(undefined);
+  }
+  const normalizedSearch = search.trim().toLocaleLowerCase();
+  const filteredPlayers = tournament.players.filter((player) =>
+    player.name.toLocaleLowerCase().includes(normalizedSearch),
+  );
+  return (
+    <section className="players-ledger">
+      <header>
+        <div>
+          <p>
+            {i18n.t('app.tournament.activeCount', {
+              count: tournament.players.filter((player) => player.active).length,
+            })}
+          </p>
+          <h2>{i18n.t('app.tournament.players')}</h2>
+        </div>
+        <Button
+          disabled={tournament.status === 'finalizado'}
+          className={primary}
+          onClick={() => setAdding(true)}
+        >
+          <Plus size={16} aria-hidden />
+          {i18n.t('app.tournament.addPlayers')}
+        </Button>
+      </header>
+      <div className="players-ledger__sheet">
+        {message && <Notice>{message}</Notice>}
+        <label className="players-ledger__search">
+          <span className="sr-only">{i18n.t('app.tournament.searchPlayers')}</span>
+          <input
+            type="search"
+            value={search}
+            onChange={(event) => setSearch(event.target.value)}
+            placeholder={i18n.t('app.tournament.searchPlayers')}
+            className={field}
+          />
+        </label>
+        <div className="players-ledger__list">
+          {filteredPlayers.map((player) => (
+            <article
+              key={player.id}
+              className={`player-slip ${player.active ? '' : 'is-withdrawn'}`}
+            >
+              <span className="player-slip__avatar" aria-hidden>
+                {player.name.trim().slice(0, 1).toUpperCase()}
+              </span>
+              <div>
+                <strong>{player.name}</strong>
+                <span className={`player-slip__status ${player.active ? 'is-active' : ''}`}>
+                  {player.active ? i18n.t('app.common.active') : i18n.t('app.common.withdrawn')}
+                </span>
+              </div>
+              <div className="player-slip__actions">
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  className="app-action-edit"
+                  onClick={() => setEditing(player)}
+                >
+                  {i18n.t('app.common.edit')}
+                </Button>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  className="app-action-muted"
+                  onClick={() => setPlayerToToggle(player)}
+                >
+                  {player.active
+                    ? i18n.t('app.tournament.retire')
+                    : i18n.t('app.tournament.activate')}
+                </Button>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  className="app-action-delete"
+                  onClick={() => setPlayerToDelete(player)}
+                >
+                  {i18n.t('app.common.delete')}
+                </Button>
+              </div>
+            </article>
+          ))}
+          {!filteredPlayers.length && (
+            <div className="app-empty-state">
+              <span>
+                <Users aria-hidden />
+              </span>
+              <p>
+                {search
+                  ? i18n.t('app.tournament.noPlayersFound')
+                  : i18n.t('app.tournament.noPlayers')}
+              </p>
+            </div>
+          )}
+        </div>
+      </div>
+      {adding && (
+        <Modal
+          title={i18n.t('app.tournament.addPlayersTitle')}
+          description={i18n.t('app.tournament.addPlayersDescription')}
+          onClose={() => setAdding(false)}
+        >
+          <form className="space-y-4" onSubmit={add}>
+            <textarea
+              required
+              name="names"
+              className={field}
+              rows={7}
+              placeholder={i18n.t('app.tournament.playerNames')}
+            />
+            <div className="flex justify-end gap-3">
+              <Button
+                type="button"
+                variant="outline"
+                className="app-button app-button--secondary"
+                onClick={() => setAdding(false)}
+              >
+                {i18n.t('app.common.cancel')}
+              </Button>
+              <Button className={primary}>{i18n.t('app.tournament.addPlayers')}</Button>
+            </div>
+          </form>
+        </Modal>
+      )}
+      {editing && (
+        <Modal
+          title={i18n.t('app.tournament.editPlayer')}
+          description={i18n.t('app.tournament.updatePlayer')}
+          onClose={() => setEditing(undefined)}
+        >
+          <form className="space-y-4" onSubmit={edit}>
+            <label className="block text-sm">
+              {i18n.t('app.common.name')}
+              <input autoFocus required name="name" defaultValue={editing.name} className={field} />
+            </label>
+            <div className="flex justify-end gap-3">
+              <Button
+                type="button"
+                variant="outline"
+                className="app-button app-button--secondary"
+                onClick={() => setEditing(undefined)}
+              >
+                {i18n.t('app.common.cancel')}
+              </Button>
+              <Button className={primary}>{i18n.t('app.common.save')}</Button>
+            </div>
+          </form>
+        </Modal>
+      )}
+      {playerToToggle && (
+        <ConfirmModal
+          title={
+            playerToToggle.active
+              ? i18n.t('app.tournament.retire')
+              : i18n.t('app.tournament.activate')
+          }
+          description={
+            playerToToggle.active
+              ? i18n.t('app.tournament.retirePlayerDescription', { name: playerToToggle.name })
+              : i18n.t('app.tournament.activatePlayerDescription', { name: playerToToggle.name })
+          }
+          confirmLabel={
+            playerToToggle.active
+              ? i18n.t('app.tournament.retire')
+              : i18n.t('app.tournament.activate')
+          }
+          onClose={() => setPlayerToToggle(undefined)}
+          onConfirm={() => {
+            togglePlayer(id!, playerToToggle.id);
+            setPlayerToToggle(undefined);
+          }}
+        />
+      )}
+      {playerToDelete && (
+        <ConfirmModal
+          title={i18n.t('app.tournament.deletePlayer')}
+          description={i18n.t('app.tournament.deletePlayerDescription', {
+            name: playerToDelete.name,
+          })}
+          confirmLabel={i18n.t('app.common.delete')}
+          destructive
+          onClose={() => setPlayerToDelete(undefined)}
+          onConfirm={() => {
+            const error = removePlayer(id!, playerToDelete.id);
+            if (error) setMessage(error);
+            setPlayerToDelete(undefined);
+          }}
+        />
+      )}
+    </section>
+  );
 }
 
 function Rounds() {
-  const tournament = Current()
-  const { id } = useParams()
-  const { generateRound, deleteLastRound, startRound, completeRound, movePlayer } = useTournaments()
-  const [message,setMessage] = useState('')
-  const [deletingLast,setDeletingLast] = useState(false)
-  const [roundToComplete,setRoundToComplete] = useState<Tournament['rounds'][number]>()
-  const [selectedRoundId,setSelectedRoundId] = useState<string>()
-  const [draggedPlayer,setDraggedPlayer] = useState<string>()
-  const [dropTargetPod,setDropTargetPod] = useState<string>()
-  const [showRoundGenerationInfo,setShowRoundGenerationInfo] = useState(false)
-  const last = tournament.rounds.at(-1)
-  const hasOpenRound = tournament.rounds.some(round=>round.status!=='completada')
-  const names = Object.fromEntries(tournament.players.map(player => [player.id,player.name]))
-  const selectedRound = tournament.rounds.find(round=>round.id===selectedRoundId) ?? last
-  const selectedIndex = selectedRound ? tournament.rounds.findIndex(round=>round.id===selectedRound.id) : -1
+  const tournament = Current();
+  const { id } = useParams();
+  const { generateRound, deleteLastRound, startRound, completeRound, movePlayer } =
+    useTournaments();
+  const [message, setMessage] = useState('');
+  const [deletingLast, setDeletingLast] = useState(false);
+  const [roundToComplete, setRoundToComplete] = useState<Tournament['rounds'][number]>();
+  const [selectedRoundId, setSelectedRoundId] = useState<string>();
+  const [draggedPlayer, setDraggedPlayer] = useState<string>();
+  const [dropTargetPod, setDropTargetPod] = useState<string>();
+  const [showRoundGenerationInfo, setShowRoundGenerationInfo] = useState(false);
+  const last = tournament.rounds.at(-1);
+  const hasOpenRound = tournament.rounds.some((round) => round.status !== 'completada');
+  const names = Object.fromEntries(tournament.players.map((player) => [player.id, player.name]));
+  const selectedRound = tournament.rounds.find((round) => round.id === selectedRoundId) ?? last;
+  const selectedIndex = selectedRound
+    ? tournament.rounds.findIndex((round) => round.id === selectedRound.id)
+    : -1;
 
-  useEffect(()=>{ setSelectedRoundId(tournament.rounds.at(-1)?.id) },[tournament.rounds.length])
+  useEffect(() => {
+    setSelectedRoundId(tournament.rounds.at(-1)?.id);
+  }, [tournament.rounds.length]);
 
-  return <section className="rounds-deck">
-    <div className="rounds-deck__header">
-      <h2 className="text-xl font-bold">{i18n.t('app.tournament.roundsAndTables')}<Button type="button" variant="ghost" size="sm" className="app-help" aria-label={i18n.t('app.tournament.roundGenerationInfo.button')} aria-haspopup="dialog" title={i18n.t('app.tournament.roundGenerationInfo.button')} onClick={() => setShowRoundGenerationInfo(true)}><Info aria-hidden /></Button></h2>
-      <div className="flex flex-wrap justify-end gap-2">
-        <Button disabled={selectedIndex<=0} variant="outline" className="app-button app-button--secondary" onClick={()=>setSelectedRoundId(tournament.rounds[selectedIndex-1].id)}>{i18n.t('app.common.previous')}</Button>
-        <Button disabled={selectedIndex>=tournament.rounds.length-1} variant="outline" className="app-button app-button--secondary" onClick={()=>setSelectedRoundId(tournament.rounds[selectedIndex+1].id)}>{i18n.t('app.common.next')}</Button>
-        <Button disabled={tournament.status === 'finalizado' || hasOpenRound || tournament.rounds.length>=tournament.plannedRounds} className={`${primary} inline-flex items-center gap-2`} onClick={() => setMessage(generateRound(id!) ?? i18n.t('app.tournament.roundGenerated'))}><RefreshCw size={16} />{i18n.t('app.tournament.generateRound')}</Button>
-        <Button disabled={!last} variant="outline" className="app-button app-button--danger" onClick={() => setDeletingLast(true)}><Trash2 size={16} />{i18n.t('app.tournament.deleteLast')}</Button>
-      </div>
-    </div>
-    {message && <Notice error={message.includes('requieren') || message.includes('Completa') || message.includes('finalizado') || message.includes('Primero') || message.includes('Espera')}>{message}</Notice>}
-    {selectedRound ? <article className="round-sheet">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <div className="flex flex-wrap items-center gap-3"><h3 className="font-bold">{i18n.t('app.common.round',{number:selectedRound.number})} <span className="ml-2"><Badge>{selectedRound.status}</Badge></span></h3><RoundTimer round={selectedRound} /></div>
-        <div className="flex flex-wrap gap-2">
-          <Link className="app-button app-button--secondary" to={`/t/${tournament.publicSlug}?round=${selectedRound.id}`} target="_blank" rel="noreferrer"><Eye size={16} />{i18n.t('app.tournament.publicView')}<ExternalLink size={14} /></Link>
-          <Button disabled={selectedRound.status !== 'borrador' || tournament.status === 'finalizado'} className={`${primary} inline-flex items-center gap-2`} onClick={() => setMessage(startRound(id!,selectedRound.id) ?? i18n.t('app.tournament.roundStarted'))}><Play size={16} fill="currentColor" />{i18n.t('app.tournament.startRound')}</Button>
-          <Button disabled={selectedRound.status !== 'activa' || tournament.status === 'finalizado'} variant="outline" className="app-button app-button--danger" onClick={() => setRoundToComplete(selectedRound)}><Square size={15} fill="currentColor" />{i18n.t('app.tournament.endRound')}</Button>
+  return (
+    <section className="rounds-deck">
+      <div className="rounds-deck__header">
+        <h2 className="text-xl font-bold">
+          {i18n.t('app.tournament.roundsAndTables')}
+          <Button
+            type="button"
+            variant="ghost"
+            size="sm"
+            className="app-help"
+            aria-label={i18n.t('app.tournament.roundGenerationInfo.button')}
+            aria-haspopup="dialog"
+            title={i18n.t('app.tournament.roundGenerationInfo.button')}
+            onClick={() => setShowRoundGenerationInfo(true)}
+          >
+            <Info aria-hidden />
+          </Button>
+        </h2>
+        <div className="flex flex-wrap justify-end gap-2">
+          <Button
+            disabled={selectedIndex <= 0}
+            variant="outline"
+            className="app-button app-button--secondary"
+            onClick={() => setSelectedRoundId(tournament.rounds[selectedIndex - 1].id)}
+          >
+            {i18n.t('app.common.previous')}
+          </Button>
+          <Button
+            disabled={selectedIndex >= tournament.rounds.length - 1}
+            variant="outline"
+            className="app-button app-button--secondary"
+            onClick={() => setSelectedRoundId(tournament.rounds[selectedIndex + 1].id)}
+          >
+            {i18n.t('app.common.next')}
+          </Button>
+          <Button
+            disabled={
+              tournament.status === 'finalizado' ||
+              hasOpenRound ||
+              tournament.rounds.length >= tournament.plannedRounds
+            }
+            className={`${primary} inline-flex items-center gap-2`}
+            onClick={() =>
+              setMessage(generateRound(id!) ?? i18n.t('app.tournament.roundGenerated'))
+            }
+          >
+            <RefreshCw size={16} />
+            {i18n.t('app.tournament.generateRound')}
+          </Button>
+          <Button
+            disabled={!last}
+            variant="outline"
+            className="app-button app-button--danger"
+            onClick={() => setDeletingLast(true)}
+          >
+            <Trash2 size={16} />
+            {i18n.t('app.tournament.deleteLast')}
+          </Button>
         </div>
       </div>
-      {selectedRound.status==='borrador' && <p className="mt-3 text-sm text-muted-foreground">{i18n.t('app.tournament.dragHelp')}</p>}
-      <div className="rounds-deck__tables">{selectedRound.pods.map(pod => selectedRound.status === 'borrador' ? <DraftPodCard key={pod.id} pod={pod} names={names} draggedPlayer={draggedPlayer} isDropTarget={dropTargetPod===pod.id} onDragStart={playerId=>{setDraggedPlayer(playerId);setDropTargetPod(undefined)}} onDragEnter={()=>{if(draggedPlayer&&!pod.playerIds.includes(draggedPlayer))setDropTargetPod(pod.id)}} onDragEnd={()=>{setDraggedPlayer(undefined);setDropTargetPod(undefined)}} onDrop={playerId => { const error=movePlayer(id!,selectedRound.id,playerId,pod.id); if(error)setMessage(error); setDraggedPlayer(undefined); setDropTargetPod(undefined) }} /> : <PodCard key={pod.id} tournamentId={id!} roundId={selectedRound.id} pod={pod} readOnly={tournament.status === 'finalizado' || selectedRound.status !== 'activa'} names={names} editable={selectedRound.status === 'activa'} />)}</div>
-    </article> : <div className="app-empty-state">{i18n.t('app.tournament.noRounds')}</div>}
-    {showRoundGenerationInfo && <Modal title={i18n.t('app.tournament.roundGenerationInfo.title')} description={i18n.t('app.tournament.roundGenerationInfo.description')} onClose={() => setShowRoundGenerationInfo(false)}><ul className="space-y-3 text-sm leading-6 text-muted-foreground"><li>{i18n.t('app.tournament.roundGenerationInfo.activePlayers')}</li><li>{i18n.t('app.tournament.roundGenerationInfo.tableSizes')}</li><li>{i18n.t('app.tournament.roundGenerationInfo.pairings')}</li><li>{i18n.t('app.tournament.roundGenerationInfo.reorganize')}</li></ul><div className="mt-5 flex justify-end"><Button className={primary} onClick={() => setShowRoundGenerationInfo(false)}>{i18n.t('app.tournament.roundGenerationInfo.close')}</Button></div></Modal>}
-    {deletingLast && last && <ConfirmModal title={i18n.t('app.tournament.deleteLastTitle')} description={last.pods.some(p=>p.results?.length) ? i18n.t('app.tournament.deleteLastWithResults') : i18n.t('app.tournament.deleteLastDescription')} confirmLabel={i18n.t('app.tournament.deleteRound')} destructive onClose={() => setDeletingLast(false)} onConfirm={() => { setMessage(deleteLastRound(id!) ?? i18n.t('app.tournament.lastRoundDeleted')); setDeletingLast(false) }} />}
-    {roundToComplete && <ConfirmModal title={i18n.t('app.tournament.completeTitle',{number:roundToComplete.number})} description={i18n.t('app.tournament.completeDescription')} confirmLabel={i18n.t('app.tournament.endRound')} destructive onClose={() => setRoundToComplete(undefined)} onConfirm={() => { setMessage(completeRound(id!,roundToComplete.id) ?? i18n.t('app.tournament.roundCompleted')); setRoundToComplete(undefined) }} />}
-  </section>
+      {message && (
+        <Notice
+          error={
+            message.includes('requieren') ||
+            message.includes('Completa') ||
+            message.includes('finalizado') ||
+            message.includes('Primero') ||
+            message.includes('Espera')
+          }
+        >
+          {message}
+        </Notice>
+      )}
+      {selectedRound ? (
+        <article className="round-sheet">
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <div className="flex flex-wrap items-center gap-3">
+              <h3 className="font-bold">
+                {i18n.t('app.common.round', { number: selectedRound.number })}{' '}
+                <span className="ml-2">
+                  <Badge>{selectedRound.status}</Badge>
+                </span>
+              </h3>
+              <RoundTimer round={selectedRound} />
+            </div>
+            <div className="flex flex-wrap gap-2">
+              <Link
+                className="app-button app-button--secondary"
+                to={`/t/${tournament.publicSlug}?round=${selectedRound.id}`}
+                target="_blank"
+                rel="noreferrer"
+              >
+                <Eye size={16} />
+                {i18n.t('app.tournament.publicView')}
+                <ExternalLink size={14} />
+              </Link>
+              <Button
+                disabled={selectedRound.status !== 'borrador' || tournament.status === 'finalizado'}
+                className={`${primary} inline-flex items-center gap-2`}
+                onClick={() =>
+                  setMessage(
+                    startRound(id!, selectedRound.id) ?? i18n.t('app.tournament.roundStarted'),
+                  )
+                }
+              >
+                <Play size={16} fill="currentColor" />
+                {i18n.t('app.tournament.startRound')}
+              </Button>
+              <Button
+                disabled={selectedRound.status !== 'activa' || tournament.status === 'finalizado'}
+                variant="outline"
+                className="app-button app-button--danger"
+                onClick={() => setRoundToComplete(selectedRound)}
+              >
+                <Square size={15} fill="currentColor" />
+                {i18n.t('app.tournament.endRound')}
+              </Button>
+            </div>
+          </div>
+          {selectedRound.status === 'borrador' && (
+            <p className="mt-3 text-sm text-muted-foreground">
+              {i18n.t('app.tournament.dragHelp')}
+            </p>
+          )}
+          <div className="rounds-deck__tables">
+            {selectedRound.pods.map((pod) =>
+              selectedRound.status === 'borrador' ? (
+                <DraftPodCard
+                  key={pod.id}
+                  pod={pod}
+                  names={names}
+                  draggedPlayer={draggedPlayer}
+                  isDropTarget={dropTargetPod === pod.id}
+                  onDragStart={(playerId) => {
+                    setDraggedPlayer(playerId);
+                    setDropTargetPod(undefined);
+                  }}
+                  onDragEnter={() => {
+                    if (draggedPlayer && !pod.playerIds.includes(draggedPlayer))
+                      setDropTargetPod(pod.id);
+                  }}
+                  onDragEnd={() => {
+                    setDraggedPlayer(undefined);
+                    setDropTargetPod(undefined);
+                  }}
+                  onDrop={(playerId) => {
+                    const error = movePlayer(id!, selectedRound.id, playerId, pod.id);
+                    if (error) setMessage(error);
+                    setDraggedPlayer(undefined);
+                    setDropTargetPod(undefined);
+                  }}
+                />
+              ) : (
+                <PodCard
+                  key={pod.id}
+                  tournamentId={id!}
+                  roundId={selectedRound.id}
+                  pod={pod}
+                  readOnly={tournament.status === 'finalizado' || selectedRound.status !== 'activa'}
+                  names={names}
+                  editable={selectedRound.status === 'activa'}
+                />
+              ),
+            )}
+          </div>
+        </article>
+      ) : (
+        <div className="app-empty-state">{i18n.t('app.tournament.noRounds')}</div>
+      )}
+      {showRoundGenerationInfo && (
+        <Modal
+          title={i18n.t('app.tournament.roundGenerationInfo.title')}
+          description={i18n.t('app.tournament.roundGenerationInfo.description')}
+          onClose={() => setShowRoundGenerationInfo(false)}
+        >
+          <ul className="space-y-3 text-sm leading-6 text-muted-foreground">
+            <li>{i18n.t('app.tournament.roundGenerationInfo.activePlayers')}</li>
+            <li>{i18n.t('app.tournament.roundGenerationInfo.tableSizes')}</li>
+            <li>{i18n.t('app.tournament.roundGenerationInfo.pairings')}</li>
+            <li>{i18n.t('app.tournament.roundGenerationInfo.reorganize')}</li>
+          </ul>
+          <div className="mt-5 flex justify-end">
+            <Button className={primary} onClick={() => setShowRoundGenerationInfo(false)}>
+              {i18n.t('app.tournament.roundGenerationInfo.close')}
+            </Button>
+          </div>
+        </Modal>
+      )}
+      {deletingLast && last && (
+        <ConfirmModal
+          title={i18n.t('app.tournament.deleteLastTitle')}
+          description={
+            last.pods.some((p) => p.results?.length)
+              ? i18n.t('app.tournament.deleteLastWithResults')
+              : i18n.t('app.tournament.deleteLastDescription')
+          }
+          confirmLabel={i18n.t('app.tournament.deleteRound')}
+          destructive
+          onClose={() => setDeletingLast(false)}
+          onConfirm={() => {
+            setMessage(deleteLastRound(id!) ?? i18n.t('app.tournament.lastRoundDeleted'));
+            setDeletingLast(false);
+          }}
+        />
+      )}
+      {roundToComplete && (
+        <ConfirmModal
+          title={i18n.t('app.tournament.completeTitle', { number: roundToComplete.number })}
+          description={i18n.t('app.tournament.completeDescription')}
+          confirmLabel={i18n.t('app.tournament.endRound')}
+          destructive
+          onClose={() => setRoundToComplete(undefined)}
+          onConfirm={() => {
+            setMessage(
+              completeRound(id!, roundToComplete.id) ?? i18n.t('app.tournament.roundCompleted'),
+            );
+            setRoundToComplete(undefined);
+          }}
+        />
+      )}
+    </section>
+  );
 }
-function DraftPodCard({ pod, names, draggedPlayer, isDropTarget, onDragStart, onDragEnter, onDragEnd, onDrop }: { pod: Pod; names: Record<string,string>; draggedPlayer?:string; isDropTarget:boolean; onDragStart:(playerId:string)=>void; onDragEnter:()=>void; onDragEnd:()=>void; onDrop:(playerId:string)=>void }) { return <div className={`game-table game-table--draft ${isDropTarget ? 'is-drop-target' : ''}`} onDragEnter={onDragEnter} onDragOver={event=>{event.preventDefault();event.dataTransfer.dropEffect='move'}} onDrop={event=>{event.preventDefault();const playerId=event.dataTransfer.getData('text/plain')||draggedPlayer;if(playerId)onDrop(playerId)}}><div className="flex items-center justify-between gap-2"><h4>{i18n.t('app.common.table',{number:pod.number})} <span>({pod.playerIds.length}/5)</span></h4>{isDropTarget&&<span className="game-table__drop">{i18n.t('app.tournament.dropHere')}</span>}</div><div className="game-table__draft-players">{pod.playerIds.map(playerId=><button type="button" draggable onDragStart={event=>{event.dataTransfer.setData('text/plain',playerId);event.dataTransfer.effectAllowed='move';onDragStart(playerId)}} onDragEnd={onDragEnd} className={draggedPlayer===playerId ? 'is-dragging' : ''} key={playerId}>{names[playerId]}</button>)}</div></div> }
-function outcomeLabel(outcome?: ResultOutcome) { return outcome ? i18n.t(`app.common.${outcome}`) : '—' }
-function OutcomeButtons({ playerId, outcome }: { playerId: string; outcome?: ResultOutcome }) { const [selected, setSelected] = useState<ResultOutcome | undefined>(outcome); const options: { value: ResultOutcome; Icon: LucideIcon; label: string }[] = [{ value: 'win', Icon: Trophy, label: i18n.t('app.common.win') }, { value: 'loss', Icon: CircleX, label: i18n.t('app.common.loss') }, { value: 'draw', Icon: Equal, label: i18n.t('app.common.draw') }]; return <fieldset className="outcome-chips"><legend className="sr-only">{i18n.t('app.common.outcome')}</legend><input type="hidden" name={`outcome-${playerId}`} value={selected ?? ''}/>{options.map(option=><label key={option.value} className={`outcome-chips__option outcome-chips__option--${option.value} ${selected === option.value ? 'is-selected' : ''}`}><input className="sr-only" type="checkbox" checked={selected === option.value} onChange={() => setSelected(current => current === option.value ? undefined : option.value)}/><option.Icon aria-hidden size={14} strokeWidth={2.25}/>{option.label}</label>)}</fieldset> }
-function PodCard({ tournamentId, roundId, pod, names, readOnly, editable }: { tournamentId: string; roundId: string; pod: Pod; names: Record<string,string>; readOnly:boolean; editable:boolean }) {
+function DraftPodCard({
+  pod,
+  names,
+  draggedPlayer,
+  isDropTarget,
+  onDragStart,
+  onDragEnter,
+  onDragEnd,
+  onDrop,
+}: {
+  pod: Pod;
+  names: Record<string, string>;
+  draggedPlayer?: string;
+  isDropTarget: boolean;
+  onDragStart: (playerId: string) => void;
+  onDragEnter: () => void;
+  onDragEnd: () => void;
+  onDrop: (playerId: string) => void;
+}) {
+  return (
+    <div
+      className={`game-table game-table--draft ${isDropTarget ? 'is-drop-target' : ''}`}
+      onDragEnter={onDragEnter}
+      onDragOver={(event) => {
+        event.preventDefault();
+        event.dataTransfer.dropEffect = 'move';
+      }}
+      onDrop={(event) => {
+        event.preventDefault();
+        const playerId = event.dataTransfer.getData('text/plain') || draggedPlayer;
+        if (playerId) onDrop(playerId);
+      }}
+    >
+      <div className="flex items-center justify-between gap-2">
+        <h4>
+          {i18n.t('app.common.table', { number: pod.number })}{' '}
+          <span>({pod.playerIds.length}/5)</span>
+        </h4>
+        {isDropTarget && (
+          <span className="game-table__drop">{i18n.t('app.tournament.dropHere')}</span>
+        )}
+      </div>
+      <div className="game-table__draft-players">
+        {pod.playerIds.map((playerId) => (
+          <button
+            type="button"
+            draggable
+            onDragStart={(event) => {
+              event.dataTransfer.setData('text/plain', playerId);
+              event.dataTransfer.effectAllowed = 'move';
+              onDragStart(playerId);
+            }}
+            onDragEnd={onDragEnd}
+            className={draggedPlayer === playerId ? 'is-dragging' : ''}
+            key={playerId}
+          >
+            {names[playerId]}
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+}
+function outcomeLabel(outcome?: ResultOutcome) {
+  return outcome ? i18n.t(`app.common.${outcome}`) : '—';
+}
+function OutcomeButtons({ playerId, outcome }: { playerId: string; outcome?: ResultOutcome }) {
+  const [selected, setSelected] = useState<ResultOutcome | undefined>(outcome);
+  const options: { value: ResultOutcome; Icon: LucideIcon; label: string }[] = [
+    { value: 'win', Icon: Trophy, label: i18n.t('app.common.win') },
+    { value: 'loss', Icon: CircleX, label: i18n.t('app.common.loss') },
+    { value: 'draw', Icon: Equal, label: i18n.t('app.common.draw') },
+  ];
+  return (
+    <fieldset className="outcome-chips">
+      <legend className="sr-only">{i18n.t('app.common.outcome')}</legend>
+      <input type="hidden" name={`outcome-${playerId}`} value={selected ?? ''} />
+      {options.map((option) => (
+        <label
+          key={option.value}
+          className={`outcome-chips__option outcome-chips__option--${option.value} ${selected === option.value ? 'is-selected' : ''}`}
+        >
+          <input
+            className="sr-only"
+            type="checkbox"
+            checked={selected === option.value}
+            onChange={() =>
+              setSelected((current) => (current === option.value ? undefined : option.value))
+            }
+          />
+          <option.Icon aria-hidden size={14} strokeWidth={2.25} />
+          {option.label}
+        </label>
+      ))}
+    </fieldset>
+  );
+}
+function PodCard({
+  tournamentId,
+  roundId,
+  pod,
+  names,
+  readOnly,
+  editable,
+}: {
+  tournamentId: string;
+  roundId: string;
+  pod: Pod;
+  names: Record<string, string>;
+  readOnly: boolean;
+  editable: boolean;
+}) {
   const { savePod } = useTournaments();
   function save(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -662,86 +1835,502 @@ function PodCard({ tournamentId, roundId, pod, names, readOnly, editable }: { to
           playerId,
           points: Number(form.get(`points-${playerId}`)),
           kills: Number(form.get(`kills-${playerId}`)),
-          outcome: outcome === 'win' || outcome === 'loss' || outcome === 'draw' ? outcome : undefined,
+          outcome:
+            outcome === 'win' || outcome === 'loss' || outcome === 'draw' ? outcome : undefined,
         };
       }),
     };
-    const message = savePod(tournamentId, roundId, pod.id, next) ?? i18n.t('app.tournament.results');
-    const validationMessages = [i18n.t('app.messages.completeResults'), i18n.t('app.messages.outcomeRequired')];
+    const message =
+      savePod(tournamentId, roundId, pod.id, next) ?? i18n.t('app.tournament.results');
+    const validationMessages = [
+      i18n.t('app.messages.completeResults'),
+      i18n.t('app.messages.outcomeRequired'),
+    ];
     showToast(message, validationMessages.includes(message));
   }
-  return <div className="game-table">
-    <h4>{i18n.t('app.common.table',{number:pod.number})}</h4>
-    {!editable && <div className="mt-3 grid gap-2">{pod.playerIds.map((playerId) => {
-      const result = pod.results?.find((item) => item.playerId === playerId);
-      return <section className="pod-entry" key={playerId}><h5>{names[playerId]}</h5>{result ? <div className="pod-entry__metrics"><p>{i18n.t('app.common.points')} <strong>{result.points}</strong></p><p>{i18n.t('app.common.kills')} <strong>{result.kills}</strong></p><p>{i18n.t('app.common.outcome')} <strong>{outcomeLabel(result.outcome)}</strong></p></div> : <p className="pod-entry__pending">{i18n.t('app.common.noResults')}</p>}</section>;
-    })}</div>}
-    {editable && <form onSubmit={save} className="mt-3 space-y-4">
-      <p className="pod-results-help">{i18n.t('app.tournament.registerResults')}</p>
-      <div className="grid gap-3">{pod.playerIds.map((playerId) => <section className="pod-entry pod-entry--editable" key={playerId}><div className="pod-entry__header"><h5>{names[playerId]}</h5><OutcomeButtons playerId={playerId} outcome={pod.results?.find((result) => result.playerId === playerId)?.outcome}/></div><div className="pod-entry__fields"><label>{i18n.t('app.common.points')}<input required min="0" name={`points-${playerId}`} defaultValue={pod.results?.find((result) => result.playerId === playerId)?.points ?? ''} type="number" className={`${field} mt-2 py-2 text-sm`} /></label><label>{i18n.t('app.common.kills')}<input required min="0" max="5" name={`kills-${playerId}`} defaultValue={pod.results?.find((result) => result.playerId === playerId)?.kills ?? 0} type="number" className={`${field} mt-2 py-2 text-sm`} /></label></div></section>)}</div>
-      <Button disabled={readOnly} className={primary}>{i18n.t('app.common.save')}</Button>
-    </form>}
-  </div>
+  return (
+    <div className="game-table">
+      <h4>{i18n.t('app.common.table', { number: pod.number })}</h4>
+      {!editable && (
+        <div className="mt-3 grid gap-2">
+          {pod.playerIds.map((playerId) => {
+            const result = pod.results?.find((item) => item.playerId === playerId);
+            return (
+              <section className="pod-entry" key={playerId}>
+                <h5>{names[playerId]}</h5>
+                {result ? (
+                  <div className="pod-entry__metrics">
+                    <p>
+                      {i18n.t('app.common.points')} <strong>{result.points}</strong>
+                    </p>
+                    <p>
+                      {i18n.t('app.common.kills')} <strong>{result.kills}</strong>
+                    </p>
+                    <p>
+                      {i18n.t('app.common.outcome')} <strong>{outcomeLabel(result.outcome)}</strong>
+                    </p>
+                  </div>
+                ) : (
+                  <p className="pod-entry__pending">{i18n.t('app.common.noResults')}</p>
+                )}
+              </section>
+            );
+          })}
+        </div>
+      )}
+      {editable && (
+        <form onSubmit={save} className="mt-3 space-y-4">
+          <p className="pod-results-help">{i18n.t('app.tournament.registerResults')}</p>
+          <div className="grid gap-3">
+            {pod.playerIds.map((playerId) => (
+              <section className="pod-entry pod-entry--editable" key={playerId}>
+                <div className="pod-entry__header">
+                  <h5>{names[playerId]}</h5>
+                  <OutcomeButtons
+                    playerId={playerId}
+                    outcome={pod.results?.find((result) => result.playerId === playerId)?.outcome}
+                  />
+                </div>
+                <div className="pod-entry__fields">
+                  <label>
+                    {i18n.t('app.common.points')}
+                    <input
+                      required
+                      min="0"
+                      name={`points-${playerId}`}
+                      defaultValue={
+                        pod.results?.find((result) => result.playerId === playerId)?.points ?? ''
+                      }
+                      type="number"
+                      className={`${field} mt-2 py-2 text-sm`}
+                    />
+                  </label>
+                  <label>
+                    {i18n.t('app.common.kills')}
+                    <input
+                      required
+                      min="0"
+                      max="5"
+                      name={`kills-${playerId}`}
+                      defaultValue={
+                        pod.results?.find((result) => result.playerId === playerId)?.kills ?? 0
+                      }
+                      type="number"
+                      className={`${field} mt-2 py-2 text-sm`}
+                    />
+                  </label>
+                </div>
+              </section>
+            ))}
+          </div>
+          <Button disabled={readOnly} className={primary}>
+            {i18n.t('app.common.save')}
+          </Button>
+        </form>
+      )}
+    </div>
+  );
 }
 function Standings() {
-  const { id } = useParams()
-  const rows = useTournaments().standingsFor(id!)
-  const opponentHelp = i18n.t('app.tournament.opponentHelp')
-  const winRateHelp = i18n.t('app.common.winRateHelp')
-  return <section className="standings-board"><header><p>{i18n.t('app.tournament.standings')}</p><h2>{i18n.t('app.tournament.standings')}</h2></header>
-    {rows.length > 0 && <ol className="standings-podium">{rows.slice(0, 3).map(row => <li className={`standings-podium__place standings-podium__place--${row.rank}`} key={row.player.id}><span>#{row.rank}</span><i aria-hidden>{row.player.name.trim().slice(0, 1).toUpperCase()}</i><strong>{row.player.name}</strong><b>{row.points} <small>{i18n.t('app.common.points')}</small></b><em>{row.kills} ☠ · {row.winRate.toFixed(1)}%</em></li>)}</ol>}
-    <div className="standings-table"><table><thead><tr><th>#</th><th>{i18n.t('app.common.name')}</th><th>{i18n.t('app.common.points')}</th><th>{i18n.t('app.common.wins')}</th><th>{i18n.t('app.common.losses')}</th><th>{i18n.t('app.common.draws')}</th><th><span>{i18n.t('app.common.winRate')}<span title={winRateHelp} aria-label={winRateHelp} role="img" className="app-help app-help--static"><Info size={15} strokeWidth={2}/></span></span></th><th>{i18n.t('app.common.kills')}</th><th><span>{i18n.t('app.tournament.opponentStrength')}<span title={opponentHelp} aria-label={opponentHelp} role="img" className="app-help app-help--static"><Info size={15} strokeWidth={2}/></span></span></th><th>{i18n.t('app.tournament.rounds')}</th></tr></thead><tbody>{rows.map(row => <tr className={row.rank <= 3 ? `is-podium is-podium--${row.rank}` : ''} key={row.player.id}><td>{row.rank}</td><td><span className="standings-table__avatar" aria-hidden>{row.player.name.trim().slice(0, 1).toUpperCase()}</span>{row.player.name}{!row.player.active && <small>{i18n.t('app.common.withdrawn')}</small>}</td><td><strong>{row.points}</strong></td><td>{row.wins}</td><td>{row.losses}</td><td>{row.draws}</td><td>{row.winRate.toFixed(1)}%</td><td>{row.kills}</td><td>{row.opponentStrength}</td><td>{row.roundsPlayed}</td></tr>)}</tbody></table></div>
-  </section>
+  const { id } = useParams();
+  const rows = useTournaments().standingsFor(id!);
+  const opponentHelp = i18n.t('app.tournament.opponentHelp');
+  const winRateHelp = i18n.t('app.common.winRateHelp');
+  return (
+    <section className="standings-board">
+      <header>
+        <p>{i18n.t('app.tournament.standings')}</p>
+        <h2>{i18n.t('app.tournament.standings')}</h2>
+      </header>
+      {rows.length > 0 && (
+        <ol className="standings-podium">
+          {rows.slice(0, 3).map((row) => (
+            <li
+              className={`standings-podium__place standings-podium__place--${row.rank}`}
+              key={row.player.id}
+            >
+              <span>#{row.rank}</span>
+              <i aria-hidden>{row.player.name.trim().slice(0, 1).toUpperCase()}</i>
+              <strong>{row.player.name}</strong>
+              <b>
+                {row.points} <small>{i18n.t('app.common.points')}</small>
+              </b>
+              <em>
+                {row.kills} ☠ · {row.winRate.toFixed(1)}%
+              </em>
+            </li>
+          ))}
+        </ol>
+      )}
+      <div className="standings-table">
+        <table>
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>{i18n.t('app.common.name')}</th>
+              <th>{i18n.t('app.common.points')}</th>
+              <th>{i18n.t('app.common.wins')}</th>
+              <th>{i18n.t('app.common.losses')}</th>
+              <th>{i18n.t('app.common.draws')}</th>
+              <th>
+                <span>
+                  {i18n.t('app.common.winRate')}
+                  <span
+                    title={winRateHelp}
+                    aria-label={winRateHelp}
+                    role="img"
+                    className="app-help app-help--static"
+                  >
+                    <Info size={15} strokeWidth={2} />
+                  </span>
+                </span>
+              </th>
+              <th>{i18n.t('app.common.kills')}</th>
+              <th>
+                <span>
+                  {i18n.t('app.tournament.opponentStrength')}
+                  <span
+                    title={opponentHelp}
+                    aria-label={opponentHelp}
+                    role="img"
+                    className="app-help app-help--static"
+                  >
+                    <Info size={15} strokeWidth={2} />
+                  </span>
+                </span>
+              </th>
+              <th>{i18n.t('app.tournament.rounds')}</th>
+            </tr>
+          </thead>
+          <tbody>
+            {rows.map((row) => (
+              <tr
+                className={row.rank <= 3 ? `is-podium is-podium--${row.rank}` : ''}
+                key={row.player.id}
+              >
+                <td>{row.rank}</td>
+                <td>
+                  <span className="standings-table__avatar" aria-hidden>
+                    {row.player.name.trim().slice(0, 1).toUpperCase()}
+                  </span>
+                  {row.player.name}
+                  {!row.player.active && <small>{i18n.t('app.common.withdrawn')}</small>}
+                </td>
+                <td>
+                  <strong>{row.points}</strong>
+                </td>
+                <td>{row.wins}</td>
+                <td>{row.losses}</td>
+                <td>{row.draws}</td>
+                <td>{row.winRate.toFixed(1)}%</td>
+                <td>{row.kills}</td>
+                <td>{row.opponentStrength}</td>
+                <td>{row.roundsPlayed}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </section>
+  );
 }
 
 function Settings() {
-  const tournament = Current()
-  const { id } = useParams()
-  const { updateTournament } = useTournaments()
-  const [message, setMessage] = useState('')
-  const [finishing, setFinishing] = useState(false)
-  function save(event: FormEvent<HTMLFormElement>) { event.preventDefault(); const form = new FormData(event.currentTarget); const plannedRounds = Number(form.get('rounds')); const maxPlayers = Number(form.get('maxPlayers')); const maxTables = Number(form.get('maxTables')); if (!Number.isInteger(plannedRounds) || plannedRounds < tournament.rounds.length || plannedRounds < 1) return setMessage(i18n.t('app.createTournament.invalidLimits')); if (!Number.isInteger(maxPlayers) || maxPlayers < tournament.players.length || !Number.isInteger(maxTables) || maxTables < 1) return setMessage(i18n.t('app.createTournament.invalidLimits')); updateTournament(id!, { name: String(form.get('name')).trim(), format: String(form.get('format')).trim(), plannedRounds, maxPlayers, maxTables, isPublic: true }); setMessage(''); showToast(i18n.t('app.tournament.settingsSaved')) }
-  const canFinish = !tournament.rounds.some(round => round.status !== 'completada')
-  return <section className="settings-desk"><div className="min-w-0"><form onSubmit={save} className="settings-desk__form"><header><p>{i18n.t('app.tournament.settings')}</p><h2>{i18n.t('app.tournament.settingsTitle')}</h2></header>{message && <Notice error>{message}</Notice>}<div className="settings-desk__fields"><label>{i18n.t('app.common.name')}<input required name="name" defaultValue={tournament.name} className={field}/></label><label>{i18n.t('app.createTournament.format')}<input required name="format" defaultValue={tournament.format} className={field}/></label><label>{i18n.t('app.tournament.plannedRounds')}<input required type="number" min="1" name="rounds" defaultValue={tournament.plannedRounds} className={field}/></label><label>{i18n.t('app.createTournament.maxPlayers')}<input required type="number" min="3" name="maxPlayers" defaultValue={tournament.maxPlayers} className={field}/></label><label>{i18n.t('app.tournament.maxTablesPerRound')}<input required type="number" min="1" name="maxTables" defaultValue={tournament.maxTables} className={field}/></label></div><p className="settings-desk__hint">{i18n.t('app.tournament.pointsManual')}</p><div className="flex justify-end"><Button disabled={tournament.status === 'finalizado'} className={primary}>{i18n.t('app.tournament.saveChanges')}</Button></div></form><TournamentJoinLink tournamentId={tournament.id} /></div><aside className="settings-desk__danger"><span aria-hidden>!</span><h2>{i18n.t('app.common.status')}</h2><p>{i18n.t('app.tournament.finishHelp')}</p>{tournament.status === 'finalizado' ? <Button className="app-button app-button--secondary" onClick={() => { updateTournament(id!, { status: 'activo' }); showToast(i18n.t('app.tournament.tournamentReopened')) }}>{i18n.t('app.tournament.reopenTournament')}</Button> : <Button disabled={!canFinish} variant="outline" className="app-button app-button--danger" onClick={() => setFinishing(true)}>{i18n.t('app.tournament.finishTournament')}</Button>}</aside>{finishing && <ConfirmModal title={i18n.t('app.tournament.finishTournament')} description={i18n.t('app.tournament.finishHelp')} confirmLabel={i18n.t('app.tournament.finishTournament')} destructive onClose={() => setFinishing(false)} onConfirm={() => { updateTournament(id!, { status: 'finalizado' }); showToast(i18n.t('app.tournament.tournamentFinished')); setFinishing(false) }} />}</section>
+  const tournament = Current();
+  const { id } = useParams();
+  const { updateTournament } = useTournaments();
+  const [message, setMessage] = useState('');
+  const [finishing, setFinishing] = useState(false);
+  function save(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    const form = new FormData(event.currentTarget);
+    const plannedRounds = Number(form.get('rounds'));
+    const maxPlayers = Number(form.get('maxPlayers'));
+    const maxTables = Number(form.get('maxTables'));
+    if (
+      !Number.isInteger(plannedRounds) ||
+      plannedRounds < tournament.rounds.length ||
+      plannedRounds < 1
+    )
+      return setMessage(i18n.t('app.createTournament.invalidLimits'));
+    if (
+      !Number.isInteger(maxPlayers) ||
+      maxPlayers < tournament.players.length ||
+      !Number.isInteger(maxTables) ||
+      maxTables < 1
+    )
+      return setMessage(i18n.t('app.createTournament.invalidLimits'));
+    updateTournament(id!, {
+      name: String(form.get('name')).trim(),
+      format: String(form.get('format')).trim(),
+      plannedRounds,
+      maxPlayers,
+      maxTables,
+      isPublic: true,
+    });
+    setMessage('');
+    showToast(i18n.t('app.tournament.settingsSaved'));
+  }
+  const canFinish = !tournament.rounds.some((round) => round.status !== 'completada');
+  return (
+    <section className="settings-desk">
+      <div className="min-w-0">
+        <form onSubmit={save} className="settings-desk__form">
+          <header>
+            <p>{i18n.t('app.tournament.settings')}</p>
+            <h2>{i18n.t('app.tournament.settingsTitle')}</h2>
+          </header>
+          {message && <Notice error>{message}</Notice>}
+          <div className="settings-desk__fields">
+            <label>
+              {i18n.t('app.common.name')}
+              <input required name="name" defaultValue={tournament.name} className={field} />
+            </label>
+            <label>
+              {i18n.t('app.createTournament.format')}
+              <input required name="format" defaultValue={tournament.format} className={field} />
+            </label>
+            <label>
+              {i18n.t('app.tournament.plannedRounds')}
+              <input
+                required
+                type="number"
+                min="1"
+                name="rounds"
+                defaultValue={tournament.plannedRounds}
+                className={field}
+              />
+            </label>
+            <label>
+              {i18n.t('app.createTournament.maxPlayers')}
+              <input
+                required
+                type="number"
+                min="3"
+                name="maxPlayers"
+                defaultValue={tournament.maxPlayers}
+                className={field}
+              />
+            </label>
+            <label>
+              {i18n.t('app.tournament.maxTablesPerRound')}
+              <input
+                required
+                type="number"
+                min="1"
+                name="maxTables"
+                defaultValue={tournament.maxTables}
+                className={field}
+              />
+            </label>
+          </div>
+          <p className="settings-desk__hint">{i18n.t('app.tournament.pointsManual')}</p>
+          <div className="flex justify-end">
+            <Button disabled={tournament.status === 'finalizado'} className={primary}>
+              {i18n.t('app.tournament.saveChanges')}
+            </Button>
+          </div>
+        </form>
+        <TournamentJoinLink tournamentId={tournament.id} />
+      </div>
+      <aside className="settings-desk__danger">
+        <span aria-hidden>!</span>
+        <h2>{i18n.t('app.common.status')}</h2>
+        <p>{i18n.t('app.tournament.finishHelp')}</p>
+        {tournament.status === 'finalizado' ? (
+          <Button
+            className="app-button app-button--secondary"
+            onClick={() => {
+              updateTournament(id!, { status: 'activo' });
+              showToast(i18n.t('app.tournament.tournamentReopened'));
+            }}
+          >
+            {i18n.t('app.tournament.reopenTournament')}
+          </Button>
+        ) : (
+          <Button
+            disabled={!canFinish}
+            variant="outline"
+            className="app-button app-button--danger"
+            onClick={() => setFinishing(true)}
+          >
+            {i18n.t('app.tournament.finishTournament')}
+          </Button>
+        )}
+      </aside>
+      {finishing && (
+        <ConfirmModal
+          title={i18n.t('app.tournament.finishTournament')}
+          description={i18n.t('app.tournament.finishHelp')}
+          confirmLabel={i18n.t('app.tournament.finishTournament')}
+          destructive
+          onClose={() => setFinishing(false)}
+          onConfirm={() => {
+            updateTournament(id!, { status: 'finalizado' });
+            showToast(i18n.t('app.tournament.tournamentFinished'));
+            setFinishing(false);
+          }}
+        />
+      )}
+    </section>
+  );
 }
 function PublicView() {
-  const { slug } = useParams()
-  const [searchParams] = useSearchParams()
-  const [tournament, setTournament] = useState<Tournament>()
-  const [loading, setLoading] = useState(true)
-  useEffect(() => { let active = true; void loadPublicTournament(slug ?? '').then(data => { if (active) setTournament(data) }).finally(() => { if (active) setLoading(false) }); return () => { active = false } }, [slug])
-  if (loading) return <main className="public-scoreboard public-scoreboard--status"><div className="app-loading-note"><i /><span>{i18n.t('app.public.loading')}</span></div></main>
-  if (!tournament) return <main className="public-scoreboard public-scoreboard--status"><div className="app-empty-state"><span aria-hidden>?</span><p>{i18n.t('app.public.unavailable')}</p></div></main>
-  const round = tournament.rounds.find(item => item.id === searchParams.get('round')) ?? tournament.rounds.at(-1)
-  const names = Object.fromEntries(tournament.players.map(player => [player.id, player.name]))
-  return <main className="public-scoreboard"><div className="public-scoreboard__wrap"><header className="public-scoreboard__masthead"><a href="/" className="public-scoreboard__brand"><img src="/edh-tournaments-icon.svg" alt="" />EDH Tournaments</a><p>{i18n.t('app.public.eyebrow')}</p><h1>{tournament.name}</h1><span>{tournament.format}</span></header>{tournament.information && <section className="public-scoreboard__notice"><span aria-hidden>⌁</span><div><h2>{i18n.t('app.tournament.information')}</h2><p>{tournament.information}</p></div></section>}{round ? <section className="public-round"><header><div><p>{i18n.t('app.common.round', { number: round.number })}</p><Badge>{round.status}</Badge></div><RoundTimer round={round}/></header><div className="public-round__tables">{round.pods.map(pod => <article className="public-table" key={pod.id}><h3>{i18n.t('app.common.table', { number: pod.number })}</h3><div>{pod.playerIds.map(playerId => { const result = pod.results?.find(item => item.playerId === playerId); return <section key={playerId}><span className="public-table__avatar" aria-hidden>{names[playerId]?.slice(0, 1).toUpperCase()}</span><strong>{names[playerId]}</strong>{result ? <><b>{result.points} <small>{i18n.t('app.common.points')}</small></b><em>{result.kills} ☠</em><i className={`public-outcome public-outcome--${result.outcome ?? 'pending'}`}>{outcomeLabel(result.outcome)}</i></> : <i className="public-outcome public-outcome--pending">{i18n.t('app.common.noResults')}</i>}</section> })}</div></article>)}</div></section> : <section className="app-empty-state"><span aria-hidden>♙</span><p>{i18n.t('app.public.firstRound')}</p></section>}</div></main>
+  const { slug } = useParams();
+  const [searchParams] = useSearchParams();
+  const [tournament, setTournament] = useState<Tournament>();
+  const [loading, setLoading] = useState(true);
+  useEffect(() => {
+    let active = true;
+    void loadPublicTournament(slug ?? '')
+      .then((data) => {
+        if (active) setTournament(data);
+      })
+      .finally(() => {
+        if (active) setLoading(false);
+      });
+    return () => {
+      active = false;
+    };
+  }, [slug]);
+  if (loading)
+    return (
+      <main className="public-scoreboard public-scoreboard--status">
+        <div className="app-loading-note">
+          <i />
+          <span>{i18n.t('app.public.loading')}</span>
+        </div>
+      </main>
+    );
+  if (!tournament)
+    return (
+      <main className="public-scoreboard public-scoreboard--status">
+        <div className="app-empty-state">
+          <span aria-hidden>?</span>
+          <p>{i18n.t('app.public.unavailable')}</p>
+        </div>
+      </main>
+    );
+  const round =
+    tournament.rounds.find((item) => item.id === searchParams.get('round')) ??
+    tournament.rounds.at(-1);
+  const names = Object.fromEntries(tournament.players.map((player) => [player.id, player.name]));
+  return (
+    <main className="public-scoreboard">
+      <div className="public-scoreboard__wrap">
+        <header className="public-scoreboard__masthead">
+          <a href="/" className="public-scoreboard__brand">
+            <img src="/edh-tournaments-icon.svg" alt="" />
+            EDH Tournaments
+          </a>
+          <p>{i18n.t('app.public.eyebrow')}</p>
+          <h1>{tournament.name}</h1>
+          <span>{tournament.format}</span>
+        </header>
+        {tournament.information && (
+          <section className="public-scoreboard__notice">
+            <span aria-hidden>⌁</span>
+            <div>
+              <h2>{i18n.t('app.tournament.information')}</h2>
+              <p>{tournament.information}</p>
+            </div>
+          </section>
+        )}
+        {round ? (
+          <section className="public-round">
+            <header>
+              <div>
+                <p>{i18n.t('app.common.round', { number: round.number })}</p>
+                <Badge>{round.status}</Badge>
+              </div>
+              <RoundTimer round={round} />
+            </header>
+            <div className="public-round__tables">
+              {round.pods.map((pod) => (
+                <article className="public-table" key={pod.id}>
+                  <h3>{i18n.t('app.common.table', { number: pod.number })}</h3>
+                  <div>
+                    {pod.playerIds.map((playerId) => {
+                      const result = pod.results?.find((item) => item.playerId === playerId);
+                      return (
+                        <section key={playerId}>
+                          <span className="public-table__avatar" aria-hidden>
+                            {names[playerId]?.slice(0, 1).toUpperCase()}
+                          </span>
+                          <strong>{names[playerId]}</strong>
+                          {result ? (
+                            <>
+                              <b>
+                                {result.points} <small>{i18n.t('app.common.points')}</small>
+                              </b>
+                              <em>{result.kills} ☠</em>
+                              <i
+                                className={`public-outcome public-outcome--${result.outcome ?? 'pending'}`}
+                              >
+                                {outcomeLabel(result.outcome)}
+                              </i>
+                            </>
+                          ) : (
+                            <i className="public-outcome public-outcome--pending">
+                              {i18n.t('app.common.noResults')}
+                            </i>
+                          )}
+                        </section>
+                      );
+                    })}
+                  </div>
+                </article>
+              ))}
+            </div>
+          </section>
+        ) : (
+          <section className="app-empty-state">
+            <span aria-hidden>♙</span>
+            <p>{i18n.t('app.public.firstRound')}</p>
+          </section>
+        )}
+      </div>
+    </main>
+  );
 }
 
-export { Home }
+export { Home };
 
 function AdminRoute() {
-  const { configured, user, loading, isAdmin } = useAuth()
+  const { configured, user, loading, isAdmin } = useAuth();
 
-  if (!configured) return <Navigate to="/" replace />
-  if (loading) return <Layout><p className="text-sm text-muted-foreground">{i18n.t('app.admin.verifyingAccess')}</p></Layout>
-  if (!user) return <Navigate to="/login" replace />
-  if (!isAdmin) return <Navigate to="/dashboard" replace />
-  return <AdminDashboard />
+  if (!configured) return <Navigate to="/" replace />;
+  if (loading)
+    return (
+      <Layout>
+        <p className="text-sm text-muted-foreground">{i18n.t('app.admin.verifyingAccess')}</p>
+      </Layout>
+    );
+  if (!user) return <Navigate to="/login" replace />;
+  if (!isAdmin) return <Navigate to="/dashboard" replace />;
+  return <AdminDashboard />;
 }
 
 const displayDate = (value: string) => {
-  const date = new Date(value)
-  return Number.isNaN(date.getTime()) ? '—' : new Intl.DateTimeFormat(i18n.language.startsWith('en') ? 'en-US' : 'es-CR', { dateStyle: 'medium' }).format(date)
-}
+  const date = new Date(value);
+  return Number.isNaN(date.getTime())
+    ? '—'
+    : new Intl.DateTimeFormat(i18n.language.startsWith('en') ? 'en-US' : 'es-CR', {
+        dateStyle: 'medium',
+      }).format(date);
+};
 const displayDateTime = (value: string) => {
-  const date = new Date(value)
+  const date = new Date(value);
   return Number.isNaN(date.getTime())
     ? i18n.t('app.admin.noRecords')
-    : new Intl.DateTimeFormat(i18n.language.startsWith('en') ? 'en-US' : 'es-CR', { dateStyle: 'medium', timeStyle: 'short' }).format(date)
-}
+    : new Intl.DateTimeFormat(i18n.language.startsWith('en') ? 'en-US' : 'es-CR', {
+        dateStyle: 'medium',
+        timeStyle: 'short',
+      }).format(date);
+};
 const accessOrigin = (access: LoginAccess) =>
-  `${access.location} · ${access.browser} / ${access.operatingSystem}`
-const roleLabel = (role: AppRole) => i18n.t(`app.admin.roles.${role}`)
+  `${access.location} · ${access.browser} / ${access.operatingSystem}`;
+const roleLabel = (role: AppRole) => i18n.t(`app.admin.roles.${role}`);
 
 function AdminDashboard() {
   const { user, isSuperAdmin } = useAuth();
@@ -763,11 +2352,7 @@ function AdminDashboard() {
       setOverview(await loadAdminOverview());
       setError(undefined);
     } catch (reason) {
-      setError(
-        reason instanceof Error
-          ? reason.message
-          : i18n.t('app.admin.loadOverviewFailed'),
-      );
+      setError(reason instanceof Error ? reason.message : i18n.t('app.admin.loadOverviewFailed'));
     } finally {
       setRefreshing(false);
     }
@@ -780,20 +2365,14 @@ function AdminDashboard() {
     try {
       setManagedUsers(await listManagedUsers());
     } catch (reason) {
-      setError(
-        reason instanceof Error ? reason.message : i18n.t('app.admin.loadProfilesFailed'),
-      );
+      setError(reason instanceof Error ? reason.message : i18n.t('app.admin.loadProfilesFailed'));
     }
   };
   useEffect(() => {
     if (isSuperAdmin) void refreshManagedUsers();
   }, [isSuperAdmin]);
   const removeProfile = async (target: ManagedUser) => {
-    if (
-      !window.confirm(
-        i18n.t('app.admin.deleteAccountConfirm', { name: target.displayName }),
-      )
-    )
+    if (!window.confirm(i18n.t('app.admin.deleteAccountConfirm', { name: target.displayName })))
       return;
     try {
       await deleteManagedUser(target.id);
@@ -803,18 +2382,15 @@ function AdminDashboard() {
     }
   };
   const removeAdminTournament = async (target: AdminOverview['tournaments'][number]) => {
-    if (
-      !window.confirm(
-        i18n.t('app.admin.deleteTournamentConfirm', { name: target.name }),
-      )
-    )
-      return;
+    if (!window.confirm(i18n.t('app.admin.deleteTournamentConfirm', { name: target.name }))) return;
     setDeletingTournament(target.id);
     try {
       await deleteRemoteTournament(target.id);
       await refresh();
     } catch (reason) {
-      setError(reason instanceof Error ? reason.message : i18n.t('app.admin.deleteTournamentFailed'));
+      setError(
+        reason instanceof Error ? reason.message : i18n.t('app.admin.deleteTournamentFailed'),
+      );
     } finally {
       setDeletingTournament(undefined);
     }
@@ -929,19 +2505,33 @@ function AdminDashboard() {
                     className={`${field} w-52`}
                     placeholder={i18n.t('app.admin.accounts.search')}
                   />
-                  <span className="text-sm text-muted-foreground">{i18n.t('app.admin.total', { count: accountProfiles.length })}</span>
+                  <span className="text-sm text-muted-foreground">
+                    {i18n.t('app.admin.total', { count: accountProfiles.length })}
+                  </span>
                 </div>
               </div>
               <div className="max-h-96 overflow-auto">
                 <table className="w-full min-w-[1080px] text-left text-sm">
                   <thead className="border-b border-slate-700 bg-slate-800 text-xs uppercase tracking-wide text-slate-400">
                     <tr>
-                      <th className="px-5 py-3 font-semibold">{i18n.t('app.admin.accounts.organizer')}</th>
-                      <th className="px-5 py-3 font-semibold">{i18n.t('app.admin.accounts.email')}</th>
-                      <th className="px-5 py-3 font-semibold">{i18n.t('app.admin.accounts.role')}</th>
-                      <th className="px-5 py-3 font-semibold">{i18n.t('app.admin.accounts.registeredAt')}</th>
-                      <th className="px-5 py-3 font-semibold">{i18n.t('app.admin.accounts.lastAccess')}</th>
-                      <th className="px-5 py-3 font-semibold">{i18n.t('app.admin.accounts.origin')}</th>
+                      <th className="px-5 py-3 font-semibold">
+                        {i18n.t('app.admin.accounts.organizer')}
+                      </th>
+                      <th className="px-5 py-3 font-semibold">
+                        {i18n.t('app.admin.accounts.email')}
+                      </th>
+                      <th className="px-5 py-3 font-semibold">
+                        {i18n.t('app.admin.accounts.role')}
+                      </th>
+                      <th className="px-5 py-3 font-semibold">
+                        {i18n.t('app.admin.accounts.registeredAt')}
+                      </th>
+                      <th className="px-5 py-3 font-semibold">
+                        {i18n.t('app.admin.accounts.lastAccess')}
+                      </th>
+                      <th className="px-5 py-3 font-semibold">
+                        {i18n.t('app.admin.accounts.origin')}
+                      </th>
                       <th className="px-5 py-3 font-semibold">{i18n.t('app.admin.accounts.id')}</th>
                       <th className="px-5 py-3 font-semibold">{i18n.t('app.common.actions')}</th>
                     </tr>
@@ -974,8 +2564,10 @@ function AdminDashboard() {
                           {!isSuperAdmin
                             ? i18n.t('app.admin.restricted')
                             : managedUsersById.get(profile.id)?.lastAccess
-                            ? displayDateTime(managedUsersById.get(profile.id)!.lastAccess!.accessedAt)
-                            : i18n.t('app.admin.noRecords')}
+                              ? displayDateTime(
+                                  managedUsersById.get(profile.id)!.lastAccess!.accessedAt,
+                                )
+                              : i18n.t('app.admin.noRecords')}
                         </td>
                         <td
                           className="max-w-64 truncate px-5 py-3 text-slate-300"
@@ -983,15 +2575,15 @@ function AdminDashboard() {
                             !isSuperAdmin
                               ? i18n.t('app.admin.restricted')
                               : managedUsersById.get(profile.id)?.lastAccess
-                              ? `${accessOrigin(managedUsersById.get(profile.id)!.lastAccess!)} · ${managedUsersById.get(profile.id)!.lastAccess!.deviceType}`
-                              : i18n.t('app.admin.noRecords')
+                                ? `${accessOrigin(managedUsersById.get(profile.id)!.lastAccess!)} · ${managedUsersById.get(profile.id)!.lastAccess!.deviceType}`
+                                : i18n.t('app.admin.noRecords')
                           }
                         >
                           {!isSuperAdmin
                             ? i18n.t('app.admin.restricted')
                             : managedUsersById.get(profile.id)?.lastAccess
-                            ? accessOrigin(managedUsersById.get(profile.id)!.lastAccess!)
-                            : i18n.t('app.admin.noRecords')}
+                              ? accessOrigin(managedUsersById.get(profile.id)!.lastAccess!)
+                              : i18n.t('app.admin.noRecords')}
                         </td>
                         <td
                           className="max-w-44 truncate px-5 py-3 font-mono text-xs text-slate-400"
@@ -1071,12 +2663,22 @@ function AdminDashboard() {
                 <table className="w-full min-w-[780px] text-left text-sm">
                   <thead className="border-b border-slate-700 bg-slate-800 text-xs uppercase tracking-wide text-slate-400">
                     <tr>
-                      <th className="px-5 py-3 font-semibold">{i18n.t('app.admin.tournaments.tournament')}</th>
-                      <th className="px-5 py-3 font-semibold">{i18n.t('app.admin.tournaments.organizer')}</th>
+                      <th className="px-5 py-3 font-semibold">
+                        {i18n.t('app.admin.tournaments.tournament')}
+                      </th>
+                      <th className="px-5 py-3 font-semibold">
+                        {i18n.t('app.admin.tournaments.organizer')}
+                      </th>
                       <th className="px-5 py-3 font-semibold">{i18n.t('app.common.status')}</th>
-                      <th className="px-5 py-3 font-semibold">{i18n.t('app.admin.tournaments.participants')}</th>
-                      <th className="px-5 py-3 font-semibold">{i18n.t('app.admin.tournaments.rounds')}</th>
-                      <th className="px-5 py-3 font-semibold">{i18n.t('app.admin.tournaments.visibility')}</th>
+                      <th className="px-5 py-3 font-semibold">
+                        {i18n.t('app.admin.tournaments.participants')}
+                      </th>
+                      <th className="px-5 py-3 font-semibold">
+                        {i18n.t('app.admin.tournaments.rounds')}
+                      </th>
+                      <th className="px-5 py-3 font-semibold">
+                        {i18n.t('app.admin.tournaments.visibility')}
+                      </th>
                       <th className="px-5 py-3 font-semibold">{i18n.t('app.common.actions')}</th>
                     </tr>
                   </thead>
@@ -1102,14 +2704,23 @@ function AdminDashboard() {
                           <span
                             className={tournament.isPublic ? 'text-emerald-300' : 'text-slate-400'}
                           >
-                            {tournament.isPublic ? i18n.t('app.admin.public') : i18n.t('app.admin.private')}
+                            {tournament.isPublic
+                              ? i18n.t('app.admin.public')
+                              : i18n.t('app.admin.private')}
                           </span>
                         </td>
                         <td className="px-5 py-3">
                           {isSuperAdmin ? (
                             <div className="flex gap-2">
-                              <Button asChild variant="outline" size="sm" className="app-button app-button--secondary">
-                                <Link to={`/tournaments/${tournament.id}`}>{i18n.t('app.admin.manage')}</Link>
+                              <Button
+                                asChild
+                                variant="outline"
+                                size="sm"
+                                className="app-button app-button--secondary"
+                              >
+                                <Link to={`/tournaments/${tournament.id}`}>
+                                  {i18n.t('app.admin.manage')}
+                                </Link>
                               </Button>
                               <Button
                                 type="button"
@@ -1199,9 +2810,7 @@ function AdminDataInspector() {
       .catch((reason) => {
         if (active)
           setError(
-            reason instanceof Error
-              ? reason.message
-              : i18n.t('app.admin.details.loadFailed'),
+            reason instanceof Error ? reason.message : i18n.t('app.admin.details.loadFailed'),
           );
       });
     return () => {
@@ -1223,7 +2832,9 @@ function AdminDataInspector() {
         </p>
       </div>
       {error && <p className="mt-4 text-sm text-red-300">{error}</p>}
-      {!tournaments && !error && <p className="mt-4 text-sm text-muted-foreground">{i18n.t('app.admin.details.loading')}</p>}
+      {!tournaments && !error && (
+        <p className="mt-4 text-sm text-muted-foreground">{i18n.t('app.admin.details.loading')}</p>
+      )}
       <input
         value={search}
         onChange={(event) => setSearch(event.target.value)}
@@ -1239,7 +2850,10 @@ function AdminDataInspector() {
             <summary className="cursor-pointer font-semibold">
               <span>{tournament.name}</span>
               <span className="ml-2 text-sm font-normal text-slate-400">
-                {i18n.t('app.admin.details.summary', { players: tournament.players.length, rounds: tournament.rounds.length })}
+                {i18n.t('app.admin.details.summary', {
+                  players: tournament.players.length,
+                  rounds: tournament.rounds.length,
+                })}
               </span>
             </summary>
             <pre className="mt-4 max-h-96 overflow-auto rounded-md bg-slate-900 p-4 text-xs leading-relaxed text-slate-300">
@@ -1286,7 +2900,9 @@ function SuperAdminPlayerManagement() {
       <section className={`${panel} mt-7`}>
         <div>
           <h2 className="text-xl font-black">{i18n.t('app.admin.tabs.players')}</h2>
-          <p className="mt-1 text-sm text-muted-foreground">{i18n.t('app.admin.players.description')}</p>
+          <p className="mt-1 text-sm text-muted-foreground">
+            {i18n.t('app.admin.players.description')}
+          </p>
         </div>
         {error && <p className="mt-4 text-sm text-red-300">{error}</p>}
         <input
@@ -1354,11 +2970,7 @@ function SuperAdminPlayerManagement() {
       await removeRemotePlayer(player.id);
       await load();
     } catch (reason) {
-      setError(
-        reason instanceof Error
-          ? reason.message
-          : i18n.t('app.admin.players.deleteFailed'),
-      );
+      setError(reason instanceof Error ? reason.message : i18n.t('app.admin.players.deleteFailed'));
     } finally {
       setBusy(false);
     }
@@ -1386,7 +2998,12 @@ function SuperAdminPlayerManagement() {
               </option>
             ))}
           </select>
-          <input required name="name" className={field} placeholder={i18n.t('app.admin.players.playerName')} />
+          <input
+            required
+            name="name"
+            className={field}
+            placeholder={i18n.t('app.admin.players.playerName')}
+          />
           <Button disabled={busy} className={primary}>
             {i18n.t('app.admin.players.create')}
           </Button>
@@ -1399,14 +3016,18 @@ function SuperAdminPlayerManagement() {
           className={`${field} w-64`}
           placeholder={i18n.t('app.admin.players.search')}
         />
-        <span className="text-sm text-muted-foreground">{i18n.t('app.admin.total', { count: players.length })}</span>
+        <span className="text-sm text-muted-foreground">
+          {i18n.t('app.admin.total', { count: players.length })}
+        </span>
       </div>
       <div className="max-h-[34rem] overflow-auto">
         <table className="w-full min-w-[680px] text-left text-sm">
           <thead className="border-b border-slate-700 bg-slate-800 text-xs uppercase tracking-wide text-slate-400">
             <tr>
               <th className="px-5 py-3 font-semibold">{i18n.t('app.common.name')}</th>
-              <th className="px-5 py-3 font-semibold">{i18n.t('app.admin.tournaments.tournament')}</th>
+              <th className="px-5 py-3 font-semibold">
+                {i18n.t('app.admin.tournaments.tournament')}
+              </th>
               <th className="px-5 py-3 font-semibold">{i18n.t('app.common.status')}</th>
               <th className="px-5 py-3 font-semibold">{i18n.t('app.common.actions')}</th>
             </tr>
@@ -1422,7 +3043,9 @@ function SuperAdminPlayerManagement() {
                 <td className="px-5 py-3">
                   <strong className="block">{tournament.name}</strong>
                   <span className="text-xs text-slate-400">
-                    {i18n.t('app.admin.players.activeCount', { count: playersByTournament.get(tournament.id) ?? 0 })}
+                    {i18n.t('app.admin.players.activeCount', {
+                      count: playersByTournament.get(tournament.id) ?? 0,
+                    })}
                   </span>
                 </td>
                 <td className="px-5 py-3 text-emerald-300">{i18n.t('app.common.active')}</td>
@@ -1480,7 +3103,9 @@ function UserProfileModal({
       .catch((reason) => {
         if (active)
           setLoginHistoryError(
-            reason instanceof Error ? reason.message : i18n.t('app.admin.profile.loadHistoryFailed'),
+            reason instanceof Error
+              ? reason.message
+              : i18n.t('app.admin.profile.loadHistoryFailed'),
           );
       });
     return () => {
@@ -1529,7 +3154,9 @@ function UserProfileModal({
           {i18n.t('app.admin.accounts.role')}
           <select
             name="role"
-            defaultValue={user.role === 'admin' ? 'admin' : user.role === 'player' ? 'player' : 'organizer'}
+            defaultValue={
+              user.role === 'admin' ? 'admin' : user.role === 'player' ? 'player' : 'organizer'
+            }
             className={field}
           >
             <option value="player">{i18n.t('app.admin.roles.player')}</option>
@@ -1539,13 +3166,19 @@ function UserProfileModal({
         </label>
         <section className="border-t border-slate-700 pt-4">
           <h3 className="font-semibold">{i18n.t('app.admin.profile.loginHistory')}</h3>
-          <p className="mt-1 text-xs text-muted-foreground">{i18n.t('app.admin.profile.superAdminOnly')}</p>
+          <p className="mt-1 text-xs text-muted-foreground">
+            {i18n.t('app.admin.profile.superAdminOnly')}
+          </p>
           {!loginHistory && !loginHistoryError && (
-            <p className="mt-3 text-sm text-muted-foreground">{i18n.t('app.admin.profile.loadingHistory')}</p>
+            <p className="mt-3 text-sm text-muted-foreground">
+              {i18n.t('app.admin.profile.loadingHistory')}
+            </p>
           )}
           {loginHistoryError && <p className="mt-3 text-sm text-red-300">{loginHistoryError}</p>}
           {loginHistory && loginHistory.length === 0 && (
-            <p className="mt-3 text-sm text-muted-foreground">{i18n.t('app.admin.profile.noHistory')}</p>
+            <p className="mt-3 text-sm text-muted-foreground">
+              {i18n.t('app.admin.profile.noHistory')}
+            </p>
           )}
           {loginHistory && loginHistory.length > 0 && (
             <div className="mt-3 max-h-56 space-y-2 overflow-y-auto pr-1">

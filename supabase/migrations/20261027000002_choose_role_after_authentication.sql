@@ -13,7 +13,7 @@ as $$
     from public.profiles
     where id = auth.uid()
       and role_locked
-      and role::text in ('organizer', 'admin', 'super_admin')
+      and role::text = 'organizer'
   );
 $$;
 

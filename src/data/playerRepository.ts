@@ -71,6 +71,14 @@ export async function loadTournamentJoinLink(tournamentId: string) {
   return data ? String(data) : undefined;
 }
 
+export async function loadTournamentJoinCode(tournamentId: string) {
+  const { data, error } = await client().rpc('get_tournament_join_code', {
+    p_tournament_id: tournamentId,
+  });
+  if (error) throw error;
+  return data ? String(data) : undefined;
+}
+
 export async function createTournamentJoinLink(tournamentId: string) {
   const { data, error } = await client().rpc('create_or_rotate_tournament_join_link', {
     p_tournament_id: tournamentId,

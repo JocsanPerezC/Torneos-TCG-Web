@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Archive, Play, Plus, Trophy } from 'lucide-react';
+import { Archive, ArrowRight, Play, Swords, Trophy } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { loadPlayerTournaments, type PlayerTournament } from '../data/playerRepository';
@@ -25,21 +25,16 @@ export function PlayerDashboard() {
     };
   }, [t]);
 
+  const activeTournament = tournaments?.find(tournament => tournament.status === 'activo');
+  const history = tournaments?.filter(tournament => tournament.status === 'finalizado') ?? [];
+
   return (
-    <div className="dashboard-board">
+    <div className="dashboard-board player-dashboard">
       <header className="dashboard-board__header">
         <div>
           <h1>{t('app.playerDashboard.title')}</h1>
-          <p className="mb-0 mt-2 text-sm text-muted-foreground">
-            {t('app.playerDashboard.description')}
-          </p>
+          <p className="mb-0 mt-2 text-sm text-muted-foreground">{t('app.playerDashboard.description')}</p>
         </div>
-        <Button asChild className="app-button app-button--primary">
-          <Link to="/unirse">
-            <Plus size={16} aria-hidden="true" />
-            {t('app.playerDashboard.join')}
-          </Link>
-        </Button>
       </header>
       {!tournaments && !error && (
         <div className="app-loading-note">
@@ -52,67 +47,63 @@ export function PlayerDashboard() {
           {error}
         </p>
       )}
-      {(['activo', 'finalizado'] as const).map((status) => {
-        const items = tournaments?.filter((tournament) => tournament.status === status) ?? [];
-        const Icon = status === 'activo' ? Play : Archive;
-        return (
-          <section key={status} className="dashboard-shelf">
-            <header>
-              <span>
-                <Icon size={14} aria-hidden="true" />
-              </span>
-              <h2>
-                {status === 'activo'
-                  ? t('app.playerDashboard.active')
-                  : t('app.playerDashboard.history')}
-              </h2>
-            </header>
-            <div className="dashboard-shelf__grid">
-              {items.map((tournament) => (
-                <Link
-                  key={tournament.id}
-                  to={`/t/${tournament.publicSlug}`}
-                  className="tournament-ticket"
-                >
-                  <div className="tournament-ticket__top">
-                    <span>{tournament.format}</span>
-                    <span className="app-badge border border-[#BDE8CC] bg-[#E5F7EC] text-[#168050]">
-                      {status === 'activo'
-                        ? t('app.common.activeStatus')
-                        : t('app.common.finished')}
-                    </span>
-                  </div>
-                  <strong>{tournament.name}</strong>
-                  <p>
-                    {t('app.playerDashboard.progress', {
-                      current: tournament.roundCount,
-                      total: tournament.plannedRounds,
-                    })}
-                  </p>
-                  <div className="tournament-ticket__bottom">
-                    <span className="text-sm font-semibold text-muted-foreground">
-                      {tournament.participantName}
-                    </span>
-                    <Trophy size={18} className="text-accent" aria-hidden="true" />
-                  </div>
+      {tournaments && (
+        <>
+          {activeTournament ? (
+            <section className="dashboard-focus" aria-labelledby="next-tournament-title">
+              <div>
+                <span className="dashboard-focus__icon"><Play aria-hidden="true" /></span>
+                <p>{t('app.playerDashboard.nextTournament')}</p>
+                <h2 id="next-tournament-title">{activeTournament.name}</h2>
+                <span className="dashboard-focus__meta">
+                  {activeTournament.format} · {t('app.playerDashboard.progress', { current: activeTournament.roundCount, total: activeTournament.plannedRounds })}
+                </span>
+              </div>
+              <Button asChild className="app-button app-button--primary">
+                <Link to={`/t/${activeTournament.publicSlug}`}>
+                  {t('app.playerDashboard.openTournament')}
+                  <ArrowRight aria-hidden="true" />
                 </Link>
-              ))}
-              {tournaments && items.length === 0 && (
-                <div className="app-empty-state">
-                  <span>
-                    <Icon aria-hidden="true" />
-                  </span>
-                  <p>
-                    {status === 'activo'
-                      ? t('app.playerDashboard.emptyActive')
-                      : t('app.playerDashboard.emptyHistory')}
-                  </p>
-                </div>
-              )}
-            </div>
+              </Button>
+            </section>
+          ) : (
+            <section className="dashboard-join-prompt" aria-labelledby="join-prompt-title">
+              <span><Swords aria-hidden="true" /></span>
+              <div>
+                <h2 id="join-prompt-title">{t('app.playerDashboard.joinPrompt')}</h2>
+                <p>{t('app.playerDashboard.joinPromptDescription')}</p>
+              </div>
+              <Button asChild className="app-button app-button--primary">
+                <Link to="/unirse">{t('app.playerDashboard.join')}</Link>
+              </Button>
+            </section>
+          )}
+
+          <section className="dashboard-history" aria-labelledby="history-title">
+            <header>
+              <span><Archive aria-hidden="true" /></span>
+              <div>
+                <h2 id="history-title">{t('app.playerDashboard.history')}</h2>
+                <p>{t('app.playerDashboard.historyDescription')}</p>
+              </div>
+            </header>
+            {history.length ? (
+              <div className="dashboard-history__list">
+                {history.map(tournament => (
+                  <Link key={tournament.id} to={`/t/${tournament.publicSlug}`} className="dashboard-history__item">
+                    <span><Trophy aria-hidden="true" /></span>
+                    <strong>{tournament.name}</strong>
+                    <small>{tournament.format} · {tournament.participantName}</small>
+                    <ArrowRight aria-hidden="true" />
+                  </Link>
+                ))}
+              </div>
+            ) : (
+              <p className="dashboard-history__empty">{t('app.playerDashboard.emptyHistory')}</p>
+            )}
           </section>
-        );
-      })}
+        </>
+      )}
     </div>
   );
 }

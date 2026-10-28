@@ -13,7 +13,7 @@ import { Button } from '../components/ui/button';
 
 function tokenFromInput(value: string) {
   const match = value.trim().match(/\/unirse\/([a-z0-9]+)/i);
-  return match?.[1] ?? value.trim();
+  return (match?.[1] ?? value.trim()).toUpperCase();
 }
 
 export function JoinTournamentPage() {
@@ -54,7 +54,7 @@ export function JoinTournamentPage() {
           <p className="mt-3 text-sm leading-6 text-muted-foreground">
             {t('app.join.manualDescription')}
           </p>
-          <form className="mt-5 space-y-4" onSubmit={submitToken}>
+          <form className="join-tournament-form mt-5" onSubmit={submitToken}>
             <label className="text-sm font-semibold">
               {t('app.join.code')}
               <input
