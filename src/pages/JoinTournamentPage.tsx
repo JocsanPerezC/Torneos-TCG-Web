@@ -3,6 +3,7 @@ import { Link, Navigate, useNavigate, useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { joinTournament } from '../data/playerRepository';
 import { getUserProfile } from '../lib/userProfile';
+import { clearInvitationReturnPath } from '../lib/invitationReturnPath';
 import { useAuth } from '../state/AuthContext';
 import { Button } from '../components/ui/button';
 
@@ -29,8 +30,10 @@ export function JoinTournamentPage() {
     setError(undefined);
     try {
       await joinTournament(invitation, getUserProfile(user).name);
+      clearInvitationReturnPath();
       navigate('/dashboard', { replace: true });
     } catch (reason) {
+      clearInvitationReturnPath();
       setError(reason instanceof Error ? reason.message : t('app.join.error'));
     } finally {
       setBusy(false);
@@ -41,6 +44,10 @@ export function JoinTournamentPage() {
     if (!token || !user || !isPlayer || loading || attemptedToken.current === token) return;
     attemptedToken.current = token;
     void completeJoin(token);
+  }, [isPlayer, loading, token, user]);
+
+  useEffect(() => {
+    if (token && user && !loading && !isPlayer) clearInvitationReturnPath();
   }, [isPlayer, loading, token, user]);
 
   if (!configured) return <Navigate to="/" replace />;

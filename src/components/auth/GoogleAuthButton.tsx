@@ -4,6 +4,7 @@ import { supabase } from '../../lib/supabase';
 import { Button } from '../ui/button';
 import { showToast } from '../ui/toast';
 import { currentLegalConsent, legalConsentStorageKey } from '../../legal';
+import { saveInvitationReturnPath } from '../../lib/invitationReturnPath';
 
 function GoogleIcon() {
   return (
@@ -56,6 +57,7 @@ export function GoogleAuthButton({
     try {
       if (requiresConsent)
         sessionStorage.setItem(legalConsentStorageKey, JSON.stringify(currentLegalConsent));
+      saveInvitationReturnPath(redirectPath);
       const redirectUrl = new URL(`${window.location.origin}${redirectPath}`);
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',

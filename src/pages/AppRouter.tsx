@@ -21,6 +21,7 @@ import { JoinTournamentPage } from './JoinTournamentPage';
 import { PlayerDashboard } from './PlayerDashboard';
 import { ProfilePage } from './ProfilePage';
 import { AppSettingsPage } from './AppSettingsPage';
+import { invitationReturnPath, savedInvitationReturnPath } from '../lib/invitationReturnPath';
 import {
   deleteRemoteTournament,
   insertPlayers,
@@ -328,7 +329,8 @@ function Layout({
 }
 export function AppRouter() {
   useTranslation();
-  return (
+  return <>
+    <InvitationReturn />
     <Routes>
       <Route path="/" element={<LandingPage />} />
       <Route path="/trial" element={<TrialPage />} />
@@ -444,7 +446,22 @@ export function AppRouter() {
       <Route path="/t/:slug" element={<PublicView />} />
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
-  );
+  </>;
+}
+
+function InvitationReturn() {
+  const { loading, user } = useAuth();
+  const location = useLocation();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const path = savedInvitationReturnPath();
+    const resumePaths = ['/', '/login', '/register', '/auth/confirmed', '/dashboard'];
+    if (!user || loading || !path || !resumePaths.includes(location.pathname)) return;
+    navigate(path, { replace: true });
+  }, [loading, location.pathname, navigate, user]);
+
+  return null;
 }
 
 function LocalOnly({ children }: { children: React.ReactNode }) {
@@ -466,23 +483,32 @@ function ConsentGuard({ children }: { children: React.ReactNode }) {
         replace
       />
     );
-  return user && requiresLegalConsent ? <Navigate to="/legal-consent" replace /> : <>{children}</>;
+  return user && requiresLegalConsent ? (
+    <Navigate
+      to={`/legal-consent?next=${encodeURIComponent(`${location.pathname}${location.search}`)}`}
+      replace
+    />
+  ) : (
+    <>{children}</>
+  );
 }
 
 function LegalConsent() {
   const { user, requiresLegalConsent, acceptLegalConsent } = useAuth();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const [accepted, setAccepted] = useState(false);
   const [error, setError] = useState('');
   const [busy, setBusy] = useState(false);
-  if (!user || !requiresLegalConsent) return <Navigate to="/dashboard" replace />;
+  const destination = invitationReturnPath(searchParams.get('next')) ?? '/dashboard';
+  if (!user || !requiresLegalConsent) return <Navigate to={destination} replace />;
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     if (!accepted) return setError(i18n.t('app.legalConsent.required'));
     setBusy(true);
     try {
       await acceptLegalConsent();
-      navigate('/dashboard', { replace: true });
+      navigate(destination, { replace: true });
     } catch {
       setError(i18n.t('app.legalConsent.saveFailed'));
     } finally {
@@ -599,7 +625,7 @@ function Auth({ screen }: { screen: 'login' | 'register' | 'recovery' }) {
   const register = screen === 'register';
   const title = i18n.t(`app.auth.${screen}`);
   const requestedPath = searchParams.get('next');
-  const returnPath = requestedPath?.startsWith('/unirse/') ? requestedPath : '/dashboard';
+  const returnPath = invitationReturnPath(requestedPath) ?? savedInvitationReturnPath() ?? '/dashboard';
 
   useEffect(() => {
     if (register && user) navigate(returnPath, { replace: true });

@@ -9,7 +9,7 @@ La aplicación solo distinguía cuentas con capacidades de organización y parti
 
 ## Decisión
 
-Se añade el rol inmutable `player`. Después de autenticarse por primera vez, una persona elige `player` u `organizer`; si llega mediante una invitación `/unirse/:token`, la plataforma asigna y bloquea automáticamente `player` para continuar la inscripción. Únicamente un `super_admin` puede cambiar ese valor después. Hasta que confirma la elección, no puede organizar torneos ni inscribirse. Las cuentas de organizador, administración y superadministración no se pueden vincular como participantes.
+Se añade el rol inmutable `player`. Después de autenticarse por primera vez, una persona elige `player` u `organizer`; si llega mediante una invitación `/unirse/:token`, la plataforma asigna y bloquea automáticamente `player` para continuar la inscripción. La ruta se conserva temporalmente en la sesión del navegador para reanudar la invitación al volver de OAuth. Únicamente un `super_admin` puede cambiar ese valor después. Hasta que confirma la elección, no puede organizar torneos ni inscribirse. Las cuentas de organizador, administración y superadministración no se pueden vincular como participantes.
 
 `players.profile_id` es opcional. Un registro nulo representa un participante manual; un valor presente enlaza una inscripción a una cuenta `player`. Cada torneo admite a lo sumo una inscripción vinculada por cuenta.
 
