@@ -2622,6 +2622,94 @@ section.grid > div > button {
   color: #111;
   box-shadow: 4px 5px 0 rgba(17, 17, 17, 0.07);
 }
+.invite-code-display {
+  width: calc(100vw - 2rem);
+  max-width: none;
+  min-height: calc(100dvh - 2rem);
+  max-height: calc(100dvh - 2rem);
+  overflow-y: auto;
+  padding: clamp(1.25rem, 4vw, 3rem);
+  border: 2px solid #111;
+  border-radius: 1.5rem 0.65rem 1.5rem 0.65rem;
+  background: #fffdf7;
+}
+.invite-code-display__content {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(16rem, 0.9fr);
+  align-items: center;
+  gap: clamp(1.5rem, 5vw, 5rem);
+  min-height: 28rem;
+}
+.invite-code-display__code {
+  display: grid;
+  gap: 0.55rem;
+}
+.invite-code-display__code > span {
+  color: #514d45;
+  font-size: 0.9rem;
+  font-weight: 700;
+}
+.invite-code-display__code strong {
+  overflow-wrap: anywhere;
+  color: #3d5afb;
+  font-size: clamp(3.5rem, 11vw, 8rem);
+  font-weight: 700;
+  letter-spacing: 0.075em;
+  line-height: 0.9;
+}
+.invite-code-display__qr {
+  display: grid;
+  min-height: 16rem;
+  place-items: center;
+  align-content: center;
+  gap: 0.85rem;
+  padding: 1rem;
+  border: 1.5px solid #ded6c5;
+  border-radius: 1rem 0.45rem 1rem 0.45rem;
+  background: #fff;
+  text-align: center;
+}
+.invite-code-display__qr img {
+  display: block;
+  width: min(100%, 25rem);
+  aspect-ratio: 1;
+  image-rendering: pixelated;
+}
+.invite-code-display__qr p {
+  margin: 0;
+  color: #514d45;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+.invite-code-display__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-top: 1.25rem;
+}
+@media (max-width: 620px) {
+  .invite-code-display {
+    min-height: 100%;
+    padding: 1.15rem;
+  }
+  .invite-code-display__content {
+    grid-template-columns: 1fr;
+    min-height: 0;
+    gap: 1.25rem;
+  }
+  .invite-code-display__code {
+    text-align: center;
+  }
+  .invite-code-display__code strong {
+    font-size: clamp(3.25rem, 19vw, 5.5rem);
+  }
+  .invite-code-display__qr {
+    min-height: 0;
+  }
+  .invite-code-display__actions .app-button {
+    flex: 1 1 11rem;
+  }
+}
 .app-field {
   display: block;
   width: 100%;
@@ -2703,7 +2791,7 @@ section.grid > div > button {
   height: 1rem;
   place-items: center;
   margin-left: 0.22rem;
-  border: 1px solid #3d5afb;
+  border: 0;
   border-radius: 50%;
   color: #3d5afb;
   vertical-align: middle;
@@ -2742,6 +2830,9 @@ section.grid > div > button {
   outline-offset: 2px;
 }
 @media (min-width: 1024px) {
+  .app-sidebar {
+    overflow: visible;
+  }
   .authenticated-shell {
     transition: grid-template-columns 180ms ease;
   }
@@ -2759,6 +2850,7 @@ section.grid > div > button {
   .authenticated-shell.is-sidebar-collapsed .app-sidebar__link > span,
   .authenticated-shell.is-sidebar-collapsed .app-sidebar__create > span,
   .authenticated-shell.is-sidebar-collapsed .app-sidebar__profile strong,
+  .authenticated-shell.is-sidebar-collapsed .app-sidebar__profile > svg,
   .authenticated-shell.is-sidebar-collapsed .app-sidebar__language,
   .authenticated-shell.is-sidebar-collapsed .app-sidebar__signout > span {
     display: none;
@@ -2781,6 +2873,10 @@ section.grid > div > button {
     width: 2.25rem;
     justify-content: center;
     padding-inline: 0;
+  }
+  .authenticated-shell.is-sidebar-collapsed .app-sidebar__account-menu {
+    bottom: 0;
+    left: calc(100% + 0.65rem);
   }
 }
 
@@ -2940,18 +3036,35 @@ section.grid > div > button {
   padding-inline: 0.45rem;
 }
 .app-sidebar__footer {
-  display: grid;
-  gap: 0.65rem;
   padding-top: 0.85rem;
   border-top: 1px solid #e7e2d2;
 }
+.app-sidebar__account {
+  position: relative;
+}
 .app-sidebar__profile {
   display: flex;
+  width: 100%;
   min-width: 0;
   align-items: center;
   gap: 0.55rem;
+  border: 0;
+  border-radius: 0.65rem 0.3rem 0.65rem 0.3rem;
+  padding: 0.3rem 0.45rem;
+  background: transparent;
   color: #111;
+  font: inherit;
+  text-align: left;
   text-decoration: none;
+  cursor: pointer;
+}
+.app-sidebar__profile:hover,
+.app-sidebar__profile.is-open {
+  background: #f1eee3;
+}
+.app-sidebar__profile:focus-visible {
+  outline: 2px solid #3d5afb;
+  outline-offset: 2px;
 }
 .app-sidebar__profile > span {
   display: grid;
@@ -2971,33 +3084,97 @@ section.grid > div > button {
   text-overflow: ellipsis;
   white-space: nowrap;
 }
-.app-sidebar__footer-actions {
-  display: flex;
-  align-items: center;
-  justify-content: flex-start;
-  gap: 0.35rem;
-}
-.app-sidebar__signout {
-  display: inline-flex;
-  min-height: 2rem;
-  align-items: center;
-  gap: 0.35rem;
-  border: 0;
-  border-radius: 0.45rem;
-  padding: 0.35rem 0.45rem;
-  background: transparent;
-  color: #a44840;
-  font: inherit;
-  font-size: 0.72rem;
-  font-weight: 700;
-  cursor: pointer;
-}
-.app-sidebar__signout:hover {
-  background: #fff0ed;
-}
-.app-sidebar__signout svg {
+.app-sidebar__profile > svg {
   width: 0.9rem;
   height: 0.9rem;
+  flex: none;
+  margin-left: auto;
+  color: #6b675c;
+}
+.app-sidebar__account-menu {
+  position: absolute;
+  z-index: 40;
+  bottom: calc(100% + 0.65rem);
+  left: 0;
+  width: min(13.5rem, calc(100vw - 1.7rem));
+  padding: 0.5rem;
+  border: 1.5px solid #ded6c5;
+  border-radius: 0.85rem 0.4rem 0.85rem 0.4rem;
+  background: #fffdf7;
+  box-shadow: 4px 5px 0 rgba(17, 17, 17, 0.1);
+}
+.app-sidebar__account-menu > p,
+.app-mobile-account > p {
+  margin: 0;
+  padding: 0.35rem 0.45rem 0.45rem;
+  color: #5b1fe0;
+  font-size: 0.67rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+.app-sidebar__account-menu > a,
+.app-sidebar__account-menu > button,
+.app-mobile-account > a,
+.app-mobile-account > button {
+  display: flex;
+  width: 100%;
+  min-height: 2.5rem;
+  align-items: center;
+  gap: 0.5rem;
+  border: 0;
+  border-radius: 0.55rem 0.25rem 0.55rem 0.25rem;
+  padding: 0.45rem;
+  background: transparent;
+  color: #514d45;
+  font: inherit;
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-align: left;
+  text-decoration: none;
+  cursor: pointer;
+}
+.app-sidebar__account-menu > a:hover,
+.app-sidebar__account-menu > button:hover,
+.app-mobile-account > a:hover,
+.app-mobile-account > button:hover {
+  background: #f1eee3;
+  color: #111;
+}
+.app-sidebar__account-menu > a:focus-visible,
+.app-sidebar__account-menu > button:focus-visible,
+.app-mobile-account > a:focus-visible,
+.app-mobile-account > button:focus-visible {
+  outline: 2px solid #3d5afb;
+  outline-offset: -2px;
+}
+.app-sidebar__account-menu > a svg,
+.app-sidebar__account-menu > button svg,
+.app-mobile-account > a svg,
+.app-mobile-account > button svg {
+  width: 0.95rem;
+  height: 0.95rem;
+  flex: none;
+  color: #3d5afb;
+}
+.app-sidebar__account-menu > div,
+.app-mobile-account > div {
+  height: 1px;
+  margin: 0.35rem 0;
+  background: #e7e2d2;
+}
+.app-sidebar__account-menu > button,
+.app-mobile-account > button {
+  color: #a44840;
+}
+.app-sidebar__account-menu > button:hover,
+.app-mobile-account > button:hover {
+  background: #fff0ed;
+  color: #a44840;
+}
+.app-sidebar__account-menu > button svg,
+.app-mobile-account > button svg {
+  color: #a44840;
 }
 .app-mobile-nav {
   display: none;
@@ -3081,54 +3258,6 @@ section.grid > div > button {
     background: #fffdf7;
     box-shadow: 4px 5px 0 rgba(17, 17, 17, 0.1);
   }
-  .app-mobile-account__profile {
-    display: grid;
-    min-width: 0;
-    grid-template-columns: auto minmax(0, 1fr) auto;
-    align-items: center;
-    gap: 0.6rem;
-    color: #111;
-    text-decoration: none;
-  }
-  .app-mobile-account__avatar {
-    display: grid;
-    width: 2.3rem;
-    height: 2.3rem;
-    place-items: center;
-    border: 1.5px solid #111;
-    border-radius: 50%;
-    background: #fff6cb;
-    font-size: 0.78rem;
-    font-weight: 700;
-  }
-  .app-mobile-account__identity {
-    display: grid;
-    min-width: 0;
-    gap: 0.05rem;
-  }
-  .app-mobile-account__identity small {
-    color: #6b675c;
-    font-size: 0.7rem;
-    font-weight: 700;
-  }
-  .app-mobile-account__identity strong {
-    overflow: hidden;
-    font-size: 0.85rem;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
-  .app-mobile-account__profile > svg {
-    width: 1rem;
-    color: #3d5afb;
-  }
-  .app-mobile-account__utilities {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 0.5rem;
-    padding-top: 0.65rem;
-    border-top: 1px solid #e7e2d2;
-  }
 }
 
 .dashboard-board {
@@ -3195,7 +3324,8 @@ section.grid > div > button {
   width: 0.85rem;
   height: 0.85rem;
 }
-.dashboard-shelf h2 {
+.dashboard-shelf h2,
+.dashboard-shelf h3 {
   margin: 0;
   font-size: 1.08rem;
 }
@@ -3432,7 +3562,6 @@ section.grid > div > button {
   font-weight: 600;
 }
 .organizer-dashboard__focus {
-  margin-bottom: 1.75rem;
   background: #e5f7ec;
 }
 .organizer-dashboard__focus-actions {
@@ -3757,8 +3886,26 @@ section.grid > div > button {
   align-items: center;
 }
 .rounds-deck__header h2 {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.28rem;
   margin: 0;
   font-size: 1.35rem;
+}
+.rounds-deck__header h2 .app-help {
+  width: 1.4rem;
+  height: 1.4rem;
+  margin-left: 0;
+  border: 1.5px solid #3d5afb;
+  border-radius: 0.45rem 0.2rem 0.45rem 0.2rem;
+  background: #e9edff;
+}
+.rounds-deck__header h2 .app-help svg {
+  width: 0.72rem;
+  height: 0.72rem;
+}
+.rounds-deck__header h2 .app-help:hover {
+  background: #dce5ff;
 }
 .rounds-deck__header > div {
   display: flex;
@@ -4029,9 +4176,20 @@ section.grid > div > button {
   text-align: left;
   text-transform: uppercase;
 }
-.standings-table th span {
+.standings-table th > span {
   display: inline-flex;
   align-items: center;
+  gap: 0.28rem;
+}
+.standings-table th .app-help--static {
+  width: 0.9rem;
+  height: 0.9rem;
+  flex: none;
+  margin-left: 0;
+}
+.standings-table th .app-help--static svg {
+  width: 0.62rem;
+  height: 0.62rem;
 }
 .standings-table td {
   padding: 0.6rem;
@@ -4242,6 +4400,32 @@ section.grid > div > button {
   font-size: 0.83rem;
   line-height: 1.45;
 }
+.public-scoreboard__view-nav {
+  display: flex;
+  gap: 0.45rem;
+  margin-top: 1rem;
+  overflow-x: auto;
+  padding: 0.15rem 0.1rem 0.35rem;
+  scrollbar-width: thin;
+}
+.public-scoreboard__view-nav a {
+  flex: 0 0 auto;
+  min-height: 2.5rem;
+  border: 1.5px solid #ded6c5;
+  border-radius: 0.7rem 0.3rem 0.7rem 0.3rem;
+  padding: 0.55rem 0.8rem;
+  background: #fffdf6;
+  color: #514d45;
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-decoration: none;
+}
+.public-scoreboard__view-nav a:hover,
+.public-scoreboard__view-nav a.is-current {
+  border-color: #3d5afb;
+  background: #e9edff;
+  color: #111;
+}
 .public-round {
   margin-top: 1rem;
   padding: 1rem;
@@ -4317,10 +4501,25 @@ section.grid > div > button {
   font-size: 1.25rem;
 }
 .public-podium .standings-podium {
-  margin-bottom: 0;
+  margin-bottom: 1.25rem;
+}
+.public-podium__standings {
+  margin-top: 1rem;
+}
+.public-podium .standings-podium__place--1 {
+  min-height: 11.25rem;
+  border-color: #b98e22;
+  transform: translateY(-0.4rem);
+}
+.public-podium .standings-podium__place--1 i {
+  width: 2.8rem;
+  height: 2.8rem;
+}
+.public-podium .standings-podium__place--1 b {
+  font-size: 1.8rem;
 }
 .public-scoreboard__statistics {
-  margin-top: 2rem;
+  margin-top: 1rem;
 }
 .public-table {
   padding: 0.7rem;
@@ -4641,7 +4840,7 @@ section.grid > div > button {
 .app-help {
   appearance: none;
   padding: 0;
-  background: #fffefa;
+  background: transparent;
   cursor: pointer;
   transition:
     transform 150ms ease,

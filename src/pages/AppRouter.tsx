@@ -20,6 +20,7 @@ import { CompleteRolePage } from './CompleteRolePage';
 import { JoinTournamentPage } from './JoinTournamentPage';
 import { PlayerDashboard } from './PlayerDashboard';
 import { ProfilePage } from './ProfilePage';
+import { AppSettingsPage } from './AppSettingsPage';
 import {
   deleteRemoteTournament,
   insertPlayers,
@@ -83,10 +84,8 @@ import {
   AuthenticatedShell,
   type TournamentNavigation,
 } from '../components/layout/AuthenticatedShell';
-import { getUserProfile } from '../lib/userProfile';
 import i18n from '../i18n';
 import { currentLegalConsent } from '../legal';
-import type { User } from '@supabase/supabase-js';
 
 const primary = 'app-button app-button--primary';
 const panel = 'app-panel';
@@ -251,11 +250,10 @@ function Header() {
                 size="sm"
                 aria-label={i18n.t('app.header.signOut')}
                 className="app-button--danger !text-[.82rem] !font-semibold"
-                onClick={() =>
-                  void signOut()
-                    .catch(() => undefined)
-                    .finally(() => navigate('/', { replace: true }))
-                }
+                onClick={() => {
+                  navigate('/', { replace: true });
+                  void signOut().catch(() => undefined);
+                }}
               >
                 <LogOut size={16} />
                 <span className="hidden sm:inline">{i18n.t('app.header.signOut')}</span>
@@ -298,10 +296,12 @@ function Layout({
   children,
   wide = false,
   tournament,
+  showHeader = true,
 }: {
   children: React.ReactNode;
   wide?: boolean;
   tournament?: TournamentNavigation;
+  showHeader?: boolean;
 }) {
   const { configured, requiresLegalConsent, requiresRoleSelection, user } = useAuth();
   const useSidebar = configured && user && !requiresLegalConsent && !requiresRoleSelection;
@@ -315,10 +315,10 @@ function Layout({
     </>
   ) : (
     <>
-      <Header />
+      {showHeader && <Header />}
       <CompletionRedirect />
       <main
-        className={`mx-auto min-h-[calc(100vh-72px)] w-full ${wide ? 'max-w-7xl' : 'max-w-6xl'} px-4 pb-8 pt-24`}
+        className={`mx-auto min-h-[calc(100vh-72px)] w-full ${wide ? 'max-w-7xl' : 'max-w-6xl'} px-4 pb-8 ${showHeader ? 'pt-24' : 'pt-8'}`}
       >
         {children}
       </main>
@@ -373,9 +373,19 @@ export function AppRouter() {
         }
       />
       <Route
+        path="/configuracion"
+        element={
+          <ConsentGuard>
+            <Layout>
+              <AppSettingsPage />
+            </Layout>
+          </ConsentGuard>
+        }
+      />
+      <Route
         path="/completar-perfil"
         element={
-          <Layout>
+          <Layout showHeader={false}>
             <CompleteRolePage />
           </Layout>
         }
@@ -390,6 +400,14 @@ export function AppRouter() {
         element={
           <ConsentGuard>
             <Dashboard />
+          </ConsentGuard>
+        }
+      />
+      <Route
+        path="/dashboard/tournaments"
+        element={
+          <ConsentGuard>
+            <Dashboard view="tournaments" />
           </ConsentGuard>
         }
       />
@@ -752,7 +770,7 @@ function Auth({ screen }: { screen: 'login' | 'register' | 'recovery' }) {
           )}
           <Link
             className="mt-5 block text-center text-sm text-accent underline"
-            to={screen === 'login' ? '/register' : '/login'}
+            to={`${screen === 'login' ? '/register' : '/login'}?next=${encodeURIComponent(returnPath)}`}
           >
             {screen === 'login' ? i18n.t('app.auth.noAccount') : i18n.t('app.auth.backToLogin')}
           </Link>
@@ -795,28 +813,7 @@ function ConfirmedAccount() {
     </Layout>
   );
 }
-function OrganizerIdentity({ user }: { user: User | null }) {
-  const { name, avatarUrl } = getUserProfile(user);
-  const [avatarFailed, setAvatarFailed] = useState(false);
-  const avatarSource = avatarFailed || !avatarUrl ? '/default-avatar.svg' : avatarUrl;
-
-  return (
-    <p className="flex items-center gap-2 text-sm text-amber-300">
-      <span className="inline-flex h-7 w-7 shrink-0 overflow-hidden rounded-full border border-amber-300/40 bg-slate-800 text-xs font-bold text-amber-200">
-        <img
-          src={avatarSource}
-          alt=""
-          referrerPolicy="no-referrer"
-          className="h-full w-full object-cover"
-          onError={() => setAvatarFailed(true)}
-        />
-      </span>
-      <span>{i18n.t('app.header.organizerPanel', { name })}</span>
-    </p>
-  );
-}
-
-function Dashboard() {
+function Dashboard({ view = 'home' }: { view?: 'home' | 'tournaments' }) {
   const { configured, isAdmin, isPlayer, user, loading } = useAuth();
   if (configured && !loading && !user) return <Navigate to="/login" replace />;
   if (isAdmin) return <Navigate to="/admin" replace />;
@@ -828,12 +825,12 @@ function Dashboard() {
     );
   return (
     <Layout>
-      <OrganizerDashboard />
+      <OrganizerDashboard view={view} />
     </Layout>
   );
 }
 
-function OrganizerDashboard() {
+function OrganizerDashboard({ view }: { view: 'home' | 'tournaments' }) {
   const { tournaments, ready, remoteError, removeTournament } = useTournaments();
   const { user } = useAuth();
   const [tournamentToDelete, setTournamentToDelete] = useState<Tournament>();
@@ -842,10 +839,11 @@ function OrganizerDashboard() {
   const featuredTournament = activeTournaments[0];
   return (
     <div className="dashboard-board organizer-dashboard">
-      <header className="dashboard-board__header" id="my-tournaments">
+      <header className="dashboard-board__header">
         <div>
-          <OrganizerIdentity user={user} />
-          <h1>{i18n.t('app.dashboard.title')}</h1>
+          <h1>
+            {i18n.t(view === 'home' ? 'app.shell.home' : 'app.dashboard.title')}
+          </h1>
         </div>
         <Button asChild className={primary}>
           <Link to="/tournaments/new">
@@ -865,7 +863,7 @@ function OrganizerDashboard() {
           <Notice error>{remoteError}</Notice>
         </div>
       )}
-      {featuredTournament && (
+      {view === 'home' && featuredTournament && (
         <section
           className="dashboard-focus organizer-dashboard__focus"
           aria-labelledby="active-tournament-title"
@@ -897,84 +895,106 @@ function OrganizerDashboard() {
           </div>
         </section>
       )}
-      {(['activo', 'finalizado'] as const).map((status) => {
-        const sectionTournaments = ownTournaments.filter(
-          (tournament) => tournament.status === status && tournament.id !== featuredTournament?.id,
-        );
-        if (status === 'activo' && !sectionTournaments.length && featuredTournament) return null;
-        const SectionIcon = status === 'activo' ? Play : Archive;
-        return (
-          <section key={status} className="dashboard-shelf">
-            <header>
-              <span>
-                <SectionIcon size={14} aria-hidden />
-              </span>
-              <h2>
-                {status === 'activo'
-                  ? featuredTournament
-                    ? i18n.t('app.organizerDashboard.otherActive')
-                    : i18n.t('app.dashboard.active')
-                  : i18n.t('app.dashboard.finished')}
-              </h2>
-            </header>
-            <div className="dashboard-shelf__grid">
-              {sectionTournaments.map((tournament) => (
-                <article key={tournament.id} className="tournament-ticket">
-                  <Link to={`/tournaments/${tournament.id}`} className="tournament-ticket__link">
-                    <div className="tournament-ticket__top">
-                      <span>{tournament.format}</span>
-                      <Badge>{tournament.status}</Badge>
-                    </div>
-                    <strong>{tournament.name}</strong>
-                    <p>
-                      {i18n.t('app.dashboard.playersAndRounds', {
-                        players: tournament.players.filter((player) => player.active).length,
-                        rounds: `${tournament.rounds.length}/${tournament.plannedRounds}`,
-                      })}
-                    </p>
-                  </Link>
-                  <div className="tournament-ticket__bottom">
-                    <div
-                      className="round-pips"
-                      aria-label={i18n.t('app.dashboard.playersAndRounds', {
-                        players: tournament.players.filter((player) => player.active).length,
-                        rounds: `${tournament.rounds.length}/${tournament.plannedRounds}`,
-                      })}
-                    >
-                      {Array.from({ length: tournament.plannedRounds }, (_, round) => (
-                        <i
-                          className={round < tournament.rounds.length ? 'is-done' : ''}
-                          key={round}
-                        />
-                      ))}
-                    </div>
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="sm"
-                      className="app-action-delete"
-                      onClick={(event) => {
-                        event.stopPropagation();
-                        setTournamentToDelete(tournament);
-                      }}
-                    >
-                      {i18n.t('app.common.delete')}
-                    </Button>
-                  </div>
-                </article>
-              ))}
-              {ready && sectionTournaments.length === 0 && (
-                <div className="app-empty-state">
+      {view === 'home' && ready && !featuredTournament && (
+        <section className="dashboard-focus organizer-dashboard__focus" aria-labelledby="no-active-title">
+          <div>
+            <span className="dashboard-focus__icon">
+              <Trophy aria-hidden />
+            </span>
+            <h2 id="no-active-title">{i18n.t('app.organizerDashboard.noActiveTitle')}</h2>
+            <span className="dashboard-focus__meta">
+              {i18n.t('app.organizerDashboard.noActiveDescription')}
+            </span>
+          </div>
+        </section>
+      )}
+      {view === 'tournaments' && (
+        <section className="dashboard-shelf organizer-dashboard__catalog">
+        <header>
+          <span>
+            <Trophy size={14} aria-hidden />
+          </span>
+          <h2>{i18n.t('app.dashboard.title')}</h2>
+        </header>
+        {ready && ownTournaments.length === 0 ? (
+          <div className="app-empty-state">
+            <span>
+              <Inbox aria-hidden />
+            </span>
+            <p>{i18n.t('app.dashboard.noTournaments')}</p>
+          </div>
+        ) : (
+          (['activo', 'finalizado'] as const).map((status) => {
+            const sectionTournaments = ownTournaments.filter(
+              (tournament) => tournament.status === status,
+            );
+            if (!sectionTournaments.length) return null;
+            const SectionIcon = status === 'activo' ? Play : Archive;
+            return (
+              <section key={status} className="dashboard-shelf">
+                <header>
                   <span>
-                    <Inbox aria-hidden />
+                    <SectionIcon size={14} aria-hidden />
                   </span>
-                  <p>{i18n.t('app.dashboard.noTournaments')}</p>
+                  <h3>
+                    {status === 'activo'
+                      ? i18n.t('app.dashboard.active')
+                      : i18n.t('app.dashboard.finished')}
+                  </h3>
+                </header>
+                <div className="dashboard-shelf__grid">
+                  {sectionTournaments.map((tournament) => (
+                    <article key={tournament.id} className="tournament-ticket">
+                      <Link to={`/tournaments/${tournament.id}`} className="tournament-ticket__link">
+                        <div className="tournament-ticket__top">
+                          <span>{tournament.format}</span>
+                          <Badge>{tournament.status}</Badge>
+                        </div>
+                        <strong>{tournament.name}</strong>
+                        <p>
+                          {i18n.t('app.dashboard.playersAndRounds', {
+                            players: tournament.players.filter((player) => player.active).length,
+                            rounds: `${tournament.rounds.length}/${tournament.plannedRounds}`,
+                          })}
+                        </p>
+                      </Link>
+                      <div className="tournament-ticket__bottom">
+                        <div
+                          className="round-pips"
+                          aria-label={i18n.t('app.dashboard.playersAndRounds', {
+                            players: tournament.players.filter((player) => player.active).length,
+                            rounds: `${tournament.rounds.length}/${tournament.plannedRounds}`,
+                          })}
+                        >
+                          {Array.from({ length: tournament.plannedRounds }, (_, round) => (
+                            <i
+                              className={round < tournament.rounds.length ? 'is-done' : ''}
+                              key={round}
+                            />
+                          ))}
+                        </div>
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          className="app-action-delete"
+                          onClick={(event) => {
+                            event.stopPropagation();
+                            setTournamentToDelete(tournament);
+                          }}
+                        >
+                          {i18n.t('app.common.delete')}
+                        </Button>
+                      </div>
+                    </article>
+                  ))}
                 </div>
-              )}
-            </div>
-          </section>
-        );
-      })}
+              </section>
+            );
+          })
+        )}
+        </section>
+      )}
       {tournamentToDelete && (
         <ConfirmModal
           title={i18n.t('app.dashboard.deleteTitle')}
@@ -2228,6 +2248,13 @@ function PublicView() {
   const round =
     tournament.rounds.find((item) => item.id === searchParams.get('round')) ??
     tournament.rounds.at(-1);
+  const viewParam = searchParams.get('view');
+  const view = viewParam === 'podium' || viewParam === 'statistics' ? viewParam : 'round';
+  const publicPath = (targetView: typeof view, roundId = round?.id) => {
+    const params = new URLSearchParams({ view: targetView });
+    if (roundId) params.set('round', roundId);
+    return `/t/${tournament.publicSlug}?${params.toString()}`;
+  };
   const names = Object.fromEntries(tournament.players.map((player) => [player.id, player.name]));
   const rows = standings(tournament);
   return (
@@ -2255,12 +2282,30 @@ function PublicView() {
             </div>
           </section>
         )}
-        {tournament.rounds.length > 1 && (
+        <nav className="public-scoreboard__view-nav" aria-label={i18n.t('app.public.sections')}>
+          {(
+            [
+              ['round', i18n.t('app.public.currentRound')],
+              ['podium', i18n.t('app.public.podium')],
+              ['statistics', i18n.t('app.public.statistics')],
+            ] as const
+          ).map(([targetView, label]) => (
+            <Link
+              key={targetView}
+              to={publicPath(targetView)}
+              className={view === targetView ? 'is-current' : undefined}
+              aria-current={view === targetView ? 'page' : undefined}
+            >
+              {label}
+            </Link>
+          ))}
+        </nav>
+        {view === 'round' && tournament.rounds.length > 1 && (
           <nav className="public-round-picker" aria-label={i18n.t('app.public.rounds')}>
             {tournament.rounds.map((item) => (
               <Link
                 key={item.id}
-                to={`/t/${tournament.publicSlug}?round=${item.id}`}
+                to={publicPath('round', item.id)}
                 className={item.id === round?.id ? 'is-current' : undefined}
                 aria-current={item.id === round?.id ? 'page' : undefined}
               >
@@ -2269,7 +2314,7 @@ function PublicView() {
             ))}
           </nav>
         )}
-        {round ? (
+        {view === 'round' && (round ? (
           <section className="public-round">
             <header>
               <div className="public-round__heading">
@@ -2321,8 +2366,8 @@ function PublicView() {
             <span aria-hidden>♙</span>
             <p>{i18n.t('app.public.firstRound')}</p>
           </section>
-        )}
-        {rows.length > 0 && (
+        ))}
+        {view === 'podium' && rows.length > 0 && (
           <section className="public-podium" aria-labelledby="public-podium-title">
             <h2 id="public-podium-title">{i18n.t('app.public.podium')}</h2>
             <ol className="standings-podium">
@@ -2343,11 +2388,56 @@ function PublicView() {
                 </li>
               ))}
             </ol>
+            <div className="standings-table public-podium__standings">
+              <table>
+                <thead>
+                  <tr>
+                    <th>#</th>
+                    <th>{i18n.t('app.common.name')}</th>
+                    <th>{i18n.t('app.common.points')}</th>
+                    <th>{i18n.t('app.common.wins')}</th>
+                    <th>{i18n.t('app.common.losses')}</th>
+                    <th>{i18n.t('app.common.draws')}</th>
+                    <th>{i18n.t('app.common.winRate')}</th>
+                    <th>{i18n.t('app.common.kills')}</th>
+                    <th>{i18n.t('app.tournament.opponentStrength')}</th>
+                    <th>{i18n.t('app.tournament.rounds')}</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {rows.map((row) => (
+                    <tr
+                      className={row.rank <= 3 ? `is-podium is-podium--${row.rank}` : ''}
+                      key={row.player.id}
+                    >
+                      <td>{row.rank}</td>
+                      <td>
+                        <span className="standings-table__avatar" aria-hidden>
+                          {row.player.name.trim().slice(0, 1).toUpperCase()}
+                        </span>
+                        {row.player.name}
+                        {!row.player.active && <small>{i18n.t('app.common.withdrawn')}</small>}
+                      </td>
+                      <td>
+                        <strong>{row.points}</strong>
+                      </td>
+                      <td>{row.wins}</td>
+                      <td>{row.losses}</td>
+                      <td>{row.draws}</td>
+                      <td>{row.winRate.toFixed(1)}%</td>
+                      <td>{row.kills}</td>
+                      <td>{row.opponentStrength}</td>
+                      <td>{row.roundsPlayed}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </section>
         )}
-        <section className="public-scoreboard__statistics">
+        {view === 'statistics' && <section className="public-scoreboard__statistics">
           <BattleLedger statistics={tournamentStatistics(tournament)} />
-        </section>
+        </section>}
       </div>
     </main>
   );

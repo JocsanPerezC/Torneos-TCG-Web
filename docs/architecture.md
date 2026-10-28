@@ -14,6 +14,10 @@ Torneos TCG administra torneos multijugador de Commander y otros TCG. El organiz
 
 ## Capas
 
+`/configuracion` es una ruta autenticada compartida por todos los roles para las preferencias globales de cuenta.
+
+Para organizadores, `/dashboard` muestra el panel operativo y `/dashboard/tournaments` concentra el inventario de torneos propios.
+
 | Capa            | Responsabilidad                                                                 | Ubicación                       |
 | --------------- | ------------------------------------------------------------------------------- | ------------------------------- |
 | Dominio         | Tipos, distribución de mesas, emparejamientos, puntuación y estadísticas puros. | `src/domain/`                   |
@@ -36,7 +40,7 @@ Los organizadores generan un enlace revocable y su QR asociado. El enlace conser
 
 ### Autenticación y permisos
 
-`AuthContext` expone la sesión y los roles. Los roles de aplicación son `player`, `organizer`, `admin` y `super_admin`. Al iniciar sesión por primera vez, una cuenta nueva escoge entre `player` y `organizer`; la selección queda bloqueada y solo un `super_admin` puede modificarla. `admin` y `super_admin` entran a la consola administrativa y no pueden crear torneos; esa acción se reserva al rol `organizer`. Hasta completar la selección, las funciones de organización e inscripción permanecen bloqueadas por RLS, triggers y funciones de Supabase, no solo por la interfaz.
+`AuthContext` expone la sesión y los roles. Los roles de aplicación son `player`, `organizer`, `admin` y `super_admin`. Al iniciar sesión por primera vez, una cuenta nueva escoge entre `player` y `organizer`, salvo que llegue mediante `/unirse/:token`: en ese flujo se bloquea automáticamente como `player` para continuar la inscripción. Solo un `super_admin` puede modificar un rol ya bloqueado. `admin` y `super_admin` entran a la consola administrativa y no pueden crear torneos; esa acción se reserva al rol `organizer`. Hasta completar la selección, las funciones de organización e inscripción permanecen bloqueadas por RLS, triggers y funciones de Supabase, no solo por la interfaz.
 
 ### Internacionalización
 

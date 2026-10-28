@@ -1,4 +1,4 @@
-import { useState, type FormEvent } from 'react';
+import { useEffect, useRef, useState, type FormEvent } from 'react';
 import { Link, Navigate, useNavigate, useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { Button } from '../components/ui/button';
@@ -24,9 +24,35 @@ export function CompleteRolePage() {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
   const destination = destinationFrom(searchParams.get('next'));
+  const joinsByInvitation = destination.startsWith('/unirse/');
+  const automaticPlayerRole = useRef(false);
+
+  useEffect(() => {
+    if (
+      !joinsByInvitation ||
+      requiresLegalConsent ||
+      !requiresRoleSelection ||
+      automaticPlayerRole.current
+    )
+      return;
+    automaticPlayerRole.current = true;
+    void completeRegistrationRole('player')
+      .then(() => navigate(destination, { replace: true }))
+      .catch(() => {
+        automaticPlayerRole.current = false;
+        setError(t('app.auth.roleSaveFailed'));
+      });
+  }, [completeRegistrationRole, destination, joinsByInvitation, navigate, requiresLegalConsent, requiresRoleSelection, t]);
 
   if (!user) return <Navigate to="/login" replace />;
   if (!requiresRoleSelection) return <Navigate to={destination} replace />;
+  if (joinsByInvitation && !requiresLegalConsent && !error)
+    return (
+      <div className="app-loading-note">
+        <i />
+        <span>{t('app.join.joining')}</span>
+      </div>
+    );
 
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -82,26 +108,41 @@ export function CompleteRolePage() {
           )}
           <section className={requiresLegalConsent ? 'border-t border-border pt-5' : ''}>
             {requiresLegalConsent ? (
-              <h2 className="text-2xl font-black">{t('app.auth.roleQuestion')}</h2>
+              <h2 className="text-2xl font-black">
+                {joinsByInvitation ? t('app.auth.invitationPlayerTitle') : t('app.auth.roleQuestion')}
+              </h2>
             ) : (
-              <h1 className="text-2xl font-black">{t('app.auth.roleQuestion')}</h1>
+              <h1 className="text-2xl font-black">
+                {joinsByInvitation ? t('app.auth.invitationPlayerTitle') : t('app.auth.roleQuestion')}
+              </h1>
             )}
-            <p className="mt-2 text-sm text-muted-foreground">{t('app.auth.roleHelp')}</p>
-            <fieldset className="mt-4">
-              <legend className="sr-only">{t('app.auth.roleQuestion')}</legend>
-              <div className="grid gap-3 sm:grid-cols-2">
-                <label className={`cursor-pointer rounded-xl border p-3 text-sm ${role === 'player' ? 'border-accent bg-[#E9EDFF]' : 'border-border bg-card'}`}>
-                  <input className="sr-only" type="radio" name="role" value="player" checked={role === 'player'} onChange={() => setRole('player')} />
-                  <strong>{t('app.auth.rolePlayer')}</strong>
-                  <span className="mt-1 block text-muted-foreground">{t('app.auth.rolePlayerDescription')}</span>
-                </label>
-                <label className={`cursor-pointer rounded-xl border p-3 text-sm ${role === 'organizer' ? 'border-accent bg-[#E9EDFF]' : 'border-border bg-card'}`}>
-                  <input className="sr-only" type="radio" name="role" value="organizer" checked={role === 'organizer'} onChange={() => setRole('organizer')} />
-                  <strong>{t('app.auth.roleOrganizer')}</strong>
-                  <span className="mt-1 block text-muted-foreground">{t('app.auth.roleOrganizerDescription')}</span>
-                </label>
+            <p className="mt-2 text-sm text-muted-foreground">
+              {joinsByInvitation ? t('app.auth.invitationPlayerHelp') : t('app.auth.roleHelp')}
+            </p>
+            {joinsByInvitation ? (
+              <div className="mt-4 rounded-xl border border-accent bg-[#E9EDFF] p-3 text-sm">
+                <strong>{t('app.auth.rolePlayer')}</strong>
+                <span className="mt-1 block text-muted-foreground">
+                  {t('app.auth.rolePlayerDescription')}
+                </span>
               </div>
-            </fieldset>
+            ) : (
+              <fieldset className="mt-4">
+                <legend className="sr-only">{t('app.auth.roleQuestion')}</legend>
+                <div className="grid gap-3 sm:grid-cols-2">
+                  <label className={`cursor-pointer rounded-xl border p-3 text-sm ${role === 'player' ? 'border-accent bg-[#E9EDFF]' : 'border-border bg-card'}`}>
+                    <input className="sr-only" type="radio" name="role" value="player" checked={role === 'player'} onChange={() => setRole('player')} />
+                    <strong>{t('app.auth.rolePlayer')}</strong>
+                    <span className="mt-1 block text-muted-foreground">{t('app.auth.rolePlayerDescription')}</span>
+                  </label>
+                  <label className={`cursor-pointer rounded-xl border p-3 text-sm ${role === 'organizer' ? 'border-accent bg-[#E9EDFF]' : 'border-border bg-card'}`}>
+                    <input className="sr-only" type="radio" name="role" value="organizer" checked={role === 'organizer'} onChange={() => setRole('organizer')} />
+                    <strong>{t('app.auth.roleOrganizer')}</strong>
+                    <span className="mt-1 block text-muted-foreground">{t('app.auth.roleOrganizerDescription')}</span>
+                  </label>
+                </div>
+              </fieldset>
+            )}
           </section>
           {error && <p role="alert" className="text-sm text-destructive">{error}</p>}
           <Button disabled={busy} className="app-button app-button--primary w-full">

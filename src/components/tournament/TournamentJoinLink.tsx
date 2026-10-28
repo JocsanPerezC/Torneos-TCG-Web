@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Copy, QrCode, RefreshCw, Ticket, Trash2 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import * as QRCode from 'qrcode';
 import {
   createTournamentJoinLink,
   loadTournamentJoinCode,
@@ -23,6 +24,16 @@ function errorMessage(error: unknown, fallback: string) {
   return fallback;
 }
 
+function invitationUrl(token: string) {
+  try {
+    const configuredOrigin = import.meta.env.VITE_PUBLIC_APP_URL?.trim();
+    const origin = configuredOrigin ? new URL(configuredOrigin).origin : window.location.origin;
+    return new URL(`/unirse/${token}`, origin).toString();
+  } catch {
+    return new URL(`/unirse/${token}`, window.location.origin).toString();
+  }
+}
+
 export function TournamentJoinLink({ tournamentId }: { tournamentId: string }) {
   const { t } = useTranslation();
   const [token, setToken] = useState<string>();
@@ -31,6 +42,9 @@ export function TournamentJoinLink({ tournamentId }: { tournamentId: string }) {
   const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState(false);
   const [revokeOpen, setRevokeOpen] = useState(false);
+  const [invitationOpen, setInvitationOpen] = useState(false);
+  const [qrDataUrl, setQrDataUrl] = useState<string>();
+  const [qrError, setQrError] = useState(false);
 
   useEffect(() => {
     let active = true;
@@ -51,6 +65,35 @@ export function TournamentJoinLink({ tournamentId }: { tournamentId: string }) {
     };
   }, [t, tournamentId]);
 
+  useEffect(() => {
+    if (!invitationOpen || !token) {
+      setQrDataUrl(undefined);
+      setQrError(false);
+      return;
+    }
+
+    let active = true;
+    const url = invitationUrl(token);
+    setQrDataUrl(undefined);
+    setQrError(false);
+    void QRCode.toDataURL(url, {
+      errorCorrectionLevel: 'M',
+      margin: 2,
+      width: 560,
+      color: { dark: '#111111', light: '#fffdf7' },
+    })
+      .then((nextQrDataUrl) => {
+        if (active) setQrDataUrl(nextQrDataUrl);
+      })
+      .catch(() => {
+        if (active) setQrError(true);
+      });
+
+    return () => {
+      active = false;
+    };
+  }, [invitationOpen, token]);
+
   const create = async () => {
     setBusy(true);
     setMessage(undefined);
@@ -59,6 +102,7 @@ export function TournamentJoinLink({ tournamentId }: { tournamentId: string }) {
       const nextCode = await loadTournamentJoinCode(tournamentId);
       setToken(nextToken);
       setCode(nextCode);
+      setInvitationOpen(Boolean(nextCode));
       setMessage(t('app.joinLink.created'));
     } catch (error) {
       setMessage(errorMessage(error, t('app.joinLink.createFailed')));
@@ -84,6 +128,7 @@ export function TournamentJoinLink({ tournamentId }: { tournamentId: string }) {
       await revokeTournamentJoinLink(tournamentId);
       setToken(undefined);
       setCode(undefined);
+      setInvitationOpen(false);
       setMessage(t('app.joinLink.revoked'));
     } catch (error) {
       setMessage(errorMessage(error, t('app.joinLink.revokeFailed')));
@@ -143,10 +188,10 @@ export function TournamentJoinLink({ tournamentId }: { tournamentId: string }) {
               type="button"
               variant="outline"
               className="app-button app-button--secondary"
-              disabled
+              onClick={() => setInvitationOpen(true)}
             >
               <QrCode size={16} aria-hidden="true" />
-              {t('app.joinLink.qrDisabled')}
+              {t('app.joinLink.showCode')}
             </Button>
             <Button
               type="button"
@@ -201,6 +246,58 @@ export function TournamentJoinLink({ tournamentId }: { tournamentId: string }) {
             >
               <Trash2 size={16} aria-hidden="true" />
               {t('app.joinLink.revoke')}
+            </Button>
+          </div>
+        </Modal>
+      )}
+      {invitationOpen && token && code && (
+        <Modal
+          title={t('app.joinLink.code')}
+          description={t('app.joinLink.displayDescription')}
+          dialogClassName="invite-code-display"
+          onClose={() => setInvitationOpen(false)}
+        >
+          <div className="invite-code-display__content">
+            <div className="invite-code-display__code">
+              <span>{t('app.joinLink.code')}</span>
+              <strong>{code}</strong>
+            </div>
+            <div className="invite-code-display__qr">
+              {qrDataUrl ? (
+                <img src={qrDataUrl} alt={t('app.joinLink.qrAlt')} />
+              ) : qrError ? (
+                <p role="alert">{t('app.joinLink.qrFailed')}</p>
+              ) : (
+                <div className="app-loading-note">
+                  <i />
+                  <span>{t('app.common.loading')}</span>
+                </div>
+              )}
+              {!qrError && <p>{t('app.joinLink.scanQr')}</p>}
+            </div>
+          </div>
+          <div className="invite-code-display__actions">
+            <Button
+              type="button"
+              className="app-button app-button--primary"
+              onClick={() => void copy(code, t('app.joinLink.codeCopied'))}
+            >
+              <Copy size={16} aria-hidden="true" />
+              {t('app.joinLink.copyCode')}
+            </Button>
+            <Button
+              type="button"
+              variant="outline"
+              className="app-button app-button--secondary"
+              onClick={() =>
+                void copy(
+                  invitationUrl(token),
+                  t('app.joinLink.copied'),
+                )
+              }
+            >
+              <Copy size={16} aria-hidden="true" />
+              {t('app.joinLink.copy')}
             </Button>
           </div>
         </Modal>

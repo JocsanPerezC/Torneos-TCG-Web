@@ -441,8 +441,11 @@ const resources = {
           eyebrow: 'INFORMACIÓN DEL TORNEO',
           firstRound: 'Las mesas aparecerán cuando el organizador genere la primera ronda.',
           back: 'Volver a mis torneos',
+          sections: 'Secciones de la vista pública',
+          currentRound: 'Rondas',
           rounds: 'Todas las rondas',
           podium: 'Podio',
+          statistics: 'Estadísticas',
         },
         statistics: {
           title: 'Estadísticas',
@@ -923,8 +926,11 @@ const resources = {
           eyebrow: 'TOURNAMENT INFORMATION',
           firstRound: 'Tables will appear when the organizer generates the first round.',
           back: 'Back to my tournaments',
+          sections: 'Public view sections',
+          currentRound: 'Rounds',
           rounds: 'All rounds',
           podium: 'Podium',
+          statistics: 'Statistics',
         },
         statistics: {
           title: 'Statistics',
@@ -1656,6 +1662,8 @@ Object.assign(resources.en.translation.app, {
 Object.assign(resources.es.translation.app.auth, {
   roleQuestion: '¿Cómo usarás la plataforma?',
   roleHelp: 'Tu rol define la experiencia de tu cuenta.',
+  invitationPlayerTitle: 'Tu cuenta será de jugador',
+  invitationPlayerHelp: 'Esta invitación se asociará a una cuenta de jugador.',
   roleSaveFailed: 'No se pudo guardar tu rol. Inténtalo de nuevo.',
   rolePlayer: 'Jugador',
   rolePlayerDescription: 'Únete a torneos, consulta tus mesas e historial.',
@@ -1666,6 +1674,8 @@ Object.assign(resources.es.translation.app.auth, {
 Object.assign(resources.en.translation.app.auth, {
   roleQuestion: 'How will you use the platform?',
   roleHelp: 'Your role defines your account experience.',
+  invitationPlayerTitle: 'Your account will be a player account',
+  invitationPlayerHelp: 'This invitation will be linked to a player account.',
   roleSaveFailed: 'Your role could not be saved. Please try again.',
   rolePlayer: 'Player',
   rolePlayerDescription: 'Join tournaments and review your tables and history.',
@@ -1685,8 +1695,10 @@ Object.assign(resources.es.translation.app, {
     tournamentsShort: 'Torneos',
     newTournament: 'Nuevo torneo',
     joinTournament: 'Unirse a torneo',
+    joinTournamentShort: 'Unirse',
     profile: 'Perfil',
     account: 'Cuenta',
+    settings: 'Configuración',
     administration: 'Administración',
     signOut: 'Cerrar sesión',
     backToTournaments: 'Volver a mis torneos',
@@ -1722,6 +1734,8 @@ Object.assign(resources.es.translation.app, {
     continueTournament: 'Continuar torneo',
     invitations: 'Invitaciones y QR',
     otherActive: 'Otros torneos activos',
+    noActiveTitle: 'No hay torneos en curso',
+    noActiveDescription: 'Creá un torneo cuando estés listo para organizar la próxima mesa.',
   },
   join: {
     title: 'Unirse a un torneo',
@@ -1763,7 +1777,11 @@ Object.assign(resources.es.translation.app, {
     revokeConfirm: 'El código actual dejará de funcionar. ¿Deseas revocarlo?',
     revoked: 'Código revocado.',
     revokeFailed: 'No se pudo revocar el código.',
-    qrDisabled: 'QR temporalmente desactivado',
+    showCode: 'Ver c\u00f3digo y QR',
+    displayDescription: 'Comparte el c\u00f3digo o escane\u00e1 el QR para unirse al torneo.',
+    qrAlt: 'C\u00f3digo QR con el enlace de invitaci\u00f3n',
+    scanQr: 'Escane\u00e1 este QR para abrir la invitaci\u00f3n.',
+    qrFailed: 'No se pudo generar el QR. Compart\u00ed el c\u00f3digo o copi\u00e1 el enlace.',
   },
   profile: {
     title: 'Mi perfil',
@@ -1780,6 +1798,13 @@ Object.assign(resources.es.translation.app, {
     saveFailed: 'No se pudo actualizar el perfil.',
     saving: 'Guardando…',
   },
+  settings: {
+    title: 'Configuración',
+    description: 'Personalizá las preferencias de tu cuenta.',
+    language: {
+      title: 'Idioma',
+    },
+  },
 });
 
 Object.assign(resources.en.translation.app, {
@@ -1794,8 +1819,10 @@ Object.assign(resources.en.translation.app, {
     tournamentsShort: 'Tournaments',
     newTournament: 'New tournament',
     joinTournament: 'Join tournament',
+    joinTournamentShort: 'Join',
     profile: 'Profile',
     account: 'Account',
+    settings: 'Settings',
     administration: 'Administration',
     signOut: 'Sign out',
     backToTournaments: 'Back to my tournaments',
@@ -1830,6 +1857,8 @@ Object.assign(resources.en.translation.app, {
     continueTournament: 'Continue tournament',
     invitations: 'Invitations and QR',
     otherActive: 'Other active tournaments',
+    noActiveTitle: 'No tournaments are in progress',
+    noActiveDescription: 'Create a tournament when you are ready to run the next table.',
   },
   join: {
     title: 'Join a tournament',
@@ -1870,7 +1899,11 @@ Object.assign(resources.en.translation.app, {
     revokeConfirm: 'The current code will stop working. Do you want to revoke it?',
     revoked: 'Code revoked.',
     revokeFailed: 'The code could not be revoked.',
-    qrDisabled: 'QR temporarily disabled',
+    showCode: 'Show code and QR',
+    displayDescription: 'Share the code or scan the QR to join the tournament.',
+    qrAlt: 'QR code with the invitation link',
+    scanQr: 'Scan this QR to open the invitation.',
+    qrFailed: 'The QR could not be generated. Share the code or copy the link.',
   },
   profile: {
     title: 'My profile',
@@ -1887,6 +1920,13 @@ Object.assign(resources.en.translation.app, {
     saved: 'Profile updated.',
     saveFailed: 'The profile could not be updated.',
     saving: 'Saving…',
+  },
+  settings: {
+    title: 'Settings',
+    description: 'Personalize your account preferences.',
+    language: {
+      title: 'Language',
+    },
   },
 });
 

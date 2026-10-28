@@ -15,9 +15,9 @@ export function LandingHeader() {
       <Link to="/" className="landing-header__brand"><img src="/edh-tournaments-icon.svg" alt="" />EDH <span>Tournaments</span></Link>
       <nav className="landing-header__links" aria-label={t('landing.navigation.label')}><a href="#como-funciona">{t('landing.navigation.howItWorks')}</a><a href="#puntuacion">{t('landing.navigation.scoring')}</a><a href="#preguntas">{t('landing.navigation.faq')}</a><a href="#probar">{t('landing.trial.action')}</a></nav>
       <div className="landing-header__actions">
+        <LanguageSelector compact />
         {!loading && !user && <Button asChild variant="outline" className="landing-login"><Link to="/login">{t('landing.navigation.login')}</Link></Button>}
         <Button asChild className="landing-account"><Link to={accountTarget}>{accountLabel}</Link></Button>
-        <LanguageSelector />
         <details className="landing-menu"><summary aria-label={t('landing.navigation.menu')}><i /><i /><i /></summary><div><a href="#como-funciona">{t('landing.navigation.howItWorks')}</a><a href="#puntuacion">{t('landing.navigation.scoring')}</a><a href="#preguntas">{t('landing.navigation.faq')}</a><a href="#probar">{t('landing.trial.action')}</a>{!user && <Link to="/login">{t('landing.navigation.login')}</Link>}</div></details>
       </div>
     </div>

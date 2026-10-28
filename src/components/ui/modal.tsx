@@ -8,9 +8,10 @@ type ModalProps = {
   description?: string;
   children: ReactNode;
   onClose: () => void;
+  dialogClassName?: string;
 };
 
-export function Modal({ title, description, children, onClose }: ModalProps) {
+export function Modal({ title, description, children, onClose, dialogClassName }: ModalProps) {
   const { t } = useTranslation();
   const dialogRef = useRef<HTMLElement>(null);
   const titleId = useId();
@@ -70,7 +71,7 @@ export function Modal({ title, description, children, onClose }: ModalProps) {
         aria-labelledby={titleId}
         aria-describedby={description ? descriptionId : undefined}
         tabIndex={-1}
-        className="w-full max-w-md rounded-3xl border border-border bg-card p-6 shadow-2xl shadow-black/15"
+        className={`w-full max-w-md rounded-3xl border border-border bg-card p-6 shadow-2xl shadow-black/15 ${dialogClassName ?? ''}`}
         onMouseDown={(event) => event.stopPropagation()}
       >
         <div className="flex items-start justify-between gap-4">
