@@ -14,7 +14,7 @@ import {
   Users,
   type LucideIcon,
 } from 'lucide-react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link, NavLink, useLocation, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../../state/AuthContext';
@@ -77,8 +77,21 @@ export function AuthenticatedShell({
   const { t } = useTranslation();
   const { isAdmin, isPlayer, signOut, user } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
   const profile = getUserProfile(user);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [mobileAccountOpen, setMobileAccountOpen] = useState(false);
+
+  useEffect(() => {
+    setMobileAccountOpen(false);
+  }, [location.hash, location.pathname]);
+
+  const leaveSession = () => {
+    setMobileAccountOpen(false);
+    void signOut()
+      .catch(() => undefined)
+      .finally(() => navigate('/', { replace: true }));
+  };
 
   const globalItems: NavigationItem[] = isAdmin
     ? [
@@ -144,11 +157,7 @@ export function AuthenticatedShell({
   const sidebarItems = tournamentItems.length ? tournamentItems : globalItems;
   const mobileItems = tournamentItems.length
     ? tournamentItems
-    : isPlayer
-      ? globalItems
-      : isAdmin
-        ? globalItems
-        : [globalItems[0], globalItems[1]];
+    : globalItems.filter((item) => item.to !== '/perfil');
   const visibleMobileItems = mobileItems.filter((item): item is NavigationItem => Boolean(item));
 
   return (
@@ -218,11 +227,7 @@ export function AuthenticatedShell({
                 className="app-sidebar__signout"
                 aria-label={sidebarCollapsed ? t('app.shell.signOut') : undefined}
                 title={sidebarCollapsed ? t('app.shell.signOut') : undefined}
-                onClick={() =>
-                  void signOut()
-                    .catch(() => undefined)
-                    .finally(() => navigate('/', { replace: true }))
-                }
+                onClick={leaveSession}
               >
                 <LogOut aria-hidden="true" />
                 <span aria-hidden={sidebarCollapsed || undefined}>{t('app.shell.signOut')}</span>
@@ -239,7 +244,46 @@ export function AuthenticatedShell({
         {visibleMobileItems.map((item) => (
           <NavigationLink item={item} compact key={item.to} />
         ))}
+        <button
+          type="button"
+          className="app-sidebar__link app-mobile-nav__account"
+          aria-controls="mobile-account-actions"
+          aria-expanded={mobileAccountOpen}
+          onClick={() => setMobileAccountOpen((open) => !open)}
+        >
+          <CircleUserRound aria-hidden="true" />
+          <span>{t('app.shell.account')}</span>
+        </button>
       </nav>
+      {mobileAccountOpen && (
+        <section
+          id="mobile-account-actions"
+          className="app-mobile-account"
+          aria-label={t('app.shell.account')}
+        >
+          <Link
+            to="/perfil"
+            className="app-mobile-account__profile"
+            onClick={() => setMobileAccountOpen(false)}
+          >
+            <span className="app-mobile-account__avatar" aria-hidden="true">
+              {profile.name.slice(0, 1).toUpperCase()}
+            </span>
+            <span className="app-mobile-account__identity">
+              <small>{t('app.shell.profile')}</small>
+              <strong>{profile.name}</strong>
+            </span>
+            <CircleUserRound aria-hidden="true" />
+          </Link>
+          <div className="app-mobile-account__utilities">
+            <LanguageSelector align="end" direction="up" />
+            <button type="button" className="app-sidebar__signout" onClick={leaveSession}>
+              <LogOut aria-hidden="true" />
+              <span>{t('app.shell.signOut')}</span>
+            </button>
+          </div>
+        </section>
+      )}
     </div>
   );
 }
