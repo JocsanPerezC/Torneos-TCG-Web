@@ -1325,13 +1325,13 @@ Object.assign(resources.es.translation.app, {
             'Información de la cuenta. Cuando te registras con correo electrónico, EDH Tournaments procesa tu dirección de correo y nombre para mostrar. Supabase Auth gestiona la autenticación de contraseñas; la aplicación no recibe ni almacena hashes de contraseñas.',
             'Información de inicio de sesión con Google. Si eliges iniciar sesión con Google, Supabase Auth proporciona la autenticación mediante la información básica de identidad de OpenID Connect de Google. Puede incluir el nombre y correo facilitados por Google. EDH Tournaments utiliza esta información para crear o identificar tu cuenta y mostrar tu nombre. No solicitamos acceso a Gmail, Google Drive, contactos, calendarios ni otros datos de Google.',
             'Contenido de torneos. Los organizadores pueden proporcionar nombres de torneos, formatos, nombres de jugadores, rondas, asignaciones de mesa, puntuaciones, eliminaciones, clasificaciones e información opcional. Los torneos públicos pueden mostrar el contenido relevante mediante su enlace público.',
-            'Almacenamiento técnico. La aplicación utiliza el almacenamiento local del navegador para el idioma elegido, datos locales de demostración cuando el backend alojado no está configurado, y datos de autenticación o sesión necesarios para Supabase Auth. No hemos identificado herramientas de publicidad o analítica en el código fuente de la aplicación.',
+            'Almacenamiento técnico y analítica. La aplicación utiliza el almacenamiento local del navegador para el idioma elegido, datos locales de demostración cuando el backend alojado no está configurado, y datos de autenticación o sesión necesarios para Supabase Auth. En producción, Vercel Web Analytics registra de forma agregada y sin cookies de terceros las visitas, páginas vistas y datos técnicos de navegación para entender el uso del sitio.',
           ],
         },
         {
           title: '3. Por qué usamos la información',
           paragraphs: [
-            'Usamos la información de la cuenta para autenticar usuarios, mantener su perfil de organizador y ofrecer recuperación de cuenta. Usamos el contenido de los torneos para operar las funciones de gestión y, cuando un organizador hace público un torneo, para mostrar su vista pública. Usamos el almacenamiento técnico estrictamente necesario para mantener la aplicación funcionando y conservar el idioma o sesión seleccionados.',
+            'Usamos la información de la cuenta para autenticar usuarios, mantener su perfil de organizador y ofrecer recuperación de cuenta. Usamos el contenido de los torneos para operar las funciones de gestión y, cuando un organizador hace público un torneo, para mostrar su vista pública. Usamos el almacenamiento técnico estrictamente necesario para mantener la aplicación funcionando y conservar el idioma o sesión seleccionados, y las estadísticas agregadas para comprender el uso del sitio.',
           ],
         },
         {
@@ -1343,7 +1343,7 @@ Object.assign(resources.es.translation.app, {
         {
           title: '5. Proveedores de servicio y transferencias internacionales',
           paragraphs: [
-            'Supabase proporciona los servicios de autenticación y base de datos para la aplicación de producción configurada. Google proporciona el servicio de identidad para iniciar sesión con Google cuando se utiliza esa opción. Google Fonts se carga para mostrar la tipografía del sitio. Estos proveedores pueden procesar información en países distintos al tuyo. No identificamos otros servicios de terceros de analítica, publicidad, correo electrónico, alojamiento o API de Google en el código fuente de la aplicación.',
+            'Supabase proporciona los servicios de autenticación y base de datos para la aplicación de producción configurada. Google proporciona el servicio de identidad para iniciar sesión con Google cuando se utiliza esa opción. Google Fonts se carga para mostrar la tipografía del sitio. Vercel proporciona el alojamiento y Vercel Web Analytics para las estadísticas agregadas de visitas. Estos proveedores pueden procesar información en países distintos al tuyo.',
             'La información obtenida mediante inicio de sesión con Google se accede únicamente para autenticación básica, se utiliza solo para crear o identificar la cuenta, se almacena solo según sea necesario para el perfil y flujo de autenticación, y no se vende ni comparte para publicidad. Se elimina con la cuenta cuando corresponde, sujeto a los límites de conservación indicados abajo. Este uso está sujeto a la Política de datos de usuario de los servicios de API de Google, incluidos sus requisitos de uso limitado.',
           ],
         },
@@ -1362,7 +1362,7 @@ Object.assign(resources.es.translation.app, {
         {
           title: '8. Cookies, almacenamiento local y menores de edad',
           paragraphs: [
-            'La aplicación no utiliza intencionalmente cookies no esenciales de analítica o publicidad. Solo utiliza el almacenamiento local y las tecnologías de sesión descritas arriba, además del almacenamiento estrictamente necesario de proveedores para autenticación. No ofrecemos deliberadamente el servicio a menores de edad cuando la ley aplicable requiere consentimiento parental. Si crees que un menor proporcionó información personal sin autorización adecuada, contáctanos en [CONTACT EMAIL].',
+            'La aplicación no utiliza intencionalmente cookies no esenciales de publicidad ni cookies de terceros para la analítica. Vercel Web Analytics mide las visitas con datos agregados y sin cookies de terceros. Solo utiliza el almacenamiento local y las tecnologías de sesión descritas arriba, además del almacenamiento estrictamente necesario de proveedores para autenticación. No ofrecemos deliberadamente el servicio a menores de edad cuando la ley aplicable requiere consentimiento parental. Si crees que un menor proporcionó información personal sin autorización adecuada, contáctanos en [CONTACT EMAIL].',
           ],
         },
         {
@@ -1419,7 +1419,7 @@ Object.assign(resources.es.translation.app, {
         {
           title: '7. Disponibilidad, cambios y terceros',
           paragraphs: [
-            'Podemos mantener, modificar, suspender o descontinuar partes del servicio cuando sea razonablemente necesario. No prometemos disponibilidad ininterrumpida ni libre de errores. La autenticación y la infraestructura pueden depender de servicios de terceros, incluidos Supabase e inicio de sesión con Google, cada uno sujeto a sus propios términos y prácticas de privacidad.',
+            'Podemos mantener, modificar, suspender o descontinuar partes del servicio cuando sea razonablemente necesario. No prometemos disponibilidad ininterrumpida ni libre de errores. La autenticación y la infraestructura pueden depender de servicios de terceros, incluidos Supabase, inicio de sesión con Google y Vercel, cada uno sujeto a sus propios términos y prácticas de privacidad.',
           ],
         },
         {
@@ -1466,13 +1466,13 @@ Object.assign(resources.en.translation.app, {
             'Account information. When you register with email, EDH Tournaments processes your email address and display name. Password authentication is handled by Supabase Auth; the application does not receive or store password hashes.',
             'Google Sign-In information. When you choose Google Sign-In, authentication is provided through Supabase Auth using Google’s basic OpenID Connect identity information. This may include the name and email address supplied by Google. EDH Tournaments uses the information to create or identify your account and display your name. We do not request access to Gmail, Google Drive, contacts, calendars, or other Google data.',
             'Tournament content. Organizers may provide tournament names, formats, player names, rounds, table assignments, scores, kills, standings, and optional tournament information. Public tournaments can make the relevant tournament content available through their public link.',
-            'Technical storage. The application uses browser local storage for the selected language, local demo data when the hosted backend is not configured, and authentication or session data required by Supabase Auth. We have not identified advertising or analytics tools in the application source.',
+            'Technical storage and analytics. The application uses browser local storage for the selected language, local demo data when the hosted backend is not configured, and authentication or session data required by Supabase Auth. In production, Vercel Web Analytics records aggregated, third-party-cookie-free visits, page views, and technical navigation data to understand how the site is used.',
           ],
         },
         {
           title: '3. Why we use information',
           paragraphs: [
-            'We use account information to authenticate users, maintain their organizer profile, and provide account recovery. We use tournament content to operate the tournament-management features and, when an organizer makes a tournament public, to provide its public view. We use strictly necessary technical storage to keep the application working and to maintain the selected language or session.',
+            'We use account information to authenticate users, maintain their organizer profile, and provide account recovery. We use tournament content to operate the tournament-management features and, when an organizer makes a tournament public, to provide its public view. We use strictly necessary technical storage to keep the application working and to maintain the selected language or session, and aggregated statistics to understand how the site is used.',
           ],
         },
         {
@@ -1484,7 +1484,7 @@ Object.assign(resources.en.translation.app, {
         {
           title: '5. Service providers and international transfers',
           paragraphs: [
-            'Supabase provides authentication and database services for the configured production application. Google provides the Google Sign-In identity service when that option is used. Google Fonts is loaded to display the site typeface. These providers may process information in countries other than your own. We do not identify any other third-party analytics, advertising, email, hosting, or Google API service in the application source.',
+            'Supabase provides authentication and database services for the configured production application. Google provides the Google Sign-In identity service when that option is used. Google Fonts is loaded to display the site typeface. Vercel provides hosting and Vercel Web Analytics for aggregated visit statistics. These providers may process information in countries other than your own.',
             'Information obtained through Google Sign-In is accessed only for basic authentication, used only to create or identify the account, stored only as needed for the account profile and authentication flow, and is not sold or shared for advertising. It is deleted with the account where applicable, subject to the retention limits below. This use is subject to the Google API Services User Data Policy, including its Limited Use requirements.',
           ],
         },
@@ -1503,7 +1503,7 @@ Object.assign(resources.en.translation.app, {
         {
           title: '8. Cookies, local storage, and children',
           paragraphs: [
-            'The application does not intentionally use non-essential analytics or advertising cookies. It uses only the local storage and session technologies described above, plus any strictly necessary provider storage for authentication. We do not knowingly offer the service to children where parental consent is required by applicable law. If you believe a child has provided personal information without appropriate authorization, contact us at [CONTACT EMAIL].',
+            'The application does not intentionally use non-essential advertising cookies or third-party cookies for analytics. Vercel Web Analytics measures visits with aggregated data and without third-party cookies. It uses only the local storage and session technologies described above, plus any strictly necessary provider storage for authentication. We do not knowingly offer the service to children where parental consent is required by applicable law. If you believe a child has provided personal information without appropriate authorization, contact us at [CONTACT EMAIL].',
           ],
         },
         {
@@ -1560,7 +1560,7 @@ Object.assign(resources.en.translation.app, {
         {
           title: '7. Availability, changes, and third parties',
           paragraphs: [
-            'We may maintain, modify, suspend, or discontinue parts of the service when reasonably necessary. We do not promise uninterrupted or error-free availability. Authentication and infrastructure may rely on third-party services, including Supabase and Google Sign-In, each governed by its own terms and privacy practices.',
+            'We may maintain, modify, suspend, or discontinue parts of the service when reasonably necessary. We do not promise uninterrupted or error-free availability. Authentication and infrastructure may rely on third-party services, including Supabase, Google Sign-In, and Vercel, each governed by its own terms and privacy practices.',
           ],
         },
         {

@@ -7,7 +7,7 @@ Torneos TCG administra torneos multijugador de Commander y otros TCG. El organiz
 ## Punto de entrada y rutas activas
 
 - `src/main.tsx` carga estilos, traducciones y `App`.
-- `src/App.tsx` monta `AuthProvider`, `TournamentProvider` y `src/pages/AppRouter.tsx`.
+- `src/App.tsx` monta `AuthProvider`, `TournamentProvider`, `src/pages/AppRouter.tsx` y Vercel Web Analytics una sola vez.
 - `src/pages/AppRouter.tsx` contiene las rutas activas del sitio, incluida la UI autenticada de torneos. `/dashboard` muestra una experiencia distinta según el rol; `/unirse/:token` procesa invitaciones de jugadores y `/perfil` es común a las cuentas autenticadas.
 
 `src/pages/app/` y `src/routes/` contienen una implementación paralela que no es importada por `src/App.tsx`. Antes de editarlos, verifica que una ruta activa los use; para cambios de producto actuales, modifica primero la implementación en `AppRouter.tsx`.
@@ -45,6 +45,10 @@ Las fotos de perfil se guardan en el bucket público `profile-avatars` de Supaba
 ### Autenticación y permisos
 
 `AuthContext` expone la sesión y los roles. Los roles de aplicación son `player`, `organizer`, `admin` y `super_admin`. Al iniciar sesión por primera vez, una cuenta nueva escoge entre `player` y `organizer`, salvo que llegue mediante `/unirse/:token`: en ese flujo se bloquea automáticamente como `player` para continuar la inscripción. La ruta de invitación queda temporalmente en `sessionStorage` durante el regreso desde OAuth para reanudar el flujo. Solo un `super_admin` puede modificar un rol ya bloqueado. `admin` y `super_admin` entran a la consola administrativa y no pueden crear torneos; esa acción se reserva al rol `organizer`. Hasta completar la selección, las funciones de organización e inscripción permanecen bloqueadas por RLS, triggers y funciones de Supabase, no solo por la interfaz. Las cuentas con identidad de correo pueden cambiar su contraseña desde Perfil al validar la actual; las cuentas que solo usan Google muestran que su contraseña se administra desde Google. El rol de cuenta se muestra en el menú de cuenta del sidebar. Una persona puede eliminar su propia cuenta desde Perfil tras escribir `ELIMINAR`; la Edge Function siempre usa la identidad autenticada y nunca acepta un identificador de cuenta arbitrario. La eliminación se bloquea si la cuenta posee torneos. Para cuentas sin torneos, elimina su avatar y desvincula sus inscripciones (`profile_id` y `avatar_url`) para preservar los resultados antes de borrar la cuenta de Auth.
+
+### Analítica
+
+`App.tsx` monta `Analytics` de `@vercel/analytics/react` una sola vez. Vercel configura el script durante los despliegues y la aplicación no emite eventos personalizados; solo se registran vistas de página y transiciones de ruta para la analítica web agregada.
 
 ### Internacionalización
 
