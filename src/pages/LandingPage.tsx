@@ -1,27 +1,25 @@
-import { FeatureList } from '@/components/landing/FeatureList'
-import { ConceptPanel } from '@/components/landing/ConceptPanel'
-import { Faq } from '@/components/landing/Faq'
-import { FinalCta } from '@/components/landing/FinalCta'
-import { Hero } from '@/components/landing/Hero'
-import { HowItWorks } from '@/components/landing/HowItWorks'
-import { LandingFooter } from '@/components/landing/LandingFooter'
-import { LandingHeader } from '@/components/landing/LandingHeader'
-import { ProjectIdea } from '@/components/landing/ProjectIdea'
+import { Faq } from '@/components/landing/Faq';
+import { FeatureList } from '@/components/landing/FeatureList';
+import { FinalCta } from '@/components/landing/FinalCta';
+import { IntroScene } from '@/components/landing/IntroScene';
+import { LandingFooter } from '@/components/landing/LandingFooter';
+import { LandingHeader } from '@/components/landing/LandingHeader';
+import { NightScroll } from '@/components/landing/NightScroll';
+import { TableRail } from '@/components/landing/TableRail';
 
 export function LandingPage() {
   return (
-    <div className="landing-theme min-h-screen pt-[72px]">
+    <div className="landing-theme landing-scroll min-h-screen">
       <LandingHeader />
       <main>
-        <Hero />
-        <ProjectIdea />
-        <ConceptPanel />
+        <IntroScene />
+        <NightScroll />
+        <TableRail />
         <FeatureList />
-        <HowItWorks />
         <Faq />
         <FinalCta />
       </main>
       <LandingFooter />
     </div>
-  )
+  );
 }

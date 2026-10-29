@@ -1003,6 +1003,56 @@ Object.assign(resources.en.translation.landing.trial, {
   exitShort: 'Exit',
 });
 
+Object.assign(resources.es.translation.landing, {
+  intro: {
+    kicker: 'Torneos de Commander · EDH',
+    titleBefore: 'Vos ponés las ',
+    titleAccent: 'cartas',
+    titleAfter: '.',
+    scrollHint: 'Seguí bajando',
+    sceneLabel: 'Mesa de Commander con cuatro jugadores',
+    description:
+      'Nosotros llevamos las cuentas. Armá mesas de Commander, registrá lo que pasó y compartí posiciones sin perseguir a nadie por WhatsApp.',
+    points: 'pts',
+  },
+  night: {
+    table: 'Mesa {{number}}',
+    seats: '({{count}}/{{max}})',
+    standingsTitle: 'Ronda 1 · Clasificación',
+    visualLabel: 'Ejemplo de una ronda con dos mesas y su clasificación',
+    stepLabel: 'Paso {{current}} de {{total}}',
+  },
+  rail: {
+    roundsTitle: 'Rondas en un toque',
+    roundsDescription: 'Generá la siguiente ronda y repartí mesas nuevas sin rehacer cuentas.',
+  },
+});
+
+Object.assign(resources.en.translation.landing, {
+  intro: {
+    kicker: 'Commander tournaments · EDH',
+    titleBefore: 'You bring the ',
+    titleAccent: 'cards',
+    titleAfter: '.',
+    scrollHint: 'Keep scrolling',
+    sceneLabel: 'Commander table with four players',
+    description:
+      'We keep score. Build Commander tables, record what happened, and share standings without chasing anyone on WhatsApp.',
+    points: 'pts',
+  },
+  night: {
+    table: 'Table {{number}}',
+    seats: '({{count}}/{{max}})',
+    standingsTitle: 'Round 1 · Standings',
+    visualLabel: 'Example round with two tables and its standings',
+    stepLabel: 'Step {{current}} of {{total}}',
+  },
+  rail: {
+    roundsTitle: 'Rounds in one tap',
+    roundsDescription: 'Generate the next round and deal new tables without redoing the math.',
+  },
+});
+
 Object.assign(resources.es.translation.app.tournament, {
   roundGenerationInfo: {
     button: 'Cómo se generan las rondas',
@@ -1074,11 +1124,13 @@ Object.assign(resources.es.translation.app, {
     },
     accountPlayers: {
       title: 'Invita cuentas registradas',
-      description: 'Comparte el QR, enlace o código desde la configuración del torneo para que se unan.',
+      description:
+        'Comparte el QR, enlace o código desde la configuración del torneo para que se unan.',
     },
     rounds: {
       title: 'Genera y registra rondas',
-      description: 'Con al menos tres jugadores activos, crea mesas, inicia la ronda y guarda los resultados.',
+      description:
+        'Con al menos tres jugadores activos, crea mesas, inicia la ronda y guarda los resultados.',
     },
     standings: {
       title: 'Consulta la clasificación',
@@ -1103,7 +1155,8 @@ Object.assign(resources.en.translation.app, {
     },
     rounds: {
       title: 'Generate and record rounds',
-      description: 'With at least three active players, create tables, start the round, and save results.',
+      description:
+        'With at least three active players, create tables, start the round, and save results.',
     },
     standings: {
       title: 'Check the standings',
@@ -1851,8 +1904,8 @@ Object.assign(resources.es.translation.app, {
   join: {
     title: 'Unirse a un torneo',
     manualDescription: 'Escribe el código que compartió el organizador.',
-      validationHelp:
-        'Si no puedes unirte, confirma que el torneo esté activo, la invitación no haya sido revocada, queden cupos y uses una cuenta de jugador.',
+    validationHelp:
+      'Si no puedes unirte, confirma que el torneo esté activo, la invitación no haya sido revocada, queden cupos y uses una cuenta de jugador.',
     code: 'Código',
     codePlaceholder: 'Escribe el código',
     open: 'Unirse al torneo',
@@ -1934,9 +1987,10 @@ Object.assign(resources.es.translation.app, {
     deleteDescription:
       'Esta acción no se puede deshacer. Si tienes torneos, primero debes eliminarlos; la transferencia aún no está disponible.',
     deleteAction: 'Eliminar cuenta',
-    deleteConfirm: 'Se eliminarán tu cuenta y el acceso a tus datos. Esta acción no se puede deshacer.',
-      deleteTypeConfirmStart: 'Escribí',
-      deleteTypeConfirmEnd: 'para confirmar',
+    deleteConfirm:
+      'Se eliminarán tu cuenta y el acceso a tus datos. Esta acción no se puede deshacer.',
+    deleteTypeConfirmStart: 'Escribí',
+    deleteTypeConfirmEnd: 'para confirmar',
     deleting: 'Eliminando…',
     deleteFailed: 'No se pudo eliminar la cuenta.',
     avatarHelp: 'JPG, PNG o WebP de hasta 2 MB.',
@@ -2042,8 +2096,8 @@ Object.assign(resources.en.translation.app, {
   join: {
     title: 'Join a tournament',
     manualDescription: 'Enter the code shared by the organizer.',
-      validationHelp:
-        'If you cannot join, confirm the tournament is active, the invitation has not been revoked, spots remain, and you are using a player account.',
+    validationHelp:
+      'If you cannot join, confirm the tournament is active, the invitation has not been revoked, spots remain, and you are using a player account.',
     code: 'Code',
     codePlaceholder: 'Enter the code',
     open: 'Join tournament',
@@ -2126,9 +2180,10 @@ Object.assign(resources.en.translation.app, {
     deleteDescription:
       'This action cannot be undone. If you own tournaments, delete them first; transferring them is not available yet.',
     deleteAction: 'Delete account',
-    deleteConfirm: 'Your account and access to your data will be deleted. This action cannot be undone.',
-      deleteTypeConfirmStart: 'Type',
-      deleteTypeConfirmEnd: 'to confirm',
+    deleteConfirm:
+      'Your account and access to your data will be deleted. This action cannot be undone.',
+    deleteTypeConfirmStart: 'Type',
+    deleteTypeConfirmEnd: 'to confirm',
     deleting: 'Deleting…',
     deleteFailed: 'The account could not be deleted.',
     avatarHelp: 'JPG, PNG, or WebP up to 2 MB.',
