@@ -19,6 +19,7 @@ import { ComponentShowcasePage } from './ComponentShowcasePage';
 import { CompleteRolePage } from './CompleteRolePage';
 import { JoinTournamentPage } from './JoinTournamentPage';
 import { PlayerDashboard } from './PlayerDashboard';
+import { PlayerStatisticsPage } from './PlayerStatisticsPage';
 import { ProfilePage } from './ProfilePage';
 import { AppSettingsPage } from './AppSettingsPage';
 import { invitationReturnPath, savedInvitationReturnPath } from '../lib/invitationReturnPath';
@@ -412,6 +413,14 @@ export function AppRouter() {
         element={
           <ConsentGuard>
             <Dashboard view="tournaments" />
+          </ConsentGuard>
+        }
+      />
+      <Route
+        path="/estadisticas"
+        element={
+          <ConsentGuard>
+            <PlayerStatisticsRoute />
           </ConsentGuard>
         }
       />
@@ -856,6 +865,16 @@ function Dashboard({ view = 'home' }: { view?: 'home' | 'tournaments' }) {
   return (
     <Layout>
       <OrganizerDashboard view={view} />
+    </Layout>
+  );
+}
+function PlayerStatisticsRoute() {
+  const { configured, isPlayer, loading, user } = useAuth();
+  if (configured && !loading && !user) return <Navigate to="/login" replace />;
+  if (!loading && !isPlayer) return <Navigate to="/dashboard" replace />;
+  return (
+    <Layout>
+      <PlayerStatisticsPage />
     </Layout>
   );
 }

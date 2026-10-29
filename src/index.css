@@ -3307,6 +3307,112 @@ section.grid > div > button {
 .dashboard-board__header > .app-button {
   margin-bottom: 0.2rem;
 }
+.player-statistics {
+  max-width: 70rem;
+}
+.player-statistics__record {
+  padding: clamp(1.25rem, 3vw, 2.25rem);
+}
+.player-statistics__record > header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+}
+.player-statistics__record > header h2,
+.player-statistics__record > header p,
+.player-statistics__record h3 {
+  margin: 0;
+}
+.player-statistics__record > header h2 {
+  font-size: clamp(1.3rem, 3vw, 1.8rem);
+}
+.player-statistics__record > header p {
+  margin-top: 0.35rem;
+  color: #655e54;
+  font-size: 0.9rem;
+}
+.player-statistics__record > header > svg {
+  width: 2rem;
+  height: 2rem;
+  color: #3d5afb;
+}
+.player-statistics__groups {
+  display: grid;
+  gap: 1.75rem;
+  margin-top: 2rem;
+}
+.player-statistics__groups section + section {
+  padding-top: 1.5rem;
+  border-top: 1px solid #e7e2d2;
+}
+.player-statistics__groups h3 {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  color: #25211c;
+  font-size: 0.8rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.player-statistics__groups h3 svg {
+  width: 1rem;
+  height: 1rem;
+  color: #3d5afb;
+}
+.player-statistics__groups dl {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(9rem, 1fr));
+  gap: 0.75rem 1.5rem;
+  margin: 0.8rem 0 0;
+}
+.player-statistics__groups dl > div {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid #f0ede5;
+}
+.player-statistics__groups dt {
+  color: #655e54;
+  font-size: 0.85rem;
+}
+.player-statistics__groups dd {
+  margin: 0;
+  color: #25211c;
+  font-size: 1.55rem;
+  font-variant-numeric: tabular-nums;
+  font-weight: 800;
+}
+.player-statistics__groups .is-result dd {
+  color: #5b1fe0;
+}
+.player-statistics__groups .is-performance dd {
+  color: #168050;
+}
+.player-statistics__record > footer {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  margin-top: 1.5rem;
+  color: #655e54;
+  font-size: 0.8rem;
+  line-height: 1.45;
+}
+.player-statistics__record > footer svg {
+  width: 1rem;
+  height: 1rem;
+  flex: none;
+  color: #d99700;
+}
+.player-statistics__record > footer svg:last-child {
+  margin-left: auto;
+}
+.player-statistics__empty {
+  margin: 2rem 0 0;
+  color: #655e54;
+}
 .dashboard-shelf {
   margin-top: 1.7rem;
 }

@@ -19,6 +19,17 @@ export type JoinableTournament = {
   availableSlots: number;
 };
 
+export type PlayerStatistics = {
+  tournamentsPlayed: number;
+  roundsPlayed: number;
+  wins: number;
+  losses: number;
+  draws: number;
+  points: number;
+  kills: number;
+  podiums: number;
+};
+
 type Row = Record<string, unknown>;
 
 function client() {
@@ -40,6 +51,22 @@ export async function loadPlayerTournaments(): Promise<PlayerTournament[]> {
     participantName: String(row.participant_name),
     createdAt: String(row.created_at),
   }));
+}
+
+export async function loadPlayerStatistics(): Promise<PlayerStatistics> {
+  const { data, error } = await client().rpc('get_my_player_statistics');
+  if (error) throw error;
+  const row = ((data as Row[] | null) ?? [])[0] ?? {};
+  return {
+    tournamentsPlayed: Number(row.tournaments_played ?? 0),
+    roundsPlayed: Number(row.rounds_played ?? 0),
+    wins: Number(row.wins ?? 0),
+    losses: Number(row.losses ?? 0),
+    draws: Number(row.draws ?? 0),
+    points: Number(row.points ?? 0),
+    kills: Number(row.kills ?? 0),
+    podiums: Number(row.podiums ?? 0),
+  };
 }
 
 export async function loadJoinableTournament(

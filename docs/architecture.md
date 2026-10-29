@@ -12,6 +12,8 @@ Torneos TCG administra torneos multijugador de Commander y otros TCG. El organiz
 
 `src/pages/app/` y `src/routes/` contienen una implementación paralela que no es importada por `src/App.tsx`. Antes de editarlos, verifica que una ruta activa los use; para cambios de producto actuales, modifica primero la implementación en `AppRouter.tsx`.
 
+`/estadisticas` es una ruta autenticada exclusiva de las cuentas con rol `player`; muestra el historial global de sus inscripciones vinculadas.
+
 ## Capas
 
 `/configuracion` es una ruta autenticada compartida por todos los roles para las preferencias globales de cuenta.
@@ -41,6 +43,10 @@ Las mesas contienen de 3 a 5 jugadores. Un participante puede ser manual, sin cu
 Los organizadores generan un enlace revocable y su QR asociado. El enlace conserva un token opaco; la misma invitación incluye un código manual corto y único. Una cuenta `player` abre el enlace o escribe el código y se inscribe por una función protegida de Supabase; su inscripción se asocia con su cuenta y alimenta su panel e historial. Las cuentas de organizador no pueden vincularse como participantes.
 
 Las fotos de perfil se guardan en el bucket público `profile-avatars` de Supabase Storage, con una carpeta por cuenta protegida por RLS. La URL se conserva en `profiles.avatar_url` y se replica en la inscripción vinculada para mostrarla en los listados y en la vista pública; los participantes manuales y quienes no tengan foto mantienen el monograma de iniciales.
+
+### Estadísticas globales de jugador
+
+La RPC `get_my_player_statistics()` calcula torneos, rondas, resultados, puntos, kills y podios para las filas de `players` cuyo `profile_id` coincide con `auth.uid()`. Un podio se cuenta al finalizar el torneo o al completar todas sus rondas planificadas. La función se ejecuta con permisos controlados y no expone resultados ajenos al cliente. Los participantes manuales, que no tienen `profile_id`, no forman parte de este historial.
 
 ### Autenticación y permisos
 

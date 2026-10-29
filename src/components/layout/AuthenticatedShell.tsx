@@ -139,6 +139,12 @@ export function AuthenticatedShell({
             icon: Swords,
             accent: true,
           },
+          {
+            to: '/estadisticas',
+            label: t('app.shell.myStatistics'),
+            compactLabel: t('app.shell.myStatisticsShort'),
+            icon: BarChart3,
+          },
           generalSettingsItem,
         ]
       : [
