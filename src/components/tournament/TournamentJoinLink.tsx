@@ -34,12 +34,19 @@ function invitationUrl(token: string) {
   }
 }
 
-export function TournamentJoinLink({ tournamentId }: { tournamentId: string }) {
+/** `preview` solo se usa en el muestrario: muestra un enlace de ejemplo sin consultar Supabase. */
+export function TournamentJoinLink({
+  tournamentId,
+  preview,
+}: {
+  tournamentId: string;
+  preview?: { token: string; code: string };
+}) {
   const { t } = useTranslation();
-  const [token, setToken] = useState<string>();
-  const [code, setCode] = useState<string>();
+  const [token, setToken] = useState<string | undefined>(preview?.token);
+  const [code, setCode] = useState<string | undefined>(preview?.code);
   const [message, setMessage] = useState<string>();
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(!preview);
   const [busy, setBusy] = useState(false);
   const [revokeOpen, setRevokeOpen] = useState(false);
   const [invitationOpen, setInvitationOpen] = useState(false);
@@ -59,6 +66,7 @@ export function TournamentJoinLink({ tournamentId }: { tournamentId: string }) {
   };
 
   useEffect(() => {
+    if (preview) return;
     let active = true;
     void Promise.all([loadTournamentJoinLink(tournamentId), loadTournamentJoinCode(tournamentId)])
       .then(([nextToken, nextCode]) => {
@@ -75,7 +83,7 @@ export function TournamentJoinLink({ tournamentId }: { tournamentId: string }) {
     return () => {
       active = false;
     };
-  }, [t, tournamentId]);
+  }, [preview, t, tournamentId]);
 
   useEffect(() => {
     if (!invitationOpen || !token) {
@@ -107,6 +115,7 @@ export function TournamentJoinLink({ tournamentId }: { tournamentId: string }) {
   }, [invitationOpen, token]);
 
   const create = async () => {
+    if (preview) return;
     setBusy(true);
     setMessage(undefined);
     try {
@@ -135,6 +144,7 @@ export function TournamentJoinLink({ tournamentId }: { tournamentId: string }) {
 
   const revoke = async () => {
     setRevokeOpen(false);
+    if (preview) return;
     setBusy(true);
     setMessage(undefined);
     try {

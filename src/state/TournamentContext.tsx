@@ -10,8 +10,11 @@ import i18n from '../i18n'
 import { deleteRemoteRound, deleteRemoteTournament, insertPlayers, insertRound, insertTournament, loadAllTournaments, loadOwnerTournaments, persistPlayer, persistPod, persistRound, persistRoundMembers, persistTournament, persistTournamentSnapshot, removeRemotePlayer } from '../data/tournamentRepository'
 
 type CreateInput = Pick<Tournament, 'name' | 'format' | 'plannedRounds' | 'isPublic'> & Partial<Pick<Tournament, 'maxPlayers' | 'maxTables'>>
+export type TournamentStore = Store
 type Store = { tournaments:Tournament[]; ready:boolean; remoteError?:string; refreshTournaments():Promise<void>; createTournament(input:CreateInput):Promise<Tournament>; updateTournament(id:string, patch:Partial<Tournament>):void; removeTournament(id:string):void; addPlayers(id:string,names:string[]):{added:number;addedIds:string[];duplicate?:string;error?:string}; renamePlayer(id:string,playerId:string,name:string):string|undefined; togglePlayer(id:string,playerId:string):void; removePlayer(id:string,playerId:string):string|undefined; generateRound(id:string):Promise<string|undefined>; startRound(id:string,roundId:string):string|undefined; setRoundStatus(id:string,roundId:string,status:'borrador'|'activa'):void; completeRound(id:string,roundId:string):string|undefined; movePlayer(id:string,roundId:string,playerId:string,targetPodId:string):string|undefined; savePod(id:string,roundId:string,podId:string,pod:Pod):string|undefined; deleteLastRound(id:string):string|undefined; standingsFor(id:string):ReturnType<typeof standings> }
 const Context=createContext<Store|null>(null)
+/** Expuesto para providers de prueba y del muestrario; la app usa TournamentProvider. */
+export const TournamentContext=Context
 const storageKey='torneos-tcg.tournaments.v1'
 const copy=<T,>(item:T):T=>structuredClone(item)
 const samplePlayers=['Ana','Bruno','Carla','Diego','Elena','Felipe','Gabriela','Hugo'].map((name,index)=>({id:uid(),name,active:true,tieBreaker:index+1}))

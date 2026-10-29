@@ -10,7 +10,7 @@ export type RegistrationRole = 'player' | 'organizer';
 // La confirmación por correo está desactivada temporalmente en Supabase.
 // Al reactivarla, restablecer el aviso correspondiente en la pantalla de registro.
 
-type AuthStore = {
+export type AuthStore = {
   user: User | null;
   role: AppRole | null;
   isAdmin: boolean;
@@ -34,6 +34,8 @@ type AuthStore = {
   signOut(): Promise<void>;
 };
 const Context = createContext<AuthStore | null>(null);
+/** Expuesto para providers de prueba y del muestrario; la app usa AuthProvider. */
+export const AuthContext = Context;
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [role, setRole] = useState<AppRole | null>(null);

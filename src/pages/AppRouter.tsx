@@ -52,40 +52,45 @@ import {
   BadgeCheck,
   Check,
   CircleHelp,
-  CircleX,
   Database,
-  Equal,
   Eye,
   EyeOff,
   ExternalLink,
   GitBranch,
   Inbox,
   Info,
-  LogOut,
   LoaderCircle,
   Play,
   Plus,
   RefreshCw,
-  Settings as SettingsIcon,
   ShieldCheck,
   Square,
   Table,
   Trash2,
   Trophy,
   Users,
-  type LucideIcon,
 } from 'lucide-react';
 import { Modal } from '../components/ui/modal';
 import { Button } from '../components/ui/button';
 import { showToast, ToastViewport } from '../components/ui/toast';
 import { GoogleAuthButton } from '../components/auth/GoogleAuthButton';
-import { LanguageSelector } from '../components/ui/LanguageSelector';
-import { uid, type Pod, type ResultOutcome } from '../domain/types';
+import { uid } from '../domain/types';
 import { tournamentLimitMessage } from '../domain/tournamentLimits';
 import { tournamentStatistics } from '../domain/statistics';
 import { standings } from '../domain/scoring';
 import { BattleLedger } from '../components/tournament/BattleLedger';
 import { TournamentJoinLink } from '../components/tournament/TournamentJoinLink';
+import { Badge } from '../components/ui/Badge';
+import { Notice } from '../components/feedback/Notice';
+import { ConfirmModal } from '../components/feedback/ConfirmModal';
+import { Header } from '../components/layout/PublicHeader';
+import { RoundTimer } from '../components/tournament/RoundTimer';
+import { Metric } from '../components/tournament/Metric';
+import { DraftPodCard } from '../components/tournament/DraftPodCard';
+import { PodCard } from '../components/tournament/PodCard';
+import { Standings } from '../components/tournament/Standings';
+import { outcomeLabel } from '../components/tournament/outcomeLabel';
+import { AdminMetric } from '../components/admin/AdminMetric';
 import { Avatar } from '../components/ui/Avatar';
 import {
   AuthenticatedShell,
@@ -98,191 +103,6 @@ const primary = 'app-button app-button--primary';
 const panel = 'app-panel';
 const field = 'app-field';
 type ActionFeedbackState = 'idle' | 'loading' | 'success';
-const statusColor: Record<string, string> = {
-  borrador: 'border-[#E7E2D2] bg-[#F4F1E7] text-muted-foreground',
-  activa: 'border-[#BDE8CC] bg-[#E5F7EC] text-[#168050]',
-  completada: 'border-[#D6DEFF] bg-[#E9EDFF] text-[#3D5AFB]',
-  activo: 'border-[#BDE8CC] bg-[#E5F7EC] text-[#168050]',
-  finalizado: 'border-[#DDD0FF] bg-[#F0E9FF] text-[#5B1FE0]',
-};
-function Badge({ children }: { children: string }) {
-  const labels: Record<string, string> = {
-    borrador: i18n.t('app.common.draft'),
-    activa: i18n.t('app.common.activeStatus'),
-    completada: i18n.t('app.common.completed'),
-    activo: i18n.t('app.common.tournamentActive'),
-    finalizado: i18n.t('app.common.finished'),
-  };
-  return (
-    <span
-      className={`app-badge ${statusColor[children] ?? 'bg-transparent text-muted-foreground'}`}
-    >
-      {labels[children] ?? children}
-    </span>
-  );
-}
-function RoundTimer({ round }: { round: Tournament['rounds'][number] }) {
-  const [now, setNow] = useState(0);
-  useEffect(() => {
-    if (round.status !== 'activa' || !round.startedAt) return;
-    const update = () => setNow(Date.now());
-    update();
-    const interval = window.setInterval(update, 1000);
-    return () => window.clearInterval(interval);
-  }, [round.status, round.startedAt]);
-  if (!round.startedAt) return null;
-  const elapsed = Math.max(
-    0,
-    (round.endedAt ? Date.parse(round.endedAt) : now) - Date.parse(round.startedAt),
-  );
-  const hours = Math.floor(elapsed / 3_600_000);
-  const minutes = Math.floor((elapsed % 3_600_000) / 60_000);
-  const seconds = Math.floor((elapsed % 60_000) / 1_000);
-  const clock = [hours, minutes, seconds].map((value) => String(value).padStart(2, '0')).join(':');
-  return (
-    <span
-      className="round-timer"
-      aria-label={i18n.t('app.tournament.round', { number: round.number })}
-    >
-      {clock}
-    </span>
-  );
-}
-function Notice({ children, error = false }: { children: React.ReactNode; error?: boolean }) {
-  const validationMessages = [
-    i18n.t('app.messages.completeResults'),
-    i18n.t('app.messages.outcomeRequired'),
-  ];
-  const isError = error || (typeof children === 'string' && validationMessages.includes(children));
-  const shown = useRef<{ children: React.ReactNode; error: boolean } | undefined>(undefined);
-  useEffect(() => {
-    const previous = shown.current;
-    if (previous && previous.children === children && previous.error === isError) return;
-    shown.current = { children, error: isError };
-    showToast(children, isError);
-  }, [children, isError]);
-  return null;
-}
-function ConfirmModal({
-  title,
-  description,
-  confirmLabel,
-  destructive = false,
-  onClose,
-  onConfirm,
-}: {
-  title: string;
-  description: string;
-  confirmLabel?: string;
-  destructive?: boolean;
-  onClose: () => void;
-  onConfirm: () => void;
-}) {
-  return (
-    <Modal title={title} description={description} onClose={onClose}>
-      <div className="flex flex-wrap justify-end gap-3">
-        <Button
-          type="button"
-          variant="outline"
-          className="app-button app-button--secondary"
-          onClick={onClose}
-        >
-          {i18n.t('app.common.cancel')}
-        </Button>
-        <Button
-          type="button"
-          variant="outline"
-          className={destructive ? 'app-button app-button--danger' : primary}
-          onClick={onConfirm}
-        >
-          {confirmLabel ?? i18n.t('app.common.save')}
-        </Button>
-      </div>
-    </Modal>
-  );
-}
-
-function Header() {
-  const { user, configured, isAdmin, signOut } = useAuth();
-  const navigate = useNavigate();
-  const location = useLocation();
-  const authScreen = ['/login', '/register', '/forgot-password', '/auth/confirmed'].includes(
-    location.pathname,
-  );
-
-  return (
-    <header className="app-header app-shell-header">
-      <div className="app-shell-header__bar mx-auto max-w-6xl">
-        <Link to="/" className="app-shell-header__brand">
-          <img src="/edh-tournaments-icon.svg" alt="" />
-          EDH <span>Tournaments</span>
-        </Link>
-        {!authScreen && (
-          <nav
-            className="app-shell-header__actions"
-            aria-label={i18n.t('landing.navigation.label')}
-          >
-            {isAdmin ? (
-              <Link
-                to="/admin"
-                aria-label={i18n.t('app.header.administration')}
-                className="app-shell-header__link app-shell-header__link--admin"
-              >
-                <ShieldCheck size={16} />
-                <span className="hidden sm:inline">{i18n.t('app.header.administration')}</span>
-              </Link>
-            ) : (
-              <Link
-                to="/dashboard"
-                aria-label={i18n.t('app.header.tournaments')}
-                className="app-shell-header__link"
-              >
-                <Trophy size={16} />
-                <span className="hidden sm:inline">{i18n.t('app.header.tournaments')}</span>
-              </Link>
-            )}
-            {configured && user && (
-              <Link
-                to="/perfil"
-                aria-label={i18n.t('app.profile.title')}
-                className="app-shell-header__link"
-              >
-                <SettingsIcon size={16} />
-                <span className="hidden sm:inline">{i18n.t('app.profile.shortTitle')}</span>
-              </Link>
-            )}
-            {configured && user ? (
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                aria-label={i18n.t('app.header.signOut')}
-                className="app-button--danger !text-[.82rem] !font-semibold"
-                onClick={() => {
-                  navigate('/', { replace: true });
-                  void signOut().catch(() => undefined);
-                }}
-              >
-                <LogOut size={16} />
-                <span className="hidden sm:inline">{i18n.t('app.header.signOut')}</span>
-              </Button>
-            ) : (
-              <Link
-                to="/login"
-                aria-label={i18n.t('app.header.organizer')}
-                className="app-shell-header__link"
-              >
-                <Trophy size={16} />
-                <span className="hidden sm:inline">{i18n.t('app.header.organizer')}</span>
-              </Link>
-            )}
-            <LanguageSelector />
-          </nav>
-        )}
-      </div>
-    </header>
-  );
-}
 function CompletionRedirect() {
   const { id } = useParams();
   const tournament = useTournament(id);
@@ -1382,25 +1202,6 @@ function TournamentInformation() {
     </section>
   );
 }
-function Metric({
-  label,
-  value,
-  icon: Icon,
-}: {
-  label: string;
-  value: string | number;
-  icon: LucideIcon;
-}) {
-  return (
-    <article className="app-stat-pill">
-      <span>
-        <Icon size={16} aria-hidden />
-      </span>
-      <strong>{value}</strong>
-      <small>{label}</small>
-    </article>
-  );
-}
 function Players() {
   const tournament = Current();
   const { id } = useParams();
@@ -1966,367 +1767,6 @@ function Rounds() {
           }}
         />
       )}
-    </section>
-  );
-}
-function DraftPodCard({
-  pod,
-  names,
-  draggedPlayer,
-  isDropTarget,
-  onDragStart,
-  onDragEnter,
-  onDragEnd,
-  onDrop,
-}: {
-  pod: Pod;
-  names: Record<string, string>;
-  draggedPlayer?: string;
-  isDropTarget: boolean;
-  onDragStart: (playerId: string) => void;
-  onDragEnter: () => void;
-  onDragEnd: () => void;
-  onDrop: (playerId: string) => void;
-}) {
-  return (
-    <div
-      className={`game-table game-table--draft ${isDropTarget ? 'is-drop-target' : ''}`}
-      onDragEnter={onDragEnter}
-      onDragOver={(event) => {
-        event.preventDefault();
-        event.dataTransfer.dropEffect = 'move';
-      }}
-      onDrop={(event) => {
-        event.preventDefault();
-        const playerId = event.dataTransfer.getData('text/plain') || draggedPlayer;
-        if (playerId) onDrop(playerId);
-      }}
-    >
-      <div className="flex items-center justify-between gap-2">
-        <h4>
-          {i18n.t('app.common.table', { number: pod.number })}{' '}
-          <span>({pod.playerIds.length}/5)</span>
-        </h4>
-        {isDropTarget && (
-          <span className="game-table__drop">{i18n.t('app.tournament.dropHere')}</span>
-        )}
-      </div>
-      <div className="game-table__draft-players">
-        {pod.playerIds.map((playerId) => (
-          <button
-            type="button"
-            draggable
-            onDragStart={(event) => {
-              event.dataTransfer.setData('text/plain', playerId);
-              event.dataTransfer.effectAllowed = 'move';
-              onDragStart(playerId);
-            }}
-            onDragEnd={onDragEnd}
-            className={draggedPlayer === playerId ? 'is-dragging' : ''}
-            key={playerId}
-          >
-            {names[playerId]}
-          </button>
-        ))}
-      </div>
-    </div>
-  );
-}
-function outcomeLabel(outcome?: ResultOutcome) {
-  return outcome ? i18n.t(`app.common.${outcome}`) : '—';
-}
-function OutcomeButtons({ playerId, outcome }: { playerId: string; outcome?: ResultOutcome }) {
-  const [selected, setSelected] = useState<ResultOutcome | undefined>(outcome);
-  const options: { value: ResultOutcome; Icon: LucideIcon; label: string }[] = [
-    { value: 'win', Icon: Trophy, label: i18n.t('app.common.win') },
-    { value: 'loss', Icon: CircleX, label: i18n.t('app.common.loss') },
-    { value: 'draw', Icon: Equal, label: i18n.t('app.common.draw') },
-  ];
-  return (
-    <fieldset className="outcome-chips">
-      <legend className="sr-only">{i18n.t('app.common.outcome')}</legend>
-      <input type="hidden" name={`outcome-${playerId}`} value={selected ?? ''} />
-      {options.map((option) => (
-        <label
-          key={option.value}
-          className={`outcome-chips__option outcome-chips__option--${option.value} ${selected === option.value ? 'is-selected' : ''}`}
-        >
-          <input
-            className="sr-only"
-            type="checkbox"
-            checked={selected === option.value}
-            onChange={() =>
-              setSelected((current) => (current === option.value ? undefined : option.value))
-            }
-          />
-          <option.Icon aria-hidden size={14} strokeWidth={2.25} />
-          {option.label}
-        </label>
-      ))}
-    </fieldset>
-  );
-}
-function PodCard({
-  tournamentId,
-  roundId,
-  pod,
-  names,
-  readOnly,
-  editable,
-}: {
-  tournamentId: string;
-  roundId: string;
-  pod: Pod;
-  names: Record<string, string>;
-  readOnly: boolean;
-  editable: boolean;
-}) {
-  const { savePod } = useTournaments();
-  const [savedFeedback, setSavedFeedback] = useState(false);
-  const savedFeedbackTimer = useRef<number | undefined>(undefined);
-  useEffect(() => () => {
-    if (savedFeedbackTimer.current) window.clearTimeout(savedFeedbackTimer.current);
-  }, []);
-  function save(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    const form = new FormData(event.currentTarget);
-    const next: Pod = {
-      ...pod,
-      results: pod.playerIds.map((playerId) => {
-        const outcome = form.get(`outcome-${playerId}`);
-        return {
-          playerId,
-          points: Number(form.get(`points-${playerId}`)),
-          kills: Number(form.get(`kills-${playerId}`)),
-          outcome:
-            outcome === 'win' || outcome === 'loss' || outcome === 'draw' ? outcome : undefined,
-        };
-      }),
-    };
-    const message =
-      savePod(tournamentId, roundId, pod.id, next) ?? i18n.t('app.tournament.results');
-    const validationMessages = [
-      i18n.t('app.messages.completeResults'),
-      i18n.t('app.messages.outcomeRequired'),
-    ];
-    const isValidationError = validationMessages.includes(message);
-    showToast(message, isValidationError);
-    if (!isValidationError) {
-      setSavedFeedback(true);
-      if (savedFeedbackTimer.current) window.clearTimeout(savedFeedbackTimer.current);
-      savedFeedbackTimer.current = window.setTimeout(() => setSavedFeedback(false), 280);
-    }
-  }
-  return (
-    <div className={`game-table ${savedFeedback ? 'game-table--saved' : ''}`}>
-      <h4>{i18n.t('app.common.table', { number: pod.number })}</h4>
-      {!editable && (
-        <div className="mt-3 grid gap-2">
-          {pod.playerIds.map((playerId) => {
-            const result = pod.results?.find((item) => item.playerId === playerId);
-            return (
-              <section className="pod-entry" key={playerId}>
-                <h5>{names[playerId]}</h5>
-                {result ? (
-                  <div className="pod-entry__metrics">
-                    <p>
-                      {i18n.t('app.common.points')} <strong>{result.points}</strong>
-                    </p>
-                    <p>
-                      {i18n.t('app.common.kills')} <strong>{result.kills}</strong>
-                    </p>
-                    <p>
-                      {i18n.t('app.common.outcome')} <strong>{outcomeLabel(result.outcome)}</strong>
-                    </p>
-                  </div>
-                ) : (
-                  <p className="pod-entry__pending">{i18n.t('app.common.noResults')}</p>
-                )}
-              </section>
-            );
-          })}
-        </div>
-      )}
-      {editable && (
-        <form onSubmit={save} className="mt-3 space-y-4">
-          <p className="pod-results-help">{i18n.t('app.tournament.registerResults')}</p>
-          <div className="grid gap-3">
-            {pod.playerIds.map((playerId) => (
-              <section className="pod-entry pod-entry--editable" key={playerId}>
-                <div className="pod-entry__header">
-                  <h5>{names[playerId]}</h5>
-                  <OutcomeButtons
-                    playerId={playerId}
-                    outcome={pod.results?.find((result) => result.playerId === playerId)?.outcome}
-                  />
-                </div>
-                <div className="pod-entry__fields">
-                  <label>
-                    {i18n.t('app.common.points')}
-                    <input
-                      required
-                      min="0"
-                      name={`points-${playerId}`}
-                      defaultValue={
-                        pod.results?.find((result) => result.playerId === playerId)?.points ?? ''
-                      }
-                      type="number"
-                      className={`${field} mt-2 py-2 text-sm`}
-                    />
-                  </label>
-                  <label>
-                    {i18n.t('app.common.kills')}
-                    <input
-                      required
-                      min="0"
-                      max="5"
-                      name={`kills-${playerId}`}
-                      defaultValue={
-                        pod.results?.find((result) => result.playerId === playerId)?.kills ?? 0
-                      }
-                      type="number"
-                      className={`${field} mt-2 py-2 text-sm`}
-                    />
-                  </label>
-                </div>
-              </section>
-            ))}
-          </div>
-          <Button disabled={readOnly} className={primary}>
-            {i18n.t('app.common.save')}
-          </Button>
-        </form>
-      )}
-    </div>
-  );
-}
-function Standings() {
-  const { id } = useParams();
-  const rows = useTournaments().standingsFor(id!);
-  const previousRanks = useRef(new Map<string, number>());
-  const [movedRankIds, setMovedRankIds] = useState<string[]>([]);
-  const movedRanksTimer = useRef<number | undefined>(undefined);
-  const opponentHelp = i18n.t('app.tournament.opponentHelp');
-  const winRateHelp = i18n.t('app.common.winRateHelp');
-  useEffect(() => {
-    const nextRanks = new Map(rows.map((row) => [row.player.id, row.rank]));
-    if (!previousRanks.current.size) {
-      previousRanks.current = nextRanks;
-      return;
-    }
-    const changed = rows
-      .filter((row) => previousRanks.current.get(row.player.id) !== row.rank)
-      .map((row) => row.player.id);
-    previousRanks.current = nextRanks;
-    if (!changed.length) return;
-    setMovedRankIds(changed);
-    if (movedRanksTimer.current) window.clearTimeout(movedRanksTimer.current);
-    movedRanksTimer.current = window.setTimeout(() => setMovedRankIds([]), 320);
-  }, [rows]);
-  useEffect(() => () => {
-    if (movedRanksTimer.current) window.clearTimeout(movedRanksTimer.current);
-  }, []);
-  return (
-    <section className="standings-board">
-      <header>
-        <p>{i18n.t('app.tournament.standings')}</p>
-        <h2>{i18n.t('app.tournament.standings')}</h2>
-      </header>
-      {rows.length > 0 && (
-        <ol className="standings-podium">
-          {rows.slice(0, 3).map((row) => (
-            <li
-              className={`standings-podium__place standings-podium__place--${row.rank} ${
-                movedRankIds.includes(row.player.id) ? 'standings-row--moved' : ''
-              }`}
-              key={row.player.id}
-            >
-              <span className="standings-podium__rank">#{row.rank}</span>
-              <Avatar
-                name={row.player.name}
-                src={row.player.avatarUrl}
-                className="standings-podium__avatar"
-              />
-              <strong>{row.player.name}</strong>
-              <b>
-                {row.points} <small>{i18n.t('app.common.points')}</small>
-              </b>
-              <em>
-                {row.kills} ☠ · {row.winRate.toFixed(1)}%
-              </em>
-            </li>
-          ))}
-        </ol>
-      )}
-      <div className="standings-table">
-        <table>
-          <thead>
-            <tr>
-              <th>#</th>
-              <th>{i18n.t('app.common.name')}</th>
-              <th>{i18n.t('app.common.points')}</th>
-              <th>{i18n.t('app.common.wins')}</th>
-              <th>{i18n.t('app.common.losses')}</th>
-              <th>{i18n.t('app.common.draws')}</th>
-              <th>
-                <span>
-                  {i18n.t('app.common.winRate')}
-                  <span
-                    title={winRateHelp}
-                    aria-label={winRateHelp}
-                    role="img"
-                    className="app-help app-help--static"
-                  >
-                    <Info size={15} strokeWidth={2} />
-                  </span>
-                </span>
-              </th>
-              <th>{i18n.t('app.common.kills')}</th>
-              <th>
-                <span>
-                  {i18n.t('app.tournament.opponentStrength')}
-                  <span
-                    title={opponentHelp}
-                    aria-label={opponentHelp}
-                    role="img"
-                    className="app-help app-help--static"
-                  >
-                    <Info size={15} strokeWidth={2} />
-                  </span>
-                </span>
-              </th>
-              <th>{i18n.t('app.tournament.rounds')}</th>
-            </tr>
-          </thead>
-          <tbody>
-            {rows.map((row) => (
-              <tr
-                className={`${row.rank <= 3 ? `is-podium is-podium--${row.rank}` : ''} ${
-                  movedRankIds.includes(row.player.id) ? 'standings-row--moved' : ''
-                }`}
-                key={row.player.id}
-              >
-                <td>{row.rank}</td>
-                <td>
-                  <Avatar name={row.player.name} src={row.player.avatarUrl} className="standings-table__avatar" />
-                  {row.player.name}
-                  {!row.player.active && <small>{i18n.t('app.common.withdrawn')}</small>}
-                </td>
-                <td>
-                  <strong>{row.points}</strong>
-                </td>
-                <td>{row.wins}</td>
-                <td>{row.losses}</td>
-                <td>{row.draws}</td>
-                <td>{row.winRate.toFixed(1)}%</td>
-                <td>{row.kills}</td>
-                <td>{row.opponentStrength}</td>
-                <td>{row.roundsPlayed}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
     </section>
   );
 }
@@ -3188,26 +2628,6 @@ function AdminDashboard() {
         </>
       )}
     </Layout>
-  );
-}
-
-function AdminMetric({
-  icon,
-  label,
-  value,
-}: {
-  icon: React.ReactNode;
-  label: string;
-  value: number | string;
-}) {
-  return (
-    <article className={panel}>
-      <div className="flex items-center gap-2 text-amber-300">
-        {icon}
-        <span className="text-sm font-semibold">{label}</span>
-      </div>
-      <strong className="mt-3 block text-3xl font-black tabular-nums">{value}</strong>
-    </article>
   );
 }
 

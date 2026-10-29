@@ -1,27 +1,22 @@
 import { useState, type FormEvent } from 'react'
 import { Link } from 'react-router-dom'
-import { LockKeyhole, Play, Plus, Sparkles, Trophy } from 'lucide-react'
+import { LockKeyhole, Plus, Sparkles, Trophy } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { Button } from '@/components/ui/button'
 import { LanguageSelector } from '@/components/ui/LanguageSelector'
 import { Modal } from '@/components/ui/modal'
+import { AccountLock } from '@/components/trial/AccountLock'
+import { Metric } from '@/components/trial/Metric'
+import { RoundEditor } from '@/components/trial/RoundEditor'
 import { makePairings } from '@/domain/pairing'
 import { hasCompletePodOutcomes, isValidPodResult, standings } from '@/domain/scoring'
-import { normalizeName, uid, type Pod, type Result, type ResultOutcome, type Tournament } from '@/domain/types'
+import { normalizeName, uid, type Result, type Tournament } from '@/domain/types'
 
 type TrialTab = 'overview' | 'players' | 'rounds' | 'standings' | 'statistics' | 'settings'
 
 const field = 'app-field'
 const panel = 'app-panel'
 const primary = 'app-button app-button--primary'
-
-function AccountLock({ title, description }: { title: string; description: string }) {
-  return <section className={`${panel} mx-auto max-w-xl text-center`}>
-    <span className="mx-auto grid size-12 place-items-center rounded-full bg-[#eee9ff] text-[#5B1FE0]"><LockKeyhole size={22} /></span>
-    <h2 className="mt-4 text-2xl font-bold">{title}</h2>
-    <p className="mx-auto mt-2 max-w-md text-sm leading-6 text-muted-foreground">{description}</p>
-  </section>
-}
 
 export function TrialPage() {
   const { t } = useTranslation()
@@ -278,26 +273,4 @@ function TrialShell({ children }: { children: React.ReactNode }) {
     <header className="app-header app-shell-header trial-header"><div className="app-shell-header__bar mx-auto max-w-6xl"><Link to="/" className="app-shell-header__brand"><img src="/edh-tournaments-icon.svg" alt="" />EDH <span>Tournaments</span></Link><div className="trial-header__actions"><Button asChild variant="outline" size="sm" className="app-button--danger trial-header__exit"><Link to="/"><span className="trial-header__full-label">{t('landing.trial.exit')}</span><span className="trial-header__short-label">{t('landing.trial.exitShort')}</span></Link></Button><Button asChild size="sm" className="trial-header__account"><Link to="/register"><span className="trial-header__full-label">{t('landing.trial.createAccount')}</span><span className="trial-header__short-label">{t('landing.trial.createAccountShort')}</span></Link></Button><LanguageSelector /></div></div></header>
     {children}
   </div>
-}
-
-function Metric({ label, value }: { label: string; value: string | number }) {
-  return <div className="rounded-2xl bg-secondary/60 p-4 text-center"><strong className="block text-2xl text-accent">{value}</strong><span className="mt-1 block text-xs font-semibold text-muted-foreground">{label}</span></div>
-}
-
-function RoundEditor({ round, tournament, disabled, onStart, onResult, onComplete, labels }: { round: Tournament['rounds'][number]; tournament: Tournament; disabled: boolean; onStart: (roundId: string) => void; onResult: (roundId: string, podId: string, playerId: string, patch: Partial<Result>) => void; onComplete: (roundId: string) => void; labels: { start: string; complete: string; table: string; players: string; points: string; kills: string; outcome: string; chooseOutcome: string; win: string; loss: string; draw: string; draft: string; active: string; completed: string } }) {
-  const labelForStatus = { borrador: labels.draft, activa: labels.active, completada: labels.completed }[round.status]
-
-  return <article className={panel}>
-    <div className="flex flex-wrap items-center justify-between gap-3"><div><h2 className="text-xl font-bold">{labels.table} · {round.number}</h2><p className="mt-1 text-sm text-muted-foreground">{labelForStatus}</p></div>{round.status === 'borrador' ? <button disabled={disabled} onClick={() => onStart(round.id)} className={primary}><Play size={16} />{labels.start}</button> : round.status === 'activa' ? <button disabled={disabled} onClick={() => onComplete(round.id)} className={primary}>{labels.complete}</button> : null}</div>
-    <div className="mt-5 grid gap-4 lg:grid-cols-2">{round.pods.map(pod => <PodResults key={pod.id} pod={pod} tournament={tournament} roundId={round.id} disabled={disabled || round.status !== 'activa'} onResult={onResult} labels={labels} />)}</div>
-  </article>
-}
-
-function PodResults({ pod, tournament, roundId, disabled, onResult, labels }: { pod: Pod; tournament: Tournament; roundId: string; disabled: boolean; onResult: (roundId: string, podId: string, playerId: string, patch: Partial<Result>) => void; labels: { table: string; players: string; points: string; kills: string; outcome: string; chooseOutcome: string; win: string; loss: string; draw: string } }) {
-  return <section className="overflow-hidden rounded-2xl border border-border"><header className="flex items-center justify-between bg-secondary/60 px-4 py-3"><strong>{labels.table} {pod.number}</strong><span className="text-xs text-muted-foreground">{pod.playerIds.length} {labels.players}</span></header><div className="divide-y divide-border">{pod.playerIds.map(playerId => {
-    const player = tournament.players.find(item => item.id === playerId)
-    const result = pod.results?.find(item => item.playerId === playerId)
-    if (!player) return null
-    return <div key={playerId} className="grid grid-cols-[minmax(0,1fr)_4.7rem_4.2rem] gap-2 p-3"><strong className="self-center truncate text-sm">{player.name}</strong><label className="text-xs font-semibold text-muted-foreground">{labels.points}<input disabled={disabled} min="0" type="number" value={result?.points ?? 0} onChange={event => onResult(roundId, pod.id, playerId, { points: Number(event.target.value) })} className={`${field} mt-1 px-2 py-1 text-sm`} /></label><label className="text-xs font-semibold text-muted-foreground">{labels.kills}<input disabled={disabled} min="0" type="number" value={result?.kills ?? 0} onChange={event => onResult(roundId, pod.id, playerId, { kills: Number(event.target.value) })} className={`${field} mt-1 px-2 py-1 text-sm`} /></label><label className="col-span-3 text-xs font-semibold text-muted-foreground">{labels.outcome}<select disabled={disabled} value={result?.outcome ?? ''} onChange={event => onResult(roundId, pod.id, playerId, { outcome: event.target.value as ResultOutcome })} className={`${field} mt-1 py-1 text-sm`}><option value="">{labels.chooseOutcome}</option><option value="win">{labels.win}</option><option value="loss">{labels.loss}</option><option value="draw">{labels.draw}</option></select></label></div>
-  })}</div></section>
 }

@@ -22,7 +22,7 @@ import { useAuth } from '../../state/AuthContext';
 import { getUserProfile } from '../../lib/userProfile';
 import { Avatar } from '../ui/Avatar';
 
-type NavigationItem = {
+export type NavigationItem = {
   to: string;
   label: string;
   compactLabel?: string;
@@ -36,7 +36,7 @@ export type TournamentNavigation = {
   name: string;
 };
 
-function NavigationLink({
+export function NavigationLink({
   item,
   compact = false,
   collapsed = false,
