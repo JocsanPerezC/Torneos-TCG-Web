@@ -794,12 +794,14 @@ function Auth({ screen }: { screen: 'login' | 'register' | 'recovery' }) {
               onConsentRequired={() => setLegalError(i18n.t('app.auth.legalConsentRequired'))}
             />
           )}
-          <Link
-            className="mt-5 block text-center text-sm text-accent underline"
-            to={`${screen === 'login' ? '/register' : '/login'}?next=${encodeURIComponent(returnPath)}`}
-          >
-            {screen === 'login' ? i18n.t('app.auth.noAccount') : i18n.t('app.auth.backToLogin')}
-          </Link>
+          <div className="mt-5 text-center">
+            <Link
+              className="text-sm text-accent underline"
+              to={`${screen === 'login' ? '/register' : '/login'}?next=${encodeURIComponent(returnPath)}`}
+            >
+              {screen === 'login' ? i18n.t('app.auth.noAccount') : i18n.t('app.auth.backToLogin')}
+            </Link>
+          </div>
           {!recovery && (
             <Button asChild type="button" variant="outline" className="mt-3 w-full">
               <Link to="/forgot-password">{i18n.t('app.auth.forgotPassword')}</Link>
