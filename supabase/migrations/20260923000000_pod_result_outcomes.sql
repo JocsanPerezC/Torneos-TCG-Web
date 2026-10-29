@@ -1,7 +1,13 @@
-create type public.pod_result_outcome as enum ('win', 'loss', 'draw');
+do $$
+begin
+  create type public.pod_result_outcome as enum ('win', 'loss', 'draw');
+exception
+  when duplicate_object then null;
+end;
+$$;
 
 alter table public.pod_results
-  add column outcome public.pod_result_outcome;
+  add column if not exists outcome public.pod_result_outcome;
 
 create or replace function public.save_tournament_snapshot(snapshot jsonb)
 returns void

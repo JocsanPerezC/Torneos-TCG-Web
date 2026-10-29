@@ -13,7 +13,7 @@ create unique index if not exists players_tournament_profile_unique
 
 create index if not exists players_profile_idx on public.players (profile_id);
 
-create table public.tournament_join_links (
+create table if not exists public.tournament_join_links (
   tournament_id uuid primary key references public.tournaments(id) on delete cascade,
   token text not null unique,
   created_at timestamptz not null default now(),
@@ -60,6 +60,10 @@ $$;
 
 drop policy if exists "owner tournament" on public.tournaments;
 drop policy if exists "super admin manage tournaments" on public.tournaments;
+drop policy if exists "organizer read tournaments" on public.tournaments;
+drop policy if exists "organizer create tournaments" on public.tournaments;
+drop policy if exists "organizer update tournaments" on public.tournaments;
+drop policy if exists "organizer delete tournaments" on public.tournaments;
 
 create policy "organizer read tournaments"
 on public.tournaments for select
