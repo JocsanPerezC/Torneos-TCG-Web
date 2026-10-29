@@ -13,8 +13,8 @@
 
 - Para cambios transversales, de rutas, estado, persistencia o idiomas, consulta `docs/architecture.md` antes de editar. No hace falta leerlo para ajustes estrictamente locales.
 - Para auditorías o cambios visuales, consulta `docs/design-system.md` y conserva accesibilidad, responsive e i18n.
-- La interfaz autenticada que se ejecuta actualmente está en `src/pages/AppRouter.tsx`; `src/pages/app/` y `src/routes/` no se cargan desde `src/App.tsx`. Confirma el árbol de imports antes de modificar esos módulos paralelos.
+- Las rutas activas están en `src/app/AppRouter.tsx`; cada pantalla vive en `src/features/<área>/` y lo compartido en `src/components/`. Ver la estructura en `docs/architecture.md`.
 - `PENDIENTES.md` es el backlog de producto; `docs/decisions/` conserva decisiones técnicas duraderas. No dupliques su contenido en otros archivos.
-- Mantén `src/i18n.ts` sincronizado para español e inglés cuando agregues texto visible.
+- Mantén `src/i18n/es.ts` y `src/i18n/en.ts` con las mismas claves cuando agregues texto visible.
 - Crea o actualiza una decisión en `docs/decisions/` solo si cambia una frontera arquitectónica, una fuente de verdad, una integración externa o una regla que afectará trabajo futuro.
 - Si cambian las rutas activas, las capas de datos, el modelo de persistencia o los comandos de validación, actualiza también `docs/architecture.md`.

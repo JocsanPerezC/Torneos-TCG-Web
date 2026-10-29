@@ -1,0 +1,76 @@
+/* Tokens de color (@theme y :root), tipografía y estilos base de elementos. */
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-border: var(--border);
+  --font-sans: var(--font-sans);
+}
+
+:root {
+  --background: #fcfaec;
+  --foreground: #111111;
+  --card: #fff;
+  --card-foreground: #111111;
+  --primary: #21b876;
+  --primary-foreground: #fff;
+  --secondary: #f2f0e5;
+  --secondary-foreground: #111111;
+  --muted: #f2f0e5;
+  --muted-foreground: #6b675c;
+  --accent: #3d5afb;
+  --accent-foreground: #fff;
+  --border: #e7e2d2;
+  --violet: #5b1fe0;
+  --red: #c1272d;
+  --blue: #3d5afb;
+  --font-sans: Fredoka, ui-rounded, system-ui, sans-serif;
+  font-family: var(--font-sans);
+  color: var(--foreground);
+  background: var(--background);
+  font-synthesis: none;
+}
+* {
+  box-sizing: border-box;
+}
+body {
+  min-width: 320px;
+  min-height: 100vh;
+  margin: 0;
+  background-color: #fcfaec;
+  background-image:
+    linear-gradient(
+      120deg,
+      rgba(252, 250, 236, 0.72) 0%,
+      rgba(252, 250, 236, 0.62) 55%,
+      rgba(252, 250, 236, 0.78) 100%
+    ),
+    url('/edh-bg-pattern.svg');
+  background-position: center, center;
+  background-size:
+    cover,
+    480px 480px;
+  background-repeat: no-repeat, repeat;
+  background-attachment: fixed, fixed;
+}
+button,
+input,
+select,
+textarea {
+  font: inherit;
+}
+button {
+  cursor: pointer;
+}
+a {
+  color: inherit;
+}

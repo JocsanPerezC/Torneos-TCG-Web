@@ -21,12 +21,7 @@ export type AuthStore = {
   loading: boolean;
   configured: boolean;
   signIn(email: string, password: string): Promise<void>;
-  signUp(
-    name: string,
-    email: string,
-    password: string,
-    consent: LegalConsent,
-  ): Promise<void>;
+  signUp(name: string, email: string, password: string, consent: LegalConsent): Promise<void>;
   completeRegistrationRole(role: RegistrationRole): Promise<void>;
   isEmailRegistered(email: string): Promise<boolean>;
   resetPassword(email: string): Promise<void>;

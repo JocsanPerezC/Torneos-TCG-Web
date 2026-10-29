@@ -93,7 +93,9 @@ Vite queda disponible en la red local. Abre el enlace `Network` que muestra la t
 
 - `src/domain/`: tipos, distribución de mesas, emparejamiento, puntuación y clasificación puros.
 - `src/state/TournamentContext.tsx`: persistencia local de demostración y operaciones de torneo.
-- `src/pages/AppRouter.tsx`: rutas, formularios accesibles y pantallas en español.
+- `src/app/AppRouter.tsx`: rutas activas; cada pantalla vive en `src/features/<área>/`.
+- `src/components/`: componentes compartidos (`ui/`, `layout/`, `feedback/`).
+- `src/styles/` y `src/i18n/`: estilos por capa y textos en español e inglés.
 - `src/lib/supabase.ts`: cliente preparado con URL y clave anónima públicas.
 - `supabase/migrations/`: modelo PostgreSQL y políticas RLS.
 

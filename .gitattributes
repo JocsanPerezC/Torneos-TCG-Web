@@ -1,0 +1,5 @@
+# El repositorio guarda LF; evita diffs de finales de línea entre Windows y otros sistemas.
+* text=auto eol=lf
+*.png binary
+*.jpg binary
+*.ico binary

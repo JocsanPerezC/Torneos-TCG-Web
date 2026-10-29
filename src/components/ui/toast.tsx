@@ -85,7 +85,9 @@ export function ToastViewport() {
         >
           <span className="app-toast__indicator" aria-hidden />
           <div className="app-toast__content">
-            <strong>{i18n.t(toast.error ? 'app.toast.errorTitle' : 'app.toast.successTitle')}</strong>
+            <strong>
+              {i18n.t(toast.error ? 'app.toast.errorTitle' : 'app.toast.successTitle')}
+            </strong>
             <div className="app-toast__description">{toast.message}</div>
           </div>
           <button

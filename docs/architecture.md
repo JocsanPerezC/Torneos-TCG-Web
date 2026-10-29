@@ -7,10 +7,18 @@ Torneos TCG administra torneos multijugador de Commander y otros TCG. El organiz
 ## Punto de entrada y rutas activas
 
 - `src/main.tsx` carga estilos, traducciones y `App`.
-- `src/App.tsx` monta `AuthProvider`, `TournamentProvider`, `src/pages/AppRouter.tsx` y Vercel Web Analytics una sola vez.
-- `src/pages/AppRouter.tsx` contiene las rutas activas del sitio, incluida la UI autenticada de torneos. `/dashboard` muestra una experiencia distinta según el rol; `/unirse/:token` procesa invitaciones de jugadores y `/perfil` es común a las cuentas autenticadas.
+- `src/app/App.tsx` monta `AuthProvider`, `TournamentProvider`, `src/app/AppRouter.tsx` y Vercel Web Analytics una sola vez.
+- `src/app/AppRouter.tsx` solo declara las rutas activas y sus guardas (consentimiento, solo local); cada pantalla vive en `src/features/<área>/`. `/dashboard` muestra una experiencia distinta según el rol; `/unirse/:token` procesa invitaciones de jugadores y `/perfil` es común a las cuentas autenticadas.
 
-`src/pages/app/` y `src/routes/` contienen una implementación paralela que no es importada por `src/App.tsx`. Antes de editarlos, verifica que una ruta activa los use; para cambios de producto actuales, modifica primero la implementación en `AppRouter.tsx`.
+## Estructura de `src/`
+
+| Carpeta            | Contenido                                                                                                                                                                                          |
+| ------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `app/`             | `App.tsx` (providers) y `AppRouter.tsx` (rutas y guardas).                                                                                                                                         |
+| `features/<área>/` | Pantallas por área: `auth`, `dashboard`, `tournaments`, `public`, `player`, `admin`, `trial`, `profile`, `legal`, `landing` y `showcase`. Sus piezas propias van en `features/<área>/components/`. |
+| `components/`      | Solo lo compartido entre áreas: `ui/`, `layout/` (`Layout`, `AuthenticatedShell`, `PublicHeader`) y `feedback/`.                                                                                   |
+| `styles/`          | CSS por capa, importado en orden desde `src/index.css`; el orden de los imports define la cascada.                                                                                                 |
+| `i18n/`            | `es.ts` y `en.ts` con las mismas claves, más `index.ts`, que inicializa i18next.                                                                                                                   |
 
 `/estadisticas` es una ruta autenticada exclusiva de las cuentas con rol `player`; muestra el historial global de sus inscripciones vinculadas.
 
@@ -20,21 +28,21 @@ Torneos TCG administra torneos multijugador de Commander y otros TCG. El organiz
 
 Para organizadores, `/dashboard` muestra el panel operativo y `/dashboard/tournaments` concentra el inventario de torneos propios.
 
-| Capa            | Responsabilidad                                                                 | Ubicación                       |
-| --------------- | ------------------------------------------------------------------------------- | ------------------------------- |
-| Dominio         | Tipos, distribución de mesas, emparejamientos, puntuación y estadísticas puros. | `src/domain/`                   |
-| Estado          | Sesión, torneos, modo demo y reglas de transición de rondas.                    | `src/state/`                    |
-| Datos           | Mapeo y operaciones de Supabase.                                                | `src/data/`                     |
-| Infraestructura | Cliente Supabase y utilidades compartidas.                                      | `src/lib/`                      |
-| Presentación    | Rutas, páginas y componentes reutilizables.                                     | `src/pages/`, `src/components/` |
-| Idiomas         | Recursos español/inglés.                                                        | `src/i18n.ts`                   |
-| Persistencia    | Esquema, RLS, RPCs, migraciones y Edge Functions.                               | `supabase/`                     |
+| Capa            | Responsabilidad                                                                 | Ubicación                                      |
+| --------------- | ------------------------------------------------------------------------------- | ---------------------------------------------- |
+| Dominio         | Tipos, distribución de mesas, emparejamientos, puntuación y estadísticas puros. | `src/domain/`                                  |
+| Estado          | Sesión, torneos, modo demo y reglas de transición de rondas.                    | `src/state/`                                   |
+| Datos           | Mapeo y operaciones de Supabase.                                                | `src/data/`                                    |
+| Infraestructura | Cliente Supabase y utilidades compartidas.                                      | `src/lib/`                                     |
+| Presentación    | Rutas, pantallas por área y componentes compartidos.                            | `src/app/`, `src/features/`, `src/components/` |
+| Idiomas         | Recursos español/inglés.                                                        | `src/i18n/`                                    |
+| Persistencia    | Esquema, RLS, RPCs, migraciones y Edge Functions.                               | `supabase/`                                    |
 
 ## Flujos importantes
 
 ### Torneos y rondas
 
-`AppRouter.tsx` usa `TournamentContext`. El contexto aplica las reglas del torneo y delega el emparejamiento a `src/domain/pairing.ts`; la clasificación se calcula con `src/domain/scoring.ts`. En modo remoto, los cambios del organizador se persisten mediante `src/data/tournamentRepository.ts`; los jugadores consultan sus inscripciones mediante `src/data/playerRepository.ts`. Sin Supabase, el estado se conserva en `localStorage` como modo demo.
+Las pantallas de `src/features/tournaments/` usan `TournamentContext`. El contexto aplica las reglas del torneo y delega el emparejamiento a `src/domain/pairing.ts`; la clasificación se calcula con `src/domain/scoring.ts`. En modo remoto, los cambios del organizador se persisten mediante `src/data/tournamentRepository.ts`; los jugadores consultan sus inscripciones mediante `src/data/playerRepository.ts`. Sin Supabase, el estado se conserva en `localStorage` como modo demo.
 
 La pantalla Jugadores puede solicitar una recarga manual del inventario remoto sin reemplazar la pantalla por un estado de carga; esa acción actualiza el estado compartido de `TournamentContext`.
 
@@ -54,11 +62,11 @@ La RPC `get_my_player_statistics()` calcula torneos, rondas, resultados, puntos,
 
 ### Analítica
 
-`App.tsx` monta `Analytics` de `@vercel/analytics/react` una sola vez. Vercel configura el script durante los despliegues y la aplicación no emite eventos personalizados; solo se registran vistas de página y transiciones de ruta para la analítica web agregada.
+`src/app/App.tsx` monta `Analytics` de `@vercel/analytics/react` una sola vez. Vercel configura el script durante los despliegues y la aplicación no emite eventos personalizados; solo se registran vistas de página y transiciones de ruta para la analítica web agregada.
 
 ### Internacionalización
 
-La interfaz activa usa `src/i18n.ts`. Cualquier texto nuevo visible debe existir en español e inglés. No agregues cadenas visibles hardcodeadas cuando ya se use una clave de traducción en esa pantalla.
+Los textos viven en `src/i18n/es.ts` y `src/i18n/en.ts`, con las mismas claves en ambos. Cualquier texto nuevo visible debe existir en los dos archivos. No agregues cadenas visibles hardcodeadas cuando ya se use una clave de traducción en esa pantalla.
 
 ## Fuentes de verdad de trabajo
 

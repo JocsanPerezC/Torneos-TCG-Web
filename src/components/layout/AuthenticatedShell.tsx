@@ -276,7 +276,11 @@ export function AuthenticatedShell({
                   setAccountMenuOpen((open) => !open);
                 }}
               >
-                <Avatar name={profile.name} src={profile.avatarUrl} className="app-sidebar__profile-avatar" />
+                <Avatar
+                  name={profile.name}
+                  src={profile.avatarUrl}
+                  className="app-sidebar__profile-avatar"
+                />
                 <strong>{profile.name}</strong>
                 <ChevronDown aria-hidden="true" />
               </button>
@@ -312,7 +316,9 @@ export function AuthenticatedShell({
       <main className={`authenticated-shell__main ${wide ? 'is-wide' : ''}`}>{children}</main>
       <div className="app-mobile-account-wrap" ref={mobileAccountRef}>
         <nav
-          aria-label={t(tournament ? 'app.shell.tournamentNavigation' : 'app.shell.mobileNavigation')}
+          aria-label={t(
+            tournament ? 'app.shell.tournamentNavigation' : 'app.shell.mobileNavigation',
+          )}
           className={`app-mobile-nav${tournament ? ' is-tournament-navigation' : ''}`}
         >
           {visibleMobileItems.map((item) => (

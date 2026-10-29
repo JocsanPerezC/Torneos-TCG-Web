@@ -1,0 +1,20 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm run build)",
+      "Bash(npm run lint)",
+      "Bash(npm run format)",
+      "Bash(npm run format:check)",
+      "Bash(npm test)",
+      "Bash(npx tsc -b)",
+      "Bash(npx prettier --check:*)",
+      "Bash(npx prettier --write:*)",
+      "Bash(npx oxlint:*)",
+      "Bash(git status:*)",
+      "Bash(git diff:*)",
+      "Bash(git log:*)",
+      "Bash(git show:*)"
+    ],
+    "deny": ["Read(./.env.local)", "Read(./.env)"]
+  }
+}

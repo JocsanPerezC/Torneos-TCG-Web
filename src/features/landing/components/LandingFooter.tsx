@@ -1,0 +1,53 @@
+import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
+
+export function LandingFooter() {
+  const { t } = useTranslation();
+  return (
+    <footer className="landing-footer">
+      <div className="mx-auto max-w-6xl px-5 py-12">
+        <div className="landing-footer__top">
+          <div>
+            <strong>EDH Tournaments</strong>
+            <p>{t('landing.footer.tagline')}</p>
+          </div>
+          <nav>
+            <a href="#como-funciona">{t('landing.navigation.howItWorks')}</a>
+            <a href="#puntuacion">{t('landing.navigation.scoring')}</a>
+            <a href="#preguntas">{t('landing.navigation.faq')}</a>
+            <Link to="/privacy" target="_blank" rel="noreferrer">
+              {t('landing.footer.privacy')}
+            </Link>
+            <Link to="/terms" target="_blank" rel="noreferrer">
+              {t('landing.footer.terms')}
+            </Link>
+          </nav>
+          <a
+            href="https://paypal.me/JocsanPerezCoto"
+            target="_blank"
+            rel="noreferrer"
+            className="landing-footer__support"
+          >
+            <img src="https://www.paypalobjects.com/webstatic/icon/pp258.png" alt="" />
+            {t('landing.footer.support')}
+          </a>
+        </div>
+        <p className="landing-footer__legal">{t('landing.footer.fanContent')}</p>
+        <div className="landing-footer__bottom">
+          <span>{t('landing.footer.copyright')}</span>
+          <a
+            href="https://github.com/JocsanPerezC"
+            target="_blank"
+            rel="noreferrer"
+            aria-label={t('landing.footer.github')}
+            title="GitHub"
+          >
+            <svg aria-hidden="true" viewBox="0 0 24 24">
+              <path d="M12 .6a11.4 11.4 0 0 0-3.6 22.2c.6.1.8-.3.8-.6v-2.2c-3.2.7-3.9-1.4-3.9-1.4-.5-1.4-1.3-1.7-1.3-1.7-1.1-.8.1-.8.1-.8 1.2.1 1.9 1.3 1.9 1.3 1.1 1.8 2.8 1.3 3.5 1 .1-.8.4-1.3.8-1.6-2.6-.3-5.4-1.3-5.4-5.8 0-1.3.5-2.3 1.2-3.1-.1-.3-.5-1.5.1-3.1 0 0 1-.3 3.2 1.2a11 11 0 0 1 5.8 0c2.2-1.5 3.2-1.2 3.2-1.2.6 1.6.2 2.8.1 3.1.8.8 1.2 1.8 1.2 3.1 0 4.5-2.8 5.5-5.4 5.8.4.4.8 1.1.8 2.1v3.1c0 .3.2.7.8.6A11.4 11.4 0 0 0 12 .6Z" />
+            </svg>
+          </a>
+        </div>
+      </div>
+    </footer>
+  );
+}

@@ -5,7 +5,7 @@
 
 ## Decisión
 
-La aplicación monta una sola instancia de `Analytics` de `@vercel/analytics/react` en `src/App.tsx`. No se envían eventos personalizados ni datos de cuenta: Vercel Web Analytics registra automáticamente vistas de página y transiciones del cliente durante los despliegues en Vercel.
+La aplicación monta una sola instancia de `Analytics` de `@vercel/analytics/react` en `src/app/App.tsx`. No se envían eventos personalizados ni datos de cuenta: Vercel Web Analytics registra automáticamente vistas de página y transiciones del cliente durante los despliegues en Vercel.
 
 ## Consecuencias
 

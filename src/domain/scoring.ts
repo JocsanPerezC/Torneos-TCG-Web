@@ -30,7 +30,15 @@ export function standings(tournament: Tournament): Standing[] {
   const stat = Object.fromEntries(
     tournament.players.map((player) => [
       player.id,
-      { points: 0, kills: 0, roundsPlayed: 0, wins: 0, losses: 0, draws: 0, opponents: [] as string[] },
+      {
+        points: 0,
+        kills: 0,
+        roundsPlayed: 0,
+        wins: 0,
+        losses: 0,
+        draws: 0,
+        opponents: [] as string[],
+      },
     ]),
   );
   for (const round of tournament.rounds)

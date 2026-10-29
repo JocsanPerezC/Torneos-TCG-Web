@@ -54,7 +54,11 @@ function playerHighlight(players: Player[], values: Record<string, number>): Pla
   return { value, players: value ? players.filter((player) => values[player.id] === value) : [] };
 }
 
-function tableHighlight(tables: TableStatistic[], value: number, predicate: (table: TableStatistic) => boolean): TableHighlight {
+function tableHighlight(
+  tables: TableStatistic[],
+  value: number,
+  predicate: (table: TableStatistic) => boolean,
+): TableHighlight {
   return { value, tables: tables.filter(predicate) };
 }
 
@@ -69,7 +73,9 @@ export function tournamentStatistics(tournament: Tournament): TournamentStatisti
   const losses = Object.fromEntries(tournament.players.map((player) => [player.id, 0]));
   const draws = Object.fromEntries(tournament.players.map((player) => [player.id, 0]));
   const bestScores = Object.fromEntries(tournament.players.map((player) => [player.id, 0]));
-  const playerPoints = Object.fromEntries(tournament.players.map((player) => [player.id, [] as number[]]));
+  const playerPoints = Object.fromEntries(
+    tournament.players.map((player) => [player.id, [] as number[]]),
+  );
   const winStreak = Object.fromEntries(tournament.players.map((player) => [player.id, 0]));
   const lossStreak = Object.fromEntries(tournament.players.map((player) => [player.id, 0]));
   const longestWinStreak = Object.fromEntries(tournament.players.map((player) => [player.id, 0]));
@@ -92,7 +98,9 @@ export function tournamentStatistics(tournament: Tournament): TournamentStatisti
         tableStats.push({
           roundNumber: round.number,
           tableNumber: pod.number,
-          players: pod.playerIds.flatMap((playerId) => playersById[playerId] ? [playersById[playerId]] : []),
+          players: pod.playerIds.flatMap((playerId) =>
+            playersById[playerId] ? [playersById[playerId]] : [],
+          ),
           pointDifference: Math.max(...points) - Math.min(...points),
           kills: results.reduce((total, result) => total + result.kills, 0),
         });
@@ -106,7 +114,8 @@ export function tournamentStatistics(tournament: Tournament): TournamentStatisti
         for (const result of pod.results ?? []) {
           outcomes.set(result.playerId, result.outcome!);
           if (result.outcome === 'win') wins[result.playerId] = (wins[result.playerId] ?? 0) + 1;
-          else if (result.outcome === 'loss') losses[result.playerId] = (losses[result.playerId] ?? 0) + 1;
+          else if (result.outcome === 'loss')
+            losses[result.playerId] = (losses[result.playerId] ?? 0) + 1;
           else draws[result.playerId] = (draws[result.playerId] ?? 0) + 1;
         }
     }
@@ -120,33 +129,49 @@ export function tournamentStatistics(tournament: Tournament): TournamentStatisti
   }
 
   const rivalryValue = Math.max(0, ...rivalries.values());
-  const rivalPairs = rivalryValue > 1
-    ? [...rivalries.entries()]
-      .filter(([, count]) => count === rivalryValue)
-      .flatMap(([key]) => {
-        const [firstId, secondId] = key.split('|');
-        const first = playersById[firstId];
-        const second = playersById[secondId];
-        return first && second ? [[first, second] as [Player, Player]] : [];
-      })
-    : [];
-  const closestValue = tableStats.length ? Math.min(...tableStats.map((table) => table.pointDifference)) : 0;
+  const rivalPairs =
+    rivalryValue > 1
+      ? [...rivalries.entries()]
+          .filter(([, count]) => count === rivalryValue)
+          .flatMap(([key]) => {
+            const [firstId, secondId] = key.split('|');
+            const first = playersById[firstId];
+            const second = playersById[secondId];
+            return first && second ? [[first, second] as [Player, Player]] : [];
+          })
+      : [];
+  const closestValue = tableStats.length
+    ? Math.min(...tableStats.map((table) => table.pointDifference))
+    : 0;
   const bloodiestValue = Math.max(0, ...tableStats.map((table) => table.kills));
   const completedTournament = { ...tournament, rounds: completedRounds };
-  const currentRanks = Object.fromEntries(standings(completedTournament).map((row) => [row.player.id, row.rank]));
+  const currentRanks = Object.fromEntries(
+    standings(completedTournament).map((row) => [row.player.id, row.rank]),
+  );
   const firstRanks = completedRounds.length
-    ? Object.fromEntries(standings({ ...tournament, rounds: [completedRounds[0]] }).map((row) => [row.player.id, row.rank]))
+    ? Object.fromEntries(
+        standings({ ...tournament, rounds: [completedRounds[0]] }).map((row) => [
+          row.player.id,
+          row.rank,
+        ]),
+      )
     : {};
-  const rankGains = Object.fromEntries(tournament.players.map((player) => [
-    player.id,
-    Math.max(0, (firstRanks[player.id] ?? 0) - (currentRanks[player.id] ?? 0)),
-  ]));
-  const consistencyCandidates = tournament.players.filter((player) => (playerPoints[player.id] ?? []).length > 1);
+  const rankGains = Object.fromEntries(
+    tournament.players.map((player) => [
+      player.id,
+      Math.max(0, (firstRanks[player.id] ?? 0) - (currentRanks[player.id] ?? 0)),
+    ]),
+  );
+  const consistencyCandidates = tournament.players.filter(
+    (player) => (playerPoints[player.id] ?? []).length > 1,
+  );
   const consistencyValue = consistencyCandidates.length
-    ? Math.min(...consistencyCandidates.map((player) => {
-      const scores = playerPoints[player.id];
-      return Math.max(...scores) - Math.min(...scores);
-    }))
+    ? Math.min(
+        ...consistencyCandidates.map((player) => {
+          const scores = playerPoints[player.id];
+          return Math.max(...scores) - Math.min(...scores);
+        }),
+      )
     : 0;
   const consistencyPlayers = consistencyCandidates.filter((player) => {
     const scores = playerPoints[player.id];
@@ -159,7 +184,12 @@ export function tournamentStatistics(tournament: Tournament): TournamentStatisti
     hunter: playerHighlight(tournament.players, kills),
     unstoppable: playerHighlight(tournament.players, longestWinStreak),
     perfectAttendance: completedRounds.length
-      ? { value: completedRounds.length, players: tournament.players.filter((player) => attendance[player.id] === completedRounds.length) }
+      ? {
+          value: completedRounds.length,
+          players: tournament.players.filter(
+            (player) => attendance[player.id] === completedRounds.length,
+          ),
+        }
       : { value: 0, players: [] },
     rivals: { value: rivalPairs.length ? rivalryValue : 0, pairs: rivalPairs },
     closestTable: tableStats.length
@@ -170,9 +200,17 @@ export function tournamentStatistics(tournament: Tournament): TournamentStatisti
     bestRound: {
       ...playerHighlight(tournament.players, bestScores),
       rounds: bestRoundValue
-        ? [...new Set(completedRounds.flatMap((round) => round.pods.flatMap((pod) => (pod.results ?? [])
-          .filter((result) => result.points === bestRoundValue)
-          .map(() => round.number))))]
+        ? [
+            ...new Set(
+              completedRounds.flatMap((round) =>
+                round.pods.flatMap((pod) =>
+                  (pod.results ?? [])
+                    .filter((result) => result.points === bestRoundValue)
+                    .map(() => round.number),
+                ),
+              ),
+            ),
+          ]
         : [],
     },
     bloodiestTable: bloodiestValue

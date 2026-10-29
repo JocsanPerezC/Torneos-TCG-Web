@@ -1,18 +1,20 @@
 # ADR 0001: fuentes activas de la interfaz
 
-- Estado: aceptada
+- Estado: aceptada (actualizada el 2026-10-29)
 - Fecha: 2026-10-25
 
 ## Contexto
 
-El repositorio conserva módulos en `src/pages/app/` y `src/routes/`, mientras que `src/App.tsx` carga `src/pages/AppRouter.tsx`. Editar una pantalla sin comprobar el árbol de imports puede aplicar un cambio a una implementación que no llega al usuario.
+El repositorio conservaba módulos paralelos en `src/pages/app/` y `src/routes/`, que no se cargaban desde el punto de entrada, y casi toda la interfaz activa vivía en un único `src/pages/AppRouter.tsx`. Editar una pantalla sin comprobar el árbol de imports podía aplicar un cambio a una implementación que no llegaba al usuario.
 
 ## Decisión
 
-`src/pages/AppRouter.tsx` se considera la fuente activa de rutas y de la interfaz autenticada mientras `src/App.tsx` la cargue. Los módulos de `src/pages/app/` y `src/routes/` se tratan como implementaciones paralelas hasta que una migración explícita los conecte al punto de entrada.
+- Se eliminaron `src/pages/app/` y `src/routes/`; ya no existen implementaciones paralelas.
+- `src/app/AppRouter.tsx` es la única fuente de rutas y solo declara rutas y guardas.
+- Cada pantalla vive en `src/features/<área>/`; los componentes compartidos entre áreas viven en `src/components/`.
 
 ## Consecuencias
 
-- Antes de cambios de interfaz se verifica la ruta y el import activo.
-- Los cambios de texto visible en la interfaz activa se registran en `src/i18n.ts` para español e inglés.
-- Una futura migración hacia `src/pages/app/` o `src/routes/` debe actualizar esta decisión y `docs/architecture.md`.
+- Un cambio de pantalla se hace en su carpeta de `src/features/`; si una pieza pasa a usarse en varias áreas, se mueve a `src/components/`.
+- Los textos visibles se registran en `src/i18n/es.ts` y `src/i18n/en.ts`, con las mismas claves.
+- Si se agregan rutas o áreas nuevas, se actualiza `docs/architecture.md`.

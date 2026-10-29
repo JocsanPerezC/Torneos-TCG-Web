@@ -45,7 +45,7 @@ La tipografía base es **Fredoka**. Combina esquinas redondeadas ligeramente irr
 
 ## Contenido e idiomas
 
-- Todo texto visible nuevo debe incorporarse en español e inglés mediante `src/i18n.ts`.
+- Todo texto visible nuevo debe incorporarse en español e inglés en `src/i18n/es.ts` y `src/i18n/en.ts`.
 - Prefiere etiquetas breves y directas, especialmente en botones y controles de torneo.
 - No codifiques textos de interfaz directamente en componentes cuando exista el sistema de traducciones.
 

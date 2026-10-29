@@ -1,53 +1,482 @@
-import { createContext, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
-import { makePairings } from '../domain/pairing'
-import { hasCompletePodOutcomes, isValidPodResult, standings } from '../domain/scoring'
-import { normalizeName, uid, type Pod, type Tournament } from '../domain/types'
-import { manualParticipantNameConflicts } from '../domain/participantNameConflicts'
-import { maxTournamentsPerOrganizer, tournamentLimitMessage } from '../domain/tournamentLimits'
-import { supabase } from '../lib/supabase'
-import { useAuth } from './AuthContext'
-import i18n from '../i18n'
-import { deleteRemoteRound, deleteRemoteTournament, insertPlayers, insertRound, insertTournament, loadAllTournaments, loadOwnerTournaments, persistPlayer, persistPod, persistRound, persistRoundMembers, persistTournament, persistTournamentSnapshot, removeRemotePlayer } from '../data/tournamentRepository'
+import {
+  createContext,
+  useContext,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  type ReactNode,
+} from 'react';
+import { makePairings } from '../domain/pairing';
+import { hasCompletePodOutcomes, isValidPodResult, standings } from '../domain/scoring';
+import { normalizeName, uid, type Pod, type Tournament } from '../domain/types';
+import { manualParticipantNameConflicts } from '../domain/participantNameConflicts';
+import { maxTournamentsPerOrganizer, tournamentLimitMessage } from '../domain/tournamentLimits';
+import { supabase } from '../lib/supabase';
+import { useAuth } from './AuthContext';
+import i18n from '../i18n';
+import {
+  deleteRemoteRound,
+  deleteRemoteTournament,
+  insertPlayers,
+  insertRound,
+  insertTournament,
+  loadAllTournaments,
+  loadOwnerTournaments,
+  persistPlayer,
+  persistPod,
+  persistRound,
+  persistRoundMembers,
+  persistTournament,
+  persistTournamentSnapshot,
+  removeRemotePlayer,
+} from '../data/tournamentRepository';
 
-type CreateInput = Pick<Tournament, 'name' | 'format' | 'plannedRounds' | 'isPublic'> & Partial<Pick<Tournament, 'maxPlayers' | 'maxTables'>>
-export type TournamentStore = Store
-type Store = { tournaments:Tournament[]; ready:boolean; remoteError?:string; refreshTournaments():Promise<void>; createTournament(input:CreateInput):Promise<Tournament>; updateTournament(id:string, patch:Partial<Tournament>):void; removeTournament(id:string):void; addPlayers(id:string,names:string[]):{added:number;addedIds:string[];duplicate?:string;error?:string}; renamePlayer(id:string,playerId:string,name:string):string|undefined; togglePlayer(id:string,playerId:string):void; removePlayer(id:string,playerId:string):string|undefined; generateRound(id:string):Promise<string|undefined>; startRound(id:string,roundId:string):string|undefined; setRoundStatus(id:string,roundId:string,status:'borrador'|'activa'):void; completeRound(id:string,roundId:string):string|undefined; movePlayer(id:string,roundId:string,playerId:string,targetPodId:string):string|undefined; savePod(id:string,roundId:string,podId:string,pod:Pod):string|undefined; deleteLastRound(id:string):string|undefined; standingsFor(id:string):ReturnType<typeof standings> }
-const Context=createContext<Store|null>(null)
+type CreateInput = Pick<Tournament, 'name' | 'format' | 'plannedRounds' | 'isPublic'> &
+  Partial<Pick<Tournament, 'maxPlayers' | 'maxTables'>>;
+export type TournamentStore = Store;
+type Store = {
+  tournaments: Tournament[];
+  ready: boolean;
+  remoteError?: string;
+  refreshTournaments(): Promise<void>;
+  createTournament(input: CreateInput): Promise<Tournament>;
+  updateTournament(id: string, patch: Partial<Tournament>): void;
+  removeTournament(id: string): void;
+  addPlayers(
+    id: string,
+    names: string[],
+  ): { added: number; addedIds: string[]; duplicate?: string; error?: string };
+  renamePlayer(id: string, playerId: string, name: string): string | undefined;
+  togglePlayer(id: string, playerId: string): void;
+  removePlayer(id: string, playerId: string): string | undefined;
+  generateRound(id: string): Promise<string | undefined>;
+  startRound(id: string, roundId: string): string | undefined;
+  setRoundStatus(id: string, roundId: string, status: 'borrador' | 'activa'): void;
+  completeRound(id: string, roundId: string): string | undefined;
+  movePlayer(
+    id: string,
+    roundId: string,
+    playerId: string,
+    targetPodId: string,
+  ): string | undefined;
+  savePod(id: string, roundId: string, podId: string, pod: Pod): string | undefined;
+  deleteLastRound(id: string): string | undefined;
+  standingsFor(id: string): ReturnType<typeof standings>;
+};
+const Context = createContext<Store | null>(null);
 /** Expuesto para providers de prueba y del muestrario; la app usa TournamentProvider. */
-export const TournamentContext=Context
-const storageKey='torneos-tcg.tournaments.v1'
-const copy=<T,>(item:T):T=>structuredClone(item)
-const samplePlayers=['Ana','Bruno','Carla','Diego','Elena','Felipe','Gabriela','Hugo'].map((name,index)=>({id:uid(),name,active:true,tieBreaker:index+1}))
-function localInitial():Tournament[]{try{const stored=localStorage.getItem(storageKey);if(stored)return JSON.parse(stored).map((tournament:Tournament)=>({...tournament,information:tournament.information??'',maxPlayers:tournament.maxPlayers??32,maxTables:tournament.maxTables??8}))}catch{}return[{id:'demo',ownerId:'local-organizer',name:'Liga',format:'Commander',information:'',plannedRounds:3,status:'activo',isPublic:false,publicSlug:'torneos-tcg-demo',maxPlayers:32,maxTables:8,players:samplePlayers,rounds:[],createdAt:new Date().toISOString()}]}
-
-export function TournamentProvider({children}:{children:ReactNode}) {
-  const { user, isSuperAdmin } = useAuth()
-  const remote=Boolean(supabase); const [tournaments,setTournaments]=useState<Tournament[]>(remote?[]:localInitial); const [ownerId,setOwnerId]=useState<string>(); const [ready,setReady]=useState(!remote); const [remoteError,setRemoteError]=useState<string>();
-  const writeQueue=useRef(Promise.resolve()); const pendingWrites=useRef(0);
-  const refresh=async(userId?:string,includeAll=false,showLoading=true)=>{if(!supabase||!userId){setTournaments([]);setReady(true);return}try{if(showLoading)setReady(false);setTournaments(await (includeAll?loadAllTournaments():loadOwnerTournaments(userId)));setRemoteError(undefined)}catch(error){setRemoteError(error instanceof Error?error.message:'No se pudieron cargar los torneos.')}finally{if(showLoading)setReady(true)}}
-  useEffect(()=>{if(!supabase){localStorage.setItem(storageKey,JSON.stringify(tournaments));return}setOwnerId(user?.id);void refresh(user?.id,isSuperAdmin)},[user?.id,isSuperAdmin])
-  const run=(work:()=>Promise<void>)=>{if(!supabase)return;pendingWrites.current++;writeQueue.current=writeQueue.current.then(work).catch(error=>setRemoteError(error instanceof Error&&error.message?error.message:'No se pudo guardar el cambio.')).finally(()=>{pendingWrites.current--})}
-  const mutate=(id:string,change:(t:Tournament)=>void,remoteWork?:(t:Tournament)=>Promise<void>)=>setTournaments(items=>items.map(item=>{if(item.id!==id)return item;const next=copy(item);change(next);run(()=>remoteWork ? remoteWork(next) : persistTournamentSnapshot(next));return next}))
-  const value=useMemo<Store>(()=>({
-    tournaments,ready,remoteError,
-    async refreshTournaments(){await refresh(ownerId,isSuperAdmin,false)},
-    async createTournament(input){const tournamentOwnerId=ownerId??'local-organizer';if(tournaments.filter(item=>item.ownerId===tournamentOwnerId).length>=maxTournamentsPerOrganizer)throw new Error(tournamentLimitMessage);const t:Tournament={id:uid(),ownerId:tournamentOwnerId,name:input.name.trim(),format:input.format.trim()||'Commander',information:'',plannedRounds:input.plannedRounds,isPublic:true,maxPlayers:input.maxPlayers??32,maxTables:input.maxTables??8,status:'activo',publicSlug:uid().replaceAll('-',''),players:[],rounds:[],createdAt:new Date().toISOString()};if(supabase)await insertTournament(t);setTournaments(items=>[...items,t]);return t},
-    updateTournament(id,patch){mutate(id,t=>Object.assign(t,patch),persistTournament)},
-    removeTournament(id){if(!supabase){setTournaments(items=>items.filter(t=>t.id!==id));return}run(async()=>{await deleteRemoteTournament(id);setTournaments(items=>items.filter(t=>t.id!==id))})},
-    addPlayers(id,names){let added=0;let duplicate:string|undefined;let error:string|undefined;let created:Tournament['players']=[];mutate(id,t=>{const known=new Set(t.players.map(p=>normalizeName(p.name)));for(const raw of names){const name=raw.trim();if(!name)continue;if(known.has(normalizeName(name))){duplicate??=name;continue}if(t.players.length>=t.maxPlayers){error=`El torneo admite un máximo de ${t.maxPlayers} jugadores.`;break}known.add(normalizeName(name));const player={id:uid(),name,active:true,tieBreaker:t.players.length+1};t.players.push(player);created.push(player);added++}},t=>insertPlayers(t.id,created));return{added,addedIds:created.map(player=>player.id),duplicate,error}},
-    renamePlayer(id,playerId,name){const clean=name.trim();if(!clean)return'El nombre es obligatorio.';const current=tournaments.find(t=>t.id===id);const player=current?.players.find(p=>p.id===playerId);if(player?.profileId)return i18n.t('app.tournament.linkedPlayerNameManaged');if(current?.players.some(p=>p.id!==playerId&&normalizeName(p.name)===normalizeName(clean)))return'Ese nombre ya existe en este torneo.';mutate(id,t=>{const player=t.players.find(p=>p.id===playerId);if(player)player.name=clean},t=>persistPlayer(t.players.find(p=>p.id===playerId)!));return undefined},
-    togglePlayer(id,playerId){mutate(id,t=>{const player=t.players.find(p=>p.id===playerId);if(player)player.active=!player.active},t=>persistPlayer(t.players.find(p=>p.id===playerId)!))},
-    removePlayer(id,playerId){const t=tournaments.find(item=>item.id===id);if(t?.rounds.some(round=>round.pods.some(pod=>pod.playerIds.includes(playerId))))return'No se puede eliminar un jugador que ya participó en una ronda.';mutate(id,t=>{t.players=t.players.filter(p=>p.id!==playerId)},()=>removeRemotePlayer(playerId));return undefined},
-    async generateRound(id){const current=tournaments.find(item=>item.id===id);if(!current)return;const next=copy(current);if(next.status==='finalizado')return'Un torneo finalizado es solo de lectura.';if(next.rounds.some(round=>round.status!=='completada'))return'Completa la ronda actual antes de generar otra.';if(next.rounds.length>=next.plannedRounds)return'Ya se generaron todas las rondas planificadas.';const duplicateManualPlayers=manualParticipantNameConflicts(next.players);if(duplicateManualPlayers.length)return i18n.t('app.tournament.resolveManualNameConflict',{names:duplicateManualPlayers.map(player=>player.name).join(', ')});const players=next.players.filter(player=>player.active);if(players.length<3)return'Se requieren al menos tres jugadores activos para generar una ronda.';let created:Tournament['rounds'][number];try{const seed=Math.floor(Math.random()*2**31);const points=Object.fromEntries(standings(next).map(row=>[row.player.id,row.points]));const groups=makePairings(players,next.rounds,points,seed,next.maxTables);created={id:uid(),number:next.rounds.length+1,status:'borrador',seed,pods:groups.map((playerIds,index)=>({id:uid(),number:index+1,playerIds}))};next.rounds.push(created)}catch(reason){return reason instanceof Error?reason.message:'No se pudo distribuir a los jugadores.'}if(supabase)try{await insertRound(next.id,created)}catch(reason){await refresh(ownerId,isSuperAdmin);const message=reason instanceof Error?reason.message:'No se pudo generar la ronda.';return message.includes('Rename the manual participant')?i18n.t('app.tournament.resolveManualNameConflictFallback'):message}setTournaments(items=>items.map(item=>item.id===id?next:item));return undefined},
-    startRound(id,roundId){let error:string|undefined;mutate(id,t=>{const round=t.rounds.find(r=>r.id===roundId);if(!round)return;if(round.status!=='borrador')error='Esta ronda ya fue iniciada o terminada.';else{round.status='activa';round.startedAt=new Date().toISOString();round.endedAt=undefined}},t=>persistRound(t.rounds.find(r=>r.id===roundId)!));return error},
-    setRoundStatus(id,roundId,status){mutate(id,t=>{const round=t.rounds.find(r=>r.id===roundId);if(round)round.status=status},t=>persistRound(t.rounds.find(r=>r.id===roundId)!))},
-    movePlayer(id,roundId,playerId,targetPodId){let error:string|undefined;mutate(id,t=>{const round=t.rounds.find(r=>r.id===roundId);const source=round?.pods.find(pod=>pod.playerIds.includes(playerId));const target=round?.pods.find(pod=>pod.id===targetPodId);if(!round||round.status!=='borrador'||!source||!target||source===target)return;if(source.playerIds.length<=3)error='Cada mesa debe conservar al menos tres jugadores.';else if(target.playerIds.length>=5)error='Una mesa admite como máximo cinco jugadores.';else{source.playerIds=source.playerIds.filter(item=>item!==playerId);target.playerIds.push(playerId)}},t=>persistRoundMembers(t.rounds.find(r=>r.id===roundId)!.pods));return error},
-    completeRound(id,roundId){let error:string|undefined;if(pendingWrites.current>0)return'Espera a que se guarden los resultados antes de terminar la ronda.';mutate(id,t=>{const round=t.rounds.find(r=>r.id===roundId);if(!round||round.status==='completada')return;if(round.status!=='activa'){error='Primero debes iniciar la ronda.';return}if(!round.pods.every(isValidPodResult)){error=i18n.t('app.messages.completeResults');return}if(!round.pods.every(hasCompletePodOutcomes)){error=i18n.t('app.messages.outcomeRequired');return}round.status='completada';round.endedAt=new Date().toISOString();if(round.number===t.plannedRounds)sessionStorage.setItem('torneos-tcg.completed-tournament',t.id)},t=>persistRound(t.rounds.find(r=>r.id===roundId)!));return error},
-    savePod(id,roundId,podId,pod){const roundNumber=tournaments.find(item=>item.id===id)?.rounds.find(round=>round.id===roundId)?.number;let error:string|undefined;mutate(id,t=>{const round=t.rounds.find(r=>r.id===roundId);if(!round)return;const index=round.pods.findIndex(item=>item.id===podId);if(index<0||!isValidPodResult(pod)){error=i18n.t('app.messages.completeResults');return}if(!hasCompletePodOutcomes(pod)){error=i18n.t('app.messages.outcomeRequired');return}round.pods[index]=pod},t=>{const round=t.rounds.find(r=>r.id===roundId)!;return persistPod(round.pods.find(p=>p.id===podId)!)});return error??i18n.t('app.tournament.resultSaved',{round:roundNumber,table:pod.number})},
-    deleteLastRound(id){let deleted:Tournament['rounds'][number]|undefined;mutate(id,t=>{deleted=t.rounds.at(-1);if(!deleted)return;t.rounds.pop()},()=>deleted?deleteRemoteRound(deleted.id):Promise.resolve());return deleted?undefined:'No hay rondas que eliminar.'},
-    standingsFor(id){const t=tournaments.find(item=>item.id===id);return t?standings(t):[]},
-  }),[tournaments,ownerId,ready,remoteError])
-  return <Context.Provider value={value}>{children}</Context.Provider>
+export const TournamentContext = Context;
+const storageKey = 'torneos-tcg.tournaments.v1';
+const copy = <T,>(item: T): T => structuredClone(item);
+const samplePlayers = ['Ana', 'Bruno', 'Carla', 'Diego', 'Elena', 'Felipe', 'Gabriela', 'Hugo'].map(
+  (name, index) => ({ id: uid(), name, active: true, tieBreaker: index + 1 }),
+);
+function localInitial(): Tournament[] {
+  try {
+    const stored = localStorage.getItem(storageKey);
+    if (stored)
+      return JSON.parse(stored).map((tournament: Tournament) => ({
+        ...tournament,
+        information: tournament.information ?? '',
+        maxPlayers: tournament.maxPlayers ?? 32,
+        maxTables: tournament.maxTables ?? 8,
+      }));
+  } catch {}
+  return [
+    {
+      id: 'demo',
+      ownerId: 'local-organizer',
+      name: 'Liga',
+      format: 'Commander',
+      information: '',
+      plannedRounds: 3,
+      status: 'activo',
+      isPublic: false,
+      publicSlug: 'torneos-tcg-demo',
+      maxPlayers: 32,
+      maxTables: 8,
+      players: samplePlayers,
+      rounds: [],
+      createdAt: new Date().toISOString(),
+    },
+  ];
 }
-export function useTournaments(){const value=useContext(Context);if(!value)throw new Error('TournamentProvider no disponible');return value}
-export function useTournament(id?:string){return useTournaments().tournaments.find(t=>t.id===id)}
+
+export function TournamentProvider({ children }: { children: ReactNode }) {
+  const { user, isSuperAdmin } = useAuth();
+  const remote = Boolean(supabase);
+  const [tournaments, setTournaments] = useState<Tournament[]>(remote ? [] : localInitial);
+  const [ownerId, setOwnerId] = useState<string>();
+  const [ready, setReady] = useState(!remote);
+  const [remoteError, setRemoteError] = useState<string>();
+  const writeQueue = useRef(Promise.resolve());
+  const pendingWrites = useRef(0);
+  const refresh = async (userId?: string, includeAll = false, showLoading = true) => {
+    if (!supabase || !userId) {
+      setTournaments([]);
+      setReady(true);
+      return;
+    }
+    try {
+      if (showLoading) setReady(false);
+      setTournaments(await (includeAll ? loadAllTournaments() : loadOwnerTournaments(userId)));
+      setRemoteError(undefined);
+    } catch (error) {
+      setRemoteError(error instanceof Error ? error.message : 'No se pudieron cargar los torneos.');
+    } finally {
+      if (showLoading) setReady(true);
+    }
+  };
+  useEffect(() => {
+    if (!supabase) {
+      localStorage.setItem(storageKey, JSON.stringify(tournaments));
+      return;
+    }
+    setOwnerId(user?.id);
+    void refresh(user?.id, isSuperAdmin);
+  }, [user?.id, isSuperAdmin]);
+  const run = (work: () => Promise<void>) => {
+    if (!supabase) return;
+    pendingWrites.current++;
+    writeQueue.current = writeQueue.current
+      .then(work)
+      .catch((error) =>
+        setRemoteError(
+          error instanceof Error && error.message ? error.message : 'No se pudo guardar el cambio.',
+        ),
+      )
+      .finally(() => {
+        pendingWrites.current--;
+      });
+  };
+  const mutate = (
+    id: string,
+    change: (t: Tournament) => void,
+    remoteWork?: (t: Tournament) => Promise<void>,
+  ) =>
+    setTournaments((items) =>
+      items.map((item) => {
+        if (item.id !== id) return item;
+        const next = copy(item);
+        change(next);
+        run(() => (remoteWork ? remoteWork(next) : persistTournamentSnapshot(next)));
+        return next;
+      }),
+    );
+  const value = useMemo<Store>(
+    () => ({
+      tournaments,
+      ready,
+      remoteError,
+      async refreshTournaments() {
+        await refresh(ownerId, isSuperAdmin, false);
+      },
+      async createTournament(input) {
+        const tournamentOwnerId = ownerId ?? 'local-organizer';
+        if (
+          tournaments.filter((item) => item.ownerId === tournamentOwnerId).length >=
+          maxTournamentsPerOrganizer
+        )
+          throw new Error(tournamentLimitMessage);
+        const t: Tournament = {
+          id: uid(),
+          ownerId: tournamentOwnerId,
+          name: input.name.trim(),
+          format: input.format.trim() || 'Commander',
+          information: '',
+          plannedRounds: input.plannedRounds,
+          isPublic: true,
+          maxPlayers: input.maxPlayers ?? 32,
+          maxTables: input.maxTables ?? 8,
+          status: 'activo',
+          publicSlug: uid().replaceAll('-', ''),
+          players: [],
+          rounds: [],
+          createdAt: new Date().toISOString(),
+        };
+        if (supabase) await insertTournament(t);
+        setTournaments((items) => [...items, t]);
+        return t;
+      },
+      updateTournament(id, patch) {
+        mutate(id, (t) => Object.assign(t, patch), persistTournament);
+      },
+      removeTournament(id) {
+        if (!supabase) {
+          setTournaments((items) => items.filter((t) => t.id !== id));
+          return;
+        }
+        run(async () => {
+          await deleteRemoteTournament(id);
+          setTournaments((items) => items.filter((t) => t.id !== id));
+        });
+      },
+      addPlayers(id, names) {
+        let added = 0;
+        let duplicate: string | undefined;
+        let error: string | undefined;
+        let created: Tournament['players'] = [];
+        mutate(
+          id,
+          (t) => {
+            const known = new Set(t.players.map((p) => normalizeName(p.name)));
+            for (const raw of names) {
+              const name = raw.trim();
+              if (!name) continue;
+              if (known.has(normalizeName(name))) {
+                duplicate ??= name;
+                continue;
+              }
+              if (t.players.length >= t.maxPlayers) {
+                error = `El torneo admite un máximo de ${t.maxPlayers} jugadores.`;
+                break;
+              }
+              known.add(normalizeName(name));
+              const player = { id: uid(), name, active: true, tieBreaker: t.players.length + 1 };
+              t.players.push(player);
+              created.push(player);
+              added++;
+            }
+          },
+          (t) => insertPlayers(t.id, created),
+        );
+        return { added, addedIds: created.map((player) => player.id), duplicate, error };
+      },
+      renamePlayer(id, playerId, name) {
+        const clean = name.trim();
+        if (!clean) return 'El nombre es obligatorio.';
+        const current = tournaments.find((t) => t.id === id);
+        const player = current?.players.find((p) => p.id === playerId);
+        if (player?.profileId) return i18n.t('app.tournament.linkedPlayerNameManaged');
+        if (
+          current?.players.some(
+            (p) => p.id !== playerId && normalizeName(p.name) === normalizeName(clean),
+          )
+        )
+          return 'Ese nombre ya existe en este torneo.';
+        mutate(
+          id,
+          (t) => {
+            const player = t.players.find((p) => p.id === playerId);
+            if (player) player.name = clean;
+          },
+          (t) => persistPlayer(t.players.find((p) => p.id === playerId)!),
+        );
+        return undefined;
+      },
+      togglePlayer(id, playerId) {
+        mutate(
+          id,
+          (t) => {
+            const player = t.players.find((p) => p.id === playerId);
+            if (player) player.active = !player.active;
+          },
+          (t) => persistPlayer(t.players.find((p) => p.id === playerId)!),
+        );
+      },
+      removePlayer(id, playerId) {
+        const t = tournaments.find((item) => item.id === id);
+        if (t?.rounds.some((round) => round.pods.some((pod) => pod.playerIds.includes(playerId))))
+          return 'No se puede eliminar un jugador que ya participó en una ronda.';
+        mutate(
+          id,
+          (t) => {
+            t.players = t.players.filter((p) => p.id !== playerId);
+          },
+          () => removeRemotePlayer(playerId),
+        );
+        return undefined;
+      },
+      async generateRound(id) {
+        const current = tournaments.find((item) => item.id === id);
+        if (!current) return;
+        const next = copy(current);
+        if (next.status === 'finalizado') return 'Un torneo finalizado es solo de lectura.';
+        if (next.rounds.some((round) => round.status !== 'completada'))
+          return 'Completa la ronda actual antes de generar otra.';
+        if (next.rounds.length >= next.plannedRounds)
+          return 'Ya se generaron todas las rondas planificadas.';
+        const duplicateManualPlayers = manualParticipantNameConflicts(next.players);
+        if (duplicateManualPlayers.length)
+          return i18n.t('app.tournament.resolveManualNameConflict', {
+            names: duplicateManualPlayers.map((player) => player.name).join(', '),
+          });
+        const players = next.players.filter((player) => player.active);
+        if (players.length < 3)
+          return 'Se requieren al menos tres jugadores activos para generar una ronda.';
+        let created: Tournament['rounds'][number];
+        try {
+          const seed = Math.floor(Math.random() * 2 ** 31);
+          const points = Object.fromEntries(
+            standings(next).map((row) => [row.player.id, row.points]),
+          );
+          const groups = makePairings(players, next.rounds, points, seed, next.maxTables);
+          created = {
+            id: uid(),
+            number: next.rounds.length + 1,
+            status: 'borrador',
+            seed,
+            pods: groups.map((playerIds, index) => ({ id: uid(), number: index + 1, playerIds })),
+          };
+          next.rounds.push(created);
+        } catch (reason) {
+          return reason instanceof Error
+            ? reason.message
+            : 'No se pudo distribuir a los jugadores.';
+        }
+        if (supabase)
+          try {
+            await insertRound(next.id, created);
+          } catch (reason) {
+            await refresh(ownerId, isSuperAdmin);
+            const message =
+              reason instanceof Error ? reason.message : 'No se pudo generar la ronda.';
+            return message.includes('Rename the manual participant')
+              ? i18n.t('app.tournament.resolveManualNameConflictFallback')
+              : message;
+          }
+        setTournaments((items) => items.map((item) => (item.id === id ? next : item)));
+        return undefined;
+      },
+      startRound(id, roundId) {
+        let error: string | undefined;
+        mutate(
+          id,
+          (t) => {
+            const round = t.rounds.find((r) => r.id === roundId);
+            if (!round) return;
+            if (round.status !== 'borrador') error = 'Esta ronda ya fue iniciada o terminada.';
+            else {
+              round.status = 'activa';
+              round.startedAt = new Date().toISOString();
+              round.endedAt = undefined;
+            }
+          },
+          (t) => persistRound(t.rounds.find((r) => r.id === roundId)!),
+        );
+        return error;
+      },
+      setRoundStatus(id, roundId, status) {
+        mutate(
+          id,
+          (t) => {
+            const round = t.rounds.find((r) => r.id === roundId);
+            if (round) round.status = status;
+          },
+          (t) => persistRound(t.rounds.find((r) => r.id === roundId)!),
+        );
+      },
+      movePlayer(id, roundId, playerId, targetPodId) {
+        let error: string | undefined;
+        mutate(
+          id,
+          (t) => {
+            const round = t.rounds.find((r) => r.id === roundId);
+            const source = round?.pods.find((pod) => pod.playerIds.includes(playerId));
+            const target = round?.pods.find((pod) => pod.id === targetPodId);
+            if (!round || round.status !== 'borrador' || !source || !target || source === target)
+              return;
+            if (source.playerIds.length <= 3)
+              error = 'Cada mesa debe conservar al menos tres jugadores.';
+            else if (target.playerIds.length >= 5)
+              error = 'Una mesa admite como máximo cinco jugadores.';
+            else {
+              source.playerIds = source.playerIds.filter((item) => item !== playerId);
+              target.playerIds.push(playerId);
+            }
+          },
+          (t) => persistRoundMembers(t.rounds.find((r) => r.id === roundId)!.pods),
+        );
+        return error;
+      },
+      completeRound(id, roundId) {
+        let error: string | undefined;
+        if (pendingWrites.current > 0)
+          return 'Espera a que se guarden los resultados antes de terminar la ronda.';
+        mutate(
+          id,
+          (t) => {
+            const round = t.rounds.find((r) => r.id === roundId);
+            if (!round || round.status === 'completada') return;
+            if (round.status !== 'activa') {
+              error = 'Primero debes iniciar la ronda.';
+              return;
+            }
+            if (!round.pods.every(isValidPodResult)) {
+              error = i18n.t('app.messages.completeResults');
+              return;
+            }
+            if (!round.pods.every(hasCompletePodOutcomes)) {
+              error = i18n.t('app.messages.outcomeRequired');
+              return;
+            }
+            round.status = 'completada';
+            round.endedAt = new Date().toISOString();
+            if (round.number === t.plannedRounds)
+              sessionStorage.setItem('torneos-tcg.completed-tournament', t.id);
+          },
+          (t) => persistRound(t.rounds.find((r) => r.id === roundId)!),
+        );
+        return error;
+      },
+      savePod(id, roundId, podId, pod) {
+        const roundNumber = tournaments
+          .find((item) => item.id === id)
+          ?.rounds.find((round) => round.id === roundId)?.number;
+        let error: string | undefined;
+        mutate(
+          id,
+          (t) => {
+            const round = t.rounds.find((r) => r.id === roundId);
+            if (!round) return;
+            const index = round.pods.findIndex((item) => item.id === podId);
+            if (index < 0 || !isValidPodResult(pod)) {
+              error = i18n.t('app.messages.completeResults');
+              return;
+            }
+            if (!hasCompletePodOutcomes(pod)) {
+              error = i18n.t('app.messages.outcomeRequired');
+              return;
+            }
+            round.pods[index] = pod;
+          },
+          (t) => {
+            const round = t.rounds.find((r) => r.id === roundId)!;
+            return persistPod(round.pods.find((p) => p.id === podId)!);
+          },
+        );
+        return (
+          error ?? i18n.t('app.tournament.resultSaved', { round: roundNumber, table: pod.number })
+        );
+      },
+      deleteLastRound(id) {
+        let deleted: Tournament['rounds'][number] | undefined;
+        mutate(
+          id,
+          (t) => {
+            deleted = t.rounds.at(-1);
+            if (!deleted) return;
+            t.rounds.pop();
+          },
+          () => (deleted ? deleteRemoteRound(deleted.id) : Promise.resolve()),
+        );
+        return deleted ? undefined : 'No hay rondas que eliminar.';
+      },
+      standingsFor(id) {
+        const t = tournaments.find((item) => item.id === id);
+        return t ? standings(t) : [];
+      },
+    }),
+    [tournaments, ownerId, ready, remoteError],
+  );
+  return <Context.Provider value={value}>{children}</Context.Provider>;
+}
+export function useTournaments() {
+  const value = useContext(Context);
+  if (!value) throw new Error('TournamentProvider no disponible');
+  return value;
+}
+export function useTournament(id?: string) {
+  return useTournaments().tournaments.find((t) => t.id === id);
+}
