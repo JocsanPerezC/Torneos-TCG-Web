@@ -50,6 +50,7 @@ import {
   ArrowLeft,
   Archive,
   BadgeCheck,
+  CircleHelp,
   CircleX,
   Database,
   Equal,
@@ -883,6 +884,7 @@ function OrganizerDashboard({ view }: { view: 'home' | 'tournaments' }) {
   const { tournaments, ready, remoteError, removeTournament } = useTournaments();
   const { user } = useAuth();
   const [tournamentToDelete, setTournamentToDelete] = useState<Tournament>();
+  const [showTournamentGuide, setShowTournamentGuide] = useState(false);
   const ownTournaments = tournaments.filter((tournament) => tournament.ownerId === user?.id);
   const activeTournaments = ownTournaments.filter((tournament) => tournament.status === 'activo');
   const featuredTournament = activeTournaments[0];
@@ -1058,6 +1060,60 @@ function OrganizerDashboard({ view }: { view: 'home' | 'tournaments' }) {
             setTournamentToDelete(undefined);
           }}
         />
+      )}
+      <Button
+        type="button"
+        variant="outline"
+        className="tournament-guide-button"
+        aria-label={i18n.t('app.tournamentGuide.open')}
+        onClick={() => setShowTournamentGuide(true)}
+      >
+        <CircleHelp size={20} aria-hidden />
+        <span>{i18n.t('app.tournamentGuide.open')}</span>
+      </Button>
+      {showTournamentGuide && (
+        <Modal
+          title={i18n.t('app.tournamentGuide.title')}
+          description={i18n.t('app.tournamentGuide.description')}
+          dialogClassName="tournament-guide-dialog"
+          onClose={() => setShowTournamentGuide(false)}
+        >
+          <ul className="tournament-guide__list">
+            <li className="tournament-guide__item">
+              <span className="tournament-guide__icon"><Users size={18} aria-hidden /></span>
+              <div>
+                <h3>{i18n.t('app.tournamentGuide.manualPlayers.title')}</h3>
+                <p>{i18n.t('app.tournamentGuide.manualPlayers.description')}</p>
+              </div>
+            </li>
+            <li className="tournament-guide__item">
+              <span className="tournament-guide__icon"><BadgeCheck size={18} aria-hidden /></span>
+              <div>
+                <h3>{i18n.t('app.tournamentGuide.accountPlayers.title')}</h3>
+                <p>{i18n.t('app.tournamentGuide.accountPlayers.description')}</p>
+              </div>
+            </li>
+            <li className="tournament-guide__item">
+              <span className="tournament-guide__icon"><Table size={18} aria-hidden /></span>
+              <div>
+                <h3>{i18n.t('app.tournamentGuide.rounds.title')}</h3>
+                <p>{i18n.t('app.tournamentGuide.rounds.description')}</p>
+              </div>
+            </li>
+            <li className="tournament-guide__item">
+              <span className="tournament-guide__icon"><Trophy size={18} aria-hidden /></span>
+              <div>
+                <h3>{i18n.t('app.tournamentGuide.standings.title')}</h3>
+                <p>{i18n.t('app.tournamentGuide.standings.description')}</p>
+              </div>
+            </li>
+          </ul>
+          <div className="mt-5 flex justify-end">
+            <Button type="button" className={primary} onClick={() => setShowTournamentGuide(false)}>
+              {i18n.t('app.tournamentGuide.close')}
+            </Button>
+          </div>
+        </Modal>
       )}
     </div>
   );
@@ -1428,15 +1484,17 @@ function Players() {
                 </span>
               </div>
               <div className="player-slip__actions">
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  className="app-action-edit"
-                  onClick={() => setEditing(player)}
-                >
-                  {i18n.t('app.common.edit')}
-                </Button>
+                {!player.profileId && (
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    className="app-action-edit"
+                    onClick={() => setEditing(player)}
+                  >
+                    {i18n.t('app.common.edit')}
+                  </Button>
+                )}
                 <Button
                   type="button"
                   variant="outline"

@@ -3307,6 +3307,59 @@ section.grid > div > button {
 .dashboard-board__header > .app-button {
   margin-bottom: 0.2rem;
 }
+.tournament-guide-button {
+  position: fixed;
+  z-index: 30;
+  right: 1.25rem;
+  bottom: 1.25rem;
+  border-color: #3d5afb;
+  background: #fffdf6;
+  color: #2947dc;
+  box-shadow: 3px 4px 0 rgba(61, 90, 251, 0.16);
+}
+.tournament-guide-button:hover:not(:disabled) {
+  background: #e9edff;
+  box-shadow: 3px 4px 0 rgba(61, 90, 251, 0.22);
+}
+.tournament-guide-dialog {
+  max-width: 38rem;
+}
+.tournament-guide__list {
+  display: grid;
+  gap: 1rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.tournament-guide__item {
+  display: grid;
+  grid-template-columns: 2.25rem minmax(0, 1fr);
+  gap: 0.75rem;
+  align-items: start;
+}
+.tournament-guide__icon {
+  display: grid;
+  width: 2.25rem;
+  height: 2.25rem;
+  place-items: center;
+  border: 1.5px solid #d6deff;
+  border-radius: 0.8rem 0.45rem 0.8rem 0.45rem;
+  background: #e9edff;
+  color: #3d5afb;
+}
+.tournament-guide__item h3,
+.tournament-guide__item p {
+  margin: 0;
+}
+.tournament-guide__item h3 {
+  font-size: 0.95rem;
+}
+.tournament-guide__item p {
+  margin-top: 0.2rem;
+  color: #655e54;
+  font-size: 0.88rem;
+  line-height: 1.45;
+}
 .player-statistics {
   max-width: 70rem;
 }
@@ -4953,6 +5006,19 @@ section.grid > div > button {
   .app-shell-header__link,
   .app-shell-header__signout {
     padding: 0.45rem;
+  }
+}
+@media (max-width: 460px) {
+  .tournament-guide-button {
+    right: 1rem;
+    bottom: 1rem;
+    width: 3.25rem;
+    min-width: 3.25rem;
+    height: 3.25rem;
+    padding: 0;
+  }
+  .tournament-guide-button span {
+    display: none;
   }
 }
 @media (max-width: 760px) {

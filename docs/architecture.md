@@ -42,7 +42,7 @@ Las mesas contienen de 3 a 5 jugadores. Un participante puede ser manual, sin cu
 
 Los organizadores generan un enlace revocable y su QR asociado. El enlace conserva un token opaco; la misma invitación incluye un código manual corto y único. Una cuenta `player` abre el enlace o escribe el código y se inscribe por una función protegida de Supabase; su inscripción se asocia con su cuenta y alimenta su panel e historial. Las cuentas de organizador no pueden vincularse como participantes.
 
-Las fotos de perfil se guardan en el bucket público `profile-avatars` de Supabase Storage, con una carpeta por cuenta protegida por RLS. La URL se conserva en `profiles.avatar_url` y se replica en la inscripción vinculada para mostrarla en los listados y en la vista pública; los participantes manuales y quienes no tengan foto mantienen el monograma de iniciales.
+Las fotos de perfil se guardan en el bucket público `profile-avatars` de Supabase Storage, con una carpeta por cuenta protegida por RLS. El nombre y la URL se conservan en `profiles` y se replican en cada inscripción vinculada para los listados y la vista pública; los nombres vinculados solo se administran desde el perfil. Los participantes manuales y quienes no tengan foto mantienen el monograma de iniciales.
 
 ### Estadísticas globales de jugador
 

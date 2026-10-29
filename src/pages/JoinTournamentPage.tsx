@@ -1,16 +1,70 @@
-import { useEffect, useRef, useState, type FormEvent } from 'react';
+import { useCallback, useEffect, useRef, useState, type FormEvent } from 'react';
 import { Link, Navigate, useNavigate, useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import { ScanLine } from 'lucide-react';
+import QrScanner from 'qr-scanner';
 import { joinTournament } from '../data/playerRepository';
 import { getUserProfile } from '../lib/userProfile';
 import { clearInvitationReturnPath } from '../lib/invitationReturnPath';
 import { useAuth } from '../state/AuthContext';
 import { Button } from '../components/ui/button';
+import { Modal } from '../components/ui/modal';
 
 function tokenFromInput(value: string) {
   const match = value.trim().match(/\/unirse\/([a-z0-9]+)/i);
   const invitation = match?.[1] ?? value.trim();
   return invitation.length === 6 ? invitation.toUpperCase() : invitation.toLowerCase();
+}
+
+function QrScannerModal({ onClose, onScan }: { onClose: () => void; onScan: (value: string) => void }) {
+  const { t } = useTranslation();
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const [cameraError, setCameraError] = useState<string>();
+
+  useEffect(() => {
+    let scanned = false;
+    if (!videoRef.current) return;
+    const scanner = new QrScanner(
+      videoRef.current,
+      (result) => {
+        if (scanned) return;
+        scanned = true;
+        onScan(result.data);
+      },
+      {
+        maxScansPerSecond: 8,
+        onDecodeError: () => undefined,
+        preferredCamera: 'environment',
+        returnDetailedScanResult: true,
+      },
+    );
+    void scanner.start().catch(() => setCameraError(t('app.join.cameraUnavailable')));
+    return () => scanner.destroy();
+  }, [onScan, t]);
+
+  return (
+    <Modal
+      title={t('app.join.scanQrTitle')}
+      description={t('app.join.scanQrDescription')}
+      onClose={onClose}
+    >
+      {cameraError ? (
+        <p role="alert" className="rounded-xl border border-red-200 bg-red-50 p-4 text-sm leading-6 text-red-700">
+          {cameraError}
+        </p>
+      ) : (
+        <div className="overflow-hidden rounded-2xl border-2 border-border bg-black">
+          <video ref={videoRef} className="aspect-square w-full object-cover" muted playsInline />
+        </div>
+      )}
+      {!cameraError && <p className="mt-3 text-center text-sm text-muted-foreground">{t('app.join.scanningQr')}</p>}
+      <div className="mt-5 flex justify-end">
+        <Button type="button" variant="outline" className="app-button app-button--secondary" onClick={onClose}>
+          {t('app.common.cancel')}
+        </Button>
+      </div>
+    </Modal>
+  );
 }
 
 export function JoinTournamentPage() {
@@ -22,9 +76,10 @@ export function JoinTournamentPage() {
   const [busy, setBusy] = useState(false);
   const [manualInvitation, setManualInvitation] = useState('');
   const [manualError, setManualError] = useState<string>();
+  const [scannerOpen, setScannerOpen] = useState(false);
   const attemptedToken = useRef<string | undefined>(undefined);
 
-  const completeJoin = async (invitation: string) => {
+  const completeJoin = useCallback(async (invitation: string) => {
     if (!user) return;
     setBusy(true);
     setError(undefined);
@@ -38,13 +93,20 @@ export function JoinTournamentPage() {
     } finally {
       setBusy(false);
     }
-  };
+  }, [navigate, t, user]);
+
+  const completeScannedJoin = useCallback((value: string) => {
+    const invitation = tokenFromInput(value);
+    if (!invitation) return;
+    setScannerOpen(false);
+    void completeJoin(invitation);
+  }, [completeJoin]);
 
   useEffect(() => {
     if (!token || !user || !isPlayer || loading || attemptedToken.current === token) return;
     attemptedToken.current = token;
     void completeJoin(token);
-  }, [isPlayer, loading, token, user]);
+  }, [completeJoin, isPlayer, loading, token, user]);
 
   useEffect(() => {
     if (token && user && !loading && !isPlayer) clearInvitationReturnPath();
@@ -107,7 +169,23 @@ export function JoinTournamentPage() {
             <Button disabled={busy} type="submit" className="app-button app-button--primary w-full">
               {busy ? t('app.join.joining') : t('app.join.open')}
             </Button>
+            {user && isPlayer && (
+              <>
+                <span className="text-center text-sm text-muted-foreground">{t('app.join.orAlso')}</span>
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="app-button app-button--secondary w-full"
+                  disabled={busy}
+                  onClick={() => setScannerOpen(true)}
+                >
+                  <ScanLine size={18} aria-hidden />
+                  {t('app.join.scanQr')}
+                </Button>
+              </>
+            )}
           </form>
+          {scannerOpen && <QrScannerModal onClose={() => setScannerOpen(false)} onScan={completeScannedJoin} />}
         </div>
       </section>
     );

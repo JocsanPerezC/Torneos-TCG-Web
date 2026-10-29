@@ -1059,6 +1059,64 @@ Object.assign(resources.es.translation.app.tournament, {
     'Renombra al participante manual que tiene el nombre duplicado antes de generar una ronda.',
 });
 
+Object.assign(resources.es.translation.app.tournament, {
+  linkedPlayerNameManaged: 'El nombre de una cuenta vinculada se administra desde su perfil.',
+});
+
+Object.assign(resources.es.translation.app, {
+  tournamentGuide: {
+    open: 'Cómo funciona',
+    title: 'Cómo funciona un torneo',
+    description: 'Un resumen rápido para organizar tu mesa.',
+    manualPlayers: {
+      title: 'Agrega jugadores sin cuenta',
+      description: 'Escribe sus nombres y quedarán listos para participar en las rondas.',
+    },
+    accountPlayers: {
+      title: 'Invita cuentas registradas',
+      description: 'Comparte el QR, enlace o código desde la configuración del torneo para que se unan.',
+    },
+    rounds: {
+      title: 'Genera y registra rondas',
+      description: 'Con al menos tres jugadores activos, crea mesas, inicia la ronda y guarda los resultados.',
+    },
+    standings: {
+      title: 'Consulta la clasificación',
+      description: 'Al guardar resultados, la clasificación se actualiza automáticamente.',
+    },
+    close: 'Entendido',
+  },
+});
+
+Object.assign(resources.en.translation.app, {
+  tournamentGuide: {
+    open: 'How it works',
+    title: 'How a tournament works',
+    description: 'A quick overview for organizing your table.',
+    manualPlayers: {
+      title: 'Add players without an account',
+      description: 'Enter their names and they will be ready to take part in the rounds.',
+    },
+    accountPlayers: {
+      title: 'Invite registered accounts',
+      description: 'Share the QR code, link, or code from tournament settings so they can join.',
+    },
+    rounds: {
+      title: 'Generate and record rounds',
+      description: 'With at least three active players, create tables, start the round, and save results.',
+    },
+    standings: {
+      title: 'Check the standings',
+      description: 'When results are saved, the standings update automatically.',
+    },
+    close: 'Got it',
+  },
+});
+
+Object.assign(resources.en.translation.app.tournament, {
+  linkedPlayerNameManaged: 'A linked account name is managed from its profile.',
+});
+
 Object.assign(resources.es.translation.app.common, {
   close: 'Cerrar',
 });
@@ -1766,25 +1824,31 @@ Object.assign(resources.es.translation.app, {
   },
   join: {
     title: 'Unirse a un torneo',
-    manualDescription:
-      'Pega el enlace de invitación o escribe el código que compartió el organizador.',
+    manualDescription: 'Escribe el código que compartió el organizador.',
       validationHelp:
         'Si no puedes unirte, confirma que el torneo esté activo, la invitación no haya sido revocada, queden cupos y uses una cuenta de jugador.',
-    code: 'Enlace o código',
-    codePlaceholder: 'Pega aquí la invitación',
+    code: 'Código',
+    codePlaceholder: 'Escribe el código',
     open: 'Unirse al torneo',
     joining: 'Uniéndote al torneo…',
-    tryAnother: 'Usar otra invitación',
+    orAlso: 'O también',
+    tryAnother: 'Usar otro código',
     playerOnlyTitle: 'Esta invitación es para jugadores',
     playerOnlyDescription: 'Las cuentas de organizador no pueden inscribirse en torneos.',
     back: 'Volver a mis torneos',
     unavailableTitle: 'Invitación no disponible',
     unavailableDescription:
-      'El enlace puede haber sido revocado, el torneo terminó o ya no hay cupos.',
+      'La invitación puede haber sido revocada, el torneo terminó o ya no hay cupos.',
     tournamentDetails: '{{format}} · {{slots}} cupos disponibles',
     playerName: 'Nombre para este torneo',
     confirm: 'Confirmar inscripción',
     error: 'No se pudo completar la inscripción.',
+    scanQr: 'Escanear QR',
+    scanQrTitle: 'Escanear código QR',
+    scanQrDescription: 'Apunta la cámara al QR de invitación del torneo.',
+    scanningQr: 'Buscando un código QR…',
+    scannerUnavailable: 'Tu navegador no permite escanear QR. Escribe el código manualmente.',
+    cameraUnavailable: 'No se pudo abrir la cámara. Revisa el permiso e inténtalo de nuevo.',
   },
   joinLink: {
     title: 'Invitar jugadores',
@@ -1950,24 +2014,31 @@ Object.assign(resources.en.translation.app, {
   },
   join: {
     title: 'Join a tournament',
-    manualDescription: 'Paste the invitation link or enter the code shared by the organizer.',
+    manualDescription: 'Enter the code shared by the organizer.',
       validationHelp:
         'If you cannot join, confirm the tournament is active, the invitation has not been revoked, spots remain, and you are using a player account.',
-    code: 'Link or code',
-    codePlaceholder: 'Paste the invitation here',
+    code: 'Code',
+    codePlaceholder: 'Enter the code',
     open: 'Join tournament',
     joining: 'Joining the tournament…',
-    tryAnother: 'Use another invitation',
+    orAlso: 'Or',
+    tryAnother: 'Use another code',
     playerOnlyTitle: 'This invitation is for players',
     playerOnlyDescription: 'Organizer accounts cannot join tournaments.',
     back: 'Back to my tournaments',
     unavailableTitle: 'Invitation unavailable',
     unavailableDescription:
-      'The link may have been revoked, the tournament ended, or there are no remaining slots.',
+      'The invitation may have been revoked, the tournament ended, or there are no remaining slots.',
     tournamentDetails: '{{format}} · {{slots}} spots available',
     playerName: 'Name for this tournament',
     confirm: 'Confirm registration',
     error: 'The registration could not be completed.',
+    scanQr: 'Scan QR',
+    scanQrTitle: 'Scan QR code',
+    scanQrDescription: 'Point the camera at the tournament invitation QR code.',
+    scanningQr: 'Looking for a QR code…',
+    scannerUnavailable: 'Your browser cannot scan QR codes. Enter the code manually.',
+    cameraUnavailable: 'The camera could not be opened. Check its permission and try again.',
   },
   joinLink: {
     title: 'Invite players',
