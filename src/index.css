@@ -1278,6 +1278,10 @@ section.grid > div > button {
   letter-spacing: 0.13em;
   text-transform: uppercase;
 }
+.hero-sheet__eyebrow {
+  font-size: clamp(1rem, 2vw, 1.2rem);
+  letter-spacing: 0.08em;
+}
 .hero-sheet h1 {
   max-width: 11ch;
   margin: 0.65rem 0 1rem;

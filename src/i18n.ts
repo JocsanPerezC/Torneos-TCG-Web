@@ -19,7 +19,7 @@ const resources = {
           createAccount: 'Crear cuenta',
         },
         hero: {
-          eyebrow: 'COMANDER, SIN LA LIBRETA MANCHADA',
+          eyebrow: 'Crea torneos de Commander',
           title: 'Vos ponés las cartas. Nosotros llevamos las cuentas.',
           description:
             'Armá mesas, registrá lo que pasó y compartí posiciones sin perseguir a nadie por WhatsApp. Commander, otros TCG y todas esas reglas que tu grupo inventó.',
@@ -518,7 +518,7 @@ const resources = {
           createAccount: 'Create account',
         },
         hero: {
-          eyebrow: 'COMMANDER, NO STAINED NOTEBOOK',
+          eyebrow: 'Create Commander tournaments',
           title: 'You bring the cards. We keep score.',
           description:
             'Build tables, record what happened, and share standings without chasing anyone on WhatsApp. Commander, other TCGs, and every rule your group invented.',
