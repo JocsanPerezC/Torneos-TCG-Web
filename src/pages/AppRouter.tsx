@@ -50,6 +50,7 @@ import {
   ArrowLeft,
   Archive,
   BadgeCheck,
+  Check,
   CircleHelp,
   CircleX,
   Database,
@@ -61,6 +62,7 @@ import {
   Inbox,
   Info,
   LogOut,
+  LoaderCircle,
   Play,
   Plus,
   RefreshCw,
@@ -95,6 +97,7 @@ import { currentLegalConsent } from '../legal';
 const primary = 'app-button app-button--primary';
 const panel = 'app-panel';
 const field = 'app-field';
+type ActionFeedbackState = 'idle' | 'loading' | 'success';
 const statusColor: Record<string, string> = {
   borrador: 'border-[#E7E2D2] bg-[#F4F1E7] text-muted-foreground',
   activa: 'border-[#BDE8CC] bg-[#E5F7EC] text-[#168050]',
@@ -1057,6 +1060,7 @@ function OrganizerDashboard({ view }: { view: 'home' | 'tournaments' }) {
           onClose={() => setTournamentToDelete(undefined)}
           onConfirm={() => {
             removeTournament(tournamentToDelete.id);
+            showToast(i18n.t('app.tournament.tournamentDeleted'));
             setTournamentToDelete(undefined);
           }}
         />
@@ -1125,6 +1129,7 @@ function NewTournament() {
   const navigate = useNavigate();
   const [error, setError] = useState('');
   const [busy, setBusy] = useState(false);
+  const [creationState, setCreationState] = useState<ActionFeedbackState>('idle');
   if (isAdmin) return <Navigate to="/admin" replace />;
   if (isPlayer) return <Navigate to="/dashboard" replace />;
   async function submit(event: FormEvent<HTMLFormElement>) {
@@ -1143,6 +1148,7 @@ function NewTournament() {
     )
       return setError(i18n.t('app.createTournament.invalidLimits'));
     setBusy(true);
+    setCreationState('loading');
     try {
       const tournament = await createTournament({
         name: String(values.get('name')),
@@ -1152,9 +1158,13 @@ function NewTournament() {
         maxTables,
         isPublic: true,
       });
-      navigate(`/tournaments/${tournament.id}`);
+      const message = i18n.t('app.createTournament.created');
+      setCreationState('success');
+      showToast(message);
+      window.setTimeout(() => navigate(`/tournaments/${tournament.id}`), 1200);
     } catch (reason) {
       setError(reason instanceof Error ? reason.message : tournamentLimitMessage);
+      setCreationState('idle');
     } finally {
       setBusy(false);
     }
@@ -1213,8 +1223,28 @@ function NewTournament() {
               />
             </label>
           </div>
-          <Button disabled={busy} className={primary}>
-            {busy ? i18n.t('app.createTournament.creating') : i18n.t('app.createTournament.create')}
+          <Button
+            disabled={busy || creationState === 'success'}
+            className={`${primary} create-tournament-button is-${creationState}`}
+            aria-busy={creationState === 'loading'}
+            aria-label={
+              creationState === 'loading'
+                ? i18n.t('app.createTournament.creating')
+                : undefined
+            }
+          >
+            {creationState === 'loading' ? (
+              <LoaderCircle size={16} className="action-feedback-button__loader" aria-hidden />
+            ) : creationState === 'success' ? (
+              <>
+                <Check size={16} aria-hidden />
+                <span className="action-feedback-button__result" aria-live="polite">
+                  {i18n.t('app.createTournament.created')}
+                </span>
+              </>
+            ) : (
+              i18n.t('app.createTournament.create')
+            )}
           </Button>
         </form>
       </div>
@@ -1641,7 +1671,8 @@ function Rounds() {
   const [draggedPlayer, setDraggedPlayer] = useState<string>();
   const [dropTargetPod, setDropTargetPod] = useState<string>();
   const [showRoundGenerationInfo, setShowRoundGenerationInfo] = useState(false);
-  const [generatingRound, setGeneratingRound] = useState(false);
+  const [roundGenerationState, setRoundGenerationState] = useState<ActionFeedbackState>('idle');
+  const roundGenerationTimer = useRef<number | undefined>(undefined);
   const last = tournament.rounds.at(-1);
   const hasOpenRound = tournament.rounds.some((round) => round.status !== 'completada');
   const names = Object.fromEntries(tournament.players.map((player) => [player.id, player.name]));
@@ -1653,6 +1684,24 @@ function Rounds() {
   useEffect(() => {
     setSelectedRoundId(tournament.rounds.at(-1)?.id);
   }, [tournament.rounds.length]);
+
+  useEffect(() => () => {
+    if (roundGenerationTimer.current) window.clearTimeout(roundGenerationTimer.current);
+  }, []);
+
+  const generateNextRound = async () => {
+    setRoundGenerationState('loading');
+    const error = await generateRound(id!);
+    if (error) {
+      setMessage(error);
+      setRoundGenerationState('idle');
+      return;
+    }
+    const result = i18n.t('app.tournament.roundGenerated');
+    setMessage(result);
+    setRoundGenerationState('success');
+    roundGenerationTimer.current = window.setTimeout(() => setRoundGenerationState('idle'), 460);
+  };
 
   return (
     <section className="rounds-deck">
@@ -1694,18 +1743,25 @@ function Rounds() {
               tournament.status === 'finalizado' ||
               hasOpenRound ||
               tournament.rounds.length >= tournament.plannedRounds ||
-              generatingRound
+              roundGenerationState !== 'idle'
             }
-            className={`${primary} inline-flex items-center gap-2`}
-            onClick={() => {
-              setGeneratingRound(true);
-              void generateRound(id!)
-                .then((error) => setMessage(error ?? i18n.t('app.tournament.roundGenerated')))
-                .finally(() => setGeneratingRound(false));
-            }}
+            className={primary}
+            onClick={() => void generateNextRound()}
+            aria-busy={roundGenerationState === 'loading'}
+            aria-label={
+              roundGenerationState === 'loading'
+                ? i18n.t('app.tournament.generatingRound')
+                : undefined
+            }
           >
-            <RefreshCw size={16} />
-            {i18n.t('app.tournament.generateRound')}
+            {roundGenerationState === 'loading' ? (
+              <LoaderCircle size={16} className="action-feedback-button__loader" aria-hidden />
+            ) : (
+              <>
+                <RefreshCw size={16} aria-hidden />
+                {i18n.t('app.tournament.generateRound')}
+              </>
+            )}
           </Button>
           <Button
             disabled={!last}
@@ -1734,7 +1790,13 @@ function Rounds() {
         </Notice>
       )}
       {selectedRound ? (
-        <article className="round-sheet">
+        <article
+          className={`round-sheet ${
+            roundGenerationState === 'success' && selectedRound.id === last?.id
+              ? 'round-sheet--generated'
+              : ''
+          }`}
+        >
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div className="flex flex-wrap items-center gap-3">
               <h3 className="font-bold">
@@ -2679,6 +2741,7 @@ function AdminDashboard() {
     try {
       await deleteRemoteTournament(target.id);
       await refresh();
+      showToast(i18n.t('app.tournament.tournamentDeleted'));
     } catch (reason) {
       setError(
         reason instanceof Error ? reason.message : i18n.t('app.admin.deleteTournamentFailed'),

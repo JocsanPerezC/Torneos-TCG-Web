@@ -1356,10 +1356,36 @@ Object.assign(resources.en.translation.app, {
 
 Object.assign(resources.es.translation.app.createTournament, {
   creating: 'Creando…',
+  created: 'Torneo creado.',
 });
 
 Object.assign(resources.en.translation.app.createTournament, {
   creating: 'Creating…',
+  created: 'Tournament created.',
+});
+
+Object.assign(resources.es.translation.app.tournament, {
+  generatingRound: 'Generando ronda…',
+});
+
+Object.assign(resources.en.translation.app.tournament, {
+  generatingRound: 'Generating round…',
+});
+
+Object.assign(resources.es.translation.app, {
+  toast: {
+    successTitle: 'Listo',
+    errorTitle: 'Atención',
+    close: 'Cerrar notificación',
+  },
+});
+
+Object.assign(resources.en.translation.app, {
+  toast: {
+    successTitle: 'Done',
+    errorTitle: 'Attention',
+    close: 'Close notification',
+  },
 });
 
 Object.assign(resources.es.translation.app, {

@@ -399,38 +399,109 @@ select:focus {
 }
 
 @keyframes toast-enter {
-  0% {
+  from {
     opacity: 0;
-    transform: translateX(110%);
+    transform: translateY(-0.85rem) scale(0.98);
   }
-  70% {
+  72% {
     opacity: 1;
-    transform: translateX(-8px);
+    transform: translateY(0.08rem) scale(1.006);
   }
-  100% {
+  to {
     opacity: 1;
-    transform: translateX(0);
+    transform: translateY(0) scale(1);
   }
 }
 @keyframes toast-exit {
-  0% {
+  from {
     opacity: 1;
-    transform: translateX(0);
+    transform: translateY(0) scale(1);
   }
-  45% {
-    opacity: 1;
-    transform: translateX(-14px);
-  }
-  100% {
+  to {
     opacity: 0;
-    transform: translateX(110%);
+    transform: translateY(-0.5rem) scale(0.98);
   }
 }
 .toast-enter {
-  animation: toast-enter 380ms ease-out both;
+  animation: toast-enter 320ms cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 .toast-exit {
-  animation: toast-exit 500ms ease-in forwards;
+  animation: toast-exit 220ms ease-in forwards;
+}
+.toast-viewport {
+  position: fixed;
+  z-index: 50;
+  top: 1.25rem;
+  right: 1.25rem;
+  display: flex;
+  width: min(22rem, calc(100vw - 2.5rem));
+  flex-direction: column;
+  gap: 0.65rem;
+  pointer-events: none;
+}
+.app-toast {
+  display: grid;
+  width: 100%;
+  grid-template-columns: 0.65rem minmax(0, 1fr) auto;
+  align-items: start;
+  gap: 0.7rem;
+  border: 2px solid #111;
+  border-radius: 1rem 0.4rem 1rem 0.4rem;
+  padding: 0.7rem;
+  background: #111;
+  color: #fff;
+  box-shadow: 3px 4px 0 rgba(17, 17, 17, 0.2);
+  pointer-events: auto;
+}
+.app-toast__indicator {
+  width: 0.65rem;
+  height: 0.65rem;
+  margin-top: 0.22rem;
+  border: 1.5px solid #fff;
+  border-radius: 50%;
+  background: #21b876;
+}
+.app-toast[data-tone='error'] .app-toast__indicator {
+  background: #c1272d;
+}
+.app-toast[data-tone='info'] .app-toast__indicator {
+  background: #3d5afb;
+}
+.app-toast[data-tone='warning'] .app-toast__indicator {
+  background: #f4c542;
+}
+.app-toast__content {
+  min-width: 0;
+}
+.app-toast__content strong {
+  display: block;
+  font-size: 0.84rem;
+  line-height: 1.2;
+}
+.app-toast__description {
+  margin-top: 0.18rem;
+  color: rgba(255, 255, 255, 0.86);
+  font-size: 0.76rem;
+  line-height: 1.35;
+}
+.app-toast__close {
+  display: grid;
+  width: 1.7rem;
+  height: 1.7rem;
+  place-items: center;
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  border-radius: 0.5rem 0.2rem 0.5rem 0.2rem;
+  padding: 0;
+  background: transparent;
+  color: #fff;
+  cursor: pointer;
+}
+.app-toast__close:hover {
+  background: rgba(255, 255, 255, 0.13);
+}
+.app-toast__close:focus-visible {
+  outline: 2px solid #fff;
+  outline-offset: 2px;
 }
 
 @keyframes hero-seat-pulse {
@@ -2580,6 +2651,38 @@ section.grid > div > button {
 .app-button--primary:hover:not(:disabled) {
   background: #1b9563;
 }
+.create-tournament-button {
+  overflow: hidden;
+  transition:
+    width 220ms ease,
+    min-width 220ms ease,
+    padding 220ms ease,
+    transform 150ms ease,
+    box-shadow 150ms ease,
+    background 150ms ease;
+}
+.create-tournament-button {
+  width: 9rem;
+}
+.create-tournament-button.is-loading {
+  width: 2.75rem;
+  min-width: 2.75rem;
+  padding-inline: 0;
+}
+.create-tournament-button.is-success {
+  width: min(100%, 22rem);
+  min-height: 3rem;
+  white-space: normal;
+}
+.create-tournament-button.is-success:disabled {
+  opacity: 1;
+}
+.action-feedback-button__loader {
+  animation: app-spin 800ms linear infinite;
+}
+.action-feedback-button__result {
+  line-height: 1.25;
+}
 .app-button--secondary {
   background: #fffdf6;
 }
@@ -4250,6 +4353,61 @@ section.grid > div > button {
   background: #fffdf6;
   box-shadow: 5px 6px 0 rgba(17, 17, 17, 0.1);
 }
+@keyframes round-sheet-generated {
+  from {
+    opacity: 0;
+    transform: translateY(0.7rem) scale(0.985);
+  }
+  72% {
+    opacity: 1;
+    transform: translateY(-0.08rem) scale(1.003);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+@keyframes round-table-generated {
+  from {
+    opacity: 0;
+    transform: translateY(0.45rem) scale(0.99);
+  }
+  78% {
+    opacity: 1;
+    transform: translateY(-0.04rem) scale(1.002);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+.round-sheet--generated {
+  animation: round-sheet-generated 420ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+.round-sheet--generated .game-table {
+  animation: round-table-generated 340ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+.round-sheet--generated .game-table:nth-child(2) {
+  animation-delay: 40ms;
+}
+.round-sheet--generated .game-table:nth-child(3) {
+  animation-delay: 80ms;
+}
+.round-sheet--generated .game-table:nth-child(4) {
+  animation-delay: 120ms;
+}
+.round-sheet--generated .game-table:nth-child(5) {
+  animation-delay: 160ms;
+}
+.round-sheet--generated .game-table:nth-child(6) {
+  animation-delay: 200ms;
+}
+.round-sheet--generated .game-table:nth-child(7) {
+  animation-delay: 240ms;
+}
+.round-sheet--generated .game-table:nth-child(8) {
+  animation-delay: 280ms;
+}
 .round-sheet > div:first-child h3 {
   margin: 0;
   font-size: 1.2rem;
@@ -4964,6 +5122,10 @@ section.grid > div > button {
   .app-stat-pill {
     min-height: 4.75rem;
   }
+  .create-tournament-button,
+  .toast-viewport {
+    max-width: 100%;
+  }
   .tournament-tabs {
     margin-inline: -0.25rem;
   }
@@ -5010,6 +5172,22 @@ section.grid > div > button {
   .app-shell-header__link,
   .app-shell-header__signout {
     padding: 0.45rem;
+  }
+}
+@media (max-width: 640px) {
+  .toast-viewport {
+    top: 0.85rem;
+    right: 1rem;
+    left: 1rem;
+    width: auto;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .toast-enter,
+  .toast-exit,
+  .round-sheet--generated,
+  .round-sheet--generated .game-table {
+    animation: none;
   }
 }
 @media (max-width: 460px) {

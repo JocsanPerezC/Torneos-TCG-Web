@@ -1,4 +1,6 @@
 import { useEffect, useLayoutEffect, useRef, useState, type ReactNode } from 'react';
+import { X } from 'lucide-react';
+import i18n from '../../i18n';
 
 type Toast = { id: number; message: ReactNode; error: boolean; exiting?: boolean };
 
@@ -8,6 +10,15 @@ const listeners = new Set<() => void>();
 
 function notify() {
   listeners.forEach((listener) => listener());
+}
+
+function dismissToast(id: number) {
+  toasts = toasts.map((toast) => (toast.id === id ? { ...toast, exiting: true } : toast));
+  notify();
+  window.setTimeout(() => {
+    toasts = toasts.filter((toast) => toast.id !== id);
+    notify();
+  }, 220);
 }
 
 export function showToast(message: ReactNode, error = false) {
@@ -26,7 +37,7 @@ export function showToast(message: ReactNode, error = false) {
 
 export function ToastViewport() {
   const [items, setItems] = useState(toasts);
-  const nodes = useRef(new Map<number, HTMLDivElement>());
+  const nodes = useRef(new Map<number, HTMLElement>());
   const positions = useRef(new Map<number, number>());
 
   useEffect(() => {
@@ -44,7 +55,11 @@ export function ToastViewport() {
       if (!node) continue;
       const top = node.getBoundingClientRect().top;
       const previousTop = positions.current.get(toast.id);
-      if (previousTop !== undefined && previousTop !== top) {
+      if (
+        previousTop !== undefined &&
+        previousTop !== top &&
+        !window.matchMedia?.('(prefers-reduced-motion: reduce)').matches
+      ) {
         node.animate(
           [{ transform: `translateY(${previousTop - top}px)` }, { transform: 'translateY(0)' }],
           { duration: 280, easing: 'ease-out' },
@@ -56,19 +71,32 @@ export function ToastViewport() {
   }, [items]);
 
   return (
-    <div className="pointer-events-none fixed right-5 top-5 z-50 flex max-w-sm flex-col gap-3">
+    <div className="toast-viewport" aria-live="polite">
       {items.map((toast) => (
-        <div
+        <article
           key={toast.id}
           ref={(node) => {
             if (node) nodes.current.set(toast.id, node);
             else nodes.current.delete(toast.id);
           }}
           role={toast.error ? 'alert' : 'status'}
-          className={`pointer-events-auto rounded-2xl border border-border p-4 text-sm font-medium shadow-xl ${toast.exiting ? 'toast-exit' : 'toast-enter'} ${toast.error ? 'bg-red-950 text-red-200' : 'bg-[#E7FAEE] text-[#168050]'}`}
+          data-tone={toast.error ? 'error' : 'success'}
+          className={`app-toast ${toast.exiting ? 'toast-exit' : 'toast-enter'}`}
         >
-          {toast.message}
-        </div>
+          <span className="app-toast__indicator" aria-hidden />
+          <div className="app-toast__content">
+            <strong>{i18n.t(toast.error ? 'app.toast.errorTitle' : 'app.toast.successTitle')}</strong>
+            <div className="app-toast__description">{toast.message}</div>
+          </div>
+          <button
+            type="button"
+            className="app-toast__close"
+            onClick={() => dismissToast(toast.id)}
+            aria-label={i18n.t('app.toast.close')}
+          >
+            <X size={16} aria-hidden />
+          </button>
+        </article>
       ))}
     </div>
   );
