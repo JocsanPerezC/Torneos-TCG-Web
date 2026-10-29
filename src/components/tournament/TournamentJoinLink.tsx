@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Copy, QrCode, RefreshCw, Ticket, Trash2 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import * as QRCode from 'qrcode';
@@ -45,6 +45,18 @@ export function TournamentJoinLink({ tournamentId }: { tournamentId: string }) {
   const [invitationOpen, setInvitationOpen] = useState(false);
   const [qrDataUrl, setQrDataUrl] = useState<string>();
   const [qrError, setQrError] = useState(false);
+  const [inviteFeedback, setInviteFeedback] = useState<'created' | 'revoked'>();
+  const inviteFeedbackTimer = useRef<number | undefined>(undefined);
+
+  useEffect(() => () => {
+    if (inviteFeedbackTimer.current) window.clearTimeout(inviteFeedbackTimer.current);
+  }, []);
+
+  const showInviteFeedback = (feedback: 'created' | 'revoked') => {
+    setInviteFeedback(feedback);
+    if (inviteFeedbackTimer.current) window.clearTimeout(inviteFeedbackTimer.current);
+    inviteFeedbackTimer.current = window.setTimeout(() => setInviteFeedback(undefined), 320);
+  };
 
   useEffect(() => {
     let active = true;
@@ -104,6 +116,7 @@ export function TournamentJoinLink({ tournamentId }: { tournamentId: string }) {
       setCode(nextCode);
       setInvitationOpen(Boolean(nextCode));
       setMessage(t('app.joinLink.created'));
+      showInviteFeedback('created');
     } catch (error) {
       setMessage(errorMessage(error, t('app.joinLink.createFailed')));
     } finally {
@@ -130,6 +143,7 @@ export function TournamentJoinLink({ tournamentId }: { tournamentId: string }) {
       setCode(undefined);
       setInvitationOpen(false);
       setMessage(t('app.joinLink.revoked'));
+      showInviteFeedback('revoked');
     } catch (error) {
       setMessage(errorMessage(error, t('app.joinLink.revokeFailed')));
     } finally {
@@ -138,7 +152,10 @@ export function TournamentJoinLink({ tournamentId }: { tournamentId: string }) {
   };
 
   return (
-    <section className="app-panel mt-6" aria-labelledby="join-link-title">
+    <section
+      className={`app-panel mt-6 ${inviteFeedback ? `join-link--${inviteFeedback}` : ''}`}
+      aria-labelledby="join-link-title"
+    >
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
           <h2 id="join-link-title" className="m-0 text-xl">
@@ -157,7 +174,7 @@ export function TournamentJoinLink({ tournamentId }: { tournamentId: string }) {
           <span>{t('app.common.loading')}</span>
         </div>
       ) : token ? (
-        <div className="mt-5">
+        <div className={`mt-5 ${inviteFeedback === 'created' ? 'join-link-code--created' : ''}`}>
           <label className="text-sm font-semibold">
             {t('app.joinLink.code')}
             <input readOnly value={code ?? ''} className="app-field font-mono text-xs" />
@@ -257,9 +274,8 @@ export function TournamentJoinLink({ tournamentId }: { tournamentId: string }) {
           dialogClassName="invite-code-display"
           onClose={() => setInvitationOpen(false)}
         >
-          <div className="invite-code-display__content">
+          <div className={`invite-code-display__content ${inviteFeedback === 'created' ? 'invite-code-display__content--created' : ''}`}>
             <div className="invite-code-display__code">
-              <span>{t('app.joinLink.code')}</span>
               <strong>{code}</strong>
             </div>
             <div className="invite-code-display__qr">
@@ -284,20 +300,6 @@ export function TournamentJoinLink({ tournamentId }: { tournamentId: string }) {
             >
               <Copy size={16} aria-hidden="true" />
               {t('app.joinLink.copyCode')}
-            </Button>
-            <Button
-              type="button"
-              variant="outline"
-              className="app-button app-button--secondary"
-              onClick={() =>
-                void copy(
-                  invitationUrl(token),
-                  t('app.joinLink.copied'),
-                )
-              }
-            >
-              <Copy size={16} aria-hidden="true" />
-              {t('app.joinLink.copy')}
             </Button>
           </div>
         </Modal>

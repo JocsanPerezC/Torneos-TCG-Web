@@ -2742,19 +2742,35 @@ section.grid > div > button {
 }
 .invite-code-display__content {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(16rem, 0.9fr);
+  grid-template-columns: minmax(0, 1fr) minmax(22rem, 1fr);
   align-items: center;
   gap: clamp(1.5rem, 5vw, 5rem);
   min-height: 28rem;
 }
+@keyframes invite-code-updated {
+  from {
+    opacity: 0;
+    transform: translateY(0.4rem) scale(0.99);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+.join-link--revoked,
+.join-link-code--created {
+  animation: invite-code-updated 260ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+.invite-code-display__content--created .invite-code-display__code,
+.invite-code-display__content--created .invite-code-display__qr {
+  animation: invite-code-updated 280ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+.invite-code-display__content--created .invite-code-display__qr {
+  animation-delay: 40ms;
+}
 .invite-code-display__code {
   display: grid;
   gap: 0.55rem;
-}
-.invite-code-display__code > span {
-  color: #514d45;
-  font-size: 0.9rem;
-  font-weight: 700;
 }
 .invite-code-display__code strong {
   overflow-wrap: anywhere;
@@ -2766,7 +2782,7 @@ section.grid > div > button {
 }
 .invite-code-display__qr {
   display: grid;
-  min-height: 16rem;
+  min-height: 24rem;
   place-items: center;
   align-content: center;
   gap: 0.85rem;
@@ -2778,7 +2794,7 @@ section.grid > div > button {
 }
 .invite-code-display__qr img {
   display: block;
-  width: min(100%, 25rem);
+  width: min(100%, 32rem);
   aspect-ratio: 1;
   image-rendering: pixelated;
 }
@@ -2909,6 +2925,34 @@ section.grid > div > button {
 .join-tournament-form {
   display: grid;
   gap: 0.75rem;
+}
+@keyframes join-confirmation-in {
+  from {
+    opacity: 0;
+    transform: translateY(0.4rem) scale(0.98);
+  }
+  75% {
+    opacity: 1;
+    transform: translateY(-0.04rem) scale(1.01);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+.join-submit--success,
+.join-confirmation {
+  animation: join-confirmation-in 280ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+.join-confirmation {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem;
+  margin-top: 1.25rem;
+  color: #168050;
+  font-size: 1rem;
+  font-weight: 700;
 }
 .app-sidebar__header {
   display: flex;
@@ -4129,6 +4173,19 @@ section.grid > div > button {
   opacity: 0.66;
   background: #f5f3ec;
 }
+@keyframes player-slip-added {
+  from {
+    opacity: 0;
+    transform: translateY(0.45rem) scale(0.99);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+.player-slip--added {
+  animation: player-slip-added 260ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
 .player-slip__avatar,
 .standings-table__avatar,
 .public-table__avatar {
@@ -4408,6 +4465,35 @@ section.grid > div > button {
 .round-sheet--generated .game-table:nth-child(8) {
   animation-delay: 280ms;
 }
+@keyframes round-status-feedback {
+  0% {
+    transform: scale(1);
+  }
+  55% {
+    transform: scale(1.006);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+@keyframes round-status-check {
+  from {
+    opacity: 0;
+    transform: scale(0.7);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+.round-sheet--status-feedback {
+  animation: round-status-feedback 300ms ease-out both;
+}
+.round-status-feedback__check {
+  align-self: center;
+  color: #168050;
+  animation: round-status-check 220ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
 .round-sheet > div:first-child h3 {
   margin: 0;
   font-size: 1.2rem;
@@ -4454,6 +4540,20 @@ section.grid > div > button {
 .game-table > * {
   position: relative;
   z-index: 1;
+}
+@keyframes game-table-saved {
+  0% {
+    transform: scale(1);
+  }
+  58% {
+    transform: scale(1.012);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+.game-table--saved {
+  animation: game-table-saved 260ms ease-out both;
 }
 .game-table h4 {
   margin: 0;
@@ -4699,6 +4799,17 @@ section.grid > div > button {
 }
 .standings-table tr.is-podium--1 td:first-child {
   color: #c1272d;
+}
+@keyframes standings-row-moved {
+  from {
+    transform: translateY(0.45rem);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+.standings-row--moved {
+  animation: standings-row-moved 300ms cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 .standings-table td:nth-child(2) {
   white-space: nowrap;
@@ -5186,7 +5297,18 @@ section.grid > div > button {
   .toast-enter,
   .toast-exit,
   .round-sheet--generated,
-  .round-sheet--generated .game-table {
+  .round-sheet--generated .game-table,
+  .round-sheet--status-feedback,
+  .round-status-feedback__check,
+  .game-table--saved,
+  .player-slip--added,
+  .standings-row--moved,
+  .join-submit--success,
+  .join-confirmation,
+  .join-link--revoked,
+  .join-link-code--created,
+  .invite-code-display__content--created .invite-code-display__code,
+  .invite-code-display__content--created .invite-code-display__qr {
     animation: none;
   }
 }

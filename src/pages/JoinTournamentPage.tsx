@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState, type FormEvent } from 'react';
 import { Link, Navigate, useNavigate, useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { ScanLine } from 'lucide-react';
+import { Check, ScanLine } from 'lucide-react';
 import QrScanner from 'qr-scanner';
 import { joinTournament } from '../data/playerRepository';
 import { getUserProfile } from '../lib/userProfile';
@@ -77,16 +77,24 @@ export function JoinTournamentPage() {
   const [manualInvitation, setManualInvitation] = useState('');
   const [manualError, setManualError] = useState<string>();
   const [scannerOpen, setScannerOpen] = useState(false);
+  const [joined, setJoined] = useState(false);
   const attemptedToken = useRef<string | undefined>(undefined);
+  const joinTimer = useRef<number | undefined>(undefined);
+
+  useEffect(() => () => {
+    if (joinTimer.current) window.clearTimeout(joinTimer.current);
+  }, []);
 
   const completeJoin = useCallback(async (invitation: string) => {
     if (!user) return;
     setBusy(true);
+    setJoined(false);
     setError(undefined);
     try {
       await joinTournament(invitation, getUserProfile(user).name);
       clearInvitationReturnPath();
-      navigate('/dashboard', { replace: true });
+      setJoined(true);
+      joinTimer.current = window.setTimeout(() => navigate('/dashboard', { replace: true }), 360);
     } catch (reason) {
       clearInvitationReturnPath();
       setError(reason instanceof Error ? reason.message : t('app.join.error'));
@@ -166,8 +174,17 @@ export function JoinTournamentPage() {
                 {error}
               </p>
             )}
-            <Button disabled={busy} type="submit" className="app-button app-button--primary w-full">
-              {busy ? t('app.join.joining') : t('app.join.open')}
+            <Button
+              disabled={busy || joined}
+              type="submit"
+              className={`app-button app-button--primary w-full ${joined ? 'join-submit--success' : ''}`}
+            >
+              {joined ? (
+                <>
+                  <Check size={16} aria-hidden />
+                  {t('app.join.success')}
+                </>
+              ) : busy ? t('app.join.joining') : t('app.join.open')}
             </Button>
             {user && isPlayer && (
               <>
@@ -229,6 +246,11 @@ export function JoinTournamentPage() {
               <Link to="/unirse">{t('app.join.tryAnother')}</Link>
             </Button>
           </>
+        ) : joined ? (
+          <div className="join-confirmation" role="status">
+            <Check size={20} aria-hidden />
+            <span>{t('app.join.success')}</span>
+          </div>
         ) : (
           <div className="app-loading-note mt-5">
             <i />

@@ -1412,6 +1412,11 @@ function Players() {
   const [playerToToggle, setPlayerToToggle] = useState<Tournament['players'][number]>();
   const [playerToDelete, setPlayerToDelete] = useState<Tournament['players'][number]>();
   const [refreshing, setRefreshing] = useState(false);
+  const [recentlyAddedPlayerIds, setRecentlyAddedPlayerIds] = useState<string[]>([]);
+  const addedPlayersTimer = useRef<number | undefined>(undefined);
+  useEffect(() => () => {
+    if (addedPlayersTimer.current) window.clearTimeout(addedPlayersTimer.current);
+  }, []);
   function add(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const result = addPlayers(
@@ -1424,6 +1429,11 @@ function Players() {
           ? i18n.t('app.tournament.playersAdded', { count: result.added })
           : i18n.t('app.tournament.noPlayers')),
     );
+    if (result.addedIds.length) {
+      setRecentlyAddedPlayerIds(result.addedIds);
+      if (addedPlayersTimer.current) window.clearTimeout(addedPlayersTimer.current);
+      addedPlayersTimer.current = window.setTimeout(() => setRecentlyAddedPlayerIds([]), 360);
+    }
     setAdding(false);
   }
   function edit(event: FormEvent<HTMLFormElement>) {
@@ -1494,7 +1504,9 @@ function Players() {
           {filteredPlayers.map((player) => (
             <article
               key={player.id}
-              className={`player-slip ${player.active ? '' : 'is-withdrawn'}`}
+              className={`player-slip ${player.active ? '' : 'is-withdrawn'} ${
+                recentlyAddedPlayerIds.includes(player.id) ? 'player-slip--added' : ''
+              }`}
             >
               <Avatar name={player.name} src={player.avatarUrl} className="player-slip__avatar" />
               <div>
@@ -1673,6 +1685,8 @@ function Rounds() {
   const [showRoundGenerationInfo, setShowRoundGenerationInfo] = useState(false);
   const [roundGenerationState, setRoundGenerationState] = useState<ActionFeedbackState>('idle');
   const roundGenerationTimer = useRef<number | undefined>(undefined);
+  const [roundStatusFeedback, setRoundStatusFeedback] = useState<string>();
+  const roundStatusFeedbackTimer = useRef<number | undefined>(undefined);
   const last = tournament.rounds.at(-1);
   const hasOpenRound = tournament.rounds.some((round) => round.status !== 'completada');
   const names = Object.fromEntries(tournament.players.map((player) => [player.id, player.name]));
@@ -1687,7 +1701,14 @@ function Rounds() {
 
   useEffect(() => () => {
     if (roundGenerationTimer.current) window.clearTimeout(roundGenerationTimer.current);
+    if (roundStatusFeedbackTimer.current) window.clearTimeout(roundStatusFeedbackTimer.current);
   }, []);
+
+  const showRoundStatusFeedback = (roundId: string) => {
+    setRoundStatusFeedback(roundId);
+    if (roundStatusFeedbackTimer.current) window.clearTimeout(roundStatusFeedbackTimer.current);
+    roundStatusFeedbackTimer.current = window.setTimeout(() => setRoundStatusFeedback(undefined), 360);
+  };
 
   const generateNextRound = async () => {
     setRoundGenerationState('loading');
@@ -1795,7 +1816,7 @@ function Rounds() {
             roundGenerationState === 'success' && selectedRound.id === last?.id
               ? 'round-sheet--generated'
               : ''
-          }`}
+          } ${roundStatusFeedback === selectedRound.id ? 'round-sheet--status-feedback' : ''}`}
         >
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div className="flex flex-wrap items-center gap-3">
@@ -1821,11 +1842,11 @@ function Rounds() {
               <Button
                 disabled={selectedRound.status !== 'borrador' || tournament.status === 'finalizado'}
                 className={`${primary} inline-flex items-center gap-2`}
-                onClick={() =>
-                  setMessage(
-                    startRound(id!, selectedRound.id) ?? i18n.t('app.tournament.roundStarted'),
-                  )
-                }
+                onClick={() => {
+                  const error = startRound(id!, selectedRound.id);
+                  setMessage(error ?? i18n.t('app.tournament.roundStarted'));
+                  if (!error) showRoundStatusFeedback(selectedRound.id);
+                }}
               >
                 <Play size={16} fill="currentColor" />
                 {i18n.t('app.tournament.startRound')}
@@ -1839,6 +1860,9 @@ function Rounds() {
                 <Square size={15} fill="currentColor" />
                 {i18n.t('app.tournament.endRound')}
               </Button>
+              {roundStatusFeedback === selectedRound.id && (
+                <Check className="round-status-feedback__check" size={18} aria-hidden />
+              )}
             </div>
           </div>
           {selectedRound.status === 'borrador' && (
@@ -1935,9 +1959,9 @@ function Rounds() {
           destructive
           onClose={() => setRoundToComplete(undefined)}
           onConfirm={() => {
-            setMessage(
-              completeRound(id!, roundToComplete.id) ?? i18n.t('app.tournament.roundCompleted'),
-            );
+            const error = completeRound(id!, roundToComplete.id);
+            setMessage(error ?? i18n.t('app.tournament.roundCompleted'));
+            if (!error) showRoundStatusFeedback(roundToComplete.id);
             setRoundToComplete(undefined);
           }}
         />
@@ -2058,6 +2082,11 @@ function PodCard({
   editable: boolean;
 }) {
   const { savePod } = useTournaments();
+  const [savedFeedback, setSavedFeedback] = useState(false);
+  const savedFeedbackTimer = useRef<number | undefined>(undefined);
+  useEffect(() => () => {
+    if (savedFeedbackTimer.current) window.clearTimeout(savedFeedbackTimer.current);
+  }, []);
   function save(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const form = new FormData(event.currentTarget);
@@ -2080,10 +2109,16 @@ function PodCard({
       i18n.t('app.messages.completeResults'),
       i18n.t('app.messages.outcomeRequired'),
     ];
-    showToast(message, validationMessages.includes(message));
+    const isValidationError = validationMessages.includes(message);
+    showToast(message, isValidationError);
+    if (!isValidationError) {
+      setSavedFeedback(true);
+      if (savedFeedbackTimer.current) window.clearTimeout(savedFeedbackTimer.current);
+      savedFeedbackTimer.current = window.setTimeout(() => setSavedFeedback(false), 280);
+    }
   }
   return (
-    <div className="game-table">
+    <div className={`game-table ${savedFeedback ? 'game-table--saved' : ''}`}>
       <h4>{i18n.t('app.common.table', { number: pod.number })}</h4>
       {!editable && (
         <div className="mt-3 grid gap-2">
@@ -2168,8 +2203,29 @@ function PodCard({
 function Standings() {
   const { id } = useParams();
   const rows = useTournaments().standingsFor(id!);
+  const previousRanks = useRef(new Map<string, number>());
+  const [movedRankIds, setMovedRankIds] = useState<string[]>([]);
+  const movedRanksTimer = useRef<number | undefined>(undefined);
   const opponentHelp = i18n.t('app.tournament.opponentHelp');
   const winRateHelp = i18n.t('app.common.winRateHelp');
+  useEffect(() => {
+    const nextRanks = new Map(rows.map((row) => [row.player.id, row.rank]));
+    if (!previousRanks.current.size) {
+      previousRanks.current = nextRanks;
+      return;
+    }
+    const changed = rows
+      .filter((row) => previousRanks.current.get(row.player.id) !== row.rank)
+      .map((row) => row.player.id);
+    previousRanks.current = nextRanks;
+    if (!changed.length) return;
+    setMovedRankIds(changed);
+    if (movedRanksTimer.current) window.clearTimeout(movedRanksTimer.current);
+    movedRanksTimer.current = window.setTimeout(() => setMovedRankIds([]), 320);
+  }, [rows]);
+  useEffect(() => () => {
+    if (movedRanksTimer.current) window.clearTimeout(movedRanksTimer.current);
+  }, []);
   return (
     <section className="standings-board">
       <header>
@@ -2180,7 +2236,9 @@ function Standings() {
         <ol className="standings-podium">
           {rows.slice(0, 3).map((row) => (
             <li
-              className={`standings-podium__place standings-podium__place--${row.rank}`}
+              className={`standings-podium__place standings-podium__place--${row.rank} ${
+                movedRankIds.includes(row.player.id) ? 'standings-row--moved' : ''
+              }`}
               key={row.player.id}
             >
               <span className="standings-podium__rank">#{row.rank}</span>
@@ -2243,7 +2301,9 @@ function Standings() {
           <tbody>
             {rows.map((row) => (
               <tr
-                className={row.rank <= 3 ? `is-podium is-podium--${row.rank}` : ''}
+                className={`${row.rank <= 3 ? `is-podium is-podium--${row.rank}` : ''} ${
+                  movedRankIds.includes(row.player.id) ? 'standings-row--moved' : ''
+                }`}
                 key={row.player.id}
               >
                 <td>{row.rank}</td>
