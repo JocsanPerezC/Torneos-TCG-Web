@@ -72,6 +72,9 @@ export function JoinTournamentPage() {
           <p className="mt-3 text-sm leading-6 text-muted-foreground">
             {t('app.join.manualDescription')}
           </p>
+          <p className="mt-2 text-sm leading-6 text-muted-foreground">
+            {t('app.join.validationHelp')}
+          </p>
           <form className="join-tournament-form mt-5" noValidate onSubmit={submitToken}>
             <label className="text-sm font-semibold">
               {t('app.join.code')}
@@ -140,6 +143,9 @@ export function JoinTournamentPage() {
           <>
             <p role="alert" className="mt-3 text-sm leading-6 text-red-300">
               {error}
+            </p>
+            <p className="mt-2 text-sm leading-6 text-muted-foreground">
+              {t('app.join.validationHelp')}
             </p>
             <Button asChild className="app-button app-button--secondary mt-5">
               <Link to="/unirse">{t('app.join.tryAnother')}</Link>

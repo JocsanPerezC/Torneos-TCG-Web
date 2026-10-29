@@ -19,7 +19,9 @@ export function getUserProfile(user: User | null) {
       user?.email?.split('@')[0],
       'organizador',
     ) ?? 'organizador';
-  const avatarUrl = firstText(metadata.avatar_url, metadata.picture);
+  const avatarUrl = Object.hasOwn(metadata, 'avatar_url')
+    ? firstText(metadata.avatar_url)
+    : firstText(metadata.picture);
 
   return { name, avatarUrl };
 }

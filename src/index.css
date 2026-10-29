@@ -3066,11 +3066,12 @@ section.grid > div > button {
   outline: 2px solid #3d5afb;
   outline-offset: 2px;
 }
-.app-sidebar__profile > span {
+.app-sidebar__profile-avatar {
   display: grid;
   width: 2rem;
   height: 2rem;
   flex: none;
+  overflow: hidden;
   place-items: center;
   border: 1.5px solid #111;
   border-radius: 50%;
@@ -3112,6 +3113,13 @@ section.grid > div > button {
   font-weight: 700;
   letter-spacing: 0.06em;
   text-transform: uppercase;
+}
+.app-sidebar__account-role {
+  display: block;
+  padding: 0 0.45rem 0.4rem;
+  color: #6b675c;
+  font-size: 0.72rem;
+  font-weight: 700;
 }
 .app-sidebar__account-menu > a,
 .app-sidebar__account-menu > button,
@@ -3506,6 +3514,17 @@ section.grid > div > button {
 .dashboard-history {
   margin-top: 2rem;
 }
+.dashboard-focus__status {
+  display: inline-flex;
+  margin-bottom: 0.45rem;
+  border: 1px solid #bde8cc;
+  border-radius: 999px;
+  padding: 0.12rem 0.42rem;
+  background: #e5f7ec;
+  color: #168050;
+  font-size: 0.68rem;
+  font-weight: 700;
+}
 .dashboard-history > header {
   display: flex;
   align-items: center;
@@ -3848,6 +3867,7 @@ section.grid > div > button {
 .standings-table__avatar,
 .public-table__avatar {
   display: grid;
+  overflow: hidden;
   width: 2rem;
   height: 2rem;
   place-items: center;
@@ -3857,6 +3877,16 @@ section.grid > div > button {
   color: #111;
   font-size: 0.75rem;
   font-weight: 700;
+}
+.player-slip__avatar img,
+.standings-table__avatar img,
+.public-table__avatar img,
+.standings-podium__avatar img,
+.profile-avatar img,
+.app-sidebar__profile > span img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
 .player-slip:nth-child(3n + 2) .player-slip__avatar {
   background: #d9f6e7;
@@ -3875,11 +3905,148 @@ section.grid > div > button {
   text-overflow: ellipsis;
   white-space: nowrap;
 }
+.player-slip__verified {
+  display: inline-flex;
+  flex: none;
+  color: #3d5afb;
+}
 .player-slip__actions {
   display: flex;
   align-items: center;
   flex-wrap: wrap;
   justify-content: flex-end;
+}
+.profile-avatar-editor {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.profile-avatar-editor__photo {
+  position: relative;
+  flex: none;
+}
+.profile-avatar {
+  display: grid;
+  width: 9rem;
+  height: 9rem;
+  flex: none;
+  overflow: hidden;
+  place-items: center;
+  border: 2px solid #111;
+  border-radius: 50%;
+  background: #dce5ff;
+  color: #111;
+  font-size: 2.5rem;
+  font-weight: 700;
+}
+.profile-avatar-editor__change {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-content: center;
+  gap: 0.2rem;
+  border-radius: 50%;
+  background: rgba(17, 17, 17, 0.72);
+  color: #fff;
+  cursor: pointer;
+  font-size: 0.68rem;
+  font-weight: 700;
+  text-align: center;
+  opacity: 0;
+  transition: opacity 160ms ease;
+}
+.profile-avatar-editor__photo:hover .profile-avatar-editor__change,
+.profile-avatar-editor__photo:focus-within .profile-avatar-editor__change {
+  opacity: 1;
+}
+.profile-avatar-editor__change svg {
+  justify-self: center;
+  width: 1rem;
+  height: 1rem;
+}
+.profile-avatar-editor__change input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+}
+@media (hover: none) {
+  .profile-avatar-editor__change {
+    opacity: 1;
+  }
+}
+.profile-avatar-editor__remove {
+  position: absolute;
+  right: -0.25rem;
+  bottom: -0.25rem;
+  display: grid;
+  width: 1.85rem;
+  height: 1.85rem;
+  place-items: center;
+  border: 2px solid #111;
+  border-radius: 50%;
+  background: #fff;
+  color: #c1272d;
+}
+.profile-avatar-editor__remove svg {
+  width: 0.9rem;
+  height: 0.9rem;
+}
+.profile-avatar-crop-preview {
+  position: relative;
+  aspect-ratio: 1;
+  overflow: hidden;
+  border: 2px solid #111;
+  border-radius: 1rem 0.4rem 1rem 0.4rem;
+  background: #f1eee3;
+  touch-action: none;
+}
+.profile-avatar-crop-preview img {
+  position: absolute;
+  max-width: none;
+  user-select: none;
+  pointer-events: none;
+}
+.profile-avatar-crop-selection {
+  position: absolute;
+  border: 1.5px dashed #fff;
+  border-radius: 50%;
+  box-shadow: 0 0 0 999px rgba(17, 17, 17, 0.58);
+  cursor: grab;
+  touch-action: none;
+}
+.profile-avatar-crop-selection.is-dragging {
+  cursor: grabbing;
+}
+.profile-avatar-crop-zoom {
+  display: block;
+  width: 100%;
+  margin-top: 0.5rem;
+  accent-color: #21b876;
+}
+.profile-danger-zone {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-top: 2rem;
+  padding-top: 1.25rem;
+  border-top: 1px solid #e7e2d2;
+}
+.profile-danger-zone h2,
+.profile-danger-zone p {
+  margin: 0;
+}
+.profile-delete-keyword {
+  color: #c1272d;
+}
+.profile-danger-zone h2 {
+  font-size: 1rem;
+}
+.profile-danger-zone p {
+  margin-top: 0.25rem;
+  color: #6b675c;
+  font-size: 0.8rem;
 }
 
 .rounds-deck__header {
@@ -4112,7 +4279,7 @@ section.grid > div > button {
   margin-top: 1.6rem;
   background: #ffe9e1;
 }
-.standings-podium__place > span {
+.standings-podium__rank {
   position: absolute;
   top: 0.5rem;
   left: 0.55rem;
@@ -4120,11 +4287,15 @@ section.grid > div > button {
   font-size: 0.7rem;
   font-weight: 700;
 }
-.standings-podium__place i {
+.standings-podium__avatar {
   display: grid;
   width: 2.45rem;
   height: 2.45rem;
+  flex: none;
+  overflow: hidden;
   place-items: center;
+  justify-self: center;
+  align-self: center;
   border: 1.5px solid #111;
   border-radius: 50%;
   background: #fff;
@@ -4511,7 +4682,7 @@ section.grid > div > button {
   border-color: #b98e22;
   transform: translateY(-0.4rem);
 }
-.public-podium .standings-podium__place--1 i {
+.public-podium .standings-podium__place--1 .standings-podium__avatar {
   width: 2.8rem;
   height: 2.8rem;
 }

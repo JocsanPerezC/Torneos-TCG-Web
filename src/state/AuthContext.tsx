@@ -70,10 +70,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setLoading(true);
       const { data, error } = await client
         .from('profiles')
-        .select('role, role_locked, legal_consent_required')
+        .select('role, role_locked, legal_consent_required, avatar_url')
         .eq('id', nextUser.id)
         .maybeSingle();
       if (!active) return;
+      if (!error && data)
+        setUser({
+          ...nextUser,
+          user_metadata: { ...nextUser.user_metadata, avatar_url: data.avatar_url },
+        });
       const roleSelectionNeeded = !error && data?.role_locked === false;
       setRequiresRoleSelection(roleSelectionNeeded);
       setRole(

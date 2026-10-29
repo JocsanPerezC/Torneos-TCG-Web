@@ -48,6 +48,7 @@ import type { Tournament } from '../domain/types';
 import {
   ArrowLeft,
   Archive,
+  BadgeCheck,
   CircleX,
   Database,
   Equal,
@@ -81,6 +82,7 @@ import { tournamentStatistics } from '../domain/statistics';
 import { standings } from '../domain/scoring';
 import { BattleLedger } from '../components/tournament/BattleLedger';
 import { TournamentJoinLink } from '../components/tournament/TournamentJoinLink';
+import { Avatar } from '../components/ui/Avatar';
 import {
   AuthenticatedShell,
   type TournamentNavigation,
@@ -1148,7 +1150,17 @@ function NewTournament() {
 function TournamentLayout() {
   const { id } = useParams();
   const tournament = useTournament(id);
-  const { isAdmin, isPlayer } = useAuth();
+  const { ready } = useTournaments();
+  const { isAdmin, isPlayer, loading } = useAuth();
+  if (loading || !ready)
+    return (
+      <Layout wide>
+        <div className="app-loading-note">
+          <i />
+          <span>{i18n.t('app.common.loading')}</span>
+        </div>
+      </Layout>
+    );
   if (isAdmin) return <Navigate to="/admin" replace />;
   if (isPlayer) return <Navigate to="/dashboard" replace />;
   if (!tournament)
@@ -1287,13 +1299,14 @@ function Metric({
 function Players() {
   const tournament = Current();
   const { id } = useParams();
-  const { addPlayers, togglePlayer, removePlayer, renamePlayer } = useTournaments();
+  const { addPlayers, togglePlayer, removePlayer, renamePlayer, refreshTournaments } = useTournaments();
   const [message, setMessage] = useState('');
   const [adding, setAdding] = useState(false);
   const [search, setSearch] = useState('');
   const [editing, setEditing] = useState<Tournament['players'][number]>();
   const [playerToToggle, setPlayerToToggle] = useState<Tournament['players'][number]>();
   const [playerToDelete, setPlayerToDelete] = useState<Tournament['players'][number]>();
+  const [refreshing, setRefreshing] = useState(false);
   function add(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const result = addPlayers(
@@ -1319,6 +1332,11 @@ function Players() {
     setMessage(result ?? i18n.t('app.tournament.playerUpdated'));
     if (!result) setEditing(undefined);
   }
+  async function refreshPlayers() {
+    setRefreshing(true);
+    await refreshTournaments();
+    setRefreshing(false);
+  }
   const normalizedSearch = search.trim().toLocaleLowerCase();
   const filteredPlayers = tournament.players.filter((player) =>
     player.name.toLocaleLowerCase().includes(normalizedSearch),
@@ -1334,14 +1352,26 @@ function Players() {
           </p>
           <h2>{i18n.t('app.tournament.players')}</h2>
         </div>
-        <Button
-          disabled={tournament.status === 'finalizado'}
-          className={primary}
-          onClick={() => setAdding(true)}
-        >
-          <Plus size={16} aria-hidden />
-          {i18n.t('app.tournament.addPlayers')}
-        </Button>
+        <div className="flex flex-wrap gap-2">
+          <Button
+            type="button"
+            variant="outline"
+            className="app-button app-button--secondary"
+            disabled={refreshing}
+            onClick={() => void refreshPlayers()}
+          >
+            <RefreshCw size={16} className={refreshing ? 'animate-spin' : ''} aria-hidden />
+            {refreshing ? i18n.t('app.tournament.refreshingPlayers') : i18n.t('app.tournament.refreshPlayers')}
+          </Button>
+          <Button
+            disabled={tournament.status === 'finalizado'}
+            className={primary}
+            onClick={() => setAdding(true)}
+          >
+            <Plus size={16} aria-hidden />
+            {i18n.t('app.tournament.addPlayers')}
+          </Button>
+        </div>
       </header>
       <div className="players-ledger__sheet">
         {message && <Notice>{message}</Notice>}
@@ -1361,17 +1391,21 @@ function Players() {
               key={player.id}
               className={`player-slip ${player.active ? '' : 'is-withdrawn'}`}
             >
-              <span className="player-slip__avatar" aria-hidden>
-                {player.name.trim().slice(0, 1).toUpperCase()}
-              </span>
+              <Avatar name={player.name} src={player.avatarUrl} className="player-slip__avatar" />
               <div>
                 <strong>{player.name}</strong>
+                {player.profileId && (
+                  <span
+                    className="player-slip__verified"
+                    role="img"
+                    aria-label={i18n.t('app.tournament.verifiedParticipant')}
+                    title={i18n.t('app.tournament.verifiedParticipant')}
+                  >
+                    <BadgeCheck size={16} aria-hidden />
+                  </span>
+                )}
                 <span className={`player-slip__status ${player.active ? 'is-active' : ''}`}>
                   {player.active ? i18n.t('app.common.active') : i18n.t('app.common.withdrawn')}
-                  {' · '}
-                  {player.profileId
-                    ? i18n.t('app.tournament.accountParticipant')
-                    : i18n.t('app.tournament.manualParticipant')}
                 </span>
               </div>
               <div className="player-slip__actions">
@@ -2010,8 +2044,12 @@ function Standings() {
               className={`standings-podium__place standings-podium__place--${row.rank}`}
               key={row.player.id}
             >
-              <span>#{row.rank}</span>
-              <i aria-hidden>{row.player.name.trim().slice(0, 1).toUpperCase()}</i>
+              <span className="standings-podium__rank">#{row.rank}</span>
+              <Avatar
+                name={row.player.name}
+                src={row.player.avatarUrl}
+                className="standings-podium__avatar"
+              />
               <strong>{row.player.name}</strong>
               <b>
                 {row.points} <small>{i18n.t('app.common.points')}</small>
@@ -2071,9 +2109,7 @@ function Standings() {
               >
                 <td>{row.rank}</td>
                 <td>
-                  <span className="standings-table__avatar" aria-hidden>
-                    {row.player.name.trim().slice(0, 1).toUpperCase()}
-                  </span>
+                  <Avatar name={row.player.name} src={row.player.avatarUrl} className="standings-table__avatar" />
                   {row.player.name}
                   {!row.player.active && <small>{i18n.t('app.common.withdrawn')}</small>}
                 </td>
@@ -2404,8 +2440,12 @@ function PublicView() {
                   className={`standings-podium__place standings-podium__place--${row.rank}`}
                   key={row.player.id}
                 >
-                  <span>#{row.rank}</span>
-                  <i aria-hidden>{row.player.name.trim().slice(0, 1).toUpperCase()}</i>
+                  <span className="standings-podium__rank">#{row.rank}</span>
+                  <Avatar
+                    name={row.player.name}
+                    src={row.player.avatarUrl}
+                    className="standings-podium__avatar"
+                  />
                   <strong>{row.player.name}</strong>
                   <b>
                     {row.points} <small>{i18n.t('app.common.points')}</small>
@@ -2440,9 +2480,7 @@ function PublicView() {
                     >
                       <td>{row.rank}</td>
                       <td>
-                        <span className="standings-table__avatar" aria-hidden>
-                          {row.player.name.trim().slice(0, 1).toUpperCase()}
-                        </span>
+                        <Avatar name={row.player.name} src={row.player.avatarUrl} className="standings-table__avatar" />
                         {row.player.name}
                         {!row.player.active && <small>{i18n.t('app.common.withdrawn')}</small>}
                       </td>

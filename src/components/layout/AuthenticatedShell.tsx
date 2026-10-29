@@ -20,6 +20,7 @@ import { Link, NavLink, useLocation, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../../state/AuthContext';
 import { getUserProfile } from '../../lib/userProfile';
+import { Avatar } from '../ui/Avatar';
 
 type NavigationItem = {
   to: string;
@@ -75,7 +76,7 @@ export function AuthenticatedShell({
   tournament?: TournamentNavigation;
 }) {
   const { t } = useTranslation();
-  const { isAdmin, isPlayer, signOut, user } = useAuth();
+  const { isAdmin, isPlayer, role, signOut, user } = useAuth();
   const navigate = useNavigate();
   const profile = getUserProfile(user);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
@@ -269,7 +270,7 @@ export function AuthenticatedShell({
                   setAccountMenuOpen((open) => !open);
                 }}
               >
-                <span aria-hidden="true">{profile.name.slice(0, 1).toUpperCase()}</span>
+                <Avatar name={profile.name} src={profile.avatarUrl} className="app-sidebar__profile-avatar" />
                 <strong>{profile.name}</strong>
                 <ChevronDown aria-hidden="true" />
               </button>
@@ -280,6 +281,9 @@ export function AuthenticatedShell({
                   aria-label={t('app.shell.account')}
                 >
                   <p>{t('app.shell.account')}</p>
+                  <span className="app-sidebar__account-role">
+                    {t(`app.profile.roles.${role ?? 'organizer'}`)}
+                  </span>
                   <Link to="/perfil" onClick={() => setAccountMenuOpen(false)}>
                     <CircleUserRound aria-hidden="true" />
                     {t('app.shell.profile')}
@@ -326,6 +330,9 @@ export function AuthenticatedShell({
             aria-label={t('app.shell.account')}
           >
             <p>{t('app.shell.account')}</p>
+            <span className="app-sidebar__account-role">
+              {t(`app.profile.roles.${role ?? 'organizer'}`)}
+            </span>
             <Link to="/perfil" onClick={() => setAccountMenuOpen(false)}>
               <CircleUserRound aria-hidden="true" />
               {t('app.shell.profile')}

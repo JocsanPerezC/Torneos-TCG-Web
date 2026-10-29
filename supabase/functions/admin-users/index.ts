@@ -173,6 +173,44 @@ Deno.serve(async (request) => {
       );
     }
 
+    if (action === 'delete-self') {
+      if (text(body.confirmation) !== 'ELIMINAR')
+        throw new Error('Escribe ELIMINAR para confirmar la eliminación de tu cuenta');
+
+      const { count: ownedTournaments, error: tournamentsError } = await adminClient
+        .from('tournaments')
+        .select('id', { count: 'exact', head: true })
+        .eq('owner_id', caller.id);
+      if (tournamentsError) throw tournamentsError;
+      if ((ownedTournaments ?? 0) > 0)
+        throw new Error(
+          'No puedes eliminar tu cuenta mientras tengas torneos. Elimínalos antes de continuar; la transferencia aún no está disponible.',
+        );
+
+      const avatarBucket = adminClient.storage.from('profile-avatars');
+      const { data: avatarFiles, error: avatarListError } = await avatarBucket.list(caller.id);
+      if (avatarListError) throw avatarListError;
+      if (avatarFiles?.length) {
+        const { error: avatarRemoveError } = await avatarBucket.remove(
+          avatarFiles.map((file) => `${caller.id}/${file.name}`),
+        );
+        if (avatarRemoveError) throw avatarRemoveError;
+      }
+
+      const { error: unlinkPlayersError } = await adminClient
+        .from('players')
+        .update({ profile_id: null, avatar_url: null })
+        .eq('profile_id', caller.id);
+      if (unlinkPlayersError) throw unlinkPlayersError;
+
+      const { error } = await adminClient.auth.admin.deleteUser(caller.id);
+      if (error) throw error;
+      return Response.json(
+        { ok: true },
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } },
+      );
+    }
+
     const { data: callerProfile, error: profileError } = await adminClient
       .from('profiles')
       .select('role')

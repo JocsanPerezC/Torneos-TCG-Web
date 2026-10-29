@@ -45,3 +45,6 @@ export async function updateManagedUser(id: string, input: UserInput) {
 export async function deleteManagedUser(id: string) {
   await invoke({ action: 'delete', id });
 }
+export async function deleteCurrentUser(confirmation: string) {
+  await invoke({ action: 'delete-self', confirmation });
+}

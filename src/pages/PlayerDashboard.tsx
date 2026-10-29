@@ -54,6 +54,7 @@ export function PlayerDashboard() {
               <div>
                 <span className="dashboard-focus__icon"><Play aria-hidden="true" /></span>
                 <p>{t('app.playerDashboard.nextTournament')}</p>
+                <span className="dashboard-focus__status">{t('app.playerDashboard.statusActive')}</span>
                 <h2 id="next-tournament-title">{activeTournament.name}</h2>
                 <span className="dashboard-focus__meta">
                   {activeTournament.format} · {t('app.playerDashboard.progress', { current: activeTournament.roundCount, total: activeTournament.plannedRounds })}
@@ -93,7 +94,9 @@ export function PlayerDashboard() {
                   <Link key={tournament.id} to={`/t/${tournament.publicSlug}`} className="dashboard-history__item">
                     <span><Trophy aria-hidden="true" /></span>
                     <strong>{tournament.name}</strong>
-                    <small>{tournament.format} · {tournament.participantName}</small>
+                    <small>
+                      {tournament.format} · {tournament.participantName} · {t('app.playerDashboard.statusFinished')}
+                    </small>
                     <ArrowRight aria-hidden="true" />
                   </Link>
                 ))}
