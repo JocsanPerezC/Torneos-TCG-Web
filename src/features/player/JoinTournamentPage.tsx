@@ -43,7 +43,7 @@ export function JoinTournamentPage() {
       setJoined(false);
       setError(undefined);
       try {
-        await joinTournament(invitation, getUserProfile(user).name);
+        await joinTournament(invitation, getUserProfile(user).nickname);
         clearInvitationReturnPath();
         setJoined(true);
         joinTimer.current = window.setTimeout(() => navigate('/dashboard', { replace: true }), 360);

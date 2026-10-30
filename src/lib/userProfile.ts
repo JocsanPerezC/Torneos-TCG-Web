@@ -22,6 +22,16 @@ export function getUserProfile(user: User | null) {
   const avatarUrl = Object.hasOwn(metadata, 'avatar_url')
     ? firstText(metadata.avatar_url)
     : firstText(metadata.picture);
+  // El apodo viene de `profiles`; mientras carga, se usa el nombre.
+  const nickname = firstText(metadata.nickname) ?? name;
 
-  return { name, avatarUrl };
+  return { name, nickname, avatarUrl };
+}
+
+export const NICKNAME_MAX_LENGTH = 24;
+
+/** Limpia espacios del apodo; devuelve undefined si no tiene un largo válido. */
+export function normalizeNickname(value: string) {
+  const nickname = value.trim().replace(/\s+/g, ' ');
+  return nickname.length >= 2 && nickname.length <= NICKNAME_MAX_LENGTH ? nickname : undefined;
 }

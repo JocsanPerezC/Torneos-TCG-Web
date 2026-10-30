@@ -984,7 +984,6 @@
 }
 .overview-board > header > p,
 .settings-desk header > p,
-.standings-board > header > p,
 .players-ledger > header p {
   margin: 0;
   color: var(--accent);

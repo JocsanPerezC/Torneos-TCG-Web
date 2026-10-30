@@ -3,6 +3,7 @@ import { Link, Navigate, useNavigate, useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/button';
 import { type RegistrationRole, useAuth } from '@/state/AuthContext';
+import { getUserProfile, NICKNAME_MAX_LENGTH } from '@/lib/userProfile';
 
 function destinationFrom(value: string | null) {
   return value?.startsWith('/') && !value.startsWith('//') ? value : '/dashboard';
@@ -16,6 +17,7 @@ export function CompleteRolePage() {
     requiresRoleSelection,
     completeRegistrationRole,
     acceptLegalConsent,
+    saveNickname,
   } = useAuth();
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
@@ -26,6 +28,8 @@ export function CompleteRolePage() {
   const destination = destinationFrom(searchParams.get('next'));
   const joinsByInvitation = destination.startsWith('/unirse/');
   const automaticPlayerRole = useRef(false);
+  const choosesNickname = user?.app_metadata.provider === 'google';
+  const currentNickname = getUserProfile(user).nickname;
 
   useEffect(() => {
     if (
@@ -68,9 +72,19 @@ export function CompleteRolePage() {
       setError(t('app.legalConsent.required'));
       return;
     }
+    const nickname = String(new FormData(event.currentTarget).get('nickname') ?? '');
     setBusy(true);
     setError('');
     try {
+      // Con Google el apodo se genera solo; aquí se puede confirmar o cambiar.
+      if (choosesNickname && nickname.trim() !== currentNickname) {
+        try {
+          await saveNickname(nickname);
+        } catch (reason) {
+          setError(reason instanceof Error ? reason.message : t('app.auth.roleSaveFailed'));
+          return;
+        }
+      }
       if (requiresLegalConsent) await acceptLegalConsent();
       await completeRegistrationRole(role);
       navigate(destination, { replace: true });
@@ -126,8 +140,35 @@ export function CompleteRolePage() {
               </label>
             </section>
           )}
-          <section className={requiresLegalConsent ? 'border-t border-border pt-5' : ''}>
-            {requiresLegalConsent ? (
+          {choosesNickname && (
+            <section className={requiresLegalConsent ? 'border-t border-border pt-5' : ''}>
+              {requiresLegalConsent ? (
+                <h2 className="text-2xl font-black">{t('app.auth.nicknameStepTitle')}</h2>
+              ) : (
+                <h1 className="text-2xl font-black">{t('app.auth.nicknameStepTitle')}</h1>
+              )}
+              <label className="mt-3 block text-sm font-semibold">
+                {t('app.common.nickname')}
+                <input
+                  required
+                  name="nickname"
+                  autoComplete="nickname"
+                  minLength={2}
+                  maxLength={NICKNAME_MAX_LENGTH}
+                  defaultValue={currentNickname}
+                  aria-describedby="nickname-help"
+                  className="app-field"
+                />
+                <span id="nickname-help" className="mt-1 block text-xs text-muted-foreground">
+                  {t('app.auth.nicknameHelp')}
+                </span>
+              </label>
+            </section>
+          )}
+          <section
+            className={requiresLegalConsent || choosesNickname ? 'border-t border-border pt-5' : ''}
+          >
+            {requiresLegalConsent || choosesNickname ? (
               <h2 className="text-2xl font-black">
                 {joinsByInvitation
                   ? t('app.auth.invitationPlayerTitle')

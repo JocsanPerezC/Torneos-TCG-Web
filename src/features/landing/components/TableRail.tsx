@@ -37,7 +37,8 @@ export function TableRail() {
   useGSAP(
     () => {
       const mm = gsap.matchMedia();
-      mm.add(MOTION_QUERY, () => {
+      // Debe coincidir con la media query del riel en landing-scroll.css.
+      mm.add(`${MOTION_QUERY} and (min-width: 768px)`, () => {
         const track = sectionRef.current?.querySelector<HTMLElement>('.rail__track');
         if (!track) return;
         gsap.to(track, {
@@ -50,6 +51,20 @@ export function TableRail() {
             scrub: 1,
             invalidateOnRefresh: true,
           },
+        });
+      });
+      // En celular las tarjetas van apiladas: cada una entra desde un lado al aparecer.
+      mm.add(`${MOTION_QUERY} and (max-width: 767px)`, () => {
+        gsap.utils.toArray<HTMLElement>('.rail-card', sectionRef.current).forEach((card, index) => {
+          const side = index % 2 ? 1 : -1;
+          gsap.from(card, {
+            autoAlpha: 0,
+            x: side * 48,
+            rotation: side * 4,
+            duration: 0.6,
+            ease: 'back.out(1.4)',
+            scrollTrigger: { trigger: card, start: 'top 88%', once: true },
+          });
         });
       });
       return () => mm.revert();

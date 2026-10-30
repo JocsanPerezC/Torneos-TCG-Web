@@ -277,6 +277,7 @@ export const en = {
       previous: 'Previous',
       next: 'Next',
       name: 'Name',
+      nickname: 'Nickname',
       email: 'Email',
       password: 'Password',
       points: 'Points',
@@ -320,6 +321,12 @@ export const en = {
       recovery: 'Recover your password',
       confirmPassword: 'Confirm password',
       yourName: 'Your name',
+      yourNickname: 'What people call you at the table',
+      nicknameHelp:
+        'This is what others see in tournaments and standings. Your name stays private.',
+      nicknameTaken: 'That nickname is already taken. Try another one.',
+      nicknameInvalid: 'Your nickname must be 2 to 24 characters long.',
+      nicknameStepTitle: 'Choose your nickname',
       continue: 'Continue',
       sendInstructions: 'Send instructions',
       processing: 'Processing…',
@@ -1066,6 +1073,7 @@ export const en = {
       description:
         'Manage your personal information. Your role is assigned when the account is created.',
       avatar: 'Profile photo',
+      nameHelp: 'Private: only you can see it.',
       changeAvatar: 'Change photo',
       removeAvatar: 'Remove photo',
       cropAvatarTitle: 'Adjust photo',

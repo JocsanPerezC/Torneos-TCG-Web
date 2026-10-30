@@ -4,6 +4,8 @@ import { supabase } from '@/lib/supabase';
 import type { AppRole } from '@/data/adminRepository';
 import { recordLoginAccess } from '@/data/adminUsersRepository';
 import { legalConsentStorageKey, type LegalConsent } from '@/lib/legal';
+import i18n from '@/i18n';
+import { normalizeNickname } from '@/lib/userProfile';
 
 export type RegistrationRole = 'player' | 'organizer';
 
@@ -21,13 +23,29 @@ export type AuthStore = {
   loading: boolean;
   configured: boolean;
   signIn(email: string, password: string): Promise<void>;
-  signUp(name: string, email: string, password: string, consent: LegalConsent): Promise<void>;
+  signUp(
+    name: string,
+    nickname: string,
+    email: string,
+    password: string,
+    consent: LegalConsent,
+  ): Promise<void>;
   completeRegistrationRole(role: RegistrationRole): Promise<void>;
   isEmailRegistered(email: string): Promise<boolean>;
+  isNicknameAvailable(nickname: string): Promise<boolean>;
+  /** Valida, comprueba que esté libre y guarda el apodo de la cuenta actual. */
+  saveNickname(nickname: string): Promise<string>;
   resetPassword(email: string): Promise<void>;
   acceptLegalConsent(): Promise<void>;
   signOut(): Promise<void>;
 };
+async function nicknameAvailable(nickname: string) {
+  if (!supabase) return true;
+  const { data, error } = await supabase.rpc('is_nickname_available', { candidate: nickname });
+  if (error) throw error;
+  return Boolean(data);
+}
+
 const Context = createContext<AuthStore | null>(null);
 /** Expuesto para providers de prueba y del muestrario; la app usa AuthProvider. */
 export const AuthContext = Context;
@@ -67,14 +85,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setLoading(true);
       const { data, error } = await client
         .from('profiles')
-        .select('role, role_locked, legal_consent_required, avatar_url')
+        .select('role, role_locked, legal_consent_required, avatar_url, nickname')
         .eq('id', nextUser.id)
         .maybeSingle();
       if (!active) return;
       if (!error && data)
         setUser({
           ...nextUser,
-          user_metadata: { ...nextUser.user_metadata, avatar_url: data.avatar_url },
+          user_metadata: {
+            ...nextUser.user_metadata,
+            avatar_url: data.avatar_url,
+            nickname: data.nickname,
+          },
         });
       const roleSelectionNeeded = !error && data?.role_locked === false;
       setRequiresRoleSelection(roleSelectionNeeded);
@@ -125,7 +147,22 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         if (error) throw error;
         return Boolean(data);
       },
-      async signUp(name, email, password, consent) {
+      isNicknameAvailable: nicknameAvailable,
+      async saveNickname(value) {
+        const nickname = normalizeNickname(value);
+        if (!nickname) throw new Error(i18n.t('app.auth.nicknameInvalid'));
+        if (!supabase || !user) return nickname;
+        if (!(await nicknameAvailable(nickname))) throw new Error(i18n.t('app.auth.nicknameTaken'));
+        const { error } = await supabase.from('profiles').update({ nickname }).eq('id', user.id);
+        // 23505: otra cuenta tomó el apodo entre la comprobación y el guardado.
+        if (error?.code === '23505') throw new Error(i18n.t('app.auth.nicknameTaken'));
+        if (error) throw error;
+        setUser((current) =>
+          current ? { ...current, user_metadata: { ...current.user_metadata, nickname } } : current,
+        );
+        return nickname;
+      },
+      async signUp(name, nickname, email, password, consent) {
         if (!supabase) return;
         const { error } = await supabase.auth.signUp({
           email,
@@ -133,6 +170,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           options: {
             data: {
               display_name: name,
+              nickname,
               legal_consent: true,
               terms_version: consent.termsVersion,
               privacy_version: consent.privacyVersion,

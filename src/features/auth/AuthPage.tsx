@@ -8,12 +8,13 @@ import { GoogleAuthButton } from '@/features/auth/components/GoogleAuthButton';
 import { Notice } from '@/components/feedback/Notice';
 import i18n from '@/i18n';
 import { currentLegalConsent } from '@/lib/legal';
+import { NICKNAME_MAX_LENGTH, normalizeNickname } from '@/lib/userProfile';
 
 import { Layout } from '@/components/layout/Layout';
 import { field, panel, primary } from '@/components/ui/classes';
 
 export function Auth({ screen }: { screen: 'login' | 'register' | 'recovery' }) {
-  const { configured, user, signIn, signUp, resetPassword } = useAuth();
+  const { configured, user, signIn, signUp, resetPassword, isNicknameAvailable } = useAuth();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const [message, setMessage] = useState('');
@@ -49,9 +50,13 @@ export function Auth({ screen }: { screen: 'login' | 'register' | 'recovery' }) 
         setMessage(i18n.t('app.auth.recoverySent'));
       } else if (register) {
         const name = String(data.get('name')).trim();
+        const nickname = normalizeNickname(String(data.get('nickname')));
+        if (!nickname) throw new Error(i18n.t('app.auth.nicknameInvalid'));
         if (password !== String(data.get('confirmPassword')))
           throw new Error(i18n.t('app.auth.passwordsMismatch'));
-        await signUp(name, email, password, currentLegalConsent);
+        if (!(await isNicknameAvailable(nickname)))
+          throw new Error(i18n.t('app.auth.nicknameTaken'));
+        await signUp(name, nickname, email, password, currentLegalConsent);
         navigate(returnPath, { replace: true });
       } else {
         await signIn(email, password);
@@ -159,6 +164,24 @@ export function Auth({ screen }: { screen: 'login' | 'register' | 'recovery' }) 
                   className={field}
                   placeholder={i18n.t('app.auth.yourName')}
                 />
+              </label>
+            )}
+            {register && (
+              <label className="block text-sm font-medium">
+                {i18n.t('app.common.nickname')}
+                <input
+                  required
+                  name="nickname"
+                  autoComplete="nickname"
+                  minLength={2}
+                  maxLength={NICKNAME_MAX_LENGTH}
+                  aria-describedby="nickname-help"
+                  className={field}
+                  placeholder={i18n.t('app.auth.yourNickname')}
+                />
+                <span id="nickname-help" className="mt-1 block text-xs text-muted-foreground">
+                  {i18n.t('app.auth.nicknameHelp')}
+                </span>
               </label>
             )}
             <label className="block text-sm font-medium">

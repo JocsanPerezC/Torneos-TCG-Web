@@ -583,7 +583,7 @@
 /* Escenarios fijos: solo cuando se permite movimiento. */
 @media (prefers-reduced-motion: no-preference) {
   .intro {
-    height: 420vh;
+    height: 260vh;
   }
   .intro__stage {
     position: sticky;
@@ -642,6 +642,9 @@
   .night-standings__rows li {
     order: 0;
   }
+}
+/* Riel horizontal solo en pantallas anchas; en celular las tarjetas se apilan. */
+@media (prefers-reduced-motion: no-preference) and (min-width: 768px) {
   .rail {
     height: 320vh;
   }

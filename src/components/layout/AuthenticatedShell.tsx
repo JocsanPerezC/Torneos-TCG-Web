@@ -265,8 +265,8 @@ export function AuthenticatedShell({
                 aria-controls="sidebar-account-menu"
                 aria-expanded={accountMenuOpen}
                 aria-haspopup="true"
-                aria-label={sidebarCollapsed ? profile.name : undefined}
-                title={sidebarCollapsed ? profile.name : undefined}
+                aria-label={sidebarCollapsed ? profile.nickname : undefined}
+                title={sidebarCollapsed ? profile.nickname : undefined}
                 onClick={() => {
                   if (sidebarCollapsed) {
                     setSidebarCollapsed(false);
@@ -277,11 +277,11 @@ export function AuthenticatedShell({
                 }}
               >
                 <Avatar
-                  name={profile.name}
+                  name={profile.nickname}
                   src={profile.avatarUrl}
                   className="app-sidebar__profile-avatar"
                 />
-                <strong>{profile.name}</strong>
+                <strong>{profile.nickname}</strong>
                 <ChevronDown aria-hidden="true" />
               </button>
               {accountMenuOpen && (

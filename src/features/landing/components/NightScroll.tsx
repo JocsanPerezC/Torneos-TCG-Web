@@ -110,7 +110,7 @@ export function NightScroll() {
             <h2 className="sr-only">{t('landing.concept.title')}</h2>
             <div className="night__steps">
               {steps.map(([title, description], index) => (
-                <article className="night-step" key={title}>
+                <article className="night-step" key={index}>
                   <b>0{index + 1}</b>
                   <h3>{title}</h3>
                   <p>{description}</p>
@@ -118,8 +118,8 @@ export function NightScroll() {
               ))}
             </div>
             <ol className="night__dots" aria-hidden="true">
-              {steps.map(([title]) => (
-                <li key={title} />
+              {steps.map((_, index) => (
+                <li key={index} />
               ))}
             </ol>
           </div>

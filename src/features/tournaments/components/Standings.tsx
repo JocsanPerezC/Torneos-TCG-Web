@@ -37,7 +37,6 @@ export function Standings() {
   return (
     <section className="standings-board">
       <header>
-        <p>{i18n.t('app.tournament.standings')}</p>
         <h2>{i18n.t('app.tournament.standings')}</h2>
       </header>
       {rows.length > 0 && (

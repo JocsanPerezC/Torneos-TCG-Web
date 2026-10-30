@@ -11,7 +11,7 @@ import { Navigate, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { BadgeCheck, Camera, KeyRound, Trash2 } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
-import { getUserProfile } from '@/lib/userProfile';
+import { getUserProfile, NICKNAME_MAX_LENGTH } from '@/lib/userProfile';
 import { useAuth } from '@/state/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Avatar } from '@/components/ui/Avatar';
@@ -81,7 +81,7 @@ async function cropAvatar(file: File, selection: CropSelection) {
 export function ProfilePage() {
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const { configured, loading, user } = useAuth();
+  const { configured, loading, user, saveNickname } = useAuth();
   const [message, setMessage] = useState<string>();
   const [busy, setBusy] = useState(false);
   const [avatarFile, setAvatarFile] = useState<File>();
@@ -110,7 +110,7 @@ export function ProfilePage() {
   const [passwordFeedback, setPasswordFeedback] = useState<{ text: string; error: boolean }>();
   const cropFrameRef = useRef<HTMLDivElement>(null);
   const closeDelete = useCallback(() => setDeleteOpen(false), []);
-  const { name, avatarUrl } = getUserProfile(user);
+  const { name, nickname, avatarUrl } = getUserProfile(user);
 
   useEffect(() => {
     if (removeAvatar || !avatarFile) {
@@ -143,11 +143,15 @@ export function ProfilePage() {
 
   const save = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    const displayName = String(new FormData(event.currentTarget).get('displayName')).trim();
+    const form = new FormData(event.currentTarget);
+    const displayName = String(form.get('displayName')).trim();
+    const nextNickname = String(form.get('nickname'));
     if (!displayName || !supabase) return;
     setBusy(true);
     setMessage(undefined);
     try {
+      // Primero el apodo: si está ocupado, no se guarda nada más.
+      if (nextNickname.trim() !== nickname) await saveNickname(nextNickname);
       let nextAvatarUrl = removeAvatar ? undefined : avatarUrl;
       if (avatarFile) {
         if (
@@ -257,12 +261,14 @@ export function ProfilePage() {
     try {
       // La Edge Function espera siempre ELIMINAR; la palabra visible depende del idioma.
       await deleteCurrentUser(SERVER_DELETE_CONFIRMATION);
-      await supabase?.auth.signOut();
-      navigate('/', { replace: true });
     } catch (reason) {
       setDeleteError(reason instanceof Error ? reason.message : t('app.profile.deleteFailed'));
       setDeleting(false);
+      return;
     }
+    // Se sale del perfil antes de cerrar sesión; si no, su guarda manda a /login.
+    navigate('/', { replace: true });
+    await supabase?.auth.signOut().catch(() => undefined);
   };
 
   const openDelete = () => {
@@ -316,7 +322,7 @@ export function ProfilePage() {
       <form className="mt-6 space-y-4" onSubmit={save}>
         <div className="profile-avatar-editor">
           <div className="profile-avatar-editor__photo">
-            <Avatar name={name} src={avatarPreview} className="profile-avatar" />
+            <Avatar name={nickname} src={avatarPreview} className="profile-avatar" />
             <label className="profile-avatar-editor__change">
               <Camera aria-hidden="true" />
               <span>{t('app.profile.changeAvatar')}</span>
@@ -339,8 +345,40 @@ export function ProfilePage() {
           </div>
         </div>
         <label className="block text-sm font-semibold">
+          {t('app.common.nickname')}
+          <input
+            required
+            name="nickname"
+            autoComplete="nickname"
+            minLength={2}
+            maxLength={NICKNAME_MAX_LENGTH}
+            defaultValue={nickname}
+            aria-describedby="profile-nickname-help"
+            className="app-field"
+          />
+          <span
+            id="profile-nickname-help"
+            className="mt-1 block text-xs font-normal text-muted-foreground"
+          >
+            {t('app.auth.nicknameHelp')}
+          </span>
+        </label>
+        <label className="block text-sm font-semibold">
           {t('app.common.name')}
-          <input required name="displayName" defaultValue={name} className="app-field" />
+          <input
+            required
+            name="displayName"
+            autoComplete="name"
+            defaultValue={name}
+            aria-describedby="profile-name-help"
+            className="app-field"
+          />
+          <span
+            id="profile-name-help"
+            className="mt-1 block text-xs font-normal text-muted-foreground"
+          >
+            {t('app.profile.nameHelp')}
+          </span>
         </label>
         <label className="block text-sm font-semibold">
           {t('app.common.email')}
