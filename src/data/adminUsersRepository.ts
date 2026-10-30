@@ -22,7 +22,22 @@ type UserInput = { displayName: string; email: string; password?: string; role: 
 async function invoke<T>(body: Record<string, unknown>): Promise<T> {
   if (!supabase) throw new Error('Supabase no está configurado.');
   const { data, error } = await supabase.functions.invoke('admin-users', { body });
-  if (error) throw error;
+  if (error) {
+    // La función responde 400 con { error: motivo }; supabase-js solo expone un
+    // mensaje genérico, así que se lee el motivo de la respuesta original.
+    const response: unknown = (error as { context?: unknown }).context;
+    if (response instanceof Response) {
+      const detail = await response
+        .clone()
+        .json()
+        .then(
+          (payload: { error?: unknown; message?: unknown }) => payload?.error ?? payload?.message,
+        )
+        .catch(() => undefined);
+      if (detail) throw new Error(String(detail));
+    }
+    throw error;
+  }
   if (data?.error) throw new Error(String(data.error));
   return data as T;
 }
