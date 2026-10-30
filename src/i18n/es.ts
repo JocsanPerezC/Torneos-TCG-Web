@@ -269,11 +269,6 @@ export const es = {
       pointsRange: 'Los puntos deben ser enteros no negativos.',
       killsRange: 'Los kills deben estar entre 0 y 5.',
     },
-    errorBoundary: {
-      title: 'Ha ocurrido un error',
-      description: 'Actualiza la página para intentarlo de nuevo.',
-      reload: 'Actualizar página',
-    },
     common: {
       cancel: 'Cancelar',
       save: 'Guardar',

@@ -1,11 +1,11 @@
 import { useEffect, useRef, useState, type FormEvent } from 'react';
-import { useTournaments } from '../../../state/TournamentContext';
-import type { Pod } from '../../../domain/types';
-import { Button } from '../../../components/ui/button';
-import { showToast } from '../../../components/ui/toast';
-import { OutcomeButtons } from './OutcomeButtons';
-import { outcomeLabel } from './outcomeLabel';
-import i18n from '../../../i18n';
+import { useTournaments } from '@/state/TournamentContext';
+import type { Pod } from '@/domain/types';
+import { Button } from '@/components/ui/button';
+import { showToast } from '@/components/ui/toast';
+import { OutcomeButtons } from '@/features/tournaments/components/OutcomeButtons';
+import { outcomeLabel } from '@/features/tournaments/components/outcomeLabel';
+import i18n from '@/i18n';
 import { field, primary } from '@/components/ui/classes';
 
 export function PodCard({

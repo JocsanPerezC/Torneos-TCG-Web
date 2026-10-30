@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import type { Player } from '../../../domain/types';
-import { initials, playerNames } from './battleText';
+import type { Player } from '@/domain/types';
+import { initials, playerNames } from '@/features/tournaments/components/battleText';
 
 export function CountUp({ value }: { value: number }) {
   const { i18n } = useTranslation();

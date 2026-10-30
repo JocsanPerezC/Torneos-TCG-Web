@@ -1,7 +1,7 @@
 import { useEffect, useId, useRef, type ReactNode } from 'react';
 import { X } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
-import { Button } from './button';
+import { Button } from '@/components/ui/button';
 
 type ModalProps = {
   title: string;

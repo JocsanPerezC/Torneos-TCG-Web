@@ -1,5 +1,5 @@
-import { tableSizes } from './tableSizes';
-import type { Player, Round } from './types';
+import { tableSizes } from '@/domain/tableSizes';
+import type { Player, Round } from '@/domain/types';
 
 const random = (seed: number) => () => {
   seed |= 0;

@@ -1,7 +1,7 @@
 import { Check, ChevronDown, Languages } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { supportedLanguages } from '../../i18n';
+import { supportedLanguages } from '@/i18n';
 
 type LanguageSelectorProps = {
   align?: 'start' | 'end';

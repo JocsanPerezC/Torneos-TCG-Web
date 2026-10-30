@@ -18,7 +18,9 @@ export function Players() {
   const { id } = useParams();
   const { addPlayers, togglePlayer, removePlayer, renamePlayer, refreshTournaments } =
     useTournaments();
-  const [message, setMessage] = useState('');
+  // Cada aviso lleva su propio id para que un mismo texto repetido vuelva a mostrar el toast.
+  const [message, setMessageState] = useState({ text: '', id: 0 });
+  const setMessage = (text: string) => setMessageState((current) => ({ text, id: current.id + 1 }));
   const [adding, setAdding] = useState(false);
   const [search, setSearch] = useState('');
   const [editing, setEditing] = useState<Tournament['players'][number]>();
@@ -107,7 +109,7 @@ export function Players() {
         </div>
       </header>
       <div className="players-ledger__sheet">
-        {message && <Notice>{message}</Notice>}
+        {message.text && <Notice key={message.id}>{message.text}</Notice>}
         <label className="players-ledger__search">
           <span className="sr-only">{i18n.t('app.tournament.searchPlayers')}</span>
           <input
@@ -280,7 +282,7 @@ export function Players() {
           onClose={() => setPlayerToDelete(undefined)}
           onConfirm={() => {
             const error = removePlayer(id!, playerToDelete.id);
-            if (error) setMessage(error);
+            setMessage(error ?? i18n.t('app.tournament.playerDeleted'));
             setPlayerToDelete(undefined);
           }}
         />

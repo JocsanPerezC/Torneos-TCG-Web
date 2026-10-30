@@ -1,4 +1,4 @@
-import { supabase } from '../lib/supabase';
+import { supabase } from '@/lib/supabase';
 
 export type AppRole = 'player' | 'organizer' | 'admin' | 'super_admin';
 export type AssignableRole = Exclude<AppRole, 'super_admin'>;

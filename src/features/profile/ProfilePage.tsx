@@ -10,13 +10,13 @@ import {
 import { Navigate, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { BadgeCheck, Camera, KeyRound, Trash2 } from 'lucide-react';
-import { supabase } from '../../lib/supabase';
-import { getUserProfile } from '../../lib/userProfile';
-import { useAuth } from '../../state/AuthContext';
-import { Button } from '../../components/ui/button';
-import { Avatar } from '../../components/ui/Avatar';
-import { Modal } from '../../components/ui/modal';
-import { deleteCurrentUser } from '../../data/adminUsersRepository';
+import { supabase } from '@/lib/supabase';
+import { getUserProfile } from '@/lib/userProfile';
+import { useAuth } from '@/state/AuthContext';
+import { Button } from '@/components/ui/button';
+import { Avatar } from '@/components/ui/Avatar';
+import { Modal } from '@/components/ui/modal';
+import { deleteCurrentUser } from '@/data/adminUsersRepository';
 
 const SERVER_DELETE_CONFIRMATION = 'ELIMINAR';
 

@@ -1,9 +1,9 @@
 import { BrowserRouter } from 'react-router-dom';
 import { Analytics } from '@vercel/analytics/react';
-import { TournamentProvider } from '../state/TournamentContext';
-import { AuthProvider } from '../state/AuthContext';
-import { FormLimits } from '../components/FormLimits';
-import { AppRouter } from './AppRouter';
+import { TournamentProvider } from '@/state/TournamentContext';
+import { AuthProvider } from '@/state/AuthContext';
+import { FormLimits } from '@/app/FormLimits';
+import { AppRouter } from '@/app/AppRouter';
 
 export default function App() {
   return (

@@ -1,8 +1,8 @@
 import { Settings } from 'lucide-react';
 import { Navigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { LanguageSelector } from '../../components/ui/LanguageSelector';
-import { useAuth } from '../../state/AuthContext';
+import { LanguageSelector } from '@/components/ui/LanguageSelector';
+import { useAuth } from '@/state/AuthContext';
 
 export function AppSettingsPage() {
   const { t } = useTranslation();

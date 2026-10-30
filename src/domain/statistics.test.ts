@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { tournamentStatistics } from './statistics';
-import type { Tournament } from './types';
+import { tournamentStatistics } from '@/domain/statistics';
+import type { Tournament } from '@/domain/types';
 
 describe('tournamentStatistics', () => {
   it('calcula los hitos solo con rondas completadas', () => {

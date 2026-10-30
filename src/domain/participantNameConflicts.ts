@@ -1,4 +1,4 @@
-import { normalizeName, type Player } from './types';
+import { normalizeName, type Player } from '@/domain/types';
 
 /** A linked player may share a name with a manual participant until tables are generated. */
 export function manualParticipantNameConflicts(players: Player[]) {

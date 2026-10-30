@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { hasCompletePodOutcomes, isValidPodResult, standings } from './scoring';
-import type { Tournament } from './types';
+import { hasCompletePodOutcomes, isValidPodResult, standings } from '@/domain/scoring';
+import type { Tournament } from '@/domain/types';
 
 describe('standings', () => {
   it('acepta hasta cinco kills por jugador', () => {

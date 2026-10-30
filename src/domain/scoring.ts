@@ -1,4 +1,4 @@
-import type { Pod, Standing, Tournament } from './types';
+import type { Pod, Standing, Tournament } from '@/domain/types';
 
 export function isValidPodResult(pod: Pod): boolean {
   const results = pod.results ?? [];

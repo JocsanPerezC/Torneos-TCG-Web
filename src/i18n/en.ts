@@ -269,11 +269,6 @@ export const en = {
       pointsRange: 'Points must be non-negative integers.',
       killsRange: 'Kills must be between 0 and 5.',
     },
-    errorBoundary: {
-      title: 'Something went wrong',
-      description: 'Refresh the page to try again.',
-      reload: 'Refresh page',
-    },
     common: {
       cancel: 'Cancel',
       save: 'Save',

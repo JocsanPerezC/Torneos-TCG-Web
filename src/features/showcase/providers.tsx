@@ -1,8 +1,8 @@
 import type { ReactNode } from 'react';
 import type { User } from '@supabase/supabase-js';
-import { AuthContext, type AuthStore } from '../../state/AuthContext';
-import { TournamentContext, type TournamentStore } from '../../state/TournamentContext';
-import { showcaseStandings, showcaseTournament } from './fixtures';
+import { AuthContext, type AuthStore } from '@/state/AuthContext';
+import { TournamentContext, type TournamentStore } from '@/state/TournamentContext';
+import { showcaseStandings, showcaseTournament } from '@/features/showcase/fixtures';
 
 // Providers mínimos: los componentes leen datos de ejemplo y ninguna acción toca Supabase.
 

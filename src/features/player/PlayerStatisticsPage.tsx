@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { BarChart3, Crown, Medal, Swords, Target, Trophy } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
-import { loadPlayerStatistics, type PlayerStatistics } from '../../data/playerRepository';
+import { loadPlayerStatistics, type PlayerStatistics } from '@/data/playerRepository';
 
 type Statistic = {
   label: string;

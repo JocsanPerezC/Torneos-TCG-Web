@@ -1,151 +1,133 @@
-# Guía de uso y funcionalidades
+<div align="center">
 
-Torneos TCG permite administrar torneos multijugador de Commander y otros TCG desde una cuenta de organizador. Los participantes no requieren una cuenta: el organizador los agrega y controla sus resultados.
+<img src="public/edh-tournaments-icon.svg" alt="EDH Tournaments logo" width="96" height="96" />
 
-## Flujo del organizador
+# EDH Tournaments
 
-1. Crea una cuenta, inicia sesión y selecciona **Nuevo torneo**.
-2. Define nombre, formato y cantidad de rondas. Los puntos se asignan manualmente a cada jugador al registrar su mesa.
-3. En **Jugadores**, agrega participantes, busca por nombre, edítalos, retíralos o elimínalos antes de que entren a una ronda.
-4. En **Rondas**, genera la siguiente ronda. Se requieren al menos 3 jugadores activos y las mesas se distribuyen en grupos de 3, 4 o 5 cuando corresponde.
-5. Inicia la ronda, registra el resultado de cada mesa y termina la ronda cuando todas estén completas. La clasificación se recalcula de inmediato.
-6. Cuando todas las rondas estén completadas, puedes finalizar el torneo para bloquear nuevas ediciones, o reabrirlo si hace falta corregir algo.
+**Run multiplayer Commander tournaments without the spreadsheet.**
 
-## Funcionalidades principales
+Pairings, pods, results and live standings in one place, with a public page anyone can follow.
 
-- Autenticación con correo y contraseña, inicio de sesión con Google, confirmación de cuenta, recuperación de contraseña y cierre de sesión.
-- Panel del organizador con torneos activos y finalizados; cada tarjeta abre el torneo directamente.
-- Creación y configuración de torneos con nombre, formato, cantidad de rondas, límite de jugadores, límite de mesas y visibilidad pública.
-- Administración de jugadores: alta por lista, búsqueda, edición de nombre, activación o retiro y eliminación antes de participar en una ronda.
-- Generación de rondas con mesas de 3, 4 o 5 participantes y emparejamiento determinista que prioriza evitar rivales repetidos y aproxima jugadores con puntuaciones similares.
-- Gestión completa de rondas: borrador, inicio, temporizador, navegación entre rondas, ajuste manual de jugadores entre mesas y eliminación de la última ronda.
-- Registro de resultados con puntos manuales y kills por jugador; la ronda solo se completa cuando todas sus mesas tienen resultados válidos.
-- Clasificación actualizada al instante, ordenada por puntos, fuerza de oponentes, kills y semilla estable para desempates.
-- Vista pública de solo lectura mediante un enlace único del torneo, con clasificación, ronda actual, mesas y temporizador.
-- Mensajes de confirmación, avisos de error y notificaciones temporales para las acciones del organizador.
-- Roles `organizer`, `admin` y `super_admin`, con panel administrativo global y gestión de usuarios para super administradores.
-- Persistencia en Supabase mediante operaciones atómicas para conservar configuración, jugadores, rondas, mesas y resultados.
-- Modo demostración con `localStorage` cuando Supabase no está configurado.
+[Live app](https://edh-tournaments.vercel.app) · [Try it without an account](https://edh-tournaments.vercel.app/trial) · [Setup](docs/setup.md)
 
-## Puntuación
+![React](https://img.shields.io/badge/React-19-61DAFB?logo=react&logoColor=white)
+![TypeScript](https://img.shields.io/badge/TypeScript-6-3178C6?logo=typescript&logoColor=white)
+![Vite](https://img.shields.io/badge/Vite-8-646CFF?logo=vite&logoColor=white)
+![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-4-06B6D4?logo=tailwindcss&logoColor=white)
+![Supabase](https://img.shields.io/badge/Supabase-Postgres-3FCF8E?logo=supabase&logoColor=white)
+![Vercel](https://img.shields.io/badge/Deployed_on-Vercel-000000?logo=vercel&logoColor=white)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
-El organizador registra un número entero no negativo de puntos para cada jugador de una mesa. No existe un límite funcional de 100: se pueden registrar 1, 100 u otro valor acordado. La vista pública no expone esos puntos por mesa.
+<br />
 
-## Mejoras pendientes
+<img src="docs/images/landing.webp" alt="EDH Tournaments landing page" width="880" />
 
-- Añadir victorias, derrotas, empates y porcentaje de victorias a la clasificación y a la base de datos. Un empate contará como medio triunfo para calcular el porcentaje.
-
-## Contenido técnico anterior
-
-La documentación original se conserva a continuación como referencia de instalación, arquitectura y despliegue.
+</div>
 
 ---
 
-# Torneos — gestor de torneos TCG
+## Contents
 
-Aplicación React/TypeScript para organizar torneos multijugador de Commander u otros TCG: participantes sin cuenta, mesas de 3–4, puntos manuales por jugador, clasificación con desempates y vista pública de solo lectura.
+- [Features](#features)
+- [Screenshots](#screenshots)
+- [Roles](#roles)
+- [Run it locally](#run-it-locally)
+- [Project structure](#project-structure)
+- [Documentation](#documentation)
+- [License](#license)
 
-## Ejecutar localmente
+## Features
+
+### 🏆 For organizers
+
+- **Tournaments** with name, format, number of rounds, player and table limits, and public visibility.
+- **Players** can be added manually (no account needed) or linked to a `player` account. Search, rename, retire or remove them before they play.
+- **Invitations** through a revocable link, a QR code or a short manual code.
+- **Pods of 3 to 5 players.** Pairing avoids repeat opponents first, then groups players with similar scores.
+- **Round control**: draft, start, timer, manual table adjustments and removal of the last round.
+- **Results per player**: manual points, kills and outcome (win, loss or draw). A round only closes once every table has valid results.
+- **Live standings**, ranked by points, opponent strength (the sum of opponents' points), kills and a stable seed.
+- **Battle log** with tournament highlights, attendance and tables.
+
+### 🎴 For players
+
+- Join with an invitation link (`/unirse/:token`) or the manual code.
+- A personal dashboard with your tournaments and global stats at `/estadisticas`: tournaments, rounds, results, points, kills and podiums.
+
+### 🌐 For everyone
+
+- **Public read-only page** at `/t/:slug` with standings, current round, tables and timer.
+- **Trial mode** at `/trial`, no account required.
+- Email and password or Google sign-in, password recovery, profile photo, password change and self-service account deletion.
+- **Spanish and English** interface.
+
+## Screenshots
+
+<table>
+  <tr>
+    <td width="50%"><img src="docs/images/rounds.webp" alt="A round in progress, with tables, results and the round timer" /></td>
+    <td width="50%"><img src="docs/images/standings.webp" alt="Live standings with the podium and full ranking table" /></td>
+  </tr>
+  <tr>
+    <td align="center"><b>Rounds</b>: pods, results and the round timer</td>
+    <td align="center"><b>Standings</b>: podium and full ranking, updated live</td>
+  </tr>
+</table>
+
+## Roles
+
+| Role          | Can                                                                                     |
+| ------------- | --------------------------------------------------------------------------------------- |
+| `player`      | Join tournaments and see their own history.                                             |
+| `organizer`   | Create and manage their own tournaments.                                                |
+| `admin`       | Browse all data from `/admin`. Cannot create tournaments.                               |
+| `super_admin` | Everything `admin` can do, plus manage any tournament, manage users and change roles.   |
+
+New accounts pick `player` or `organizer` on first sign-in. Accounts that arrive through an invitation become `player` automatically. After that, only a `super_admin` can change the role. Permissions are enforced in Supabase (RLS, triggers and functions), not just in the UI.
+
+## Run it locally
 
 ```bash
 npm install
-copy .env.example .env.local
 npm run dev
 ```
 
-Sin configurar Supabase, la aplicación funciona en **modo demostración**: usa `localStorage`, incluye un torneo de ejemplo y conserva los cambios al recargar. Esto permite probar toda la lógica de torneo sin secretos.
+Without Supabase configured, the app runs in demo mode using `localStorage`. For accounts, the database, the Edge Function and deployment, see **[docs/setup.md](docs/setup.md)**.
 
-## Configurar Supabase
+## Project structure
 
-1. Crea un proyecto en Supabase.
-2. Copia `.env.example` como `.env.local` y completa únicamente estas variables públicas:
-
-   ```env
-   VITE_SUPABASE_URL=https://tu-proyecto.supabase.co
-   VITE_SUPABASE_ANON_KEY=tu-clave-anon-publica
-   VITE_PUBLIC_APP_URL=https://tu-dominio.com
-   ```
-
-3. Instala la CLI de Supabase e inicia sesión; después vincula el proyecto y aplica la migración:
-
-   ```bash
-   npx supabase login
-   npx supabase link --project-ref TU_PROJECT_REF
-   npx supabase db push
-   ```
-
-   Alternativamente, ejecuta `supabase/migrations/20260913000000_tournament_manager.sql` desde el SQL Editor.
-4. En Authentication configura las URLs de redirección de tu entorno para recuperación de contraseña. Nunca uses ni expongas `service_role` en el frontend.
-
-La migración crea perfiles, torneos, reglas, jugadores, rondas, mesas, asignaciones y resultados, con restricciones de integridad, trigger para no repetir a una persona en la misma ronda, índices y RLS por propietario. La vista `published_tournament_snapshot` es el punto de lectura previsto para anónimos; para publicar datos de mesas/resultados completos en producción, añade vistas específicas limitadas a torneos `is_public`.
-
-## Probar invitaciones desde un celular
-
-`localhost` solo existe en la computadora que ejecuta la aplicación. Para que un QR funcione en un celular conectado a la misma red Wi-Fi, agrega la IP local que Vite muestra al arrancar en `.env.local` y reinicia `npm run dev`:
-
-```env
-VITE_PUBLIC_APP_URL=http://TU_IP_LOCAL:5173
+```text
+src/
+├── app/          Bootstrapping, routes (AppRouter.tsx) and form limits
+├── features/     One folder per screen or area (tournaments, player, admin, landing…)
+├── components/   Shared pieces: ui/, layout/ and feedback/
+├── domain/       Pure logic: tables, pairing, scoring, statistics and their tests
+├── state/        Auth and tournament contexts
+├── data/         Supabase repositories
+├── lib/          Supabase client and utilities
+├── i18n/         Spanish (es.ts) and English (en.ts) strings
+└── styles/       Layered CSS, imported in order from index.css
+supabase/         Migrations, the admin-users Edge Function and config
+docs/             Architecture, design system, decisions, backlog and screenshots
+public/           Images, robots.txt and sitemap
 ```
 
-Vite queda disponible en la red local. Abre el enlace `Network` que muestra la terminal o usa esa misma IP en el navegador de la computadora antes de generar el QR. En producción, configura `VITE_PUBLIC_APP_URL` con el dominio HTTPS publicado.
+Imports use the `@/` alias, for example `@/components/ui/button`.
 
-## Arquitectura
+## Documentation
 
-- `src/domain/`: tipos, distribución de mesas, emparejamiento, puntuación y clasificación puros.
-- `src/state/TournamentContext.tsx`: persistencia local de demostración y operaciones de torneo.
-- `src/app/AppRouter.tsx`: rutas activas; cada pantalla vive en `src/features/<área>/`.
-- `src/components/`: componentes compartidos (`ui/`, `layout/`, `feedback/`).
-- `src/styles/` y `src/i18n/`: estilos por capa y textos en español e inglés.
-- `src/lib/supabase.ts`: cliente preparado con URL y clave anónima públicas.
-- `supabase/migrations/`: modelo PostgreSQL y políticas RLS.
+Setup is in English; the rest of the project docs are in Spanish.
 
-El emparejamiento usa múltiples mezclas deterministas por semilla. Su costo penaliza los pares que ya compartieron mesa (peso 100) antes de ponderar la diferencia de puntos, para priorizar no repetir enfrentamientos. En la clasificación: puntos, fuerza de oponentes (suma de puntos de quienes enfrentó), kills y una semilla estable resuelven los empates.
+| Document                                             | What's inside                                 |
+| ---------------------------------------------------- | --------------------------------------------- |
+| [docs/setup.md](docs/setup.md)                       | Local setup, Supabase and deployment.         |
+| [docs/architecture.md](docs/architecture.md)         | Layers, flows and sources of truth.           |
+| [docs/design-system.md](docs/design-system.md)       | Colors, tokens and visual guidelines.         |
+| [docs/decisions/](docs/decisions/)                   | Architecture decision records.                |
+| [docs/auditoria-visual.md](docs/auditoria-visual.md) | Visual normalization: done and pending.       |
+| [docs/pendientes.md](docs/pendientes.md)             | Product backlog.                              |
+| [AGENTS.md](AGENTS.md)                               | Rules for coding agents.                      |
 
-## Administración
+## License
 
-La migración `20260913000013_admin_roles.sql` incorpora los roles `organizer` y `admin`. Todas las cuentas nuevas comienzan como `organizer` y no pueden cambiar su propio rol desde el navegador.
-
-Después de aplicar las migraciones, asigna el primer administrador desde el SQL Editor de Supabase, usando el UUID de **Authentication > Users**:
-
-```sql
-update public.profiles
-set role = 'admin'
-where id = 'UUID-DEL-USUARIO';
-```
-
-Al volver a iniciar sesión, esa cuenta verá `/admin`: un panel global de consulta con cuentas, torneos, participantes, rondas y visibilidad. RLS también protege estas consultas, por lo que ocultar el enlace no es la única barrera de acceso.
-
-### Niveles de acceso
-
-- `organizer`: administra únicamente sus propios torneos.
-- `admin`: conserva las capacidades de organizador y puede consultar todas las tablas funcionales desde el panel global `/admin`.
-- `super_admin`: conserva las capacidades de admin, puede gestionar cualquier torneo con la misma interfaz CRUD y es el único rol autorizado para cambiar entre `organizer` y `admin` mediante `set_profile_role`. Este rol solo se asigna desde la base de datos.
-
-La migración `20260913000014_super_admin_roles.sql` añade el último nivel. Para promover tu cuenta actual, ejecuta en el SQL Editor:
-
-```sql
-update public.profiles
-set role = 'super_admin'
-where id = 'UUID-DEL-USUARIO';
-```
-
-La migración `20260913000016_super_admin_tournament_crud.sql` permite que el super admin abra **Gestionar** en cualquier torneo y use la misma interfaz completa del organizador. No existe un CRUD global separado de torneos.
-
-## CRUD de usuarios para super admins
-
-La función `supabase/functions/admin-users` usa la API administrativa de Supabase únicamente después de verificar que quien hace la solicitud tiene `role = 'super_admin'`. Permite crear, editar y eliminar cuentas desde el panel; solo admite los roles `organizer` y `admin`.
-
-```bash
-npx supabase functions deploy admin-users --no-verify-jwt
-```
-
-No copies una clave `service_role` al frontend ni a `.env.local`. Supabase entrega esa clave de forma segura a la Edge Function durante su ejecución.
-
-## Verificación y despliegue
-
-```bash
-npm run lint
-npm run build
-```
-
-Para desplegar, configura las dos variables `VITE_` como variables de build en tu proveedor y publica el directorio generado `dist`. Configura fallback de SPA para que las rutas `/tournaments/*` y `/t/*` resuelvan `index.html`.
+[MIT](LICENSE) © 2026 Jocsan Perez C

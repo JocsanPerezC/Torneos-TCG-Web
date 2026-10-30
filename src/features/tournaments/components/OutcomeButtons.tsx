@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { CircleX, Equal, Trophy, type LucideIcon } from 'lucide-react';
-import type { ResultOutcome } from '../../../domain/types';
-import i18n from '../../../i18n';
+import type { ResultOutcome } from '@/domain/types';
+import i18n from '@/i18n';
 
 export function OutcomeButtons({
   playerId,

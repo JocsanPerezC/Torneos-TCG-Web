@@ -1,7 +1,7 @@
 import i18n from 'i18next';
 import { initReactI18next } from 'react-i18next';
-import { en } from './en';
-import { es } from './es';
+import { en } from '@/i18n/en';
+import { es } from '@/i18n/es';
 
 export const supportedLanguages = ['es', 'en'] as const;
 

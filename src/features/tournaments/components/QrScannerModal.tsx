@@ -1,8 +1,8 @@
 import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import QrScanner from 'qr-scanner';
-import { Button } from '../../../components/ui/button';
-import { Modal } from '../../../components/ui/modal';
+import { Button } from '@/components/ui/button';
+import { Modal } from '@/components/ui/modal';
 
 /** `preview` solo se usa en el muestrario: muestra el modal sin encender la cámara. */
 export function QrScannerModal({

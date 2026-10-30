@@ -1,8 +1,8 @@
 import { useEffect, useRef, useState, type FormEvent } from 'react';
 import { Link, Navigate, useNavigate, useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { Button } from '../../components/ui/button';
-import { type RegistrationRole, useAuth } from '../../state/AuthContext';
+import { Button } from '@/components/ui/button';
+import { type RegistrationRole, useAuth } from '@/state/AuthContext';
 
 function destinationFrom(value: string | null) {
   return value?.startsWith('/') && !value.startsWith('//') ? value : '/dashboard';

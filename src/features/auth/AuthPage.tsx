@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { GoogleAuthButton } from '@/features/auth/components/GoogleAuthButton';
 import { Notice } from '@/components/feedback/Notice';
 import i18n from '@/i18n';
-import { currentLegalConsent } from '@/legal';
+import { currentLegalConsent } from '@/lib/legal';
 
 import { Layout } from '@/components/layout/Layout';
 import { field, panel, primary } from '@/components/ui/classes';

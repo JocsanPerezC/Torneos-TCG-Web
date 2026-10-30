@@ -1,6 +1,6 @@
 import { Play } from 'lucide-react';
 import type { Result, Tournament } from '@/domain/types';
-import { PodResults } from './PodResults';
+import { PodResults } from '@/features/trial/components/PodResults';
 import { panel, primary } from '@/components/ui/classes';
 
 export function RoundEditor({

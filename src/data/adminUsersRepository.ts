@@ -1,5 +1,5 @@
-import { supabase } from '../lib/supabase';
-import type { AssignableRole } from './adminRepository';
+import { supabase } from '@/lib/supabase';
+import type { AssignableRole } from '@/data/adminRepository';
 
 export type ManagedUser = {
   id: string;

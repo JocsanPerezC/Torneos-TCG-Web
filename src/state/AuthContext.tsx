@@ -1,9 +1,9 @@
 import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
 import type { User } from '@supabase/supabase-js';
-import { supabase } from '../lib/supabase';
-import type { AppRole } from '../data/adminRepository';
-import { recordLoginAccess } from '../data/adminUsersRepository';
-import { legalConsentStorageKey, type LegalConsent } from '../legal';
+import { supabase } from '@/lib/supabase';
+import type { AppRole } from '@/data/adminRepository';
+import { recordLoginAccess } from '@/data/adminUsersRepository';
+import { legalConsentStorageKey, type LegalConsent } from '@/lib/legal';
 
 export type RegistrationRole = 'player' | 'organizer';
 

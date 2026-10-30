@@ -1,5 +1,5 @@
-import { supabase } from '../lib/supabase';
-import type { Pod, ResultOutcome, Tournament } from '../domain/types';
+import { supabase } from '@/lib/supabase';
+import type { Pod, ResultOutcome, Tournament } from '@/domain/types';
 
 type Row = Record<string, unknown>;
 const asArray = (value: unknown) => (Array.isArray(value) ? (value as Row[]) : []);

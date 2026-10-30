@@ -1,4 +1,4 @@
-import type { Player } from '../../../domain/types';
+import type { Player } from '@/domain/types';
 
 export function playerNames(players: Player[]) {
   return players.map((player) => player.name).join(' · ');

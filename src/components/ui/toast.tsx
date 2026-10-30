@@ -1,6 +1,6 @@
 import { useEffect, useLayoutEffect, useRef, useState, type ReactNode } from 'react';
 import { X } from 'lucide-react';
-import i18n from '../../i18n';
+import i18n from '@/i18n';
 
 type Toast = { id: number; message: ReactNode; error: boolean; exiting?: boolean };
 

@@ -1,6 +1,6 @@
 import { useEffect, useRef } from 'react';
-import { showToast } from '../ui/toast';
-import i18n from '../../i18n';
+import { showToast } from '@/components/ui/toast';
+import i18n from '@/i18n';
 
 export function Notice({
   children,

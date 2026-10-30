@@ -1,20 +1,20 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { LayoutDashboard, ScanLine, ShieldCheck, Table, Trophy, Users } from 'lucide-react';
-import { Button } from '../../components/ui/button';
-import { AuthenticatedShell, NavigationLink } from '../../components/layout/AuthenticatedShell';
-import { Header } from '../../components/layout/PublicHeader';
-import { Metric } from '../../components/ui/Metric';
-import { RoundTimer } from '../tournaments/components/RoundTimer';
-import { DraftPodCard } from '../tournaments/components/DraftPodCard';
-import { PodCard } from '../tournaments/components/PodCard';
-import { OutcomeButtons } from '../tournaments/components/OutcomeButtons';
-import { Standings } from '../tournaments/components/Standings';
-import { TournamentJoinLink } from '../tournaments/components/TournamentJoinLink';
-import { QrScannerModal } from '../tournaments/components/QrScannerModal';
-import { RoundEditor } from '../trial/components/RoundEditor';
-import { PodResults } from '../trial/components/PodResults';
-import { BattleLedger } from '../tournaments/components/BattleLedger';
+import { Button } from '@/components/ui/button';
+import { AuthenticatedShell, NavigationLink } from '@/components/layout/AuthenticatedShell';
+import { Header } from '@/components/layout/PublicHeader';
+import { Metric } from '@/components/ui/Metric';
+import { RoundTimer } from '@/features/tournaments/components/RoundTimer';
+import { DraftPodCard } from '@/features/tournaments/components/DraftPodCard';
+import { PodCard } from '@/features/tournaments/components/PodCard';
+import { OutcomeButtons } from '@/features/tournaments/components/OutcomeButtons';
+import { Standings } from '@/features/tournaments/components/Standings';
+import { TournamentJoinLink } from '@/features/tournaments/components/TournamentJoinLink';
+import { QrScannerModal } from '@/features/tournaments/components/QrScannerModal';
+import { RoundEditor } from '@/features/trial/components/RoundEditor';
+import { PodResults } from '@/features/trial/components/PodResults';
+import { BattleLedger } from '@/features/tournaments/components/BattleLedger';
 import {
   ArrowGlyph,
   BalanceGlyph,
@@ -24,14 +24,14 @@ import {
   RoundPips,
   Sparkline,
   SwordLink,
-} from '../tournaments/components/BattleGlyphs';
-import { LandingHeader } from '../landing/components/LandingHeader';
-import { FeatureList } from '../landing/components/FeatureList';
-import { Faq } from '../landing/components/Faq';
-import { FinalCta } from '../landing/components/FinalCta';
-import { LandingFooter } from '../landing/components/LandingFooter';
-import { ScaledFrame, ShowcaseSection, Variant } from './ShowcaseSection';
-import { ShowcaseAuthProvider, ShowcaseTournamentProvider } from './providers';
+} from '@/features/tournaments/components/BattleGlyphs';
+import { LandingHeader } from '@/features/landing/components/LandingHeader';
+import { FeatureList } from '@/features/landing/components/FeatureList';
+import { Faq } from '@/features/landing/components/Faq';
+import { FinalCta } from '@/features/landing/components/FinalCta';
+import { LandingFooter } from '@/features/landing/components/LandingFooter';
+import { ScaledFrame, ShowcaseSection, Variant } from '@/features/showcase/ShowcaseSection';
+import { ShowcaseAuthProvider, ShowcaseTournamentProvider } from '@/features/showcase/providers';
 import {
   podComplete,
   podEmpty,
@@ -44,7 +44,7 @@ import {
   showcaseNames,
   showcaseStatistics,
   showcaseTournament,
-} from './fixtures';
+} from '@/features/showcase/fixtures';
 
 const noop = () => undefined;
 

@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next';
-import type { TableStatistic, TournamentStatistics } from '../../../domain/statistics';
+import type { TableStatistic, TournamentStatistics } from '@/domain/statistics';
 import {
   ArrowGlyph,
   AvatarStack,
@@ -11,8 +11,8 @@ import {
   RoundPips,
   Sparkline,
   SwordLink,
-} from './BattleGlyphs';
-import { playerNames } from './battleText';
+} from '@/features/tournaments/components/BattleGlyphs';
+import { playerNames } from '@/features/tournaments/components/battleText';
 
 interface BattleLedgerProps {
   statistics: TournamentStatistics;

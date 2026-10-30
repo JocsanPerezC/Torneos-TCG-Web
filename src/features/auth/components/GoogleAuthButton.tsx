@@ -1,10 +1,10 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { supabase } from '../../../lib/supabase';
-import { Button } from '../../../components/ui/button';
-import { showToast } from '../../../components/ui/toast';
-import { currentLegalConsent, legalConsentStorageKey } from '../../../legal';
-import { saveInvitationReturnPath } from '../../../lib/invitationReturnPath';
+import { supabase } from '@/lib/supabase';
+import { Button } from '@/components/ui/button';
+import { showToast } from '@/components/ui/toast';
+import { currentLegalConsent, legalConsentStorageKey } from '@/lib/legal';
+import { saveInvitationReturnPath } from '@/lib/invitationReturnPath';
 
 function GoogleIcon() {
   return (

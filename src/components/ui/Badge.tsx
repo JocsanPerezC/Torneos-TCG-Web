@@ -1,4 +1,4 @@
-import i18n from '../../i18n';
+import i18n from '@/i18n';
 
 const statusColor: Record<string, string> = {
   borrador: 'border-border bg-secondary text-muted-foreground',

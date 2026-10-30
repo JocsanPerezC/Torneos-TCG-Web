@@ -2,8 +2,8 @@ import { useEffect, useState } from 'react';
 import { Archive, ArrowRight, Play, Swords, Trophy } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { loadPlayerTournaments, type PlayerTournament } from '../../data/playerRepository';
-import { Button } from '../../components/ui/button';
+import { loadPlayerTournaments, type PlayerTournament } from '@/data/playerRepository';
+import { Button } from '@/components/ui/button';
 
 export function PlayerDashboard() {
   const { t } = useTranslation();

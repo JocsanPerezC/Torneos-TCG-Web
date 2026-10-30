@@ -1,6 +1,6 @@
-import type { Player, Pod, Round, Tournament } from '../../domain/types';
-import { standings } from '../../domain/scoring';
-import { tournamentStatistics } from '../../domain/statistics';
+import type { Player, Pod, Round, Tournament } from '@/domain/types';
+import { standings } from '@/domain/scoring';
+import { tournamentStatistics } from '@/domain/statistics';
 
 // Datos estáticos del muestrario: no se guardan ni salen de esta página.
 

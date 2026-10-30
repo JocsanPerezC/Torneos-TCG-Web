@@ -7,14 +7,14 @@ import {
   useState,
   type ReactNode,
 } from 'react';
-import { makePairings } from '../domain/pairing';
-import { hasCompletePodOutcomes, isValidPodResult, standings } from '../domain/scoring';
-import { normalizeName, uid, type Pod, type Tournament } from '../domain/types';
-import { manualParticipantNameConflicts } from '../domain/participantNameConflicts';
-import { maxTournamentsPerOrganizer, tournamentLimitMessage } from '../domain/tournamentLimits';
-import { supabase } from '../lib/supabase';
-import { useAuth } from './AuthContext';
-import i18n from '../i18n';
+import { makePairings } from '@/domain/pairing';
+import { hasCompletePodOutcomes, isValidPodResult, standings } from '@/domain/scoring';
+import { normalizeName, uid, type Pod, type Tournament } from '@/domain/types';
+import { manualParticipantNameConflicts } from '@/domain/participantNameConflicts';
+import { maxTournamentsPerOrganizer, tournamentLimitMessage } from '@/domain/tournamentLimits';
+import { supabase } from '@/lib/supabase';
+import { useAuth } from '@/state/AuthContext';
+import i18n from '@/i18n';
 import {
   deleteRemoteRound,
   deleteRemoteTournament,
@@ -30,7 +30,7 @@ import {
   persistTournament,
   persistTournamentSnapshot,
   removeRemotePlayer,
-} from '../data/tournamentRepository';
+} from '@/data/tournamentRepository';
 
 type CreateInput = Pick<Tournament, 'name' | 'format' | 'plannedRounds' | 'isPublic'> &
   Partial<Pick<Tournament, 'maxPlayers' | 'maxTables'>>;

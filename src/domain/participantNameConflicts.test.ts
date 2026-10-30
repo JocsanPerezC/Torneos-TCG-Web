@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { manualParticipantNameConflicts } from './participantNameConflicts';
+import { manualParticipantNameConflicts } from '@/domain/participantNameConflicts';
 
 describe('manualParticipantNameConflicts', () => {
   it('detects a manual participant whose name matches a linked account', () => {

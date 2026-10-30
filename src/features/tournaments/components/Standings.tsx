@@ -1,9 +1,9 @@
 import { useEffect, useRef, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { Info } from 'lucide-react';
-import { useTournaments } from '../../../state/TournamentContext';
-import { Avatar } from '../../../components/ui/Avatar';
-import i18n from '../../../i18n';
+import { useTournaments } from '@/state/TournamentContext';
+import { Avatar } from '@/components/ui/Avatar';
+import i18n from '@/i18n';
 
 export function Standings() {
   const { id } = useParams();

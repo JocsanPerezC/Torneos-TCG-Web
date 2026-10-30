@@ -1,5 +1,5 @@
-import type { Pod } from '../../../domain/types';
-import i18n from '../../../i18n';
+import type { Pod } from '@/domain/types';
+import i18n from '@/i18n';
 
 export function DraftPodCard({
   pod,

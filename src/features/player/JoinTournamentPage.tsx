@@ -2,12 +2,12 @@ import { useCallback, useEffect, useRef, useState, type FormEvent } from 'react'
 import { Link, Navigate, useNavigate, useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { Check, ScanLine } from 'lucide-react';
-import { joinTournament } from '../../data/playerRepository';
-import { getUserProfile } from '../../lib/userProfile';
-import { clearInvitationReturnPath } from '../../lib/invitationReturnPath';
-import { useAuth } from '../../state/AuthContext';
-import { Button } from '../../components/ui/button';
-import { QrScannerModal } from '../tournaments/components/QrScannerModal';
+import { joinTournament } from '@/data/playerRepository';
+import { getUserProfile } from '@/lib/userProfile';
+import { clearInvitationReturnPath } from '@/lib/invitationReturnPath';
+import { useAuth } from '@/state/AuthContext';
+import { Button } from '@/components/ui/button';
+import { QrScannerModal } from '@/features/tournaments/components/QrScannerModal';
 
 function tokenFromInput(value: string) {
   const match = value.trim().match(/\/unirse\/([a-z0-9]+)/i);

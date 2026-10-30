@@ -1,9 +1,9 @@
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { LogOut, Settings as SettingsIcon, ShieldCheck, Trophy } from 'lucide-react';
-import { useAuth } from '../../state/AuthContext';
-import { Button } from '../ui/button';
-import { LanguageSelector } from '../ui/LanguageSelector';
-import i18n from '../../i18n';
+import { useAuth } from '@/state/AuthContext';
+import { Button } from '@/components/ui/button';
+import { LanguageSelector } from '@/components/ui/LanguageSelector';
+import i18n from '@/i18n';
 
 export function Header() {
   const { user, configured, isAdmin, signOut } = useAuth();

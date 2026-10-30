@@ -1,5 +1,5 @@
-import { hasCompletePodOutcomes, isValidPodResult, standings } from './scoring';
-import type { Player, ResultOutcome, Tournament } from './types';
+import { hasCompletePodOutcomes, isValidPodResult, standings } from '@/domain/scoring';
+import type { Player, ResultOutcome, Tournament } from '@/domain/types';
 
 export interface PlayerHighlight {
   players: Player[];

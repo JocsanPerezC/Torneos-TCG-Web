@@ -18,9 +18,9 @@ import {
 import { useEffect, useRef, useState } from 'react';
 import { Link, NavLink, useLocation, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { useAuth } from '../../state/AuthContext';
-import { getUserProfile } from '../../lib/userProfile';
-import { Avatar } from '../ui/Avatar';
+import { useAuth } from '@/state/AuthContext';
+import { getUserProfile } from '@/lib/userProfile';
+import { Avatar } from '@/components/ui/Avatar';
 
 export type NavigationItem = {
   to: string;

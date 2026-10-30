@@ -7,9 +7,9 @@ import {
   loadTournamentJoinCode,
   loadTournamentJoinLink,
   revokeTournamentJoinLink,
-} from '../../../data/playerRepository';
-import { Button } from '../../../components/ui/button';
-import { Modal } from '../../../components/ui/modal';
+} from '@/data/playerRepository';
+import { Button } from '@/components/ui/button';
+import { Modal } from '@/components/ui/modal';
 
 function errorMessage(error: unknown, fallback: string) {
   if (error instanceof Error) return error.message;

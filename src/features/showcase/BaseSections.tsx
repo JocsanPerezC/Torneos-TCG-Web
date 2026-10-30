@@ -1,21 +1,21 @@
 import { useState, type FormEvent } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Bell, CircleAlert, Layers3, Plus, Trash2 } from 'lucide-react';
-import { Accordion, AccordionItem } from '../../components/ui/accordion';
-import { Button } from '../../components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/card';
-import { LanguageSelector } from '../../components/ui/LanguageSelector';
-import { Modal } from '../../components/ui/modal';
-import { showToast } from '../../components/ui/toast';
-import { Avatar } from '../../components/ui/Avatar';
-import { Badge } from '../../components/ui/Badge';
-import { GoogleAuthButton } from '../auth/components/GoogleAuthButton';
-import { Notice } from '../../components/feedback/Notice';
-import { ConfirmModal } from '../../components/feedback/ConfirmModal';
-import { AccountLock } from '../trial/components/AccountLock';
-import { AvatarStack, EmptyMark } from '../tournaments/components/BattleGlyphs';
-import { ShowcaseSection, Variant } from './ShowcaseSection';
-import { showcasePlayers } from './fixtures';
+import { Accordion, AccordionItem } from '@/components/ui/accordion';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { LanguageSelector } from '@/components/ui/LanguageSelector';
+import { Modal } from '@/components/ui/modal';
+import { showToast } from '@/components/ui/toast';
+import { Avatar } from '@/components/ui/Avatar';
+import { Badge } from '@/components/ui/Badge';
+import { GoogleAuthButton } from '@/features/auth/components/GoogleAuthButton';
+import { Notice } from '@/components/feedback/Notice';
+import { ConfirmModal } from '@/components/feedback/ConfirmModal';
+import { AccountLock } from '@/features/trial/components/AccountLock';
+import { AvatarStack, EmptyMark } from '@/features/tournaments/components/BattleGlyphs';
+import { ShowcaseSection, Variant } from '@/features/showcase/ShowcaseSection';
+import { showcasePlayers } from '@/features/showcase/fixtures';
 
 const tokens = [
   ['--background', '#fcfaec'],
@@ -200,10 +200,7 @@ export function FieldsSection() {
     <ShowcaseSection
       id="fields"
       titleKey="app.showcase.fields"
-      sources={[
-        '.app-field · src/styles/app-tools.css',
-        'FormLimits · src/components/FormLimits.tsx',
-      ]}
+      sources={['.app-field · src/styles/app-tools.css', 'FormLimits · src/app/FormLimits.tsx']}
     >
       <form className="grid gap-4 md:grid-cols-2" onSubmit={submitForm}>
         <label className="text-sm font-semibold">

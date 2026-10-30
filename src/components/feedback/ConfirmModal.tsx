@@ -1,6 +1,6 @@
-import { Button } from '../ui/button';
-import { Modal } from '../ui/modal';
-import i18n from '../../i18n';
+import { Button } from '@/components/ui/button';
+import { Modal } from '@/components/ui/modal';
+import i18n from '@/i18n';
 import { primary } from '@/components/ui/classes';
 
 export function ConfirmModal({

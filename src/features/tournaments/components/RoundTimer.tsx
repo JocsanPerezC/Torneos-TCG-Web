@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
-import type { Tournament } from '../../../domain/types';
-import i18n from '../../../i18n';
+import type { Tournament } from '@/domain/types';
+import i18n from '@/i18n';
 
 export function RoundTimer({ round }: { round: Tournament['rounds'][number] }) {
   const [now, setNow] = useState(0);

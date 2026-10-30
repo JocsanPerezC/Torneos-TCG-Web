@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { LanguageSelector } from '../../components/ui/LanguageSelector';
-import { ToastViewport } from '../../components/ui/toast';
+import { LanguageSelector } from '@/components/ui/LanguageSelector';
+import { ToastViewport } from '@/components/ui/toast';
 import {
   BadgesSection,
   ButtonsSection,
@@ -10,14 +10,14 @@ import {
   FieldsSection,
   FoundationsSection,
   IdentitySection,
-} from './BaseSections';
+} from '@/features/showcase/BaseSections';
 import {
   LandingSection,
   MetricsSection,
   NavigationSection,
   StatisticsSection,
   TournamentSection,
-} from './AppSections';
+} from '@/features/showcase/AppSections';
 
 const sections = [
   ['foundations', 'app.showcase.foundations'],
