@@ -8,7 +8,7 @@ Torneos TCG administra torneos multijugador de Commander y otros TCG. El organiz
 
 - `src/main.tsx` carga estilos, traducciones y `App`.
 - `src/app/App.tsx` monta `AuthProvider`, `TournamentProvider`, `src/app/AppRouter.tsx` y Vercel Web Analytics una sola vez.
-- `src/app/AppRouter.tsx` solo declara las rutas activas y sus guardas (consentimiento, solo local); cada pantalla vive en `src/features/<área>/`. `/dashboard` muestra una experiencia distinta según el rol; `/unirse/:token` procesa invitaciones de jugadores y `/perfil` es común a las cuentas autenticadas.
+- `src/app/AppRouter.tsx` solo declara las rutas activas y sus guardas (consentimiento, solo local); cada pantalla vive en `src/features/<área>/`. Cada pantalla se carga bajo demanda con `lazyNamed` (React.lazy); las pestañas de un torneo comparten un solo chunk mediante `src/features/tournaments/routes.ts`. Si un chunk de un despliegue anterior ya no existe, `src/lib/chunkReload.ts` recarga la página una vez. `/dashboard` muestra una experiencia distinta según el rol; `/unirse/:token` procesa invitaciones de jugadores y `/perfil` es común a las cuentas autenticadas.
 
 ## Estructura de `src/`
 

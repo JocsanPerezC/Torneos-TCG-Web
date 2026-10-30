@@ -1,160 +1,203 @@
 import { Navigate, Route, Routes, useLocation, useNavigate } from 'react-router-dom';
-import { useEffect } from 'react';
+import { lazy, Suspense, useEffect, type ComponentType } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '@/state/AuthContext';
-import { LandingPage } from '@/features/landing/LandingPage';
-import { PrivacyPolicyPage, TermsPage } from '@/features/legal/LegalPages';
-import { TrialPage } from '@/features/trial/TrialPage';
-import { ComponentShowcasePage } from '@/features/showcase/ComponentShowcasePage';
-import { CompleteRolePage } from '@/features/auth/CompleteRolePage';
-import { JoinTournamentPage } from '@/features/player/JoinTournamentPage';
-import { ProfilePage } from '@/features/profile/ProfilePage';
-import { AppSettingsPage } from '@/features/profile/AppSettingsPage';
 import { savedInvitationReturnPath } from '@/lib/invitationReturnPath';
-import { Standings } from '@/features/tournaments/components/Standings';
+import { reloadForStaleChunk } from '@/lib/chunkReload';
 
-import { Layout } from '@/components/layout/Layout';
-import { LegalConsent } from '@/features/auth/LegalConsent';
-import { Auth, ConfirmedAccount } from '@/features/auth/AuthPage';
-import { Dashboard } from '@/features/dashboard/Dashboard';
-import { PlayerStatisticsRoute } from '@/features/player/PlayerStatisticsRoute';
-import { NewTournament } from '@/features/tournaments/NewTournament';
-import { TournamentLayout } from '@/features/tournaments/TournamentLayout';
-import { Overview } from '@/features/tournaments/Overview';
-import { Players } from '@/features/tournaments/Players';
-import { Rounds } from '@/features/tournaments/Rounds';
-import { Settings } from '@/features/tournaments/Settings';
-import { PublicView } from '@/features/public/PublicView';
-import { AdminRoute } from '@/features/admin/AdminRoute';
+// Cada pantalla se descarga al visitarla; así quien abre un enlace público o el
+// dashboard no descarga el landing (y GSAP), ni el landing el marco de la app.
+function lazyNamed<M, K extends keyof M>(load: () => Promise<M>, name: K) {
+  type Page = Extract<M[K], ComponentType<any>>;
+  return lazy<Page>(async () => {
+    try {
+      return { default: (await load())[name] as Page };
+    } catch (error) {
+      // Chunk de un despliegue anterior: recarga y espera, en lugar de mostrar el error.
+      if (reloadForStaleChunk()) await new Promise(() => {});
+      throw error;
+    }
+  });
+}
+const landing = () => import('@/features/landing/LandingPage');
+// En la portada, la descarga del landing empieza en paralelo con el arranque de React.
+if (typeof window !== 'undefined' && window.location.pathname === '/') void landing();
+const legal = () => import('@/features/legal/LegalPages');
+const auth = () => import('@/features/auth/AuthPage');
+const tournaments = () => import('@/features/tournaments/routes');
+const PrivacyPolicyPage = lazyNamed(legal, 'PrivacyPolicyPage');
+const TermsPage = lazyNamed(legal, 'TermsPage');
+const LandingPage = lazyNamed(landing, 'LandingPage');
+const Layout = lazyNamed(() => import('@/components/layout/Layout'), 'Layout');
+const TrialPage = lazyNamed(() => import('@/features/trial/TrialPage'), 'TrialPage');
+const ComponentShowcasePage = lazyNamed(
+  () => import('@/features/showcase/ComponentShowcasePage'),
+  'ComponentShowcasePage',
+);
+const CompleteRolePage = lazyNamed(
+  () => import('@/features/auth/CompleteRolePage'),
+  'CompleteRolePage',
+);
+const JoinTournamentPage = lazyNamed(
+  () => import('@/features/player/JoinTournamentPage'),
+  'JoinTournamentPage',
+);
+const ProfilePage = lazyNamed(() => import('@/features/profile/ProfilePage'), 'ProfilePage');
+const AppSettingsPage = lazyNamed(
+  () => import('@/features/profile/AppSettingsPage'),
+  'AppSettingsPage',
+);
+const LegalConsent = lazyNamed(() => import('@/features/auth/LegalConsent'), 'LegalConsent');
+const Auth = lazyNamed(auth, 'Auth');
+const ConfirmedAccount = lazyNamed(auth, 'ConfirmedAccount');
+const Dashboard = lazyNamed(() => import('@/features/dashboard/Dashboard'), 'Dashboard');
+const PlayerStatisticsRoute = lazyNamed(
+  () => import('@/features/player/PlayerStatisticsRoute'),
+  'PlayerStatisticsRoute',
+);
+const NewTournament = lazyNamed(
+  () => import('@/features/tournaments/NewTournament'),
+  'NewTournament',
+);
+const TournamentLayout = lazyNamed(tournaments, 'TournamentLayout');
+const Overview = lazyNamed(tournaments, 'Overview');
+const Players = lazyNamed(tournaments, 'Players');
+const Rounds = lazyNamed(tournaments, 'Rounds');
+const Standings = lazyNamed(tournaments, 'Standings');
+const Settings = lazyNamed(tournaments, 'Settings');
+const PublicView = lazyNamed(() => import('@/features/public/PublicView'), 'PublicView');
+const AdminRoute = lazyNamed(() => import('@/features/admin/AdminRoute'), 'AdminRoute');
 
 export function AppRouter() {
   useTranslation();
   return (
     <>
       <InvitationReturn />
-      <Routes>
-        <Route path="/" element={<LandingPage />} />
-        <Route path="/trial" element={<TrialPage />} />
-        <Route path="/privacy" element={<PrivacyPolicyPage />} />
-        <Route path="/terms" element={<TermsPage />} />
-        <Route
-          path="/muestrario"
-          element={
-            <LocalOnly>
-              <ComponentShowcasePage />
-            </LocalOnly>
-          }
-        />
-        <Route
-          path="/unirse"
-          element={
-            <ConsentGuard>
-              <Layout>
-                <JoinTournamentPage />
+      <Suspense fallback={null}>
+        <Routes>
+          <Route path="/" element={<LandingPage />} />
+          <Route path="/trial" element={<TrialPage />} />
+          <Route path="/privacy" element={<PrivacyPolicyPage />} />
+          <Route path="/terms" element={<TermsPage />} />
+          <Route
+            path="/muestrario"
+            element={
+              <LocalOnly>
+                <ComponentShowcasePage />
+              </LocalOnly>
+            }
+          />
+          <Route
+            path="/unirse"
+            element={
+              <ConsentGuard>
+                <Layout>
+                  <JoinTournamentPage />
+                </Layout>
+              </ConsentGuard>
+            }
+          />
+          <Route
+            path="/unirse/:token"
+            element={
+              <ConsentGuard>
+                <Layout>
+                  <JoinTournamentPage />
+                </Layout>
+              </ConsentGuard>
+            }
+          />
+          <Route
+            path="/perfil"
+            element={
+              <ConsentGuard>
+                <Layout>
+                  <ProfilePage />
+                </Layout>
+              </ConsentGuard>
+            }
+          />
+          <Route
+            path="/configuracion"
+            element={
+              <ConsentGuard>
+                <Layout>
+                  <AppSettingsPage />
+                </Layout>
+              </ConsentGuard>
+            }
+          />
+          <Route
+            path="/completar-perfil"
+            element={
+              <Layout showHeader={false}>
+                <CompleteRolePage />
               </Layout>
-            </ConsentGuard>
-          }
-        />
-        <Route
-          path="/unirse/:token"
-          element={
-            <ConsentGuard>
-              <Layout>
-                <JoinTournamentPage />
-              </Layout>
-            </ConsentGuard>
-          }
-        />
-        <Route
-          path="/perfil"
-          element={
-            <ConsentGuard>
-              <Layout>
-                <ProfilePage />
-              </Layout>
-            </ConsentGuard>
-          }
-        />
-        <Route
-          path="/configuracion"
-          element={
-            <ConsentGuard>
-              <Layout>
-                <AppSettingsPage />
-              </Layout>
-            </ConsentGuard>
-          }
-        />
-        <Route
-          path="/completar-perfil"
-          element={
-            <Layout showHeader={false}>
-              <CompleteRolePage />
-            </Layout>
-          }
-        />
-        <Route path="/legal-consent" element={<LegalConsent />} />
-        <Route path="/login" element={<Auth screen="login" />} />
-        <Route path="/register" element={<Auth screen="register" />} />
-        <Route path="/forgot-password" element={<Auth screen="recovery" />} />
-        <Route path="/auth/confirmed" element={<ConfirmedAccount />} />
-        <Route
-          path="/dashboard"
-          element={
-            <ConsentGuard>
-              <Dashboard />
-            </ConsentGuard>
-          }
-        />
-        <Route
-          path="/dashboard/tournaments"
-          element={
-            <ConsentGuard>
-              <Dashboard view="tournaments" />
-            </ConsentGuard>
-          }
-        />
-        <Route
-          path="/estadisticas"
-          element={
-            <ConsentGuard>
-              <PlayerStatisticsRoute />
-            </ConsentGuard>
-          }
-        />
-        <Route
-          path="/admin"
-          element={
-            <ConsentGuard>
-              <AdminRoute />
-            </ConsentGuard>
-          }
-        />
-        <Route
-          path="/tournaments/new"
-          element={
-            <ConsentGuard>
-              <NewTournament />
-            </ConsentGuard>
-          }
-        />
-        <Route
-          path="/tournaments/:id/*"
-          element={
-            <ConsentGuard>
-              <TournamentLayout />
-            </ConsentGuard>
-          }
-        >
-          <Route index element={<Overview />} />
-          <Route path="players" element={<Players />} />
-          <Route path="rounds" element={<Rounds />} />
-          <Route path="standings" element={<Standings />} />
-          <Route path="settings" element={<Settings />} />
-        </Route>
-        <Route path="/t/:slug" element={<PublicView />} />
-        <Route path="*" element={<Navigate to="/" replace />} />
-      </Routes>
+            }
+          />
+          <Route path="/legal-consent" element={<LegalConsent />} />
+          <Route path="/login" element={<Auth screen="login" />} />
+          <Route path="/register" element={<Auth screen="register" />} />
+          <Route path="/forgot-password" element={<Auth screen="recovery" />} />
+          <Route path="/auth/confirmed" element={<ConfirmedAccount />} />
+          <Route
+            path="/dashboard"
+            element={
+              <ConsentGuard>
+                <Dashboard />
+              </ConsentGuard>
+            }
+          />
+          <Route
+            path="/dashboard/tournaments"
+            element={
+              <ConsentGuard>
+                <Dashboard view="tournaments" />
+              </ConsentGuard>
+            }
+          />
+          <Route
+            path="/estadisticas"
+            element={
+              <ConsentGuard>
+                <PlayerStatisticsRoute />
+              </ConsentGuard>
+            }
+          />
+          <Route
+            path="/admin"
+            element={
+              <ConsentGuard>
+                <AdminRoute />
+              </ConsentGuard>
+            }
+          />
+          <Route
+            path="/tournaments/new"
+            element={
+              <ConsentGuard>
+                <NewTournament />
+              </ConsentGuard>
+            }
+          />
+          <Route
+            path="/tournaments/:id/*"
+            element={
+              <ConsentGuard>
+                <TournamentLayout />
+              </ConsentGuard>
+            }
+          >
+            <Route index element={<Overview />} />
+            <Route path="players" element={<Players />} />
+            <Route path="rounds" element={<Rounds />} />
+            <Route path="standings" element={<Standings />} />
+            <Route path="settings" element={<Settings />} />
+          </Route>
+          <Route path="/t/:slug" element={<PublicView />} />
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Routes>
+      </Suspense>
     </>
   );
 }

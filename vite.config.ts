@@ -24,7 +24,7 @@ export default defineConfig(({ mode }) => {
                 priority: 2,
               },
               { name: 'supabase', test: /node_modules[\\/]@supabase[\\/]/, priority: 2 },
-              { name: 'vendor', test: /node_modules[\\/]/, priority: 1 },
+              // El resto de librerías (GSAP, QR…) va con la pantalla que la usa.
             ],
           },
         },
