@@ -29,27 +29,21 @@ const tokens = [
   ['--border', '#e7e2d2'],
   ['--violet', '#5b1fe0'],
   ['--red', '#c1272d'],
+  ['--ink-soft', '#514d45'],
+  ['--primary-strong', '#168050'],
+  ['--primary-hover', '#1b9563'],
+  ['--danger-text', '#a44840'],
+  ['--border-strong', '#ded6c5'],
+  ['--paper', '#fffdf7'],
+  ['--highlight', '#fff6cb'],
+  ['--accent-soft', '#e9edff'],
+  ['--violet-soft', '#eee9ff'],
+  ['--success-soft', '#e5f7ec'],
 ] as const;
 
-// Valores tomados de src/styles/; los más repetidos primero (ver docs/showcase-audit.md).
-const radii = [
-  '1.35rem 0.65rem 1.35rem 0.65rem',
-  '1.5rem 0.65rem 1.5rem 0.65rem',
-  '1.25rem 0.55rem 1.25rem 0.55rem',
-  '1rem 0.4rem 1rem 0.4rem',
-  '1.15rem 0.45rem 1.15rem 0.45rem',
-  '0.65rem 0.3rem 0.65rem 0.3rem',
-  '1.5rem',
-  '999px',
-];
-const shadows = [
-  '4px 5px 0 rgba(17,17,17,.07)',
-  '4px 5px 0 rgba(17,17,17,.1)',
-  '5px 6px 0 rgba(17,17,17,.1)',
-  '3px 4px 0 rgba(17,17,17,.1)',
-  '2px 3px 0 rgba(17,17,17,.15)',
-  '8px 9px 0 rgba(17,17,17,.25)',
-];
+// Escala de src/styles/base.css (ver docs/design-system.md).
+const radii = ['--app-radius-sm', '--app-radius-md', '--app-radius-lg', '--app-radius-pill'];
+const shadows = ['--app-shadow-sm', '--app-shadow-md', '--app-shadow-lg'];
 
 export function FoundationsSection() {
   const { t } = useTranslation();
@@ -88,7 +82,7 @@ export function FoundationsSection() {
           <ul className="showcase-shapes">
             {radii.map((radius) => (
               <li key={radius}>
-                <span style={{ borderRadius: radius }} />
+                <span style={{ borderRadius: `var(${radius})` }} />
                 <code>{radius}</code>
               </li>
             ))}
@@ -98,7 +92,7 @@ export function FoundationsSection() {
           <ul className="showcase-shapes">
             {shadows.map((shadow) => (
               <li key={shadow}>
-                <span style={{ boxShadow: shadow }} />
+                <span style={{ boxShadow: `var(${shadow})` }} />
                 <code>{shadow}</code>
               </li>
             ))}

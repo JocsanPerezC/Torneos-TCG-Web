@@ -6,7 +6,7 @@ export function Accordion({ children }: { children: ReactNode }) {
 }
 export function AccordionItem({ title, children }: { title: string; children: ReactNode }) {
   return (
-    <details className="group border-b border-border transition-colors hover:bg-[#F4F1E7] last:border-0">
+    <details className="group border-b border-border transition-colors hover:bg-secondary last:border-0">
       <summary className="flex cursor-pointer list-none items-center justify-between gap-5 px-6 py-5 font-bold marker:content-none">
         {title}
         <ChevronDown size={18} className="text-accent transition-transform group-open:rotate-180" />

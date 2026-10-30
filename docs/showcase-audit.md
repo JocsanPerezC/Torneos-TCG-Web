@@ -1,6 +1,24 @@
 # Auditoría de normalización visual
 
-Inventario generado al ampliar `/muestrario` (`src/features/showcase/ComponentShowcasePage.tsx`). Cubre `src/app/`, `src/features/` y `src/components/`. Referencias actualizadas tras reacomodar el repo. **Nada de esto se corrigió todavía**; cada punto es una decisión pendiente.
+Inventario generado al ampliar `/muestrario` (`src/features/showcase/ComponentShowcasePage.tsx`). Cubre `src/app/`, `src/features/` y `src/components/`. Referencias actualizadas tras reacomodar el repo.
+
+## Estado tras la fase 6 (29-10-2026)
+
+Resuelto (detalle en `docs/siguientes-pasos.md`):
+
+- Tokens de color, radio (`--app-radius-*`) y sombra (`--app-shadow-*`) en `src/styles/base.css`; los hex repetidos de `src/styles/` y de los `className` listados en la sección 2 ya usan tokens.
+- Una sola `Metric` en `src/components/ui/Metric.tsx`; se eliminaron las versiones de tournaments, trial y `AdminMetric`.
+- Constantes de clase: las siete copias locales importan `src/components/ui/classes.ts`.
+- `Modal` y `Card` usan el estilo de panel (radio irregular, borde de 1.5 px, sombra desplazada) y el modal ya no usa `backdrop-blur`.
+- `Button` (shadcn) con el borde y la elevación de `.app-button`.
+- Cajas de error en línea: `.app-inline-error`.
+- `AppErrorBoundary` usa la paleta y tiene textos i18n.
+- i18n: `ELIMINAR`/`DELETE`, `R{n}` y el placeholder de correo.
+- Responsive: `.rounds-deck__tables` y `.pod-entry__metrics` dependen del ancho disponible.
+
+Sigue pendiente: `Accordion` (solo se usa en el FAQ del landing), el botón de `LanguageSelector`, los bordes de `Badge`, las clases `slate-*` de admin (hoy cubiertas por puentes en `global.css`), la escala tipográfica y de paddings, el nombre de respaldo `organizador` y los duplicados de la sección 1 que no son visuales (podio, marca, estado vacío, avatar, `validationMessages`, editor de resultados de trial).
+
+El resto del documento es el inventario original.
 
 Referencia: `docs/design-system.md` pide bordes oscuros de 1.5–2 px, sombras cortas desplazadas, esquinas irregulares, colores de la paleta y nada de glassmorphism.
 

@@ -1,4 +1,6 @@
 import { Component, type ErrorInfo, type ReactNode } from 'react';
+import i18n from '@/i18n';
+import { panel, primary } from '@/components/ui/classes';
 
 type Props = { children: ReactNode };
 type State = { failed: boolean };
@@ -33,17 +35,12 @@ export class AppErrorBoundary extends Component<Props, State> {
     if (!this.state.failed) return this.props.children;
 
     return (
-      <main className="flex min-h-screen items-center justify-center bg-slate-950 p-6 text-slate-100">
-        <section className="w-full max-w-md rounded-xl border border-slate-700 bg-slate-900 p-6 text-center shadow-xl">
-          <h1 className="text-2xl font-bold">Ha ocurrido un error</h1>
-          <p className="mt-2 text-sm text-slate-300">
-            Actualiza la página para intentarlo de nuevo.
-          </p>
-          <button
-            className="mt-5 rounded-lg bg-amber-400 px-4 py-2 font-bold text-slate-950 hover:bg-amber-300"
-            onClick={() => window.location.reload()}
-          >
-            Actualizar página
+      <main className="flex min-h-screen items-center justify-center p-6 text-foreground">
+        <section className={`${panel} w-full max-w-md text-center`}>
+          <h1 className="text-2xl font-bold">{i18n.t('app.errorBoundary.title')}</h1>
+          <p className="mt-2 text-sm text-ink-soft">{i18n.t('app.errorBoundary.description')}</p>
+          <button className={`${primary} mt-5`} onClick={() => window.location.reload()}>
+            {i18n.t('app.errorBoundary.reload')}
           </button>
         </section>
       </main>

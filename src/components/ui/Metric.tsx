@@ -7,13 +7,15 @@ export function Metric({
 }: {
   label: string;
   value: string | number;
-  icon: LucideIcon;
+  icon?: LucideIcon;
 }) {
   return (
-    <article className="app-stat-pill">
-      <span>
-        <Icon size={16} aria-hidden />
-      </span>
+    <article className={Icon ? 'app-stat-pill' : 'app-stat-pill app-stat-pill--plain'}>
+      {Icon && (
+        <span>
+          <Icon size={16} aria-hidden />
+        </span>
+      )}
       <strong>{value}</strong>
       <small>{label}</small>
     </article>

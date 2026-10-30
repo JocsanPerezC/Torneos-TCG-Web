@@ -46,10 +46,7 @@ export function QrScannerModal({
       onClose={onClose}
     >
       {cameraError ? (
-        <p
-          role="alert"
-          className="rounded-xl border border-red-200 bg-red-50 p-4 text-sm leading-6 text-red-700"
-        >
+        <p role="alert" className="app-inline-error">
           {cameraError}
         </p>
       ) : (

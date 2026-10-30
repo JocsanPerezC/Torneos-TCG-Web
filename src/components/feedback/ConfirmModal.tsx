@@ -1,8 +1,7 @@
 import { Button } from '../ui/button';
 import { Modal } from '../ui/modal';
 import i18n from '../../i18n';
-
-const primary = 'app-button app-button--primary';
+import { primary } from '@/components/ui/classes';
 
 export function ConfirmModal({
   title,

@@ -269,6 +269,11 @@ export const es = {
       pointsRange: 'Los puntos deben ser enteros no negativos.',
       killsRange: 'Los kills deben estar entre 0 y 5.',
     },
+    errorBoundary: {
+      title: 'Ha ocurrido un error',
+      description: 'Actualiza la página para intentarlo de nuevo.',
+      reload: 'Actualizar página',
+    },
     common: {
       cancel: 'Cancelar',
       save: 'Guardar',
@@ -314,6 +319,7 @@ export const es = {
       organizerPanel: 'Panel de {{name}}',
     },
     auth: {
+      emailPlaceholder: 'correo@gmail.com',
       login: 'Inicia sesión',
       register: 'Crea tu cuenta',
       recovery: 'Recupera tu contraseña',
@@ -389,6 +395,7 @@ export const es = {
       created: 'Torneo creado.',
     },
     tournament: {
+      roundShort: 'R{{number}}',
       overview: 'Resumen',
       players: 'Jugadores',
       rounds: 'Rondas',
@@ -911,7 +918,6 @@ export const es = {
       signedOut: 'sin sesión',
       menuHint: 'Tocá la hamburguesa para abrir el menú.',
       metrics: 'Métricas',
-      metricsDuplicate: 'Tres componentes de métrica con markup y estilos distintos.',
       tournament: 'Torneo',
       notStarted: 'Sin iniciar (no se dibuja)',
       running: 'En curso',
@@ -1101,6 +1107,7 @@ export const es = {
       deleteAction: 'Eliminar cuenta',
       deleteConfirm:
         'Se eliminarán tu cuenta y el acceso a tus datos. Esta acción no se puede deshacer.',
+      deleteKeyword: 'ELIMINAR',
       deleteTypeConfirmStart: 'Escribí',
       deleteTypeConfirmEnd: 'para confirmar',
       deleting: 'Eliminando…',

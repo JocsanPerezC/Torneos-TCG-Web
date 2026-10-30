@@ -1,9 +1,7 @@
 import { Play } from 'lucide-react';
 import type { Result, Tournament } from '@/domain/types';
 import { PodResults } from './PodResults';
-
-const panel = 'app-panel';
-const primary = 'app-button app-button--primary';
+import { panel, primary } from '@/components/ui/classes';
 
 export function RoundEditor({
   round,

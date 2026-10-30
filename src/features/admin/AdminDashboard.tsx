@@ -8,7 +8,7 @@ import { Database, RefreshCw, ShieldCheck, Trophy, Users } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { showToast } from '@/components/ui/toast';
 import { Badge } from '@/components/ui/Badge';
-import { AdminMetric } from '@/features/admin/components/AdminMetric';
+import { Metric } from '@/components/ui/Metric';
 import i18n from '@/i18n';
 
 import { Layout } from '@/components/layout/Layout';
@@ -132,29 +132,25 @@ export function AdminDashboard() {
           {refreshing ? i18n.t('app.admin.refreshing') : i18n.t('app.admin.refresh')}
         </Button>
       </div>
-      {error && (
-        <section className="mb-5 rounded-xl border border-red-700 bg-red-950 p-4 text-sm text-red-300">
-          {error}
-        </section>
-      )}
+      {error && <section className="app-inline-error mb-5">{error}</section>}
       <section className="mb-7 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <AdminMetric
-          icon={<Users size={19} />}
+        <Metric
+          icon={Users}
           label={i18n.t('app.admin.metrics.accounts')}
           value={overview ? accountProfiles.length : '—'}
         />
-        <AdminMetric
-          icon={<ShieldCheck size={19} />}
+        <Metric
+          icon={ShieldCheck}
           label={i18n.t('app.admin.metrics.adminAccess')}
           value={overview?.profiles.filter((profile) => profile.role === 'admin').length ?? '—'}
         />
-        <AdminMetric
-          icon={<Trophy size={19} />}
+        <Metric
+          icon={Trophy}
           label={i18n.t('app.admin.metrics.activeTournaments')}
           value={overview ? activeTournaments : '—'}
         />
-        <AdminMetric
-          icon={<Database size={19} />}
+        <Metric
+          icon={Database}
           label={i18n.t('app.admin.metrics.registeredPlayers')}
           value={overview ? playerCount : '—'}
         />

@@ -100,7 +100,7 @@ export function CompleteRolePage() {
                     if (event.target.checked) setError('');
                   }}
                   type="checkbox"
-                  className="mt-1 size-4 accent-[#21B876]"
+                  className="mt-1 size-4 accent-primary"
                 />
                 <span>
                   {t('app.auth.legalAgreement')}{' '}
@@ -144,7 +144,7 @@ export function CompleteRolePage() {
               {joinsByInvitation ? t('app.auth.invitationPlayerHelp') : t('app.auth.roleHelp')}
             </p>
             {joinsByInvitation ? (
-              <div className="mt-4 rounded-xl border border-accent bg-[#E9EDFF] p-3 text-sm">
+              <div className="mt-4 rounded-xl border border-accent bg-accent-soft p-3 text-sm">
                 <strong>{t('app.auth.rolePlayer')}</strong>
                 <span className="mt-1 block text-muted-foreground">
                   {t('app.auth.rolePlayerDescription')}
@@ -155,7 +155,7 @@ export function CompleteRolePage() {
                 <legend className="sr-only">{t('app.auth.roleQuestion')}</legend>
                 <div className="grid gap-3 sm:grid-cols-2">
                   <label
-                    className={`cursor-pointer rounded-xl border p-3 text-sm ${role === 'player' ? 'border-accent bg-[#E9EDFF]' : 'border-border bg-card'}`}
+                    className={`cursor-pointer rounded-xl border p-3 text-sm ${role === 'player' ? 'border-accent bg-accent-soft' : 'border-border bg-card'}`}
                   >
                     <input
                       className="sr-only"
@@ -171,7 +171,7 @@ export function CompleteRolePage() {
                     </span>
                   </label>
                   <label
-                    className={`cursor-pointer rounded-xl border p-3 text-sm ${role === 'organizer' ? 'border-accent bg-[#E9EDFF]' : 'border-border bg-card'}`}
+                    className={`cursor-pointer rounded-xl border p-3 text-sm ${role === 'organizer' ? 'border-accent bg-accent-soft' : 'border-border bg-card'}`}
                   >
                     <input
                       className="sr-only"

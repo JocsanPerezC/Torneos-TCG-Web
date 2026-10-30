@@ -18,6 +18,8 @@ import { Avatar } from '../../components/ui/Avatar';
 import { Modal } from '../../components/ui/modal';
 import { deleteCurrentUser } from '../../data/adminUsersRepository';
 
+const SERVER_DELETE_CONFIRMATION = 'ELIMINAR';
+
 type CropSelection = { x: number; y: number; size: number };
 type CropImageSize = { width: number; height: number };
 
@@ -249,10 +251,12 @@ export function ProfilePage() {
   const cropPreview = cropImageSize ? cropDimensions(cropImageSize, cropSelection) : undefined;
 
   const deleteAccount = async () => {
+    if (deleteConfirmation !== t('app.profile.deleteKeyword')) return;
     setDeleting(true);
     setDeleteError(undefined);
     try {
-      await deleteCurrentUser(deleteConfirmation);
+      // La Edge Function espera siempre ELIMINAR; la palabra visible depende del idioma.
+      await deleteCurrentUser(SERVER_DELETE_CONFIRMATION);
       await supabase?.auth.signOut();
       navigate('/', { replace: true });
     } catch (reason) {
@@ -393,7 +397,7 @@ export function ProfilePage() {
               {passwordFeedback && (
                 <p
                   role={passwordFeedback.error ? 'alert' : 'status'}
-                  className={`text-sm font-semibold ${passwordFeedback.error ? 'text-red-700' : 'text-accent'}`}
+                  className={`text-sm font-semibold ${passwordFeedback.error ? 'text-danger-text' : 'text-accent'}`}
                 >
                   {passwordFeedback.text}
                 </p>
@@ -536,13 +540,13 @@ export function ProfilePage() {
           onClose={closeDelete}
         >
           {deleteError && (
-            <p role="alert" className="mb-4 text-sm font-semibold text-red-700">
+            <p role="alert" className="mb-4 text-sm font-semibold text-danger-text">
               {deleteError}
             </p>
           )}
           <label className="block text-sm font-semibold">
             {t('app.profile.deleteTypeConfirmStart')}{' '}
-            <span className="profile-delete-keyword">ELIMINAR</span>{' '}
+            <span className="profile-delete-keyword">{t('app.profile.deleteKeyword')}</span>{' '}
             {t('app.profile.deleteTypeConfirmEnd')}
             <input
               value={deleteConfirmation}
@@ -559,7 +563,7 @@ export function ProfilePage() {
               type="button"
               className="app-button app-button--danger"
               onClick={() => void deleteAccount()}
-              disabled={deleting || deleteConfirmation !== 'ELIMINAR'}
+              disabled={deleting || deleteConfirmation !== t('app.profile.deleteKeyword')}
             >
               {deleting ? t('app.profile.deleting') : t('app.profile.deleteAction')}
             </Button>

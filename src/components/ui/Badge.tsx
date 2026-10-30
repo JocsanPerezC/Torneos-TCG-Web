@@ -1,11 +1,11 @@
 import i18n from '../../i18n';
 
 const statusColor: Record<string, string> = {
-  borrador: 'border-[#E7E2D2] bg-[#F4F1E7] text-muted-foreground',
-  activa: 'border-[#BDE8CC] bg-[#E5F7EC] text-[#168050]',
-  completada: 'border-[#D6DEFF] bg-[#E9EDFF] text-[#3D5AFB]',
-  activo: 'border-[#BDE8CC] bg-[#E5F7EC] text-[#168050]',
-  finalizado: 'border-[#DDD0FF] bg-[#F0E9FF] text-[#5B1FE0]',
+  borrador: 'border-border bg-secondary text-muted-foreground',
+  activa: 'border-[#BDE8CC] bg-success-soft text-primary-strong',
+  completada: 'border-[#D6DEFF] bg-accent-soft text-accent',
+  activo: 'border-[#BDE8CC] bg-success-soft text-primary-strong',
+  finalizado: 'border-[#DDD0FF] bg-violet-soft text-violet',
 };
 export function Badge({ children }: { children: string }) {
   const labels: Record<string, string> = {

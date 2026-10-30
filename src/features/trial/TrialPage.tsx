@@ -1,22 +1,19 @@
 import { useState, type FormEvent } from 'react';
 import { Link } from 'react-router-dom';
-import { LockKeyhole, Plus, Sparkles, Trophy } from 'lucide-react';
+import { GitBranch, LockKeyhole, Plus, Sparkles, Table, Trophy, Users } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/button';
 import { LanguageSelector } from '@/components/ui/LanguageSelector';
+import { Metric } from '@/components/ui/Metric';
 import { Modal } from '@/components/ui/modal';
 import { AccountLock } from '@/features/trial/components/AccountLock';
-import { Metric } from '@/features/trial/components/Metric';
 import { RoundEditor } from '@/features/trial/components/RoundEditor';
 import { makePairings } from '@/domain/pairing';
 import { hasCompletePodOutcomes, isValidPodResult, standings } from '@/domain/scoring';
 import { normalizeName, uid, type Result, type Tournament } from '@/domain/types';
+import { field, panel, primary } from '@/components/ui/classes';
 
 type TrialTab = 'overview' | 'players' | 'rounds' | 'standings' | 'statistics' | 'settings';
-
-const field = 'app-field';
-const panel = 'app-panel';
-const primary = 'app-button app-button--primary';
 
 export function TrialPage() {
   const { t } = useTranslation();
@@ -227,7 +224,7 @@ export function TrialPage() {
               {t('landing.trial.reloadWarning')}
             </p>
             {message && (
-              <p role="alert" className="mt-4 text-sm font-semibold text-[#a44840]">
+              <p role="alert" className="mt-4 text-sm font-semibold text-danger-text">
                 {message}
               </p>
             )}
@@ -321,7 +318,7 @@ export function TrialPage() {
             <p className="mt-1 text-sm text-muted-foreground">{tournament.format}</p>
           </div>
           <span
-            className={`rounded-full px-3 py-1 text-xs font-bold ${locked ? 'bg-[#eee9ff] text-[#5B1FE0]' : 'bg-[#e5f7ec] text-[#168050]'}`}
+            className={`rounded-full px-3 py-1 text-xs font-bold ${locked ? 'bg-violet-soft text-violet' : 'bg-success-soft text-primary-strong'}`}
           >
             {locked ? t('landing.trial.finished') : t('landing.trial.active')}
           </span>
@@ -360,14 +357,17 @@ export function TrialPage() {
               <Metric
                 label={t('landing.trial.activePlayers')}
                 value={tournament.players.filter((player) => player.active).length}
+                icon={Users}
               />
               <Metric
                 label={t('landing.trial.rounds')}
                 value={`${tournament.rounds.length}/${tournament.plannedRounds}`}
+                icon={GitBranch}
               />
               <Metric
                 label={t('landing.trial.currentRound')}
                 value={currentRound ? currentRound.number : '—'}
+                icon={Table}
               />
             </div>
             <div className="mt-5 rounded-2xl bg-secondary/60 p-4 text-sm text-muted-foreground">
@@ -419,7 +419,7 @@ export function TrialPage() {
                   className="flex items-center justify-between rounded-xl border border-border bg-card px-4 py-3"
                 >
                   <span className="font-semibold">{player.name}</span>
-                  <span className="text-xs font-bold text-[#168050]">
+                  <span className="text-xs font-bold text-primary-strong">
                     {t('landing.trial.active')}
                   </span>
                 </div>
@@ -548,7 +548,7 @@ export function TrialPage() {
             )}
             {rows.length > 3 && (
               <div className="mt-5 rounded-2xl border border-dashed border-border bg-secondary/50 p-5 text-center">
-                <LockKeyhole className="mx-auto text-[#5B1FE0]" size={20} />
+                <LockKeyhole className="mx-auto text-violet" size={20} />
                 <p className="mt-2 font-bold">{t('landing.trial.standingsLocked')}</p>
               </div>
             )}
@@ -589,7 +589,7 @@ export function TrialPage() {
               </p>
             </form>
             <aside className={panel}>
-              <Trophy className="text-[#5B1FE0]" size={24} />
+              <Trophy className="text-violet" size={24} />
               <h2 className="mt-3 text-xl font-bold">{t('landing.trial.finishTitle')}</h2>
               <p className="mt-2 text-sm leading-6 text-muted-foreground">
                 {t('landing.trial.finishDescription')}

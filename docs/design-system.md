@@ -26,6 +26,32 @@ Esta guía conserva la identidad de Torneos TCG al diseñar o modificar pantalla
 | Acción destructiva       | Rojo `#C1272D`.                                     |
 | Acento excepcional       | Violeta `#5B1FE0`.                                  |
 
+### Tokens
+
+Declarados en `src/styles/base.css`. En CSS se usan con `var()`. Los colores también existen como utilidades de Tailwind (`bg-paper`, `text-ink-soft`, `border-border-strong`…).
+
+| Token               | Valor                              | Uso                                        |
+| ------------------- | ---------------------------------- | ------------------------------------------ |
+| `--ink-soft`        | `#514D45`                          | Texto secundario sobre superficies claras. |
+| `--primary-strong`  | `#168050`                          | Texto verde y estados de éxito.            |
+| `--primary-hover`   | `#1B9563`                          | Hover de la acción principal.              |
+| `--danger-text`     | `#A44840`                          | Texto de error y avisos suaves.            |
+| `--border-strong`   | `#DED6C5`                          | Borde de paneles y campos.                 |
+| `--paper`           | `#FFFDF7`                          | Fondo de paneles.                          |
+| `--highlight`       | `#FFF6CB`                          | Resaltado amarillo.                        |
+| `--accent-soft`     | `#E9EDFF`                          | Fondo suave azul.                          |
+| `--violet-soft`     | `#EEE9FF`                          | Fondo suave violeta.                       |
+| `--success-soft`    | `#E5F7EC`                          | Fondo suave verde.                         |
+| `--app-radius-sm`   | `0.65rem 0.3rem`                   | Chips, campos y controles pequeños.        |
+| `--app-radius-md`   | `1rem 0.4rem`                      | Tarjetas internas y bloques medianos.      |
+| `--app-radius-lg`   | `1.35rem 0.65rem`                  | Paneles, modales y tarjetas principales.   |
+| `--app-radius-pill` | `999px`                            | Botones y pastillas.                       |
+| `--app-shadow-sm`   | `3px 4px 0 rgba(17, 17, 17, 0.1)`  | Elementos pequeños.                        |
+| `--app-shadow-md`   | `5px 6px 0 rgba(17, 17, 17, 0.1)`  | Paneles y tarjetas.                        |
+| `--app-shadow-lg`   | `8px 9px 0 rgba(17, 17, 17, 0.12)` | Modales y capas superpuestas.              |
+
+Los radios y sombras llevan el prefijo `app-` para no pisar `--radius-*` ni `--shadow-*` de Tailwind, que usan `rounded-*` y `shadow-*`. Usa estos tokens antes de escribir un hex, radio o sombra nuevos.
+
 La tipografía base es **Fredoka**. Combina esquinas redondeadas ligeramente irregulares, bordes oscuros de 1.5–2 px y sombras cortas desplazadas. No conviertas esos elementos en un efecto pesado.
 
 ## Componentes y estados

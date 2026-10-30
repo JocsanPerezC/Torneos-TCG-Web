@@ -104,7 +104,7 @@ export function Auth({ screen }: { screen: 'login' | 'register' | 'recovery' }) 
             if (event.target.checked) setLegalError('');
           }}
           type="checkbox"
-          className="mt-1 size-4 accent-[#21B876]"
+          className="mt-1 size-4 accent-primary"
         />
         <span>
           {i18n.t('app.auth.legalAgreement')}{' '}
@@ -169,7 +169,7 @@ export function Auth({ screen }: { screen: 'login' | 'register' | 'recovery' }) 
                 type="email"
                 autoComplete="email"
                 className={field}
-                placeholder="correo@gmail.com"
+                placeholder={i18n.t('app.auth.emailPlaceholder')}
               />
             </label>
             {!recovery && (

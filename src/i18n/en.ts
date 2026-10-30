@@ -269,6 +269,11 @@ export const en = {
       pointsRange: 'Points must be non-negative integers.',
       killsRange: 'Kills must be between 0 and 5.',
     },
+    errorBoundary: {
+      title: 'Something went wrong',
+      description: 'Refresh the page to try again.',
+      reload: 'Refresh page',
+    },
     common: {
       cancel: 'Cancel',
       save: 'Save',
@@ -314,6 +319,7 @@ export const en = {
       organizerPanel: '{{name}}’s dashboard',
     },
     auth: {
+      emailPlaceholder: 'email@gmail.com',
       login: 'Sign in',
       register: 'Create your account',
       recovery: 'Recover your password',
@@ -389,6 +395,7 @@ export const en = {
       created: 'Tournament created.',
     },
     tournament: {
+      roundShort: 'R{{number}}',
       overview: 'Overview',
       players: 'Players',
       rounds: 'Rounds',
@@ -904,7 +911,6 @@ export const en = {
       signedOut: 'signed out',
       menuHint: 'Tap the hamburger to open the menu.',
       metrics: 'Metrics',
-      metricsDuplicate: 'Three metric components with different markup and styles.',
       tournament: 'Tournament',
       notStarted: 'Not started (not rendered)',
       running: 'Running',
@@ -1093,6 +1099,7 @@ export const en = {
       deleteAction: 'Delete account',
       deleteConfirm:
         'Your account and access to your data will be deleted. This action cannot be undone.',
+      deleteKeyword: 'DELETE',
       deleteTypeConfirmStart: 'Type',
       deleteTypeConfirmEnd: 'to confirm',
       deleting: 'Deleting…',

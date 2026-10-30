@@ -46,7 +46,7 @@ export function LegalConsent() {
                   if (event.target.checked) setError('');
                 }}
                 type="checkbox"
-                className="mt-1 size-4 accent-[#21B876]"
+                className="mt-1 size-4 accent-primary"
               />
               <span>
                 {i18n.t('app.auth.legalAgreement')}{' '}

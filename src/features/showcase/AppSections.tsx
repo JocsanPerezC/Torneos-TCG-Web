@@ -4,9 +4,7 @@ import { LayoutDashboard, ScanLine, ShieldCheck, Table, Trophy, Users } from 'lu
 import { Button } from '../../components/ui/button';
 import { AuthenticatedShell, NavigationLink } from '../../components/layout/AuthenticatedShell';
 import { Header } from '../../components/layout/PublicHeader';
-import { Metric } from '../tournaments/components/Metric';
-import { Metric as TrialMetric } from '../trial/components/Metric';
-import { AdminMetric } from '../admin/components/AdminMetric';
+import { Metric } from '../../components/ui/Metric';
 import { RoundTimer } from '../tournaments/components/RoundTimer';
 import { DraftPodCard } from '../tournaments/components/DraftPodCard';
 import { PodCard } from '../tournaments/components/PodCard';
@@ -136,33 +134,24 @@ export function MetricsSection() {
     <ShowcaseSection
       id="metrics"
       titleKey="app.showcase.metrics"
-      sources={[
-        'Metric · src/features/tournaments/components/Metric.tsx',
-        'Metric · src/features/trial/components/Metric.tsx',
-        'AdminMetric · src/features/admin/components/AdminMetric.tsx',
-      ]}
+      sources={['Metric · src/components/ui/Metric.tsx']}
     >
-      <p className="showcase-note m-0">{t('app.showcase.metricsDuplicate')}</p>
       <div className="grid gap-5 lg:grid-cols-3">
-        <Variant label="Metric" source="tournament/Metric.tsx" duplicate>
+        <Variant label="Metric">
           <div className="overview-board__metrics">
             <Metric label={t('app.tournament.activePlayers')} value={7} icon={Users} />
             <Metric label={t('app.tournament.rounds')} value="2/3" icon={Table} />
           </div>
         </Variant>
-        <Variant label="Metric" source="trial/Metric.tsx" duplicate>
+        <Variant label="Metric · trial">
           <div className="grid gap-3 sm:grid-cols-2">
-            <TrialMetric label={t('landing.trial.activePlayers')} value={7} />
-            <TrialMetric label={t('landing.trial.rounds')} value="2/3" />
+            <Metric label={t('landing.trial.activePlayers')} value={7} icon={Users} />
+            <Metric label={t('landing.trial.rounds')} value="2/3" />
           </div>
         </Variant>
-        <Variant label="AdminMetric" source="admin/AdminMetric.tsx" duplicate>
+        <Variant label="Metric · admin">
           <div className="grid gap-3">
-            <AdminMetric
-              icon={<Users size={19} />}
-              label={t('app.admin.metrics.accounts')}
-              value={42}
-            />
+            <Metric label={t('app.admin.metrics.accounts')} value={42} icon={Users} />
           </div>
         </Variant>
       </div>

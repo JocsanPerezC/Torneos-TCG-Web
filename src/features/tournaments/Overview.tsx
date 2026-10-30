@@ -4,7 +4,7 @@ import { useTournaments } from '@/state/TournamentContext';
 import { GitBranch, Info, Table, Users } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { showToast } from '@/components/ui/toast';
-import { Metric } from '@/features/tournaments/components/Metric';
+import { Metric } from '@/components/ui/Metric';
 import i18n from '@/i18n';
 
 import { Current } from '@/features/tournaments/currentTournament';
@@ -32,7 +32,7 @@ export function Overview() {
         />
         <Metric
           label={i18n.t('app.tournament.currentTable')}
-          value={current ? `R${current.number}` : '—'}
+          value={current ? i18n.t('app.tournament.roundShort', { number: current.number }) : '—'}
           icon={Table}
         />
       </div>

@@ -58,7 +58,7 @@ export function LanguageSelector({
         <div
           role="listbox"
           aria-label={t('language.label')}
-          className={`absolute ${align === 'start' ? 'left-0' : 'right-0'} ${direction === 'up' ? 'bottom-[calc(100%+0.5rem)]' : 'top-[calc(100%+0.5rem)]'} z-50 min-w-36 overflow-hidden rounded-2xl border border-border bg-card p-1.5 shadow-xl`}
+          className={`absolute ${align === 'start' ? 'left-0' : 'right-0'} ${direction === 'up' ? 'bottom-[calc(100%+0.5rem)]' : 'top-[calc(100%+0.5rem)]'} z-50 min-w-36 overflow-hidden rounded-[var(--app-radius-md)] border-[1.5px] border-border-strong bg-card p-1.5 shadow-[var(--app-shadow-lg)]`}
         >
           {supportedLanguages.map((code) => (
             <button

@@ -1,6 +1,5 @@
 import type { Pod, Result, ResultOutcome, Tournament } from '@/domain/types';
-
-const field = 'app-field';
+import { field } from '@/components/ui/classes';
 
 export function PodResults({
   pod,

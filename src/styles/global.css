@@ -25,7 +25,7 @@ a[href='/register'].underline {
 }
 .text-red-300.underline {
   background: #fff1f0;
-  color: #a44840 !important;
+  color: var(--danger-text) !important;
 }
 .text-red-300.underline:hover {
   background: #f9dfdc;
@@ -42,19 +42,19 @@ table,
   font-variant-numeric: tabular-nums;
 }
 main table thead {
-  background: #f2f0e5 !important;
-  color: #6b675c !important;
+  background: var(--secondary) !important;
+  color: var(--muted-foreground) !important;
 }
 main table tbody tr {
-  border-color: #e7e2d2 !important;
+  border-color: var(--border) !important;
 }
 main table tbody tr:hover {
-  background: #fcfaec;
+  background: var(--background);
 }
 
 /* Bridge existing panel utilities to the shared shadcn landing palette. */
 .bg-slate-950 {
-  background-color: #fcfaec !important;
+  background-color: var(--background) !important;
 }
 .bg-slate-950\/80,
 .bg-slate-950\/95 {
@@ -62,75 +62,75 @@ main table tbody tr:hover {
 }
 .bg-slate-900,
 .bg-slate-900\/75 {
-  background-color: #fff !important;
+  background-color: var(--card) !important;
 }
 .bg-slate-800 {
-  background-color: #f2f0e5 !important;
+  background-color: var(--secondary) !important;
 }
 .bg-slate-700 {
-  background-color: #e7e2d2 !important;
+  background-color: var(--border) !important;
 }
 .bg-slate-600 {
-  background-color: #f2f0e5 !important;
-  color: #111 !important;
+  background-color: var(--secondary) !important;
+  color: var(--foreground) !important;
 }
 .hover\:bg-slate-800:hover,
 .hover\:bg-slate-700:hover {
-  background-color: #f2f0e5 !important;
+  background-color: var(--secondary) !important;
 }
 .border-slate-700,
 .border-slate-700\/70,
 .border-slate-600,
 .border-slate-500,
 .border-slate-800 {
-  border-color: #e7e2d2 !important;
+  border-color: var(--border) !important;
 }
 .text-slate-100,
 .text-slate-200 {
-  color: #111 !important;
+  color: var(--foreground) !important;
 }
 .text-slate-300 {
-  color: #514d45 !important;
+  color: var(--ink-soft) !important;
 }
 .text-slate-400,
 .text-slate-500 {
-  color: #6b675c !important;
+  color: var(--muted-foreground) !important;
 }
 .bg-amber-400 {
-  background-color: #21b876 !important;
+  background-color: var(--primary) !important;
 }
 .hover\:bg-amber-300:hover {
-  background-color: #1b9563 !important;
+  background-color: var(--primary-hover) !important;
 }
 .text-amber-300,
 .text-amber-400 {
-  color: #3d5afb !important;
+  color: var(--accent) !important;
 }
 .border-amber-400,
 .border-amber-300\/30 {
-  border-color: #21b876 !important;
+  border-color: var(--primary) !important;
 }
 .text-slate-950 {
   color: #fff !important;
 }
 .bg-emerald-600 {
-  background-color: #21b876 !important;
+  background-color: var(--primary) !important;
 }
 .text-emerald-300 {
-  color: #168050 !important;
+  color: var(--primary-strong) !important;
 }
 .bg-blue-600 {
-  background-color: #3d5afb !important;
+  background-color: var(--accent) !important;
 }
 .bg-violet-600 {
-  background-color: #5b1fe0 !important;
+  background-color: var(--violet) !important;
 }
 .bg-red-950 {
   background-color: #fff1f0 !important;
 }
 .text-red-200,
 .text-red-300 {
-  color: #a44840 !important;
+  color: var(--danger-text) !important;
 }
 .border-red-700 {
   border-color: #c16a64 !important;
@@ -140,7 +140,7 @@ main table tbody tr:hover {
 }
 .bg-gradient-to-br {
   background-image: none !important;
-  background-color: #3d5afb !important;
+  background-color: var(--accent) !important;
 }
 .shadow-xl,
 .shadow-slate-950\/20 {
@@ -149,12 +149,12 @@ main table tbody tr:hover {
 input,
 textarea,
 select {
-  color: #111;
+  color: var(--foreground);
 }
 input:focus,
 textarea:focus,
 select:focus {
-  border-color: #21b876 !important;
+  border-color: var(--primary) !important;
   outline: 2px solid rgba(33, 184, 118, 0.18);
   outline-offset: 0;
 }
@@ -183,7 +183,13 @@ select:focus {
   z-index: 40;
   height: 72px;
   border-bottom: 1px solid rgba(17, 17, 17, 0.08);
-  background: linear-gradient(110deg, #fcfaec 0%, #fff 42%, #e5f8ee 58%, #fcfaec 100%);
+  background: linear-gradient(
+    110deg,
+    var(--background) 0%,
+    var(--card) 42%,
+    #e5f8ee 58%,
+    var(--background) 100%
+  );
   background-size: 200% 100%;
   box-shadow: 0 2px 14px rgba(17, 17, 17, 0.035);
   animation: header-sheen 16s ease-in-out infinite;
@@ -198,7 +204,7 @@ select:focus {
   display: inline-block;
 }
 .nav-wiggle:hover {
-  color: #c1272d;
+  color: var(--red);
   font-style: italic;
   transform: rotate(-1deg);
 }
@@ -210,7 +216,7 @@ select:focus {
     font-style 180ms ease;
 }
 .brand-wiggle:hover {
-  color: #3d5afb;
+  color: var(--accent);
   font-style: italic;
   transform: rotate(-1deg);
 }
@@ -218,7 +224,7 @@ select:focus {
 .brand-wiggle::after {
   position: absolute;
   top: 50%;
-  color: #3d5afb;
+  color: var(--accent);
   font-size: 0.75rem;
   line-height: 1;
   opacity: 0;
@@ -242,12 +248,12 @@ select:focus {
   transform: translate(0, -50%) rotate(0);
 }
 .app-header a:not([class*='bg-']):hover {
-  color: #c1272d;
+  color: var(--red);
   font-style: italic;
   transform: rotate(-1deg);
 }
 .app-header a.brand-wiggle:hover {
-  color: #3d5afb !important;
+  color: var(--accent) !important;
 }
 .nav-sparkle {
   position: relative;
@@ -260,7 +266,7 @@ select:focus {
 .nav-sparkle::after {
   position: absolute;
   top: 50%;
-  color: #c1272d;
+  color: var(--red);
   font-size: 0.65rem;
   line-height: 1;
   opacity: 0;
@@ -312,7 +318,7 @@ select:focus {
 }
 .text-red-300.underline {
   background-color: #fff1f0 !important;
-  color: #a44840 !important;
+  color: var(--danger-text) !important;
 }
 .text-slate-300.underline:hover {
   background-color: #ddd9cd !important;
@@ -368,10 +374,10 @@ select:focus {
   grid-template-columns: 0.65rem minmax(0, 1fr) auto;
   align-items: start;
   gap: 0.7rem;
-  border: 2px solid #111;
-  border-radius: 1rem 0.4rem 1rem 0.4rem;
+  border: 2px solid var(--foreground);
+  border-radius: var(--app-radius-md);
   padding: 0.7rem;
-  background: #111;
+  background: var(--foreground);
   color: #fff;
   box-shadow: 3px 4px 0 rgba(17, 17, 17, 0.2);
   pointer-events: auto;
@@ -382,13 +388,13 @@ select:focus {
   margin-top: 0.22rem;
   border: 1.5px solid #fff;
   border-radius: 50%;
-  background: #21b876;
+  background: var(--primary);
 }
 .app-toast[data-tone='error'] .app-toast__indicator {
-  background: #c1272d;
+  background: var(--red);
 }
 .app-toast[data-tone='info'] .app-toast__indicator {
-  background: #3d5afb;
+  background: var(--accent);
 }
 .app-toast[data-tone='warning'] .app-toast__indicator {
   background: #f4c542;
@@ -462,9 +468,9 @@ select:focus {
   flex-direction: column;
   justify-content: center;
   border-radius: 1.5rem;
-  background: #fff;
+  background: var(--card);
   padding: 1.25rem;
-  color: #111;
+  color: var(--foreground);
   opacity: 0;
   transform: translateY(14px);
   transition:
@@ -487,8 +493,8 @@ select:focus {
   height: 2rem;
   align-items: center;
   justify-content: center;
-  border-radius: 999px;
-  background: #3d5afb;
+  border-radius: var(--app-radius-pill);
+  background: var(--accent);
   color: #fff;
   font-weight: 700;
 }
@@ -498,7 +504,7 @@ select:focus {
 }
 .concept-card small {
   margin-top: 0.35rem;
-  color: #6b675c;
+  color: var(--muted-foreground);
 }
 .concept-card-delay {
   transition-delay: 100ms;

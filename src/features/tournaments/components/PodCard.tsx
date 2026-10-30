@@ -6,9 +6,7 @@ import { showToast } from '../../../components/ui/toast';
 import { OutcomeButtons } from './OutcomeButtons';
 import { outcomeLabel } from './outcomeLabel';
 import i18n from '../../../i18n';
-
-const primary = 'app-button app-button--primary';
-const field = 'app-field';
+import { field, primary } from '@/components/ui/classes';
 
 export function PodCard({
   tournamentId,

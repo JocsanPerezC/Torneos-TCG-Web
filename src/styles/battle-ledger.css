@@ -2,7 +2,7 @@
 .battle-ledger {
   position: relative;
   isolation: isolate;
-  color: #111;
+  color: var(--foreground);
 }
 .battle-ledger::before {
   content: '';
@@ -26,7 +26,7 @@
 .battle-ledger__masthead p,
 .battle-note__stamp {
   margin: 0;
-  color: #3d5afb;
+  color: var(--accent);
   font-size: 0.72rem;
   font-weight: 700;
   letter-spacing: 0.13em;
@@ -41,7 +41,7 @@
   display: block;
   max-width: 35rem;
   margin-top: 0.55rem;
-  color: #514d45;
+  color: var(--ink-soft);
   font-size: 0.95rem;
 }
 .battle-ledger__masthead aside {
@@ -51,20 +51,20 @@
   column-gap: 0.45rem;
   min-width: max-content;
   padding: 0.65rem 0.85rem 0.55rem;
-  border: 2px dashed #e7e2d2;
+  border: 2px dashed var(--border);
   border-radius: 1.1rem 0.6rem 1.1rem 0.6rem;
-  background: #fff;
+  background: var(--card);
   box-shadow: 3px 3px 0 rgba(17, 17, 17, 0.06);
   transform: rotate(1.25deg);
 }
 .battle-ledger__masthead aside strong {
   grid-row: span 2;
-  color: #3d5afb;
+  color: var(--accent);
   font-size: 1.7rem;
   line-height: 1;
 }
 .battle-ledger__masthead aside > span {
-  color: #514d45;
+  color: var(--ink-soft);
   font-size: 0.72rem;
   font-weight: 600;
 }
@@ -78,14 +78,14 @@
   display: block;
   width: 0.5rem;
   height: 0.5rem;
-  border: 1.5px solid #111;
+  border: 1.5px solid var(--foreground);
   border-radius: 50%;
-  background: #21b876;
-  box-shadow: 1px 1px 0 #111;
+  background: var(--primary);
+  box-shadow: 1px 1px 0 var(--foreground);
 }
 .battle-round-pips > small {
   margin-left: 0.2rem;
-  color: #514d45;
+  color: var(--ink-soft);
   font-size: 0.7rem;
   font-weight: 700;
 }
@@ -101,9 +101,9 @@
   overflow: hidden;
   min-height: 10.5rem;
   padding: 1.1rem 1.15rem;
-  border: 2px solid #111;
-  background: #fff;
-  box-shadow: 5px 6px 0 rgba(17, 17, 17, 0.1);
+  border: 2px solid var(--foreground);
+  background: var(--card);
+  box-shadow: var(--app-shadow-md);
   transform: rotate(var(--tilt));
   transition:
     transform 180ms ease,
@@ -130,19 +130,19 @@
 }
 .battle-note:hover {
   transform: translateY(-4px) rotate(var(--tilt));
-  box-shadow: 8px 10px 0 rgba(17, 17, 17, 0.12);
+  box-shadow: var(--app-shadow-lg);
 }
 .battle-note p {
   max-width: 36rem;
   margin: 0.65rem 0 0;
-  color: #111;
+  color: var(--foreground);
   font-size: 1rem;
   font-weight: 600;
   line-height: 1.28;
 }
 .battle-empty {
   margin: 0.9rem 0 0;
-  color: #514d45;
+  color: var(--ink-soft);
   font-size: 0.92rem;
   font-weight: 600;
 }
@@ -150,12 +150,12 @@
   --tilt: -0.65deg;
   grid-column: span 7;
   min-height: 17rem;
-  border-color: #c1272d;
+  border-color: var(--red);
   border-radius: 2rem 0.75rem 2.6rem 1rem;
   background: #fff8f6;
 }
 .battle-note--hunter .battle-note__stamp {
-  color: #a44840;
+  color: var(--danger-text);
 }
 .battle-note--unstoppable {
   --tilt: 0.65deg;
@@ -169,12 +169,12 @@
   grid-column: span 12;
   min-height: 9.5rem;
   border-style: dashed;
-  border-color: #168050;
+  border-color: var(--primary-strong);
   border-radius: 1.1rem 2rem 1.1rem 2rem;
   background: #f5fff9;
 }
 .battle-note--attendance .battle-note__stamp {
-  color: #168050;
+  color: var(--primary-strong);
 }
 .battle-note--rivals {
   --tilt: 1deg;
@@ -183,18 +183,18 @@
   background: #f7f9ff;
 }
 .battle-note--rivals .battle-note__stamp {
-  color: #3d5afb;
+  color: var(--accent);
 }
 .battle-note--close {
   --tilt: -0.7deg;
   grid-column: span 3;
   border-radius: 0.5rem 1.6rem 0.5rem 1.6rem;
-  background: #fff;
+  background: var(--card);
 }
 .battle-note--bloodiest {
   --tilt: 0.45deg;
   grid-column: span 4;
-  border-color: #c1272d;
+  border-color: var(--red);
   border-radius: 1.5rem 0.6rem 1.5rem 0.6rem;
   background: #fff4f2;
 }
@@ -225,14 +225,14 @@
   --tilt: -0.25deg;
   grid-column: span 5;
   min-height: 12rem;
-  border-color: #3d5afb;
+  border-color: var(--accent);
   border-radius: 2rem 2rem 0.7rem 0.7rem;
   background: #f5f7ff;
 }
 .battle-note--bag {
   --tilt: 0.75deg;
   grid-column: span 3;
-  border-color: #a44840;
+  border-color: var(--danger-text);
   border-radius: 50% 1rem 1rem 1rem;
   background: #fff8f6;
 }
@@ -246,21 +246,21 @@
   --tilt: 0.35deg;
   grid-column: span 4;
   border-style: dashed;
-  border-color: #168050;
+  border-color: var(--primary-strong);
   border-radius: 1.7rem 0.7rem 1.7rem 0.7rem;
   background: #f6fffa;
 }
 .battle-note--head {
   --tilt: -0.15deg;
   grid-column: span 5;
-  border-color: #5b1fe0;
+  border-color: var(--violet);
   border-radius: 0.8rem 2rem 0.8rem 2rem;
   background: #faf7ff;
 }
 .battle-note__hero-number {
   display: inline-block;
   margin-top: 1rem;
-  color: #c1272d;
+  color: var(--red);
   font-size: clamp(5rem, 12vw, 8.5rem);
   font-weight: 700;
   line-height: 0.82;
@@ -270,7 +270,7 @@
   position: absolute;
   right: 1.2rem;
   bottom: 2.65rem;
-  color: #c1272d;
+  color: var(--red);
   font-size: clamp(4.5rem, 9vw, 7rem);
 }
 .battle-tally {
@@ -280,12 +280,12 @@
   margin: 0.55rem 0;
   overflow: visible;
   fill: none;
-  stroke: #c1272d;
+  stroke: var(--red);
   stroke-linecap: round;
   stroke-width: 3;
 }
 .battle-tally text {
-  fill: #c1272d;
+  fill: var(--red);
   stroke: none;
   font-size: 13px;
   font-weight: 700;
@@ -295,8 +295,8 @@
   width: 10rem;
   height: 4rem;
   margin: 1rem 0 0;
-  fill: #c1272d;
-  stroke: #c1272d;
+  fill: var(--red);
+  stroke: var(--red);
   stroke-width: 1.4;
 }
 .battle-attendance__visual {
@@ -320,14 +320,14 @@
   margin-left: -0.38rem;
   border: 2px solid #fff;
   border-radius: 50%;
-  background: #3d5afb;
+  background: var(--accent);
   color: #fff;
   font-size: 0.7rem;
   font-weight: 700;
   box-shadow: 1px 2px 0 rgba(17, 17, 17, 0.25);
 }
 .battle-avatar-stack strong {
-  background: #111;
+  background: var(--foreground);
 }
 .battle-rivals__visual {
   display: flex;
@@ -339,7 +339,7 @@
   width: 3.5rem;
   overflow: visible;
   fill: none;
-  stroke: #3d5afb;
+  stroke: var(--accent);
   stroke-linecap: round;
   stroke-width: 2.5;
 }
@@ -349,13 +349,13 @@
   margin-top: 0.85rem;
   overflow: visible;
   fill: none;
-  stroke: #111;
+  stroke: var(--foreground);
   stroke-linecap: round;
   stroke-linejoin: round;
   stroke-width: 2;
 }
 .battle-balance text {
-  fill: #3d5afb;
+  fill: var(--accent);
   stroke: none;
   font-size: 13px;
   font-weight: 700;
@@ -367,7 +367,7 @@
 }
 .battle-table-list span {
   display: block;
-  color: #514d45;
+  color: var(--ink-soft);
   font-size: 0.84rem;
   font-weight: 600;
   line-height: 1.22;
@@ -377,12 +377,12 @@
   margin: 1rem 0 0;
   overflow: visible;
   fill: none;
-  stroke: #3d5afb;
+  stroke: var(--accent);
   stroke-linecap: round;
   stroke-width: 3;
 }
 .battle-arrow text {
-  fill: #3d5afb;
+  fill: var(--accent);
   stroke: none;
   font-size: 16px;
   font-weight: 700;
@@ -396,14 +396,14 @@
   display: block;
   width: 1.7rem;
   height: 1.7rem;
-  border: 2px solid #5b1fe0;
+  border: 2px solid var(--violet);
   border-radius: 50%;
-  background: linear-gradient(90deg, #5b1fe0 0 47%, #fff 47% 53%, #5b1fe0 53%);
+  background: linear-gradient(90deg, var(--violet) 0 47%, var(--card) 47% 53%, var(--violet) 53%);
 }
 .battle-score {
   display: block;
   margin: 1.15rem 0 -0.25rem;
-  color: #3d5afb;
+  color: var(--accent);
   font-size: 4.5rem;
   line-height: 1;
   letter-spacing: -0.07em;
@@ -413,7 +413,7 @@
   margin: 1rem 0 0.1rem;
   overflow: visible;
   fill: none;
-  stroke: #a44840;
+  stroke: var(--danger-text);
   stroke-width: 2.2;
 }
 .battle-rain {
@@ -428,7 +428,7 @@
   width: 0.28rem;
   height: 2.3rem;
   border-radius: 1rem;
-  background: #514d45;
+  background: var(--ink-soft);
   transform: rotate(25deg);
 }
 .battle-sparkline {
@@ -437,17 +437,17 @@
   margin: 1rem 0 0.1rem;
   overflow: visible;
   fill: none;
-  stroke: #168050;
+  stroke: var(--primary-strong);
   stroke-linecap: round;
   stroke-width: 2;
 }
 .battle-sparkline path:first-child {
-  stroke: #e7e2d2;
+  stroke: var(--border);
   stroke-width: 1;
 }
 .battle-sparkline circle {
   fill: #fff;
-  stroke: #168050;
+  stroke: var(--primary-strong);
   stroke-width: 2;
 }
 .battle-crown {
@@ -455,8 +455,8 @@
   height: 3.1rem;
   margin: 1rem 0 0.1rem;
   overflow: visible;
-  fill: #5b1fe0;
-  stroke: #5b1fe0;
+  fill: var(--violet);
+  stroke: var(--violet);
   stroke-linejoin: round;
   stroke-width: 2;
 }
@@ -470,16 +470,16 @@
   align-items: center;
   justify-content: center;
   gap: 0.6rem;
-  border: 2px dashed #e7e2d2;
+  border: 2px dashed var(--border);
   border-radius: 2rem 0.8rem 2rem 0.8rem;
-  background: #fff;
-  color: #514d45;
+  background: var(--card);
+  color: var(--ink-soft);
   text-align: center;
 }
 .battle-ledger__empty svg {
   width: 4.5rem;
   fill: none;
-  stroke: #3d5afb;
+  stroke: var(--accent);
   stroke-linecap: round;
   stroke-linejoin: round;
   stroke-width: 2;
@@ -525,6 +525,6 @@
   }
   .battle-note:hover {
     transform: rotate(var(--tilt));
-    box-shadow: 5px 6px 0 rgba(17, 17, 17, 0.1);
+    box-shadow: var(--app-shadow-md);
   }
 }

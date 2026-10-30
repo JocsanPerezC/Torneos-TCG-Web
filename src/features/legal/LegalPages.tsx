@@ -21,7 +21,7 @@ function LegalLayout({ documentKey }: { documentKey: 'privacy' | 'terms' }) {
         >
           <h1 className="text-4xl font-black">{copy.title}</h1>
           <p className="mt-3 text-sm text-muted-foreground">{copy.updated}</p>
-          <div className="legal-copy mt-8 space-y-8 text-[0.98rem] leading-7 text-[#514d45]">
+          <div className="legal-copy mt-8 space-y-8 text-[0.98rem] leading-7 text-ink-soft">
             <p>{copy.intro}</p>
             {copy.sections.map((section) => (
               <section key={section.title}>

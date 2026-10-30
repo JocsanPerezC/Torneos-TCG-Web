@@ -60,7 +60,7 @@ export function Modal({ title, description, children, onClose, dialogClassName }
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/35 p-4 backdrop-blur-sm"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/35 p-4"
       role="presentation"
       onMouseDown={onClose}
     >
@@ -71,7 +71,7 @@ export function Modal({ title, description, children, onClose, dialogClassName }
         aria-labelledby={titleId}
         aria-describedby={description ? descriptionId : undefined}
         tabIndex={-1}
-        className={`w-full max-w-md rounded-3xl border border-border bg-card p-6 shadow-2xl shadow-black/15 ${dialogClassName ?? ''}`}
+        className={`w-full max-w-md rounded-[var(--app-radius-lg)] border-[1.5px] border-border-strong bg-card p-6 shadow-[var(--app-shadow-lg)] ${dialogClassName ?? ''}`}
         onMouseDown={(event) => event.stopPropagation()}
       >
         <div className="flex items-start justify-between gap-4">

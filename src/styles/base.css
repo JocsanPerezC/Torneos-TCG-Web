@@ -13,6 +13,17 @@
   --color-accent: var(--accent);
   --color-accent-foreground: var(--accent-foreground);
   --color-border: var(--border);
+  --color-ink-soft: var(--ink-soft);
+  --color-primary-strong: var(--primary-strong);
+  --color-primary-hover: var(--primary-hover);
+  --color-danger-text: var(--danger-text);
+  --color-border-strong: var(--border-strong);
+  --color-paper: var(--paper);
+  --color-highlight: var(--highlight);
+  --color-accent-soft: var(--accent-soft);
+  --color-violet: var(--violet);
+  --color-violet-soft: var(--violet-soft);
+  --color-success-soft: var(--success-soft);
   --font-sans: var(--font-sans);
 }
 
@@ -33,6 +44,24 @@
   --violet: #5b1fe0;
   --red: #c1272d;
   --blue: #3d5afb;
+  --ink-soft: #514d45;
+  --primary-strong: #168050;
+  --primary-hover: #1b9563;
+  --danger-text: #a44840;
+  --border-strong: #ded6c5;
+  --paper: #fffdf7;
+  --highlight: #fff6cb;
+  --accent-soft: #e9edff;
+  --violet-soft: #eee9ff;
+  --success-soft: #e5f7ec;
+  /* Escala con prefijo app- para no pisar --radius-* y --shadow-* de Tailwind. */
+  --app-radius-sm: 0.65rem 0.3rem;
+  --app-radius-md: 1rem 0.4rem;
+  --app-radius-lg: 1.35rem 0.65rem;
+  --app-radius-pill: 999px;
+  --app-shadow-sm: 3px 4px 0 rgba(17, 17, 17, 0.1);
+  --app-shadow-md: 5px 6px 0 rgba(17, 17, 17, 0.1);
+  --app-shadow-lg: 8px 9px 0 rgba(17, 17, 17, 0.12);
   --font-sans: Fredoka, ui-rounded, system-ui, sans-serif;
   font-family: var(--font-sans);
   color: var(--foreground);
