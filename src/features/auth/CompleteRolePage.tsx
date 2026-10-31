@@ -152,7 +152,7 @@ export function CompleteRolePage() {
                 <input
                   required
                   name="nickname"
-                  autoComplete="nickname"
+                  autoComplete="off"
                   minLength={2}
                   maxLength={NICKNAME_MAX_LENGTH}
                   defaultValue={currentNickname}

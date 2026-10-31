@@ -317,6 +317,18 @@ export const es = {
       organizerPanel: 'Panel de {{name}}',
     },
     auth: {
+      errors: {
+        required: 'Este campo es obligatorio.',
+        nameTooLong: 'El nombre puede tener hasta 80 caracteres.',
+        emailInvalid: 'Escribe un correo válido, por ejemplo nombre@gmail.com.',
+        emailTaken: 'Ya existe una cuenta con este correo. Inicia sesión o recupera tu contraseña.',
+        passwordShort: 'La contraseña debe tener al menos 6 caracteres.',
+        passwordLong: 'La contraseña puede tener hasta 128 caracteres.',
+        invalidCredentials: 'El correo o la contraseña no son correctos.',
+        tooManyAttempts: 'Demasiados intentos seguidos. Espera un momento y vuelve a probar.',
+        emailNotConfirmed:
+          'Confirma tu correo con el enlace que te enviamos antes de iniciar sesión.',
+      },
       emailPlaceholder: 'correo@gmail.com',
       login: 'Inicia sesión',
       register: 'Crea tu cuenta',

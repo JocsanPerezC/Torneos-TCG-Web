@@ -1,5 +1,5 @@
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
-import { useEffect, useState, type FormEvent } from 'react';
+import { useEffect, useRef, useState, type FormEvent, type ReactNode } from 'react';
 import { useAuth } from '@/state/AuthContext';
 import { invitationReturnPath, savedInvitationReturnPath } from '@/lib/invitationReturnPath';
 import { Eye, EyeOff } from 'lucide-react';
@@ -9,19 +9,69 @@ import { Notice } from '@/components/feedback/Notice';
 import i18n from '@/i18n';
 import { currentLegalConsent } from '@/lib/legal';
 import { NICKNAME_MAX_LENGTH, normalizeNickname } from '@/lib/userProfile';
+import {
+  authErrorFromServer,
+  NAME_MAX_LENGTH,
+  PASSWORD_MAX_LENGTH,
+  validateAuth,
+  type AuthErrors,
+  type AuthField,
+  type AuthValues,
+} from '@/lib/authValidation';
 
 import { Layout } from '@/components/layout/Layout';
 import { field, panel, primary } from '@/components/ui/classes';
 
+const FIELD_ORDER: AuthField[] = [
+  'name',
+  'nickname',
+  'email',
+  'password',
+  'confirmPassword',
+  'legalConsent',
+];
+
+function readValues(form: HTMLFormElement): AuthValues {
+  const data = new FormData(form);
+  const text = (name: string) => (data.has(name) ? String(data.get(name)) : undefined);
+  return {
+    name: text('name'),
+    nickname: text('nickname'),
+    email: text('email'),
+    password: text('password'),
+    confirmPassword: text('confirmPassword'),
+    legalConsent: data.get('legalConsent') === 'on',
+  };
+}
+
+function FieldError({ name, errors }: { name: AuthField; errors: AuthErrors }) {
+  const key = errors[name];
+  return key ? (
+    <p id={`${name}-error`} className="app-field-error">
+      {i18n.t(key)}
+    </p>
+  ) : null;
+}
+
 export function Auth({ screen }: { screen: 'login' | 'register' | 'recovery' }) {
-  const { configured, user, signIn, signUp, resetPassword, isNicknameAvailable } = useAuth();
+  const {
+    configured,
+    user,
+    signIn,
+    signUp,
+    resetPassword,
+    isNicknameAvailable,
+    isEmailRegistered,
+  } = useAuth();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const [message, setMessage] = useState('');
+  const formRef = useRef<HTMLFormElement>(null);
+  const [notice, setNotice] = useState('');
+  const [errors, setErrors] = useState<AuthErrors>({});
+  const [submitted, setSubmitted] = useState(false);
   const [busy, setBusy] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [legalAccepted, setLegalAccepted] = useState(false);
-  const [legalError, setLegalError] = useState('');
   const recovery = screen === 'recovery';
   const register = screen === 'register';
   const title = i18n.t(`app.auth.${screen}`);
@@ -33,52 +83,120 @@ export function Auth({ screen }: { screen: 'login' | 'register' | 'recovery' }) 
     if (register && user) navigate(returnPath, { replace: true });
   }, [register, returnPath, user, navigate]);
 
+  // La misma pantalla sirve para entrar, registrarse y recuperar: al cambiar, empieza limpia.
+  const [currentScreen, setCurrentScreen] = useState(screen);
+  if (currentScreen !== screen) {
+    setCurrentScreen(screen);
+    setErrors({});
+    setSubmitted(false);
+    setNotice('');
+  }
+
+  const showErrors = (next: AuthErrors) => {
+    setErrors(next);
+    const first = FIELD_ORDER.find((name) => next[name]);
+    if (first) formRef.current?.querySelector<HTMLElement>(`[name="${first}"]`)?.focus();
+  };
+
+  // Tras el primer intento, cada campo se revisa al escribir o salir de él.
+  const recheck = (target: EventTarget) => {
+    const name = (target as HTMLInputElement).name as AuthField;
+    if (!formRef.current || !FIELD_ORDER.includes(name)) return;
+    const value = (target as HTMLInputElement).value;
+    if (!submitted && !errors[name] && !value) return;
+    const next = validateAuth(screen, readValues(formRef.current));
+    setErrors((current) => {
+      const updated = { ...current, [name]: next[name], form: undefined };
+      if (name === 'password' && current.confirmPassword)
+        updated.confirmPassword = next.confirmPassword;
+      return updated;
+    });
+  };
+
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    const data = new FormData(event.currentTarget);
-    const email = String(data.get('email')).trim();
-    const password = String(data.get('password'));
-    if (register && !legalAccepted) {
-      setLegalError(i18n.t('app.auth.legalConsentRequired'));
+    const values = readValues(event.currentTarget);
+    setSubmitted(true);
+    setNotice('');
+    const found = validateAuth(screen, values);
+    if (Object.keys(found).length) {
+      showErrors(found);
       return;
     }
+    setErrors({});
     setBusy(true);
-    setMessage('');
+    const email = values.email!.trim();
     try {
       if (recovery) {
         await resetPassword(email);
-        setMessage(i18n.t('app.auth.recoverySent'));
+        setNotice(i18n.t('app.auth.recoverySent'));
       } else if (register) {
-        const name = String(data.get('name')).trim();
-        const nickname = normalizeNickname(String(data.get('nickname')));
-        if (!nickname) throw new Error(i18n.t('app.auth.nicknameInvalid'));
-        if (password !== String(data.get('confirmPassword')))
-          throw new Error(i18n.t('app.auth.passwordsMismatch'));
-        if (!(await isNicknameAvailable(nickname)))
-          throw new Error(i18n.t('app.auth.nicknameTaken'));
-        await signUp(name, nickname, email, password, currentLegalConsent);
+        const nickname = normalizeNickname(values.nickname!)!;
+        const [emailTaken, nicknameFree] = await Promise.all([
+          isEmailRegistered(email),
+          isNicknameAvailable(nickname),
+        ]);
+        const taken: AuthErrors = {
+          ...(nicknameFree ? {} : { nickname: 'app.auth.nicknameTaken' }),
+          ...(emailTaken ? { email: 'app.auth.errors.emailTaken' } : {}),
+        };
+        if (Object.keys(taken).length) {
+          showErrors(taken);
+          return;
+        }
+        await signUp(values.name!.trim(), nickname, email, values.password!, currentLegalConsent);
         navigate(returnPath, { replace: true });
       } else {
-        await signIn(email, password);
+        await signIn(email, values.password!);
         navigate(returnPath);
       }
     } catch (error) {
-      setMessage(error instanceof Error ? error.message : i18n.t('app.auth.operationFailed'));
+      const mapped = authErrorFromServer(error);
+      showErrors(
+        Object.keys(mapped).length
+          ? mapped
+          : {
+              form:
+                error instanceof Error && error.message
+                  ? error.message
+                  : 'app.auth.operationFailed',
+            },
+      );
     } finally {
       setBusy(false);
     }
   }
 
-  const passwordField = (name: string, label: string) => (
-    <label className="block text-sm font-medium">
-      {label}
-      <span className="relative mt-1 block">
+  const invalid = (name: AuthField) =>
+    errors[name]
+      ? { 'aria-invalid': true as const, 'aria-describedby': `${name}-error` }
+      : { 'aria-invalid': false as const };
+
+  const labelled = (name: AuthField, label: string, input: ReactNode, help?: ReactNode) => (
+    <div>
+      <label className="block text-sm font-medium">
+        {label}
+        {input}
+      </label>
+      {help}
+      <FieldError name={name} errors={errors} />
+    </div>
+  );
+
+  const passwordField = (name: 'password' | 'confirmPassword', label: string) =>
+    labelled(
+      name,
+      label,
+      <span className="relative mt-[0.4rem] block">
         <input
-          required
           name={name}
-          minLength={6}
+          maxLength={PASSWORD_MAX_LENGTH}
           type={showPassword ? 'text' : 'password'}
-          className={`${field} mt-0 pr-12`}
+          autoComplete={register ? 'new-password' : 'current-password'}
+          className={`${field} pr-12`}
+          // El margen de .app-field va en el contenedor para que el ojo quede centrado.
+          style={{ marginTop: 0 }}
+          {...invalid(name)}
         />
         <Button
           type="button"
@@ -88,28 +206,31 @@ export function Auth({ screen }: { screen: 'login' | 'register' | 'recovery' }) 
             showPassword ? i18n.t('app.auth.hidePassword') : i18n.t('app.auth.showPassword')
           }
           title={showPassword ? i18n.t('app.auth.hidePassword') : i18n.t('app.auth.showPassword')}
-          className="absolute inset-y-0 right-0 w-11 text-muted-foreground hover:text-accent"
+          className="absolute inset-y-0 right-0 h-auto w-11 px-0 text-muted-foreground hover:text-accent hover:shadow-none motion-safe:hover:translate-y-0"
           onClick={() => setShowPassword((value) => !value)}
         >
           {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
         </Button>
-      </span>
-    </label>
-  );
+      </span>,
+    );
+
   const consent = (
-    <fieldset className="rounded-2xl border border-border bg-secondary/40 p-3">
+    <fieldset
+      className={`rounded-2xl border p-3 ${errors.legalConsent ? 'border-danger-text bg-secondary/40' : 'border-border bg-secondary/40'}`}
+    >
       <legend className="sr-only">{i18n.t('app.legalConsent.title')}</legend>
       <label className="flex cursor-pointer items-start gap-3 text-sm leading-5 text-foreground">
         <input
-          required
           name="legalConsent"
           checked={legalAccepted}
           onChange={(event) => {
             setLegalAccepted(event.target.checked);
-            if (event.target.checked) setLegalError('');
+            if (event.target.checked)
+              setErrors((current) => ({ ...current, legalConsent: undefined }));
           }}
           type="checkbox"
           className="mt-1 size-4 accent-primary"
+          {...invalid('legalConsent')}
         />
         <span>
           {i18n.t('app.auth.legalAgreement')}{' '}
@@ -133,11 +254,7 @@ export function Auth({ screen }: { screen: 'login' | 'register' | 'recovery' }) 
           {i18n.t('app.auth.legalAgreementSuffix')}
         </span>
       </label>
-      {legalError && (
-        <p role="alert" className="mt-2 text-sm text-red-300">
-          {legalError}
-        </p>
-      )}
+      <FieldError name="legalConsent" errors={errors} />
     </fieldset>
   );
   return (
@@ -148,56 +265,76 @@ export function Auth({ screen }: { screen: 'login' | 'register' | 'recovery' }) 
           <p className="mt-2 text-sm text-muted-foreground">
             {configured ? '' : i18n.t('app.auth.localMode')}
           </p>
-          {message && (
-            <div className="mt-4">
-              <Notice error={!message.includes(i18n.t('app.auth.recoverySent'))}>{message}</Notice>
+          {(notice || errors.form) && (
+            <div className="mt-4" role="alert">
+              <Notice error={!notice}>{notice || i18n.t(errors.form!)}</Notice>
             </div>
           )}
-          <form className="mt-5 space-y-4" onSubmit={submit}>
-            {register && (
-              <label className="block text-sm font-medium">
-                {i18n.t('app.common.name')}
+          <form
+            ref={formRef}
+            className="mt-5 space-y-4"
+            noValidate
+            onSubmit={submit}
+            onBlur={(event) => recheck(event.target)}
+            onInput={(event) => recheck(event.target)}
+          >
+            {register &&
+              labelled(
+                'name',
+                i18n.t('app.common.name'),
                 <input
-                  required
                   name="name"
                   autoComplete="name"
+                  maxLength={NAME_MAX_LENGTH}
                   className={field}
                   placeholder={i18n.t('app.auth.yourName')}
-                />
-              </label>
-            )}
-            {register && (
-              <label className="block text-sm font-medium">
-                {i18n.t('app.common.nickname')}
+                  {...invalid('name')}
+                />,
+              )}
+            {register &&
+              labelled(
+                'nickname',
+                i18n.t('app.common.nickname'),
                 <input
-                  required
                   name="nickname"
-                  autoComplete="nickname"
-                  minLength={2}
+                  autoComplete="off"
                   maxLength={NICKNAME_MAX_LENGTH}
-                  aria-describedby="nickname-help"
                   className={field}
                   placeholder={i18n.t('app.auth.yourNickname')}
-                />
+                  {...invalid('nickname')}
+                  aria-describedby={
+                    errors.nickname ? 'nickname-error nickname-help' : 'nickname-help'
+                  }
+                />,
                 <span id="nickname-help" className="mt-1 block text-xs text-muted-foreground">
                   {i18n.t('app.auth.nicknameHelp')}
-                </span>
-              </label>
-            )}
-            <label className="block text-sm font-medium">
-              {i18n.t('app.common.email')}
+                </span>,
+              )}
+            {labelled(
+              'email',
+              i18n.t('app.common.email'),
               <input
-                required
                 name="email"
                 type="email"
                 autoComplete="email"
                 className={field}
                 placeholder={i18n.t('app.auth.emailPlaceholder')}
-              />
-            </label>
+                {...invalid('email')}
+              />,
+            )}
             {!recovery && (
               <>
                 {passwordField('password', i18n.t('app.common.password'))}
+                {screen === 'login' && (
+                  <div className="-mt-2 flex justify-end">
+                    <Link
+                      to="/forgot-password"
+                      className="text-sm font-semibold text-accent underline-offset-4 hover:underline focus-visible:underline"
+                    >
+                      {i18n.t('app.auth.forgotPassword')}
+                    </Link>
+                  </div>
+                )}
                 {register && passwordField('confirmPassword', i18n.t('app.auth.confirmPassword'))}
               </>
             )}
@@ -215,7 +352,9 @@ export function Auth({ screen }: { screen: 'login' | 'register' | 'recovery' }) 
               requiresConsent={register}
               consentAccepted={legalAccepted}
               redirectPath={returnPath}
-              onConsentRequired={() => setLegalError(i18n.t('app.auth.legalConsentRequired'))}
+              onConsentRequired={() =>
+                showErrors({ ...errors, legalConsent: 'app.auth.legalConsentRequired' })
+              }
             />
           )}
           <div className="mt-5 text-center">
@@ -226,11 +365,6 @@ export function Auth({ screen }: { screen: 'login' | 'register' | 'recovery' }) 
               {screen === 'login' ? i18n.t('app.auth.noAccount') : i18n.t('app.auth.backToLogin')}
             </Link>
           </div>
-          {!recovery && (
-            <Button asChild type="button" variant="outline" className="mt-3 w-full">
-              <Link to="/forgot-password">{i18n.t('app.auth.forgotPassword')}</Link>
-            </Button>
-          )}
         </div>
       </div>
     </Layout>

@@ -317,6 +317,17 @@ export const en = {
       organizerPanel: '{{name}}’s dashboard',
     },
     auth: {
+      errors: {
+        required: 'This field is required.',
+        nameTooLong: 'Your name can be up to 80 characters long.',
+        emailInvalid: 'Enter a valid email, for example name@gmail.com.',
+        emailTaken: 'An account with this email already exists. Sign in or reset your password.',
+        passwordShort: 'Your password must be at least 6 characters long.',
+        passwordLong: 'Your password can be up to 128 characters long.',
+        invalidCredentials: 'The email or password is incorrect.',
+        tooManyAttempts: 'Too many attempts in a row. Wait a moment and try again.',
+        emailNotConfirmed: 'Confirm your email with the link we sent you before signing in.',
+      },
       emailPlaceholder: 'email@gmail.com',
       login: 'Sign in',
       register: 'Create your account',

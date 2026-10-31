@@ -302,6 +302,19 @@
   border-color: var(--accent);
   box-shadow: 0 0 0 3px rgba(61, 90, 251, 0.14);
 }
+.app-field[aria-invalid='true'] {
+  border-color: var(--danger-text);
+}
+.app-field[aria-invalid='true']:focus {
+  box-shadow: 0 0 0 3px rgba(164, 72, 64, 0.16);
+}
+.app-field-error {
+  margin: 0.35rem 0 0;
+  color: var(--danger-text);
+  font-size: 0.8rem;
+  font-weight: 600;
+  line-height: 1.35;
+}
 .app-badge {
   display: inline-flex;
   min-height: 1.55rem;

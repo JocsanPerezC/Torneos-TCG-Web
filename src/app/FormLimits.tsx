@@ -41,6 +41,9 @@ function applyLimits(element: HTMLInputElement | HTMLTextAreaElement) {
 }
 
 function validate(element: HTMLInputElement | HTMLTextAreaElement) {
+  // Limpia el mensaje anterior: los campos sin límite propio (como el apodo) no pasan por
+  // ninguna de las reglas de abajo y conservarían el "Completa este campo" para siempre.
+  element.setCustomValidity('');
   if (element.required && !element.value.trim()) {
     element.setCustomValidity(i18n.t('app.messages.required'));
     return;
