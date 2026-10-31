@@ -41,6 +41,7 @@ import {
   roundCompleted,
   roundDraft,
   showcaseEmptyStatistics,
+  showcaseFullStatistics,
   showcaseJoinPreview,
   showcaseNames,
   showcasePlayerStatistics,
@@ -359,6 +360,9 @@ export function StatisticsSection() {
         <p className="showcase-note">{t('app.showcase.arrowNote')}</p>
       </Variant>
       <Variant label={`BattleLedger · ${t('app.showcase.complete')}`}>
+        <BattleLedger statistics={showcaseFullStatistics} />
+      </Variant>
+      <Variant label={`BattleLedger · ${t('app.common.round', { number: 1 })}`}>
         <BattleLedger statistics={showcaseStatistics} />
       </Variant>
       <Variant label={`BattleLedger · ${t('app.showcase.noResults')}`}>

@@ -1,39 +1,135 @@
+import type { ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
-import type { TableStatistic, TournamentStatistics } from '@/domain/statistics';
+import { Avatar } from '@/components/ui/Avatar';
+import {
+  RECORD_ORDER,
+  recordHolders,
+  recordStatus,
+  TABLE_RECORDS,
+  type RecordKey,
+  type TableHighlight,
+  type TournamentStatistics,
+} from '@/domain/statistics';
+import type { Player } from '@/domain/types';
 import {
   ArrowGlyph,
-  AvatarStack,
   BalanceGlyph,
   CountUp,
-  EmptyMark,
   FlameTrail,
   KillTally,
   RoundPips,
   Sparkline,
   SwordLink,
 } from '@/features/tournaments/components/BattleGlyphs';
-import { playerNames } from '@/features/tournaments/components/battleText';
 
 interface BattleLedgerProps {
   statistics: TournamentStatistics;
 }
 
-function tableNames(table: TableStatistic) {
-  return playerNames(table.players);
+/** Columnas (de 6) para que cada fila de tarjetas cierre sin huecos. */
+function recordSpans(count: number) {
+  const spans = Array<number>(count).fill(2);
+  if (count === 1) return [6];
+  if (count % 3 === 2) spans.splice(-2, 2, 3, 3);
+  if (count % 3 === 1) spans.splice(-4, 4, 3, 3, 3, 3);
+  return spans;
+}
+
+function Crown({ className }: { className: string }) {
+  return (
+    <svg className={className} viewBox="0 0 72 42" aria-hidden="true">
+      <path d="M8 8 22 22 36 5l14 17L64 8l-5 27H13L8 8Z" />
+      <path d="M14 39h44" />
+    </svg>
+  );
+}
+
+function recordGlyph(key: RecordKey, statistics: TournamentStatistics): ReactNode {
+  const value = statistics[key].value;
+  switch (key) {
+    case 'hunter':
+    case 'bloodiestTable':
+      return <KillTally count={value} />;
+    case 'unstoppable':
+      return <FlameTrail count={value} />;
+    case 'perfectAttendance':
+      return <RoundPips count={value} />;
+    case 'rivals':
+      return <SwordLink />;
+    case 'closestTable':
+      return <BalanceGlyph difference={value} />;
+    case 'comeback':
+      return <ArrowGlyph value={value} />;
+    case 'drawRoyalty':
+      return (
+        <div className="battle-draw-mark" aria-hidden="true">
+          <span /> <span /> <span />
+        </div>
+      );
+    case 'constant':
+      return <Sparkline scores={statistics.constant.scores} />;
+    case 'tableHead':
+      return <Crown className="battle-crown" />;
+    case 'punchingBag':
+      return (
+        <svg className="battle-target" viewBox="0 0 56 56" aria-hidden="true">
+          <circle cx="28" cy="28" r="21" />
+          <circle cx="28" cy="28" r="12" />
+          <circle cx="28" cy="28" r="3" />
+        </svg>
+      );
+    case 'losingStreak':
+      return (
+        <div className="battle-rain" aria-hidden="true">
+          {Array.from({ length: Math.min(value, 6) }, (_, index) => (
+            <i key={index} />
+          ))}
+        </div>
+      );
+    default:
+      return null;
+  }
 }
 
 export function BattleLedger({ statistics }: BattleLedgerProps) {
-  const { t } = useTranslation();
-  const attendanceSentence =
-    statistics.perfectAttendance.players.length > 4
-      ? t('app.statistics.copy.attendanceMany', {
-          count: statistics.perfectAttendance.players.length,
-        })
-      : t('app.statistics.copy.attendance', {
-          names: playerNames(statistics.perfectAttendance.players),
-        });
-  const rivalNames = statistics.rivals.pairs.map(
-    ([first, second]) => `${first.name} × ${second.name}`,
+  const { t, i18n } = useTranslation();
+  const list = new Intl.ListFormat(i18n.language, { type: 'conjunction' });
+  const names = (players: Player[]) =>
+    players.length > 3
+      ? `${list.format(players.slice(0, 3).map((player) => player.name))} +${players.length - 3}`
+      : list.format(players.map((player) => player.name));
+
+  const statuses = RECORD_ORDER.map((key) => [key, recordStatus(statistics, key)] as const);
+  const notable = statuses.filter(([, status]) => status === 'notable').map(([key]) => key);
+  const playerRecords = notable.filter((key) => !TABLE_RECORDS.includes(key));
+  const tableRecords = notable.filter((key) => TABLE_RECORDS.includes(key));
+  const unsettled = statuses.filter(([, status]) => status !== 'notable');
+  const spans = recordSpans(playerRecords.length);
+  const stamp = (index: number) => String(index + 1).padStart(2, '0');
+
+  const holders = (players: Player[]) => (
+    <div className="battle-holders">
+      <span className="battle-holders__faces">
+        {players.slice(0, 4).map((player) => (
+          <Avatar
+            key={player.id}
+            name={player.name}
+            src={player.avatarUrl}
+            className="battle-holder"
+          />
+        ))}
+      </span>
+      <strong>{names(players)}</strong>
+    </div>
+  );
+
+  const value = (key: RecordKey) => (
+    <div className="battle-record__value">
+      <strong>
+        <CountUp value={statistics[key].value} />
+      </strong>
+      <span>{t(`app.statistics.units.${key}`, { count: statistics[key].value })}</span>
+    </div>
   );
 
   return (
@@ -45,13 +141,14 @@ export function BattleLedger({ statistics }: BattleLedgerProps) {
           <span>{t('app.statistics.subtitle')}</span>
         </div>
         <aside>
-          <RoundPips count={statistics.completedRounds} />
           <strong>
             <CountUp value={statistics.completedRounds} />
           </strong>
-          <span>{t('app.statistics.completedRounds')}</span>
+          <span>{t('app.statistics.roundsDone', { count: statistics.completedRounds })}</span>
+          <RoundPips count={statistics.completedRounds} />
         </aside>
       </header>
+
       {!statistics.completedRounds ? (
         <div className="battle-ledger__empty">
           <svg viewBox="0 0 90 58" aria-hidden="true">
@@ -60,252 +157,135 @@ export function BattleLedger({ statistics }: BattleLedgerProps) {
           <p>{t('app.statistics.noData')}</p>
         </div>
       ) : (
-        <div className="battle-ledger__grid">
-          <article className="battle-note battle-note--hunter">
-            <div className="battle-note__stamp">01 / {t('app.statistics.hunter')}</div>
-            {statistics.hunter.players.length ? (
-              <>
-                <div className="battle-note__hero-number">
-                  <CountUp value={statistics.hunter.value} />
-                </div>
-                <KillTally count={statistics.hunter.value} />
+        <>
+          {statistics.figure && (
+            <article className="battle-figure">
+              <Avatar
+                name={statistics.figure.player.name}
+                src={statistics.figure.player.avatarUrl}
+                className="battle-figure__avatar"
+              />
+              <div className="battle-figure__body">
+                <p className="battle-note__stamp">{t('app.statistics.figure')}</p>
+                <h3>{statistics.figure.player.name}</h3>
                 <p>
-                  {t('app.statistics.copy.hunter', {
-                    names: playerNames(statistics.hunter.players),
-                    count: statistics.hunter.value,
-                  })}
+                  {t('app.statistics.figureTitles', { count: statistics.figure.titles.length })}
                 </p>
-              </>
-            ) : (
-              <EmptyMark message={t('app.statistics.empty.hunter')} />
-            )}
-          </article>
-          <article className="battle-note battle-note--unstoppable">
-            <div className="battle-note__stamp">02 / {t('app.statistics.unstoppable')}</div>
-            {statistics.unstoppable.players.length ? (
-              <>
-                <FlameTrail count={statistics.unstoppable.value} />
-                <div className="battle-note__hero-number">
-                  <CountUp value={statistics.unstoppable.value} />
-                </div>
-                <p>
-                  {t('app.statistics.copy.unstoppable', {
-                    names: playerNames(statistics.unstoppable.players),
-                    count: statistics.unstoppable.value,
-                  })}
-                </p>
-              </>
-            ) : (
-              <EmptyMark message={t('app.statistics.empty.unstoppable')} />
-            )}
-          </article>
-          <article className="battle-note battle-note--attendance">
-            <div className="battle-note__stamp">03 / {t('app.statistics.perfectAttendance')}</div>
-            {statistics.perfectAttendance.players.length ? (
-              <>
-                <div className="battle-attendance__visual">
-                  <AvatarStack players={statistics.perfectAttendance.players} />
-                  <RoundPips count={statistics.perfectAttendance.value} />
-                </div>
-                <p>{attendanceSentence}</p>
-              </>
-            ) : (
-              <EmptyMark message={t('app.statistics.empty.attendance')} />
-            )}
-          </article>
-          <article className="battle-note battle-note--rivals">
-            <div className="battle-note__stamp">04 / {t('app.statistics.rivals')}</div>
-            {statistics.rivals.pairs.length ? (
-              <>
-                <div className="battle-rivals__visual">
-                  <AvatarStack players={statistics.rivals.pairs[0]} />
-                  <SwordLink />
-                </div>
-                <p>
-                  {t('app.statistics.copy.rivals', {
-                    names: rivalNames.join(' · '),
-                    count: statistics.rivals.value,
-                  })}
-                </p>
-              </>
-            ) : (
-              <EmptyMark message={t('app.statistics.empty.rivals')} />
-            )}
-          </article>
-          <article className="battle-note battle-note--close">
-            <div className="battle-note__stamp">05 / {t('app.statistics.closestTable')}</div>
-            {statistics.closestTable.tables.length ? (
-              <>
-                <BalanceGlyph difference={statistics.closestTable.value} />
-                <div className="battle-table-list">
-                  {statistics.closestTable.tables.map((table) => (
-                    <span key={`${table.roundNumber}-${table.tableNumber}`}>
-                      {t('app.statistics.copy.closestTable', {
-                        round: table.roundNumber,
-                        table: table.tableNumber,
-                        count: table.pointDifference,
-                        names: tableNames(table),
-                      })}
-                    </span>
+                <ul>
+                  {statistics.figure.titles.map((key) => (
+                    <li key={key}>{t(`app.statistics.${key}`)}</li>
                   ))}
-                </div>
-              </>
-            ) : (
-              <EmptyMark message={t('app.statistics.empty.closestTable')} />
-            )}
-          </article>
-          <article className="battle-note battle-note--bloodiest">
-            <div className="battle-note__stamp">09 / {t('app.statistics.bloodiestTable')}</div>
-            {statistics.bloodiestTable.tables.length ? (
-              <>
-                <KillTally count={statistics.bloodiestTable.value} />
-                <div className="battle-table-list">
-                  {statistics.bloodiestTable.tables.map((table) => (
-                    <span key={`${table.roundNumber}-${table.tableNumber}`}>
-                      {t('app.statistics.copy.bloodiestTable', {
-                        round: table.roundNumber,
-                        table: table.tableNumber,
-                        count: table.kills,
-                      })}
+                </ul>
+              </div>
+              <Crown className="battle-figure__crown" />
+            </article>
+          )}
+
+          {playerRecords.length > 0 && (
+            <section className="battle-section" aria-labelledby="battle-records-title">
+              <h3 id="battle-records-title">{t('app.statistics.recordsTitle')}</h3>
+              <div className="battle-records">
+                {playerRecords.map((key, index) => (
+                  <article
+                    key={key}
+                    className={`battle-note battle-record battle-note--${key}`}
+                    style={{ gridColumn: `span ${spans[index]}` }}
+                  >
+                    <div className="battle-note__stamp">
+                      {stamp(index)} / {t(`app.statistics.${key}`)}
+                    </div>
+                    {key === 'rivals'
+                      ? statistics.rivals.pairs.map((pair) => (
+                          <div key={pair.map((player) => player.id).join()}>{holders(pair)}</div>
+                        ))
+                      : holders(statistics[key as 'hunter'].players)}
+                    <div className="battle-record__score">
+                      {value(key)}
+                      {recordGlyph(key, statistics)}
+                    </div>
+                    <p className="battle-record__tagline">{t(`app.statistics.taglines.${key}`)}</p>
+                  </article>
+                ))}
+              </div>
+            </section>
+          )}
+
+          {tableRecords.length > 0 && (
+            <section className="battle-section" aria-labelledby="battle-tables-title">
+              <h3 id="battle-tables-title">{t('app.statistics.tablesTitle')}</h3>
+              <div className="battle-tables">
+                {tableRecords.map((key, index) => {
+                  const record = statistics[key] as TableHighlight;
+                  const [table] = record.tables;
+                  return (
+                    <article key={key} className={`battle-note battle-table battle-note--${key}`}>
+                      <div className="battle-note__stamp">
+                        {stamp(playerRecords.length + index)} / {t(`app.statistics.${key}`)}
+                      </div>
+                      <p className="battle-table__label">
+                        {record.tables
+                          .map((entry) =>
+                            t('app.statistics.tableLabel', {
+                              table: entry.tableNumber,
+                              round: entry.roundNumber,
+                            }),
+                          )
+                          .join(' / ')}
+                      </p>
+                      <ol className="battle-table__seats">
+                        {table.seats.map((seat) => (
+                          <li key={seat.player.id}>
+                            <Avatar
+                              name={seat.player.name}
+                              src={seat.player.avatarUrl}
+                              className="battle-holder"
+                            />
+                            <span>{seat.player.name}</span>
+                            <strong>
+                              {key === 'bloodiestTable'
+                                ? `☠ ${seat.kills}`
+                                : t('app.common.pointsShort', { count: seat.points })}
+                            </strong>
+                          </li>
+                        ))}
+                      </ol>
+                      <div className="battle-record__score">
+                        {value(key)}
+                        {recordGlyph(key, statistics)}
+                      </div>
+                      <p className="battle-record__tagline">
+                        {t(`app.statistics.taglines.${key}`)}
+                      </p>
+                    </article>
+                  );
+                })}
+              </div>
+            </section>
+          )}
+
+          {unsettled.length > 0 && (
+            <section className="battle-unsettled" aria-labelledby="battle-unsettled-title">
+              <h3 id="battle-unsettled-title">{t('app.statistics.unsettled')}</h3>
+              <ul>
+                {unsettled.map(([key, status]) => (
+                  <li key={key}>
+                    <strong>{t(`app.statistics.${key}`)}</strong>
+                    <span>
+                      {status === 'crowded'
+                        ? t(
+                            TABLE_RECORDS.includes(key)
+                              ? 'app.statistics.tieTables'
+                              : 'app.statistics.tiePlayers',
+                            { count: recordHolders(statistics, key) },
+                          )
+                        : t(`app.statistics.empty.${key}`)}
                     </span>
-                  ))}
-                </div>
-              </>
-            ) : (
-              <EmptyMark message={t('app.statistics.empty.bloodiestTable')} />
-            )}
-          </article>
-          <article className="battle-note battle-note--comeback">
-            <div className="battle-note__stamp">06 / {t('app.statistics.comeback')}</div>
-            {statistics.comeback.players.length ? (
-              <>
-                <ArrowGlyph value={statistics.comeback.value} />
-                <p>
-                  {t('app.statistics.copy.comeback', {
-                    names: playerNames(statistics.comeback.players),
-                    count: statistics.comeback.value,
-                  })}
-                </p>
-              </>
-            ) : (
-              <EmptyMark message={t('app.statistics.empty.comeback')} />
-            )}
-          </article>
-          <article className="battle-note battle-note--draws">
-            <div className="battle-note__stamp">07 / {t('app.statistics.drawRoyalty')}</div>
-            {statistics.drawRoyalty.players.length ? (
-              <>
-                <div className="battle-draw-mark">
-                  <span /> <span /> <span />
-                </div>
-                <p>
-                  {t('app.statistics.copy.draws', {
-                    names: playerNames(statistics.drawRoyalty.players),
-                    count: statistics.drawRoyalty.value,
-                  })}
-                </p>
-              </>
-            ) : (
-              <EmptyMark message={t('app.statistics.empty.draws')} />
-            )}
-          </article>
-          <article className="battle-note battle-note--best-round">
-            <div className="battle-note__stamp">08 / {t('app.statistics.bestRound')}</div>
-            {statistics.bestRound.players.length ? (
-              <>
-                <strong className="battle-score">
-                  <CountUp value={statistics.bestRound.value} />
-                </strong>
-                <p>
-                  {t('app.statistics.copy.bestRound', {
-                    names: playerNames(statistics.bestRound.players),
-                    count: statistics.bestRound.value,
-                  })}
-                </p>
-              </>
-            ) : (
-              <EmptyMark message={t('app.statistics.empty.bestRound')} />
-            )}
-          </article>
-          <article className="battle-note battle-note--bag">
-            <div className="battle-note__stamp">10 / {t('app.statistics.punchingBag')}</div>
-            {statistics.punchingBag.players.length ? (
-              <>
-                <svg className="battle-target" viewBox="0 0 56 56" aria-hidden="true">
-                  <circle cx="28" cy="28" r="21" />
-                  <circle cx="28" cy="28" r="12" />
-                  <circle cx="28" cy="28" r="3" />
-                </svg>
-                <p>
-                  {t('app.statistics.copy.punchingBag', {
-                    names: playerNames(statistics.punchingBag.players),
-                    count: statistics.punchingBag.value,
-                  })}
-                </p>
-              </>
-            ) : (
-              <EmptyMark message={t('app.statistics.empty.punchingBag')} />
-            )}
-          </article>
-          <article className="battle-note battle-note--losing">
-            <div className="battle-note__stamp">11 / {t('app.statistics.losingStreak')}</div>
-            {statistics.losingStreak.players.length ? (
-              <>
-                <div className="battle-rain">
-                  {Array.from(
-                    { length: Math.min(statistics.losingStreak.value, 6) },
-                    (_, index) => (
-                      <i key={index} />
-                    ),
-                  )}
-                </div>
-                <p>
-                  {t('app.statistics.copy.losingStreak', {
-                    names: playerNames(statistics.losingStreak.players),
-                    count: statistics.losingStreak.value,
-                  })}
-                </p>
-              </>
-            ) : (
-              <EmptyMark message={t('app.statistics.empty.losingStreak')} />
-            )}
-          </article>
-          <article className="battle-note battle-note--constant">
-            <div className="battle-note__stamp">12 / {t('app.statistics.constant')}</div>
-            {statistics.constant.players.length ? (
-              <>
-                <Sparkline scores={statistics.constant.scores} />
-                <p>
-                  {t('app.statistics.copy.constant', {
-                    names: playerNames(statistics.constant.players),
-                    count: statistics.constant.value,
-                  })}
-                </p>
-              </>
-            ) : (
-              <EmptyMark message={t('app.statistics.empty.constant')} />
-            )}
-          </article>
-          <article className="battle-note battle-note--head">
-            <div className="battle-note__stamp">13 / {t('app.statistics.tableHead')}</div>
-            {statistics.tableHead.players.length ? (
-              <>
-                <svg className="battle-crown" viewBox="0 0 72 42" aria-hidden="true">
-                  <path d="M8 8 22 22 36 5l14 17L64 8l-5 27H13L8 8Z" />
-                  <path d="M14 39h44" />
-                </svg>
-                <p>
-                  {t('app.statistics.copy.tableHead', {
-                    names: playerNames(statistics.tableHead.players),
-                    count: statistics.tableHead.value,
-                  })}
-                </p>
-              </>
-            ) : (
-              <EmptyMark message={t('app.statistics.empty.tableHead')} />
-            )}
-          </article>
-        </div>
+                  </li>
+                ))}
+              </ul>
+            </section>
+          )}
+        </>
       )}
     </section>
   );

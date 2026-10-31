@@ -111,6 +111,66 @@ export const showcaseTournament: Tournament = {
 
 export const showcaseStandings = standings(showcaseTournament);
 export const showcaseStatistics = tournamentStatistics(showcaseTournament);
+type Line = [string, number, number, 'win' | 'loss' | 'draw'];
+const completedPod = (id: string, number: number, lines: Line[]): Pod => ({
+  id,
+  number,
+  playerIds: lines.map(([playerId]) => playerId),
+  results: lines.map(([playerId, points, kills, outcome]) => ({
+    playerId,
+    points,
+    kills,
+    outcome,
+  })),
+});
+
+// Una noche de tres rondas: suficiente para que casi todos los récords tengan dueño.
+export const showcaseFullStatistics = tournamentStatistics({
+  ...showcaseTournament,
+  rounds: [
+    roundCompleted,
+    {
+      id: 'full-2',
+      number: 2,
+      status: 'completada',
+      seed: 2,
+      pods: [
+        completedPod('full-2-a', 1, [
+          ['p-ana', 6, 2, 'win'],
+          ['p-bruno', 4, 1, 'loss'],
+          ['p-elena', 2, 0, 'loss'],
+          ['p-gabi', 3, 1, 'draw'],
+        ]),
+        completedPod('full-2-b', 2, [
+          ['p-carla', 1, 0, 'loss'],
+          ['p-diego', 3, 1, 'draw'],
+          ['p-felipe', 4, 2, 'win'],
+          ['p-hugo', 3, 1, 'draw'],
+        ]),
+      ],
+    },
+    {
+      id: 'full-3',
+      number: 3,
+      status: 'completada',
+      seed: 3,
+      pods: [
+        completedPod('full-3-a', 1, [
+          ['p-ana', 7, 3, 'win'],
+          ['p-bruno', 6, 2, 'loss'],
+          ['p-felipe', 2, 0, 'loss'],
+          ['p-diego', 3, 1, 'draw'],
+        ]),
+        completedPod('full-3-b', 2, [
+          ['p-elena', 9, 3, 'win'],
+          ['p-carla', 1, 0, 'loss'],
+          ['p-gabi', 4, 1, 'loss'],
+          ['p-hugo', 2, 1, 'loss'],
+        ]),
+      ],
+    },
+  ],
+});
 export const showcaseEmptyStatistics = tournamentStatistics({ ...showcaseTournament, rounds: [] });
 export const showcaseJoinPreview = { token: 'k7q2m9xa4p', code: 'K7Q2M9' };
 

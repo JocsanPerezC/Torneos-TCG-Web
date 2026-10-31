@@ -6,10 +6,18 @@ export interface PlayerHighlight {
   value: number;
 }
 
+export interface TableSeat {
+  player: Player;
+  points: number;
+  kills: number;
+}
+
 export interface TableStatistic {
   roundNumber: number;
   tableNumber: number;
   players: Player[];
+  /** Resultado de cada asiento, de mayor a menor puntaje. */
+  seats: TableSeat[];
   pointDifference: number;
   kills: number;
 }
@@ -47,6 +55,103 @@ export interface TournamentStatistics {
   losingStreak: PlayerHighlight;
   constant: ConsistencyHighlight;
   tableHead: PlayerHighlight;
+  /** Quien más récords destacados acumula; desempata la clasificación. */
+  figure?: { player: Player; titles: RecordKey[] };
+}
+
+export type RecordKey =
+  | 'hunter'
+  | 'unstoppable'
+  | 'perfectAttendance'
+  | 'rivals'
+  | 'closestTable'
+  | 'comeback'
+  | 'drawRoyalty'
+  | 'bestRound'
+  | 'bloodiestTable'
+  | 'punchingBag'
+  | 'losingStreak'
+  | 'constant'
+  | 'tableHead';
+
+/** Orden de lectura de los récords: primero los de mérito, al final los de mala suerte. */
+export const RECORD_ORDER: RecordKey[] = [
+  'hunter',
+  'tableHead',
+  'unstoppable',
+  'bestRound',
+  'comeback',
+  'constant',
+  'drawRoyalty',
+  'perfectAttendance',
+  'rivals',
+  'punchingBag',
+  'losingStreak',
+  'closestTable',
+  'bloodiestTable',
+];
+
+export const TABLE_RECORDS: RecordKey[] = ['closestTable', 'bloodiestTable'];
+
+/** Con más dueños que esto, el récord no destaca a nadie y queda "sin dueño". */
+export const MAX_RECORD_HOLDERS = 2;
+
+// Valor mínimo para que un récord sea noticia (1 kill o 1 victoria no lo es).
+const MIN_RECORD_VALUE: Partial<Record<RecordKey, number>> = {
+  hunter: 2,
+  unstoppable: 2,
+  perfectAttendance: 2,
+  drawRoyalty: 2,
+  tableHead: 2,
+  punchingBag: 2,
+  losingStreak: 2,
+};
+
+const POSITIVE_RECORDS: RecordKey[] = [
+  'hunter',
+  'tableHead',
+  'unstoppable',
+  'bestRound',
+  'comeback',
+  'constant',
+];
+
+export type RecordStatus = 'notable' | 'empty' | 'crowded';
+
+export function recordHolders(statistics: TournamentStatistics, key: RecordKey): number {
+  const record = statistics[key];
+  if ('tables' in record) return record.tables.length;
+  if ('pairs' in record) return record.pairs.length;
+  return record.players.length;
+}
+
+/** Dice si un récord tiene un dueño claro, si aún no tiene datos o si lo comparten demasiados. */
+export function recordStatus(statistics: TournamentStatistics, key: RecordKey): RecordStatus {
+  const holders = recordHolders(statistics, key);
+  if (!holders || statistics[key].value < (MIN_RECORD_VALUE[key] ?? 0)) return 'empty';
+  // La asistencia perfecta es un récord grupal: no importa cuántos la compartan.
+  if (key !== 'perfectAttendance' && holders > MAX_RECORD_HOLDERS) return 'crowded';
+  return 'notable';
+}
+
+function tournamentFigure(
+  statistics: TournamentStatistics,
+  ranks: Record<string, number>,
+): TournamentStatistics['figure'] {
+  const titles = new Map<string, { player: Player; titles: RecordKey[] }>();
+  for (const key of POSITIVE_RECORDS) {
+    if (recordStatus(statistics, key) !== 'notable') continue;
+    for (const player of (statistics[key] as PlayerHighlight).players) {
+      const entry = titles.get(player.id) ?? { player, titles: [] };
+      entry.titles.push(key);
+      titles.set(player.id, entry);
+    }
+  }
+  return [...titles.values()].sort(
+    (first, second) =>
+      second.titles.length - first.titles.length ||
+      (ranks[first.player.id] ?? Infinity) - (ranks[second.player.id] ?? Infinity),
+  )[0];
 }
 
 function playerHighlight(players: Player[], values: Record<string, number>): PlayerHighlight {
@@ -101,6 +206,19 @@ export function tournamentStatistics(tournament: Tournament): TournamentStatisti
           players: pod.playerIds.flatMap((playerId) =>
             playersById[playerId] ? [playersById[playerId]] : [],
           ),
+          seats: results
+            .flatMap((result) =>
+              playersById[result.playerId]
+                ? [
+                    {
+                      player: playersById[result.playerId],
+                      points: result.points,
+                      kills: result.kills,
+                    },
+                  ]
+                : [],
+            )
+            .sort((first, second) => second.points - first.points),
           pointDifference: Math.max(...points) - Math.min(...points),
           kills: results.reduce((total, result) => total + result.kills, 0),
         });
@@ -179,7 +297,7 @@ export function tournamentStatistics(tournament: Tournament): TournamentStatisti
   });
   const bestRoundValue = Math.max(0, ...Object.values(bestScores));
 
-  return {
+  const statistics: TournamentStatistics = {
     completedRounds: completedRounds.length,
     hunter: playerHighlight(tournament.players, kills),
     unstoppable: playerHighlight(tournament.players, longestWinStreak),
@@ -225,4 +343,6 @@ export function tournamentStatistics(tournament: Tournament): TournamentStatisti
     },
     tableHead: playerHighlight(tournament.players, wins),
   };
+  statistics.figure = tournamentFigure(statistics, currentRanks);
+  return statistics;
 }

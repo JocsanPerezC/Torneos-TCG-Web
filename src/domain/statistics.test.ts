@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { tournamentStatistics } from '@/domain/statistics';
+import { recordStatus, tournamentStatistics } from '@/domain/statistics';
 import type { Tournament } from '@/domain/types';
 
 describe('tournamentStatistics', () => {
@@ -108,5 +108,27 @@ describe('tournamentStatistics', () => {
     expect(statistics.constant.players.map((player) => player.id)).toEqual(['c']);
     expect(statistics.constant.value).toBe(2);
     expect(statistics.tableHead.players.map((player) => player.id)).toEqual(['a']);
+    expect(statistics.closestTable.tables[0].seats.map((seat) => seat.player.id)).toEqual([
+      'a',
+      'c',
+      'b',
+    ]);
+
+    // Figura: "a" es Cazador, Cabeza de mesa e Imparable.
+    expect(statistics.figure?.player.id).toBe('a');
+    expect(statistics.figure?.titles).toEqual(['hunter', 'tableHead', 'unstoppable']);
+
+    const [a, b, c] = statistics.perfectAttendance.players;
+    expect(recordStatus(statistics, 'hunter')).toBe('notable');
+    // Un récord compartido por tres no destaca a nadie.
+    expect(
+      recordStatus({ ...statistics, hunter: { value: 3, players: [a, b, c] } }, 'hunter'),
+    ).toBe('crowded');
+    // Una sola kill no alcanza el mínimo del Cazador.
+    expect(recordStatus({ ...statistics, hunter: { value: 1, players: [a] } }, 'hunter')).toBe(
+      'empty',
+    );
+    // La asistencia perfecta es grupal: la comparten los tres y sigue destacando.
+    expect(recordStatus(statistics, 'perfectAttendance')).toBe('notable');
   });
 });

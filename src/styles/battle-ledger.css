@@ -55,7 +55,6 @@
   border-radius: 1.1rem 0.6rem 1.1rem 0.6rem;
   background: var(--card);
   box-shadow: 3px 3px 0 rgba(17, 17, 17, 0.06);
-  transform: rotate(1.25deg);
 }
 .battle-ledger__masthead aside strong {
   grid-row: span 2;
@@ -154,9 +153,6 @@
   border-radius: 2rem 0.75rem 2.6rem 1rem;
   background: #fff8f6;
 }
-.battle-note--hunter .battle-note__stamp {
-  color: var(--danger-text);
-}
 .battle-note--unstoppable {
   --tilt: 0.65deg;
   grid-column: span 5;
@@ -164,83 +160,17 @@
   border-radius: 0.8rem 2.5rem 0.8rem 2.5rem;
   background: #fffdf2;
 }
-.battle-note--attendance {
-  --tilt: -0.2deg;
-  grid-column: span 12;
-  min-height: 9.5rem;
-  border-style: dashed;
-  border-color: var(--primary-strong);
-  border-radius: 1.1rem 2rem 1.1rem 2rem;
-  background: #f5fff9;
-}
-.battle-note--attendance .battle-note__stamp {
-  color: var(--primary-strong);
-}
 .battle-note--rivals {
   --tilt: 1deg;
   grid-column: span 5;
   border-radius: 2rem 1rem 0.75rem 2rem;
   background: #f7f9ff;
 }
-.battle-note--rivals .battle-note__stamp {
-  color: var(--accent);
-}
-.battle-note--close {
-  --tilt: -0.7deg;
-  grid-column: span 3;
-  border-radius: 0.5rem 1.6rem 0.5rem 1.6rem;
-  background: var(--card);
-}
-.battle-note--bloodiest {
-  --tilt: 0.45deg;
-  grid-column: span 4;
-  border-color: var(--red);
-  border-radius: 1.5rem 0.6rem 1.5rem 0.6rem;
-  background: #fff4f2;
-}
-.battle-note--bloodiest::after {
-  content: '';
-  position: absolute;
-  right: -1rem;
-  bottom: -1.2rem;
-  width: 5rem;
-  height: 5rem;
-  border: 10px solid rgba(193, 39, 45, 0.12);
-  border-radius: 50%;
-}
 .battle-note--comeback {
   --tilt: -1deg;
   grid-column: span 4;
   border-radius: 1.75rem 0.75rem 1.75rem 0.75rem;
   background: #f4f7ff;
-}
-.battle-note--draws {
-  --tilt: 0.5deg;
-  grid-column: span 3;
-  border-style: dashed;
-  border-radius: 0.65rem 1.6rem 1.6rem 0.65rem;
-  background: #fbfaff;
-}
-.battle-note--best-round {
-  --tilt: -0.25deg;
-  grid-column: span 5;
-  min-height: 12rem;
-  border-color: var(--accent);
-  border-radius: 2rem 2rem 0.7rem 0.7rem;
-  background: #f5f7ff;
-}
-.battle-note--bag {
-  --tilt: 0.75deg;
-  grid-column: span 3;
-  border-color: var(--danger-text);
-  border-radius: 50% 1rem 1rem 1rem;
-  background: #fff8f6;
-}
-.battle-note--losing {
-  --tilt: -0.45deg;
-  grid-column: span 3;
-  border-radius: 0.8rem 0.8rem 2rem 0.8rem;
-  background: #f7f7f7;
 }
 .battle-note--constant {
   --tilt: 0.35deg;
@@ -250,13 +180,6 @@
   border-radius: 1.7rem 0.7rem 1.7rem 0.7rem;
   background: #f6fffa;
 }
-.battle-note--head {
-  --tilt: -0.15deg;
-  grid-column: span 5;
-  border-color: var(--violet);
-  border-radius: 0.8rem 2rem 0.8rem 2rem;
-  background: #faf7ff;
-}
 .battle-note__hero-number {
   display: inline-block;
   margin-top: 1rem;
@@ -265,13 +188,6 @@
   font-weight: 700;
   line-height: 0.82;
   letter-spacing: -0.08em;
-}
-.battle-note--unstoppable .battle-note__hero-number {
-  position: absolute;
-  right: 1.2rem;
-  bottom: 2.65rem;
-  color: var(--red);
-  font-size: clamp(4.5rem, 9vw, 7rem);
 }
 .battle-tally {
   display: block;
@@ -299,13 +215,6 @@
   stroke: var(--red);
   stroke-width: 1.4;
 }
-.battle-attendance__visual {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 1rem;
-  margin-top: 1.2rem;
-}
 .battle-avatar-stack {
   display: flex;
   align-items: center;
@@ -328,12 +237,6 @@
 }
 .battle-avatar-stack strong {
   background: var(--foreground);
-}
-.battle-rivals__visual {
-  display: flex;
-  align-items: center;
-  gap: 0.35rem;
-  margin: 1.25rem 0 0.15rem;
 }
 .battle-swords {
   width: 3.5rem;
@@ -359,18 +262,6 @@
   stroke: none;
   font-size: 13px;
   font-weight: 700;
-}
-.battle-table-list {
-  display: grid;
-  gap: 0.5rem;
-  margin-top: 0.55rem;
-}
-.battle-table-list span {
-  display: block;
-  color: var(--ink-soft);
-  font-size: 0.84rem;
-  font-weight: 600;
-  line-height: 1.22;
 }
 .battle-arrow {
   width: 5rem;
@@ -489,13 +380,328 @@
   margin: 0;
   font-weight: 600;
 }
+/* Portada: la figura del torneo. */
+.battle-figure {
+  position: relative;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 1.25rem;
+  margin-bottom: 1.75rem;
+  padding: 1.25rem 1.5rem;
+  overflow: hidden;
+  border: 2px solid var(--foreground);
+  border-radius: 2.2rem 0.8rem 2.2rem 0.8rem;
+  background: #fff6dc;
+  box-shadow: var(--app-shadow-md);
+  transform: rotate(-0.4deg);
+}
+.battle-figure::before {
+  content: '';
+  position: absolute;
+  inset: 0.5rem;
+  border: 1.5px dashed rgba(17, 17, 17, 0.18);
+  border-radius: 1.8rem 0.5rem 1.8rem 0.5rem;
+  pointer-events: none;
+}
+.battle-figure__avatar {
+  display: grid;
+  width: 5.5rem;
+  height: 5.5rem;
+  place-items: center;
+  overflow: hidden;
+  border: 3px solid var(--foreground);
+  border-radius: 50%;
+  background: var(--accent);
+  box-shadow: 3px 4px 0 var(--foreground);
+  color: #fff;
+  font-size: 2.3rem;
+  font-weight: 700;
+}
+.battle-figure__avatar img,
+.battle-holder img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.battle-figure__body h3 {
+  margin: 0.15rem 0 0.1rem;
+  font-size: clamp(1.8rem, 4vw, 2.6rem);
+  line-height: 1;
+}
+.battle-figure__body > p:not(.battle-note__stamp) {
+  margin: 0;
+  color: var(--ink-soft);
+  font-weight: 600;
+}
+.battle-figure__body ul {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin: 0.7rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+.battle-figure__body li {
+  padding: 0.2rem 0.6rem;
+  border: 1.5px solid var(--foreground);
+  border-radius: var(--app-radius-pill);
+  background: var(--card);
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+.battle-figure__crown {
+  width: 6.5rem;
+  height: 4rem;
+  fill: #f5c84c;
+  stroke: var(--foreground);
+  stroke-linejoin: round;
+  stroke-width: 2.5;
+  transform: rotate(12deg);
+}
+.battle-figure__crown path:last-child {
+  fill: none;
+}
+
+/* Récords y mesas */
+.battle-section {
+  margin-top: 1.75rem;
+}
+.battle-section > h3,
+.battle-unsettled > h3 {
+  margin: 0 0 0.85rem;
+  font-size: 1.3rem;
+}
+.battle-records {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 1rem;
+}
+.battle-tables {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(18rem, 1fr));
+  gap: 1rem;
+}
+.battle-record,
+.battle-table {
+  --rec-color: var(--accent);
+}
+.battle-ledger .battle-record,
+.battle-ledger .battle-table {
+  display: flex;
+  min-height: 12rem;
+  flex-direction: column;
+  gap: 0.7rem;
+}
+.battle-ledger .battle-table {
+  grid-column: auto;
+}
+.battle-note--hunter,
+.battle-note--bloodiestTable,
+.battle-note--punchingBag {
+  --rec-color: var(--red);
+}
+.battle-note--tableHead,
+.battle-note--drawRoyalty {
+  --rec-color: var(--violet);
+}
+.battle-note--constant,
+.battle-note--perfectAttendance {
+  --rec-color: var(--primary-strong);
+}
+.battle-note--losingStreak,
+.battle-note--closestTable {
+  --rec-color: var(--foreground);
+}
+.battle-note--bloodiestTable {
+  border-color: var(--red);
+  border-radius: 1.5rem 0.6rem 1.5rem 0.6rem;
+  background: #fff4f2;
+}
+.battle-note--closestTable {
+  border-radius: 0.6rem 1.8rem 0.6rem 1.8rem;
+  background: var(--card);
+}
+.battle-note--drawRoyalty {
+  border-style: dashed;
+  border-radius: 0.65rem 1.6rem 1.6rem 0.65rem;
+  background: #fbfaff;
+}
+.battle-note--punchingBag {
+  border-color: var(--danger-text);
+  border-radius: 2rem 1rem 1rem 1rem;
+  background: #fff8f6;
+}
+.battle-note--losingStreak {
+  border-radius: 0.8rem 0.8rem 2rem 0.8rem;
+  background: #f7f7f7;
+}
+.battle-note--tableHead {
+  border-color: var(--violet);
+  border-radius: 0.8rem 2rem 0.8rem 2rem;
+  background: #faf7ff;
+}
+.battle-note--perfectAttendance {
+  border-style: dashed;
+  border-color: var(--primary-strong);
+  border-radius: 1.1rem 2rem 1.1rem 2rem;
+  background: #f5fff9;
+}
+.battle-note--bestRound {
+  border-color: var(--accent);
+  border-radius: 2rem 2rem 0.7rem 0.7rem;
+  background: #f5f7ff;
+}
+.battle-ledger .battle-record .battle-note__stamp,
+.battle-ledger .battle-table .battle-note__stamp {
+  color: var(--rec-color);
+}
+.battle-holders {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+.battle-holders__faces {
+  display: flex;
+  flex: none;
+}
+.battle-holder {
+  display: grid;
+  width: 2.4rem;
+  height: 2.4rem;
+  flex: none;
+  place-items: center;
+  overflow: hidden;
+  border: 2px solid var(--foreground);
+  border-radius: 50%;
+  background: var(--accent);
+  color: #fff;
+  font-size: 0.95rem;
+  font-weight: 700;
+}
+.battle-holders__faces .battle-holder + .battle-holder {
+  margin-left: -0.55rem;
+}
+.battle-holders strong {
+  font-size: 1.05rem;
+  line-height: 1.2;
+}
+.battle-record__score {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-top: auto;
+}
+.battle-record__score > svg,
+.battle-record__score > div:not(.battle-record__value) {
+  max-width: 8.5rem;
+  flex: none;
+  margin: 0;
+}
+.battle-record__value strong {
+  display: block;
+  color: var(--rec-color);
+  font-size: 3.2rem;
+  line-height: 0.9;
+  letter-spacing: -0.05em;
+}
+.battle-record__value span {
+  display: block;
+  margin-top: 0.3rem;
+  color: var(--ink-soft);
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+.battle-note .battle-record__tagline {
+  margin: 0;
+  color: var(--ink-soft);
+  font-size: 0.9rem;
+}
+.battle-table__label {
+  margin: 0;
+  color: var(--ink-soft);
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+.battle-note .battle-table__label {
+  margin: 0;
+}
+.battle-table__seats {
+  display: grid;
+  gap: 0.4rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.battle-table__seats li {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 0.55rem;
+  padding: 0.3rem 0.55rem 0.3rem 0.3rem;
+  border: 1.5px dashed var(--border);
+  border-radius: 0.8rem;
+  background: rgba(255, 255, 255, 0.75);
+  font-size: 0.9rem;
+}
+.battle-table__seats li:first-child {
+  border: 1.5px solid var(--foreground);
+  background: var(--card);
+}
+.battle-table__seats .battle-holder {
+  width: 1.9rem;
+  height: 1.9rem;
+  font-size: 0.75rem;
+}
+.battle-table__seats span {
+  overflow: hidden;
+  font-weight: 600;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Récords que todavía no tienen un dueño claro. */
+.battle-unsettled {
+  margin-top: 1.75rem;
+  padding: 1rem 1.1rem 1.1rem;
+  border: 2px dashed var(--border);
+  border-radius: 1.2rem;
+  background: rgba(255, 255, 255, 0.55);
+}
+.battle-unsettled > h3 {
+  margin-bottom: 0.7rem;
+  color: var(--ink-soft);
+  font-size: 1rem;
+}
+.battle-unsettled ul {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(13rem, 1fr));
+  gap: 0.6rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.battle-unsettled li {
+  display: grid;
+  gap: 0.15rem;
+  padding: 0.55rem 0.75rem;
+  border: 1.5px solid var(--border);
+  border-radius: 0.8rem;
+  background: var(--card);
+}
+.battle-unsettled strong {
+  font-size: 0.85rem;
+}
+.battle-unsettled span {
+  color: var(--ink-soft);
+  font-size: 0.78rem;
+  line-height: 1.35;
+}
 @media (max-width: 760px) {
   .battle-ledger__masthead {
     align-items: flex-start;
     flex-direction: column;
-  }
-  .battle-ledger__masthead aside {
-    transform: rotate(0.5deg);
   }
   .battle-ledger__grid {
     display: flex;
@@ -509,14 +715,27 @@
   .battle-note--unstoppable {
     min-height: 14rem;
   }
-  .battle-note--unstoppable .battle-note__hero-number {
-    bottom: 2.25rem;
+  .battle-figure {
+    grid-template-columns: auto minmax(0, 1fr);
+    padding: 1.1rem;
   }
-  .battle-note--attendance {
-    min-height: 9rem;
+  .battle-figure__avatar {
+    width: 4.25rem;
+    height: 4.25rem;
+    font-size: 1.8rem;
   }
-  .battle-note--best-round {
-    min-height: 10.5rem;
+  .battle-figure__crown {
+    display: none;
+  }
+  .battle-records {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .battle-records > .battle-record {
+    grid-column: 1 / -1 !important;
+  }
+  .battle-ledger .battle-record,
+  .battle-ledger .battle-table {
+    min-height: 0;
   }
 }
 @media (prefers-reduced-motion: reduce) {
