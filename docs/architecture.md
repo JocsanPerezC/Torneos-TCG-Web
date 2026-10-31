@@ -29,6 +29,8 @@ Los imports dentro de `src/` usan el alias `@/` (por ejemplo, `@/components/ui/b
 
 `/estadisticas` es una ruta autenticada exclusiva de las cuentas con rol `player`; muestra el historial global de sus inscripciones vinculadas.
 
+`/contador` también es exclusiva de `player`: un contador de vidas para la mesa (2 a 6 jugadores, dados, moneda y quién empieza) en `src/features/counter/`. No usa Supabase; la partida se guarda en `localStorage` y mantiene la pantalla encendida con la Wake Lock API. Se monta con `Layout immersive`, que en celular oculta la barra inferior; la propia pantalla trae el botón "Volver".
+
 ## Capas
 
 `/configuracion` es una ruta autenticada compartida por todos los roles para las preferencias globales de cuenta.

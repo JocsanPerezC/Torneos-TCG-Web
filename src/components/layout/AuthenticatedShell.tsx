@@ -3,6 +3,7 @@ import {
   BarChart3,
   ChevronDown,
   CircleUserRound,
+  Heart,
   ClipboardList,
   LayoutDashboard,
   LogOut,
@@ -69,10 +70,13 @@ export function NavigationLink({
 export function AuthenticatedShell({
   children,
   wide = false,
+  immersive = false,
   tournament,
 }: {
   children: React.ReactNode;
   wide?: boolean;
+  /** En celular oculta la barra inferior: la pantalla ocupa todo y trae su propio "Volver". */
+  immersive?: boolean;
   tournament?: TournamentNavigation;
 }) {
   const { t } = useTranslation();
@@ -145,6 +149,11 @@ export function AuthenticatedShell({
             compactLabel: t('app.shell.myStatisticsShort'),
             icon: BarChart3,
           },
+          {
+            to: '/contador',
+            label: t('app.shell.counter'),
+            icon: Heart,
+          },
           generalSettingsItem,
         ]
       : [
@@ -207,7 +216,9 @@ export function AuthenticatedShell({
   const visibleMobileItems = mobileItems.filter((item): item is NavigationItem => Boolean(item));
 
   return (
-    <div className={`authenticated-shell${sidebarCollapsed ? ' is-sidebar-collapsed' : ''}`}>
+    <div
+      className={`authenticated-shell${sidebarCollapsed ? ' is-sidebar-collapsed' : ''}${immersive ? ' is-immersive' : ''}`}
+    >
       <aside className="app-sidebar">
         <div className="app-sidebar__header">
           <Link

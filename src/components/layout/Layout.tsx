@@ -29,11 +29,13 @@ function CompletionRedirect() {
 export function Layout({
   children,
   wide = false,
+  immersive = false,
   tournament,
   showHeader = true,
 }: {
   children: React.ReactNode;
   wide?: boolean;
+  immersive?: boolean;
   tournament?: TournamentNavigation;
   showHeader?: boolean;
 }) {
@@ -41,7 +43,7 @@ export function Layout({
   const useSidebar = configured && user && !requiresLegalConsent && !requiresRoleSelection;
   return useSidebar ? (
     <>
-      <AuthenticatedShell wide={wide} tournament={tournament}>
+      <AuthenticatedShell wide={wide} immersive={immersive} tournament={tournament}>
         <CompletionRedirect />
         {children}
       </AuthenticatedShell>

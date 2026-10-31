@@ -238,3 +238,8 @@
     flex-wrap: wrap;
   }
 }
+
+.showcase-counter .counter-page {
+  height: 38rem;
+  min-height: 0;
+}

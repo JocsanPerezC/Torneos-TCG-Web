@@ -12,6 +12,7 @@ import {
   IdentitySection,
 } from '@/features/showcase/BaseSections';
 import {
+  CounterSection,
   LandingSection,
   MetricsSection,
   NavigationSection,
@@ -31,6 +32,7 @@ const sections = [
   ['metrics', 'app.showcase.metrics'],
   ['tournament', 'app.showcase.tournament'],
   ['statistics', 'app.showcase.statistics'],
+  ['counter', 'app.shell.counter'],
   ['landing', 'app.showcase.landing'],
 ] as const;
 
@@ -95,6 +97,7 @@ export function ComponentShowcasePage() {
             <MetricsSection />
             <TournamentSection />
             <StatisticsSection />
+            <CounterSection />
             <LandingSection />
           </div>
         </div>

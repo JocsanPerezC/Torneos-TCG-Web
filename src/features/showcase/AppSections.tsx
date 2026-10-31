@@ -16,6 +16,7 @@ import { RoundEditor } from '@/features/trial/components/RoundEditor';
 import { PodResults } from '@/features/trial/components/PodResults';
 import { BattleLedger } from '@/features/tournaments/components/BattleLedger';
 import { StatisticsLedger } from '@/features/player/PlayerStatisticsPage';
+import { CounterPage } from '@/features/counter/CounterPage';
 import {
   ArrowGlyph,
   BalanceGlyph,
@@ -370,6 +371,22 @@ export function StatisticsSection() {
       </Variant>
       <Variant label="StatisticsLedger">
         <StatisticsLedger {...showcasePlayerStatistics} />
+      </Variant>
+    </ShowcaseSection>
+  );
+}
+
+export function CounterSection() {
+  return (
+    <ShowcaseSection
+      id="counter"
+      titleKey="app.shell.counter"
+      sources={['CounterPage · src/features/counter/CounterPage.tsx']}
+    >
+      <Variant label="CounterPage">
+        <div className="showcase-counter">
+          <CounterPage />
+        </div>
       </Variant>
     </ShowcaseSection>
   );

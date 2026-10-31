@@ -55,6 +55,7 @@ const PlayerStatisticsRoute = lazyNamed(
   () => import('@/features/player/PlayerStatisticsRoute'),
   'PlayerStatisticsRoute',
 );
+const CounterRoute = lazyNamed(() => import('@/features/counter/CounterRoute'), 'CounterRoute');
 const NewTournament = lazyNamed(
   () => import('@/features/tournaments/NewTournament'),
   'NewTournament',
@@ -161,6 +162,14 @@ export function AppRouter() {
             element={
               <ConsentGuard>
                 <PlayerStatisticsRoute />
+              </ConsentGuard>
+            }
+          />
+          <Route
+            path="/contador"
+            element={
+              <ConsentGuard>
+                <CounterRoute />
               </ConsentGuard>
             }
           />
