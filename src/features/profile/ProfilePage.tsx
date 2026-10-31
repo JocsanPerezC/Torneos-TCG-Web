@@ -318,7 +318,6 @@ export function ProfilePage() {
     <section className="mx-auto max-w-2xl app-panel">
       <BadgeCheck className="text-accent" aria-hidden="true" />
       <h1 className="mt-4 text-3xl">{t('app.profile.title')}</h1>
-      <p className="mt-2 text-sm leading-6 text-muted-foreground">{t('app.profile.description')}</p>
       <form className="mt-6 space-y-4" onSubmit={save}>
         <div className="profile-avatar-editor">
           <div className="profile-avatar-editor__photo">

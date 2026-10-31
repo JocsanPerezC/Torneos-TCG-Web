@@ -69,6 +69,65 @@ export async function loadPlayerStatistics(): Promise<PlayerStatistics> {
   };
 }
 
+export type PlayerTournamentResult = {
+  id: string;
+  name: string;
+  format: string;
+  publicSlug: string;
+  createdAt: string;
+  playerCount: number;
+  position: number;
+  /** Falso mientras el torneo sigue en juego: la posición es provisional. */
+  isFinal: boolean;
+  roundsPlayed: number;
+  wins: number;
+  losses: number;
+  draws: number;
+  points: number;
+  kills: number;
+};
+
+export type RecentResult = {
+  tournamentName: string;
+  roundNumber: number;
+  outcome: 'win' | 'loss' | 'draw';
+  points: number;
+  kills: number;
+};
+
+export async function loadPlayerTournamentResults(): Promise<PlayerTournamentResult[]> {
+  const { data, error } = await client().rpc('get_my_player_tournament_results');
+  if (error) throw error;
+  return ((data ?? []) as Row[]).map((row) => ({
+    id: String(row.tournament_id),
+    name: String(row.name),
+    format: String(row.format),
+    publicSlug: String(row.public_slug),
+    createdAt: String(row.created_at),
+    playerCount: Number(row.player_count ?? 0),
+    position: Number(row.position ?? 0),
+    isFinal: Boolean(row.is_final),
+    roundsPlayed: Number(row.rounds_played ?? 0),
+    wins: Number(row.wins ?? 0),
+    losses: Number(row.losses ?? 0),
+    draws: Number(row.draws ?? 0),
+    points: Number(row.points ?? 0),
+    kills: Number(row.kills ?? 0),
+  }));
+}
+
+export async function loadRecentResults(limit = 5): Promise<RecentResult[]> {
+  const { data, error } = await client().rpc('get_my_recent_results', { p_limit: limit });
+  if (error) throw error;
+  return ((data ?? []) as Row[]).map((row) => ({
+    tournamentName: String(row.tournament_name),
+    roundNumber: Number(row.round_number),
+    outcome: row.outcome === 'win' ? 'win' : row.outcome === 'draw' ? 'draw' : 'loss',
+    points: Number(row.points ?? 0),
+    kills: Number(row.kills ?? 0),
+  }));
+}
+
 export async function loadJoinableTournament(
   token: string,
 ): Promise<JoinableTournament | undefined> {

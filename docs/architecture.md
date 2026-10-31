@@ -61,7 +61,7 @@ Las fotos de perfil se guardan en el bucket público `profile-avatars` de Supaba
 
 ### Estadísticas globales de jugador
 
-La RPC `get_my_player_statistics()` calcula torneos, rondas, resultados, puntos, kills y podios para las filas de `players` cuyo `profile_id` coincide con `auth.uid()`. Un podio se cuenta al finalizar el torneo o al completar todas sus rondas planificadas. La función se ejecuta con permisos controlados y no expone resultados ajenos al cliente. Los participantes manuales, que no tienen `profile_id`, no forman parte de este historial.
+La RPC `get_my_player_statistics()` calcula torneos, rondas, resultados, puntos, kills y podios para las filas de `players` cuyo `profile_id` coincide con `auth.uid()`. Un podio se cuenta al finalizar el torneo o al completar todas sus rondas planificadas. La función se ejecuta con permisos controlados y no expone resultados ajenos al cliente. Los participantes manuales, que no tienen `profile_id`, no forman parte de este historial. `get_my_player_tournament_results()` devuelve el historial por torneo con la posición (provisional mientras el torneo sigue en juego), con el mismo criterio de clasificación. `get_my_recent_results()` devuelve los últimos resultados para la "forma reciente". La pantalla `/estadisticas` reutiliza las notas y los glifos de `BattleLedger`; si estas dos RPC fallan, muestra igual el resumen.
 
 ### Autenticación y permisos
 

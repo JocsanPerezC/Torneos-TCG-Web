@@ -33,9 +33,6 @@ export function PlayerDashboard() {
       <header className="dashboard-board__header">
         <div>
           <h1>{t('app.playerDashboard.title')}</h1>
-          <p className="mb-0 mt-2 text-sm text-muted-foreground">
-            {t('app.playerDashboard.description')}
-          </p>
         </div>
       </header>
       {!tournaments && !error && (
@@ -99,7 +96,6 @@ export function PlayerDashboard() {
               </span>
               <div>
                 <h2 id="history-title">{t('app.playerDashboard.history')}</h2>
-                <p>{t('app.playerDashboard.historyDescription')}</p>
               </div>
             </header>
             {history.length ? (

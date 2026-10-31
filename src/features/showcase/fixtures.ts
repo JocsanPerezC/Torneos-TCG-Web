@@ -1,3 +1,4 @@
+import type { PlayerStatisticsData } from '@/features/player/PlayerStatisticsPage';
 import type { Player, Pod, Round, Tournament } from '@/domain/types';
 import { standings } from '@/domain/scoring';
 import { tournamentStatistics } from '@/domain/statistics';
@@ -112,3 +113,45 @@ export const showcaseStandings = standings(showcaseTournament);
 export const showcaseStatistics = tournamentStatistics(showcaseTournament);
 export const showcaseEmptyStatistics = tournamentStatistics({ ...showcaseTournament, rounds: [] });
 export const showcaseJoinPreview = { token: 'k7q2m9xa4p', code: 'K7Q2M9' };
+
+export const showcasePlayerStatistics: PlayerStatisticsData = {
+  statistics: {
+    tournamentsPlayed: 4,
+    roundsPlayed: 12,
+    wins: 7,
+    losses: 4,
+    draws: 1,
+    points: 28,
+    kills: 9,
+    podiums: 2,
+  },
+  recent: (['win', 'win', 'loss', 'draw', 'win'] as const).map((outcome, index) => ({
+    tournamentName: 'Commander Night',
+    roundNumber: 5 - index,
+    outcome,
+    points: outcome === 'win' ? 4 : outcome === 'draw' ? 2 : 0,
+    kills: 1,
+  })),
+  history: [
+    ['Commander Night', 3, 8, false, 4, 3, 1, 0, 12],
+    ['Liga de octubre', 1, 10, true, 4, 3, 0, 1, 11],
+    ['cEDH Showdown', 6, 12, true, 4, 1, 3, 0, 5],
+  ].map(
+    ([name, position, playerCount, isFinal, roundsPlayed, wins, losses, draws, points], index) => ({
+      id: `history-${index}`,
+      name: String(name),
+      format: 'Commander',
+      publicSlug: `showcase-${index}`,
+      createdAt: new Date(2026, 9, 24 - index * 14).toISOString(),
+      playerCount: Number(playerCount),
+      position: Number(position),
+      isFinal: Boolean(isFinal),
+      roundsPlayed: Number(roundsPlayed),
+      wins: Number(wins),
+      losses: Number(losses),
+      draws: Number(draws),
+      points: Number(points),
+      kills: 3,
+    }),
+  ),
+};

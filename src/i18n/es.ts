@@ -975,14 +975,12 @@ export const es = {
     },
     playerDashboard: {
       title: 'Mis torneos',
-      description: 'Consulta los torneos en los que estás inscrito y tu historial de mesas.',
       join: 'Unirse a torneo',
       nextTournament: 'Tu próximo torneo',
       openTournament: 'Abrir torneo',
       joinPrompt: '¿Tienes una invitación?',
       joinPromptDescription:
         'Pega el enlace o código que compartió el organizador para sumarte a la mesa.',
-      historyDescription: 'Torneos que ya terminaste.',
       active: 'En juego',
       history: 'Historial',
       statusActive: 'Activo',
@@ -994,12 +992,6 @@ export const es = {
     },
     playerStatistics: {
       title: 'Mis estadísticas',
-      description: 'Tu historial global en los torneos vinculados a esta cuenta.',
-      record: 'Tu registro',
-      recordDescription: 'Resultados acumulados de tus participaciones vinculadas.',
-      participation: 'Participación',
-      results: 'Resultados',
-      performance: 'Rendimiento',
       tournamentsPlayed: 'Torneos jugados',
       roundsPlayed: 'Rondas jugadas',
       wins: 'Victorias',
@@ -1011,6 +1003,20 @@ export const es = {
       podiumsHelp:
         'Los podios se cuentan al finalizar el torneo o completar todas sus rondas planificadas.',
       empty: 'Unite a un torneo con esta cuenta para comenzar tu historial.',
+      recentForm: 'Forma reciente',
+      outcome: { win: 'V', draw: 'E', loss: 'D' },
+      lastResult: 'Última: {{tournament}} · Ronda {{round}}',
+      noRecent: 'Tus últimas rondas aparecerán aquí.',
+      perRound: '{{value}} por ronda',
+      roundsPlayedValue: 'Rondas jugadas: {{count}}',
+      bestResult: 'Mejor resultado',
+      bestResultCopy: 'Torneos ganados: {{wins}} · Podios: {{podiums}}',
+      noBestResult: 'Tu mejor posición aparecerá al terminar tu primer torneo.',
+      noRounds:
+        'Todavía no hay resultados en tus torneos. Tus estadísticas aparecerán después de tu primera mesa.',
+      history: 'Historial por torneo',
+      provisional: 'En juego',
+      positionOf: 'de {{count}}',
       loadFailed: 'No se pudieron cargar tus estadísticas.',
     },
     organizerDashboard: {
@@ -1079,7 +1085,6 @@ export const es = {
     profile: {
       title: 'Mi perfil',
       shortTitle: 'Perfil',
-      description: 'Administra tu información personal. Tu rol se asigna al crear la cuenta.',
       avatar: 'Foto de perfil',
       nameHelp: 'Privado: solo lo ves tú.',
       changeAvatar: 'Cambiar foto',
@@ -1130,7 +1135,6 @@ export const es = {
     },
     settings: {
       title: 'Configuración',
-      description: 'Personalizá las preferencias de tu cuenta.',
       language: {
         title: 'Idioma',
       },

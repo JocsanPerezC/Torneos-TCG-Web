@@ -15,6 +15,7 @@ import { QrScannerModal } from '@/features/tournaments/components/QrScannerModal
 import { RoundEditor } from '@/features/trial/components/RoundEditor';
 import { PodResults } from '@/features/trial/components/PodResults';
 import { BattleLedger } from '@/features/tournaments/components/BattleLedger';
+import { StatisticsLedger } from '@/features/player/PlayerStatisticsPage';
 import {
   ArrowGlyph,
   BalanceGlyph,
@@ -42,6 +43,7 @@ import {
   showcaseEmptyStatistics,
   showcaseJoinPreview,
   showcaseNames,
+  showcasePlayerStatistics,
   showcaseStatistics,
   showcaseTournament,
 } from '@/features/showcase/fixtures';
@@ -342,6 +344,7 @@ export function StatisticsSection() {
       sources={[
         'BattleLedger · src/features/tournaments/components/BattleLedger.tsx',
         'BattleGlyphs · src/features/tournaments/components/BattleGlyphs.tsx',
+        'StatisticsLedger · src/features/player/PlayerStatisticsPage.tsx',
       ]}
     >
       <Variant label="BattleGlyphs">
@@ -360,6 +363,9 @@ export function StatisticsSection() {
       </Variant>
       <Variant label={`BattleLedger · ${t('app.showcase.noResults')}`}>
         <BattleLedger statistics={showcaseEmptyStatistics} />
+      </Variant>
+      <Variant label="StatisticsLedger">
+        <StatisticsLedger {...showcasePlayerStatistics} />
       </Variant>
     </ShowcaseSection>
   );

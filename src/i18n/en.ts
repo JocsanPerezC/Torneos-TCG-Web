@@ -967,13 +967,11 @@ export const en = {
     },
     playerDashboard: {
       title: 'My tournaments',
-      description: 'Review the tournaments you joined and your table history.',
       join: 'Join a tournament',
       nextTournament: 'Your next tournament',
       openTournament: 'Open tournament',
       joinPrompt: 'Have an invitation?',
       joinPromptDescription: 'Paste the link or code shared by the organizer to join the table.',
-      historyDescription: 'Tournaments you have already finished.',
       active: 'At the table',
       history: 'History',
       statusActive: 'Active',
@@ -985,12 +983,6 @@ export const en = {
     },
     playerStatistics: {
       title: 'My statistics',
-      description: 'Your overall history across tournaments linked to this account.',
-      record: 'Your record',
-      recordDescription: 'Cumulative results from your linked registrations.',
-      participation: 'Participation',
-      results: 'Results',
-      performance: 'Performance',
       tournamentsPlayed: 'Tournaments played',
       roundsPlayed: 'Rounds played',
       wins: 'Wins',
@@ -1002,6 +994,20 @@ export const en = {
       podiumsHelp:
         'Podiums count when a tournament finishes or all of its planned rounds are complete.',
       empty: 'Join a tournament with this account to start your history.',
+      recentForm: 'Recent form',
+      outcome: { win: 'W', draw: 'D', loss: 'L' },
+      lastResult: 'Latest: {{tournament}} · Round {{round}}',
+      noRecent: 'Your latest rounds will show up here.',
+      perRound: '{{value}} per round',
+      roundsPlayedValue: 'Rounds played: {{count}}',
+      bestResult: 'Best result',
+      bestResultCopy: 'Tournaments won: {{wins}} · Podiums: {{podiums}}',
+      noBestResult: 'Your best finish will show up once your first tournament ends.',
+      noRounds:
+        'Your tournaments have no results yet. Your statistics will show up after your first table.',
+      history: 'Tournament history',
+      provisional: 'In progress',
+      positionOf: 'of {{count}}',
       loadFailed: 'Your statistics could not be loaded.',
     },
     organizerDashboard: {
@@ -1070,8 +1076,6 @@ export const en = {
     profile: {
       title: 'My profile',
       shortTitle: 'Profile',
-      description:
-        'Manage your personal information. Your role is assigned when the account is created.',
       avatar: 'Profile photo',
       nameHelp: 'Private: only you can see it.',
       changeAvatar: 'Change photo',
@@ -1122,7 +1126,6 @@ export const en = {
     },
     settings: {
       title: 'Settings',
-      description: 'Personalize your account preferences.',
       language: {
         title: 'Language',
       },
