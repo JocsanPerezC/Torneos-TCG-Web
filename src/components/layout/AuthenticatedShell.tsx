@@ -292,7 +292,10 @@ export function AuthenticatedShell({
                   src={profile.avatarUrl}
                   className="app-sidebar__profile-avatar"
                 />
-                <strong>{profile.nickname}</strong>
+                <span className="app-sidebar__profile-text">
+                  <strong>{profile.nickname}</strong>
+                  <small>{t(`app.profile.roles.${role ?? 'organizer'}`)}</small>
+                </span>
                 <ChevronDown aria-hidden="true" />
               </button>
               {accountMenuOpen && (
@@ -302,9 +305,6 @@ export function AuthenticatedShell({
                   aria-label={t('app.shell.account')}
                 >
                   <p>{t('app.shell.account')}</p>
-                  <span className="app-sidebar__account-role">
-                    {t(`app.profile.roles.${role ?? 'organizer'}`)}
-                  </span>
                   <Link to="/perfil" onClick={() => setAccountMenuOpen(false)}>
                     <CircleUserRound aria-hidden="true" />
                     {t('app.shell.profile')}

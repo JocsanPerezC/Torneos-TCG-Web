@@ -19,8 +19,10 @@ export function AppSettingsPage() {
 
   return (
     <section className="mx-auto max-w-2xl app-panel">
-      <Settings className="text-accent" aria-hidden="true" />
-      <h1 className="mt-4 text-3xl">{t('app.settings.title')}</h1>
+      <h1 className="flex items-center gap-3 text-3xl">
+        <Settings className="size-7 shrink-0 text-accent" aria-hidden="true" />
+        {t('app.settings.title')}
+      </h1>
       <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <h2 className="text-base font-bold">{t('app.settings.language.title')}</h2>
         <LanguageSelector align="start" buttonClassName="min-h-11 px-4 text-sm" />

@@ -197,11 +197,24 @@
   font-size: 0.72rem;
   font-weight: 700;
 }
-.app-sidebar__profile strong {
+.app-sidebar__profile-text {
+  display: grid;
+  min-width: 0;
+  line-height: 1.2;
+}
+.app-sidebar__profile-text strong,
+.app-sidebar__profile-text small {
   overflow: hidden;
-  font-size: 0.8rem;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+.app-sidebar__profile-text strong {
+  font-size: 0.8rem;
+}
+.app-sidebar__profile-text small {
+  color: var(--accent);
+  font-size: 0.68rem;
+  font-weight: 600;
 }
 .app-sidebar__profile > svg {
   width: 0.9rem;
