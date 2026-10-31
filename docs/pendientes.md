@@ -1,6 +1,6 @@
 # Pendientes
 
-- [ ] Perfil de jugador: historial de torneos, victorias, puntos, posiciones y estadísticas.
+- [x] Perfil de jugador: `/estadisticas` con win rate, forma reciente, mejor resultado e historial por torneo.
 - [ ] Página pública del torneo mejorada: enlace para compartir, cartel del torneo, formato, fecha, lugar, cupos, participantes y clasificación en vivo.
 - [ ] Inscripción pública: que los jugadores se registren con un enlace y el organizador los acepte.
 - [ ] Código QR: para abrir rápidamente la página pública o registrarse desde el local.
@@ -8,9 +8,14 @@
 - [x] Estadísticas por torneo: bitácora de batalla con hitos de juego, asistencia y mesas.
 - [ ] Notificaciones: avisar al iniciar una ronda, asignar mesa o terminar el torneo.
 - [ ] Temporizador visible: cuenta regresiva pública para la ronda actual.
-- [ ] Control de vidas: pantalla sencilla para llevar las vidas de los jugadores durante una partida.
+- [x] Control de vidas: `/contador` con 2 a 6 jugadores, dados, moneda y quién empieza.
+- [ ] Contador avanzado: daño de comandante, veneno, impuesto, monarca/iniciativa y cargar la mesa actual del torneo.
 - [ ] Buscador y filtros: buscar torneos, jugadores y filtrar por formato o estado.
 - [ ] Modo oscuro y selector de tema.
-- [ ] Gestión de mazos: registrar comandante/deck, colores y enlace a Moxfield/Archidekt.
+- [ ] Gestión de mazos: comandante o mazo por inscripción (buscador de Scryfall, pareja de comandantes, enlace a Moxfield/Archidekt), configurable por el organizador (no pedir / opcional / obligatorio).
+- [ ] Perfil: comandante favorito (prellena la inscripción) y formatos favoritos.
+- [ ] Perfil público compartible por apodo (`/u/:apodo`).
 - [ ] Sistema de rankings: puntos acumulados entre torneos, temporada, top de jugadores y badges.
+- [ ] Validación por campo en Perfil y Completar perfil, con el mismo patrón del registro.
+- [ ] Publicar en Play Store (Capacitor o TWA) y modo sin conexión para el contador.
 - [ ] Página “Acerca de” y contacto: explica qué hace la app y facilita que tiendas o comunidades la adopten.

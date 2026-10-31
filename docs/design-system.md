@@ -61,6 +61,8 @@ La tipografía base es **Fredoka**. Combina esquinas redondeadas ligeramente irr
 - Usa azul para navegación, selección e información breve, no para competir con la acción primaria.
 - Un estado deshabilitado debe verse inactivo y conservar una explicación si la razón no es evidente.
 - Las animaciones deben ser breves y opcionales; respeta `prefers-reduced-motion`.
+- Los formularios usan `noValidate` y muestran el motivo de cada error debajo de su campo con `.app-field-error`, `aria-invalid` y `aria-describedby`; el foco va al primer campo con error. No dependas de los globos nativos del navegador.
+- Las estadísticas (del torneo y del jugador) reutilizan las notas de `battle-ledger.css`: sello numerado, cifra grande en el color del récord y un glifo de `BattleGlyphs`.
 
 ## Diseño responsive y accesible
 

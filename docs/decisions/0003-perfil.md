@@ -1,7 +1,7 @@
 # ADR 0003: perfil
 
 - Estado: aceptada
-- Fecha: 2026-10-28, actualizada el 2026-10-29
+- Fecha: 2026-10-28, actualizada el 2026-10-30
 - Reúne los antiguos ADR 0003 (fotos de perfil en Supabase Storage) y 0004 (eliminación de cuenta propia).
 
 ## Fotos de perfil en Supabase Storage
@@ -14,6 +14,18 @@ Las fotos se almacenan en el bucket público `profile-avatars`, limitado a JPG, 
 
 - Las cuentas sin foto y los participantes manuales conservan el monograma de iniciales.
 - Una foto actualizada se refleja en todas las inscripciones vinculadas de la cuenta.
+
+## Nombre privado y apodo público
+
+### Decisión
+
+`profiles.display_name` es el nombre de la cuenta y es privado (`profiles` solo lo leen la propia cuenta y los admins). `profiles.nickname` es el apodo público: único sin distinguir mayúsculas, de 2 a 24 caracteres, y es la fuente de verdad de `players.name` en las inscripciones vinculadas (triggers `hydrate_linked_player_profile` y `sync_linked_player_profile`). Se elige al registrarse; con Google se genera a partir del primer nombre (`available_nickname`) y se confirma en `/completar-perfil`. Migración: `20261030120000_apodo_de_jugador.sql`.
+
+### Consecuencias
+
+- El nombre completo de Google no aparece en clasificaciones públicas.
+- Cambiar el apodo renombra al jugador en todos sus torneos vinculados.
+- Las cuentas anteriores recibieron su nombre como apodo inicial, con un número si estaba repetido.
 
 ## Eliminación de cuenta propia
 

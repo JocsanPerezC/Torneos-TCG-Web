@@ -9,3 +9,4 @@
 - Todo texto visible nuevo debe tener claves equivalentes en español e inglés en `src/i18n/es.ts` y `src/i18n/en.ts`, y consumirlas desde la interfaz activa.
 - Para cambios de UI, reutiliza las clases y componentes existentes antes de añadir estilos nuevos. Valida con compilación; agrega pruebas cuando cambie lógica observable.
 - Para cambios visuales, consulta `docs/design-system.md` y conserva los tokens, responsive, accesibilidad e i18n.
+- Todo formulario valida cada campo y le dice al usuario, junto al campo, qué está mal (patrón de `src/lib/authValidation.ts` y `AuthPage.tsx`). `src/app/FormLimits.tsx` traduce los mensajes nativos: si cambias su lógica, limpia siempre el mensaje anterior.

@@ -12,18 +12,18 @@ Torneos TCG administra torneos multijugador de Commander y otros TCG. El organiz
 
 ## Estructura de `src/`
 
-| Carpeta            | Contenido                                                                                                                                                                                          |
-| ------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `app/`             | `App.tsx` (providers), `AppRouter.tsx` (rutas y guardas) y `FormLimits.tsx` (límites globales de formularios).                                                                                     |
-| `features/<área>/` | Pantallas por área: `auth`, `dashboard`, `tournaments`, `public`, `player`, `admin`, `trial`, `profile`, `legal`, `landing` y `showcase`. Sus piezas propias van en `features/<área>/components/`. |
-| `components/`      | Solo lo compartido entre áreas: `ui/`, `layout/` (`Layout`, `AuthenticatedShell`, `PublicHeader`) y `feedback/`.                                                                                   |
-| `styles/`          | CSS por capa, importado en orden desde `src/index.css`; el orden de los imports define la cascada.                                                                                                 |
-| `i18n/`            | `es.ts` y `en.ts` con las mismas claves, más `index.ts`, que inicializa i18next.                                                                                                                   |
-| `domain/`          | Lógica pura y sus pruebas (`*.test.ts`).                                                                                                                                                           |
-| `state/`           | `AuthContext` y `TournamentContext`.                                                                                                                                                               |
-| `data/`            | Repositorios de Supabase.                                                                                                                                                                          |
-| `lib/`             | Cliente Supabase, versión legal (`legal.ts`), GSAP y utilidades.                                                                                                                                   |
-| `test/`            | Configuración de Vitest.                                                                                                                                                                           |
+| Carpeta            | Contenido                                                                                                                                                                                                     |
+| ------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `app/`             | `App.tsx` (providers), `AppRouter.tsx` (rutas y guardas) y `FormLimits.tsx` (límites globales de formularios).                                                                                                |
+| `features/<área>/` | Pantallas por área: `auth`, `dashboard`, `tournaments`, `public`, `player`, `counter`, `admin`, `trial`, `profile`, `legal`, `landing` y `showcase`. Sus piezas propias van en `features/<área>/components/`. |
+| `components/`      | Solo lo compartido entre áreas: `ui/`, `layout/` (`Layout`, `AuthenticatedShell`, `PublicHeader`) y `feedback/`.                                                                                              |
+| `styles/`          | CSS por capa, importado en orden desde `src/index.css`; el orden de los imports define la cascada.                                                                                                            |
+| `i18n/`            | `es.ts` y `en.ts` con las mismas claves, más `index.ts`, que inicializa i18next.                                                                                                                              |
+| `domain/`          | Lógica pura y sus pruebas (`*.test.ts`).                                                                                                                                                                      |
+| `state/`           | `AuthContext` y `TournamentContext`.                                                                                                                                                                          |
+| `data/`            | Repositorios de Supabase.                                                                                                                                                                                     |
+| `lib/`             | Cliente Supabase, versión legal (`legal.ts`), validación de formularios de cuenta (`authValidation.ts`), GSAP y utilidades.                                                                                   |
+| `test/`            | Configuración de Vitest.                                                                                                                                                                                      |
 
 Los imports dentro de `src/` usan el alias `@/` (por ejemplo, `@/components/ui/button`); los `@import` de CSS siguen siendo relativos. Las variables de entorno públicas están documentadas en `.env.example`.
 
