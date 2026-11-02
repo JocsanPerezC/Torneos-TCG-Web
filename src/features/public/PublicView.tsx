@@ -6,6 +6,7 @@ import type { Tournament } from '@/domain/types';
 import { ArrowLeft } from 'lucide-react';
 import { tournamentStatistics } from '@/domain/statistics';
 import { standings } from '@/domain/scoring';
+import { formatDuration, podDuration } from '@/domain/timing';
 import { BattleLedger } from '@/features/tournaments/components/BattleLedger';
 import { Badge } from '@/components/ui/Badge';
 import { RoundTimer } from '@/features/tournaments/components/RoundTimer';
@@ -132,7 +133,16 @@ export function PublicView() {
               <div className="public-round__tables">
                 {round.pods.map((pod) => (
                   <article className="public-table" key={pod.id}>
-                    <h3>{i18n.t('app.common.table', { number: pod.number })}</h3>
+                    <h3>
+                      {i18n.t('app.common.table', { number: pod.number })}
+                      {podDuration(round, pod) !== undefined && (
+                        <small className="public-table__time">
+                          {i18n.t('app.tournament.finishedIn', {
+                            time: formatDuration(podDuration(round, pod)!),
+                          })}
+                        </small>
+                      )}
+                    </h3>
                     <div>
                       {pod.playerIds.map((playerId) => {
                         const result = pod.results?.find((item) => item.playerId === playerId);
@@ -211,6 +221,9 @@ export function PublicView() {
                     <th>{i18n.t('app.common.winRate')}</th>
                     <th>{i18n.t('app.common.kills')}</th>
                     <th>{i18n.t('app.tournament.opponentStrength')}</th>
+                    <th title={i18n.t('app.tournament.averageWinTimeHelp')}>
+                      {i18n.t('app.tournament.averageWinTime')}
+                    </th>
                     <th>{i18n.t('app.tournament.rounds')}</th>
                   </tr>
                 </thead>
@@ -239,6 +252,11 @@ export function PublicView() {
                       <td>{row.winRate.toFixed(1)}%</td>
                       <td>{row.kills}</td>
                       <td>{row.opponentStrength.toFixed(1)}</td>
+                      <td>
+                        {row.averageWinTime !== undefined
+                          ? formatDuration(row.averageWinTime)
+                          : '—'}
+                      </td>
                       <td>{row.roundsPlayed}</td>
                     </tr>
                   ))}

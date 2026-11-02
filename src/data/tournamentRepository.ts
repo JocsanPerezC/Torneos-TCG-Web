@@ -40,6 +40,7 @@ const mapTournament = (row: Row): Tournament => {
           number: Number(pod.number),
           playerIds: asArray(pod.pod_players).map((player) => String(player.player_id)),
           notes: pod.notes ? String(pod.notes) : undefined,
+          finishedAt: pod.finished_at ? String(pod.finished_at) : undefined,
           results: asArray(pod.pod_results).map((result) => ({
             playerId: String(result.player_id),
             points: Number(result.points),
@@ -177,7 +178,7 @@ export async function persistPod(pod: Pod) {
   const db = client();
   const { error } = await db
     .from('pods')
-    .update({ notes: pod.notes ?? null })
+    .update({ notes: pod.notes ?? null, finished_at: pod.finishedAt ?? null })
     .eq('id', pod.id);
   if (error) throw error;
   if (pod.results?.length) {

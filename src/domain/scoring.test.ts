@@ -189,4 +189,61 @@ describe('standings', () => {
     // b enfrentó a a (6), c (2) y d (1): promedio 3, no la suma 9.
     expect(rows[1].opponentStrength).toBe(3);
   });
+
+  it('promedia el tiempo de las mesas ganadas sin cambiar el orden', () => {
+    const win = (finishedAt: string, winner: string) => ({
+      id: `pod-${finishedAt}`,
+      number: 1,
+      playerIds: ['a', 'b', 'c'],
+      finishedAt,
+      results: ['a', 'b', 'c'].map((playerId) => ({
+        playerId,
+        points: playerId === winner ? 3 : 0,
+        kills: 0,
+        outcome: playerId === winner ? ('win' as const) : ('loss' as const),
+      })),
+    });
+    const rows = standings({
+      id: 't',
+      ownerId: 'o',
+      name: 'Liga',
+      format: 'Commander',
+      information: '',
+      plannedRounds: 2,
+      status: 'activo',
+      isPublic: false,
+      publicSlug: 'liga',
+      maxPlayers: 3,
+      maxTables: 1,
+      createdAt: '',
+      players: ['a', 'b', 'c'].map((id, tieBreaker) => ({
+        id,
+        name: id,
+        active: true,
+        tieBreaker,
+      })),
+      rounds: [
+        {
+          id: 'r1',
+          number: 1,
+          status: 'completada',
+          seed: 1,
+          startedAt: '2026-11-02T18:00:00.000Z',
+          pods: [win('2026-11-02T18:40:00.000Z', 'a')],
+        },
+        {
+          id: 'r2',
+          number: 2,
+          status: 'completada',
+          seed: 2,
+          startedAt: '2026-11-02T19:00:00.000Z',
+          pods: [win('2026-11-02T19:30:00.000Z', 'a')],
+        },
+      ],
+    });
+    const byId = Object.fromEntries(rows.map((row) => [row.player.id, row]));
+    // 40 y 30 minutos: promedio de 35.
+    expect(byId.a.averageWinTime).toBe(35 * 60_000);
+    expect(byId.b.averageWinTime).toBeUndefined();
+  });
 });

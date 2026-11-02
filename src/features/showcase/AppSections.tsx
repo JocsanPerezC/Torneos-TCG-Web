@@ -250,6 +250,9 @@ export function TournamentSection() {
                   names={showcaseNames}
                   readOnly={false}
                   editable={false}
+                  roundStartedAt={
+                    pod === podComplete ? roundCompleted.startedAt : roundActive.startedAt
+                  }
                 />
               </div>
             ))}
@@ -262,6 +265,7 @@ export function TournamentSection() {
                 names={showcaseNames}
                 readOnly={false}
                 editable
+                roundStartedAt={roundActive.startedAt}
               />
             </div>
           </div>

@@ -11,6 +11,7 @@ import {
   type TournamentStatistics,
 } from '@/domain/statistics';
 import type { Player } from '@/domain/types';
+import { formatDuration } from '@/domain/timing';
 import {
   ArrowGlyph,
   BalanceGlyph,
@@ -68,6 +69,13 @@ function recordGlyph(key: RecordKey, statistics: TournamentStatistics): ReactNod
       );
     case 'constant':
       return <Sparkline scores={statistics.constant.scores} />;
+    case 'fastestWin':
+      return (
+        <svg className="battle-stopwatch" viewBox="0 0 48 52" aria-hidden="true">
+          <circle cx="24" cy="29" r="19" />
+          <path d="M24 29V17M19 4h10M24 4v6M39 12l3-3" />
+        </svg>
+      );
     case 'tableHead':
       return <Crown className="battle-crown" />;
     case 'punchingBag':
@@ -123,14 +131,30 @@ export function BattleLedger({ statistics }: BattleLedgerProps) {
     </div>
   );
 
-  const value = (key: RecordKey) => (
-    <div className="battle-record__value">
-      <strong>
-        <CountUp value={statistics[key].value} />
-      </strong>
-      <span>{t(`app.statistics.units.${key}`, { count: statistics[key].value })}</span>
-    </div>
-  );
+  const value = (key: RecordKey) =>
+    key === 'fastestWin' ? (
+      // El tiempo se lee como reloj ("31:20") y debajo va la mesa donde ocurrió.
+      <div className="battle-record__value">
+        <strong>{formatDuration(statistics.fastestWin.value * 1000)}</strong>
+        <span>
+          {statistics.fastestWin.tables
+            .map((table) =>
+              t('app.statistics.tableLabel', {
+                table: table.tableNumber,
+                round: table.roundNumber,
+              }),
+            )
+            .join(' / ')}
+        </span>
+      </div>
+    ) : (
+      <div className="battle-record__value">
+        <strong>
+          <CountUp value={statistics[key].value} />
+        </strong>
+        <span>{t(`app.statistics.units.${key}`, { count: statistics[key].value })}</span>
+      </div>
+    );
 
   return (
     <section className="battle-ledger" aria-label={t('app.statistics.title')}>

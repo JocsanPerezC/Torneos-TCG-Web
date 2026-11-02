@@ -130,5 +130,69 @@ describe('tournamentStatistics', () => {
     );
     // La asistencia perfecta es grupal: la comparten los tres y sigue destacando.
     expect(recordStatus(statistics, 'perfectAttendance')).toBe('notable');
+    // Sin tiempos registrados no hay victoria más rápida.
+    expect(recordStatus(statistics, 'fastestWin')).toBe('empty');
+  });
+
+  it('elige como victoria más rápida la mesa que terminó antes', () => {
+    const players = ['a', 'b', 'c', 'd', 'e', 'f'].map((id, tieBreaker) => ({
+      id,
+      name: id,
+      active: true,
+      tieBreaker,
+    }));
+    const statistics = tournamentStatistics({
+      id: 't',
+      ownerId: 'o',
+      name: 'Liga',
+      format: 'Commander',
+      information: '',
+      plannedRounds: 1,
+      status: 'activo',
+      isPublic: false,
+      publicSlug: 'liga',
+      maxPlayers: 6,
+      maxTables: 2,
+      createdAt: '',
+      players,
+      rounds: [
+        {
+          id: 'r1',
+          number: 1,
+          status: 'completada',
+          seed: 1,
+          startedAt: '2026-11-02T18:00:00.000Z',
+          pods: [
+            {
+              id: 'p1',
+              number: 1,
+              playerIds: ['a', 'b', 'c'],
+              finishedAt: '2026-11-02T18:50:00.000Z',
+              results: [
+                { playerId: 'a', points: 3, kills: 1, outcome: 'win' },
+                { playerId: 'b', points: 0, kills: 0, outcome: 'loss' },
+                { playerId: 'c', points: 0, kills: 0, outcome: 'loss' },
+              ],
+            },
+            {
+              id: 'p2',
+              number: 2,
+              playerIds: ['d', 'e', 'f'],
+              finishedAt: '2026-11-02T18:31:20.000Z',
+              results: [
+                { playerId: 'd', points: 0, kills: 0, outcome: 'loss' },
+                { playerId: 'e', points: 3, kills: 2, outcome: 'win' },
+                { playerId: 'f', points: 0, kills: 0, outcome: 'loss' },
+              ],
+            },
+          ],
+        },
+      ],
+    });
+
+    expect(statistics.fastestWin.players.map((player) => player.id)).toEqual(['e']);
+    expect(statistics.fastestWin.value).toBe(1880);
+    expect(statistics.fastestWin.tables).toEqual([{ roundNumber: 1, tableNumber: 2 }]);
+    expect(recordStatus(statistics, 'fastestWin')).toBe('notable');
   });
 });

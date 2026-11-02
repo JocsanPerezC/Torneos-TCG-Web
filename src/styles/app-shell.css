@@ -554,7 +554,7 @@
 }
 .player-note--best {
   --tilt: 0.2deg;
-  grid-column: span 12;
+  grid-column: span 7;
   min-height: 8.5rem;
   border-color: var(--violet);
   border-radius: 0.8rem 2rem 0.8rem 2rem;
@@ -563,6 +563,17 @@
 .player-note--best .battle-note__stamp,
 .player-note--best .battle-score {
   color: var(--violet);
+}
+.player-note--time {
+  --tilt: -0.3deg;
+  grid-column: span 5;
+  border-color: var(--primary-strong);
+  border-radius: 1.6rem 0.6rem 1.6rem 0.6rem;
+  background: #f2fff8;
+}
+.player-note--time .battle-note__stamp,
+.player-note--time .battle-score {
+  color: var(--primary-strong);
 }
 .player-best {
   display: flex;
@@ -2374,9 +2385,26 @@
   color: #fff;
 }
 .public-table h3 {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.25rem 0.75rem;
   margin: 0 0 0.7rem;
   color: var(--highlight);
   font-size: 1.25rem;
+}
+.public-table__time {
+  color: rgba(255, 255, 255, 0.85);
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+/* Tiempo en que terminó la mesa, en la vista de Rondas. */
+.pod-time {
+  margin: 0.25rem 0 0;
+  color: var(--ink-soft);
+  font-size: 0.85rem;
+  font-weight: 600;
 }
 .public-table > div {
   display: grid;

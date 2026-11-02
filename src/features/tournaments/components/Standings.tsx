@@ -6,6 +6,7 @@ import { Avatar } from '@/components/ui/Avatar';
 import { Button } from '@/components/ui/button';
 import { Modal } from '@/components/ui/modal';
 import { primary } from '@/components/ui/classes';
+import { formatDuration } from '@/domain/timing';
 import i18n from '@/i18n';
 
 export function Standings() {
@@ -17,6 +18,7 @@ export function Standings() {
   const movedRanksTimer = useRef<number | undefined>(undefined);
   const opponentHelp = i18n.t('app.tournament.opponentHelp');
   const winRateHelp = i18n.t('app.common.winRateHelp');
+  const averageWinHelp = i18n.t('app.tournament.averageWinTimeHelp');
   useEffect(() => {
     const nextRanks = new Map(rows.map((row) => [row.player.id, row.rank]));
     if (!previousRanks.current.size) {
@@ -143,6 +145,19 @@ export function Standings() {
                   </span>
                 </span>
               </th>
+              <th>
+                <span>
+                  {i18n.t('app.tournament.averageWinTime')}
+                  <span
+                    title={averageWinHelp}
+                    aria-label={averageWinHelp}
+                    role="img"
+                    className="app-help app-help--static"
+                  >
+                    <Info size={15} strokeWidth={2} />
+                  </span>
+                </span>
+              </th>
               <th>{i18n.t('app.tournament.rounds')}</th>
             </tr>
           </thead>
@@ -173,6 +188,9 @@ export function Standings() {
                 <td>{row.winRate.toFixed(1)}%</td>
                 <td>{row.kills}</td>
                 <td>{row.opponentStrength.toFixed(1)}</td>
+                <td>
+                  {row.averageWinTime !== undefined ? formatDuration(row.averageWinTime) : '—'}
+                </td>
                 <td>{row.roundsPlayed}</td>
               </tr>
             ))}

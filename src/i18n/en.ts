@@ -484,6 +484,15 @@ export const en = {
       finishTournament: 'Finish tournament',
       reopenTournament: 'Reopen tournament',
       finishHelp: 'Finishing locks edits. It can be reopened after confirmation.',
+      averageWinTime: 'Avg. win',
+      averageWinTimeHelp:
+        'Average time of the tables this player won, from the start of the round. For information only: it does not change the position.',
+      finishedIn: 'Finished at {{time}}',
+      tableTime: 'Table time',
+      tableTimeAuto: 'Recorded when you save',
+      tableTimeHelp:
+        'Minutes:seconds since the round started (for example 42:15). Leave it empty to record it automatically.',
+      tableTimeInvalid: 'Use minutes:seconds, for example 42:15, or leave it empty.',
       standingsInfo: {
         button: 'How the standings are calculated',
         title: 'How the standings are calculated',
@@ -560,6 +569,7 @@ export const en = {
       losingStreak: 'Cold streak',
       constant: 'Steady hand',
       tableHead: 'Table head',
+      fastestWin: 'Fastest win',
       noData: 'No round has been closed yet. The log is waiting for blood... or at least points.',
       figure: 'Player of the tournament',
       figureTitles_one: '{{count}} title tonight',
@@ -614,6 +624,7 @@ export const en = {
         losingStreak: 'The cards were not kind.',
         constant: 'Always the same level.',
         tableHead: 'The table has an owner.',
+        fastestWin: 'Barely time to shuffle.',
       },
       empty: {
         hunter: 'The axe is still clean.',
@@ -629,6 +640,7 @@ export const en = {
         losingStreak: 'There is no cold streak yet.',
         constant: 'Two rounds are needed to measure consistency.',
         tableHead: 'Nobody has won two tables yet.',
+        fastestWin: 'No won tables with a recorded time yet.',
       },
     },
     tournamentGuide: {
@@ -1093,6 +1105,10 @@ export const en = {
       history: 'Tournament history',
       provisional: 'In progress',
       positionOf: 'of {{count}}',
+      winTime: 'Win time',
+      winTimeCopy_one: 'Average of your timed win. Fastest: {{fastest}}.',
+      winTimeCopy_other: 'Average of your {{count}} timed wins. Fastest: {{fastest}}.',
+      noWinTime: 'Your wins with a recorded time will show up here.',
       loadFailed: 'Your statistics could not be loaded.',
     },
     organizerDashboard: {

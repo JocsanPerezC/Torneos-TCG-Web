@@ -1,3 +1,4 @@
+import { formatDuration } from '@/domain/timing';
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ChevronRight } from 'lucide-react';
@@ -7,7 +8,9 @@ import {
   loadPlayerTournamentResults,
   loadRecentResults,
   type PlayerStatistics,
+  loadPlayerWinTimes,
   type PlayerTournamentResult,
+  type PlayerWinTimes,
   type RecentResult,
 } from '@/data/playerRepository';
 import {
@@ -21,6 +24,8 @@ export type PlayerStatisticsData = {
   statistics: PlayerStatistics;
   history: PlayerTournamentResult[];
   recent: RecentResult[];
+  /** Puede faltar si la función de Supabase aún no está aplicada. */
+  winTimes?: PlayerWinTimes;
 };
 
 export function PlayerStatisticsPage() {
@@ -35,9 +40,10 @@ export function PlayerStatisticsPage() {
       loadPlayerStatistics(),
       loadPlayerTournamentResults().catch(() => []),
       loadRecentResults().catch(() => []),
+      loadPlayerWinTimes().catch(() => undefined),
     ])
-      .then(([statistics, history, recent]) => {
-        if (active) setLoaded({ statistics, history, recent });
+      .then(([statistics, history, recent, winTimes]) => {
+        if (active) setLoaded({ statistics, history, recent, winTimes });
       })
       .catch((reason) => {
         if (active)
@@ -72,7 +78,7 @@ export function PlayerStatisticsPage() {
 }
 
 /** Resumen visual de un jugador; exportado también para el muestrario. */
-export function StatisticsLedger({ statistics, history, recent }: PlayerStatisticsData) {
+export function StatisticsLedger({ statistics, history, recent, winTimes }: PlayerStatisticsData) {
   const { t, i18n } = useTranslation();
   const decimal = new Intl.NumberFormat(i18n.language, { maximumFractionDigits: 1 });
   const date = new Intl.DateTimeFormat(i18n.language, {
@@ -226,6 +232,25 @@ export function StatisticsLedger({ statistics, history, recent }: PlayerStatisti
             </div>
           ) : (
             <EmptyMark message={t('app.playerStatistics.noBestResult')} />
+          )}
+        </article>
+
+        <article className="battle-note player-note--time">
+          <div className="battle-note__stamp">07 / {t('app.playerStatistics.winTime')}</div>
+          {winTimes?.timedWins && winTimes.averageSeconds !== undefined ? (
+            <>
+              <strong className="battle-score">
+                {formatDuration(winTimes.averageSeconds * 1000)}
+              </strong>
+              <p>
+                {t('app.playerStatistics.winTimeCopy', {
+                  fastest: formatDuration((winTimes.fastestSeconds ?? 0) * 1000),
+                  count: winTimes.timedWins,
+                })}
+              </p>
+            </>
+          ) : (
+            <EmptyMark message={t('app.playerStatistics.noWinTime')} />
           )}
         </article>
       </div>

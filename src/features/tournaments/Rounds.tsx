@@ -270,6 +270,7 @@ export function Rounds() {
                   readOnly={tournament.status === 'finalizado' || selectedRound.status !== 'activa'}
                   names={names}
                   editable={selectedRound.status === 'activa'}
+                  roundStartedAt={selectedRound.startedAt}
                 />
               ),
             )}

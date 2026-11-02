@@ -1,3 +1,4 @@
+import { podDuration } from '@/domain/timing';
 import type { Pod, Standing, Tournament } from '@/domain/types';
 
 export function isValidPodResult(pod: Pod): boolean {
@@ -38,6 +39,7 @@ export function standings(tournament: Tournament): Standing[] {
         losses: 0,
         draws: 0,
         opponents: [] as string[],
+        winTimes: [] as number[],
       },
     ]),
   );
@@ -52,19 +54,27 @@ export function standings(tournament: Tournament): Standing[] {
           entry.roundsPlayed++;
           entry.opponents.push(...pod.playerIds.filter((id) => id !== result.playerId));
           if (hasCompleteOutcomes) {
+            const duration = podDuration(round, pod);
+            if (result.outcome === 'win' && duration !== undefined) entry.winTimes.push(duration);
             if (result.outcome === 'win') entry.wins++;
             else if (result.outcome === 'loss') entry.losses++;
             else entry.draws++;
           }
         }
       }
-  const rows = tournament.players.map((player) => ({
-    player,
-    rank: 0,
-    ...stat[player.id],
-    winRate: 0,
-    opponentStrength: 0,
-  }));
+  const rows = tournament.players.map((player) => {
+    const { winTimes, ...totals } = stat[player.id];
+    return {
+      player,
+      rank: 0,
+      ...totals,
+      averageWinTime: winTimes.length
+        ? winTimes.reduce((sum, time) => sum + time, 0) / winTimes.length
+        : undefined,
+      winRate: 0,
+      opponentStrength: 0,
+    };
+  });
   // Promedio de puntos de los rivales por cada rival enfrentado: no premia jugar más rondas
   // ni mesas más grandes.
   for (const row of rows)

@@ -128,6 +128,26 @@ export async function loadRecentResults(limit = 5): Promise<RecentResult[]> {
   }));
 }
 
+/** Tiempos de las victorias con tiempo registrado, en segundos. */
+export type PlayerWinTimes = {
+  timedWins: number;
+  averageSeconds?: number;
+  fastestSeconds?: number;
+};
+
+export async function loadPlayerWinTimes(): Promise<PlayerWinTimes> {
+  const { data, error } = await client().rpc('get_my_player_win_times');
+  if (error) throw error;
+  const row = ((data as Row[] | null) ?? [])[0] ?? {};
+  const seconds = (value: unknown) =>
+    value === null || value === undefined ? undefined : Number(value);
+  return {
+    timedWins: Number(row.timed_wins ?? 0),
+    averageSeconds: seconds(row.average_win_seconds),
+    fastestSeconds: seconds(row.fastest_win_seconds),
+  };
+}
+
 export async function loadJoinableTournament(
   token: string,
 ): Promise<JoinableTournament | undefined> {

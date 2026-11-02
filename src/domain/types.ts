@@ -21,6 +21,8 @@ export interface Pod {
   playerIds: string[];
   results?: Result[];
   notes?: string;
+  /** Momento en que la mesa quedó con todos sus resultados; lo puede corregir el organizador. */
+  finishedAt?: string;
 }
 export interface Round {
   id: string;
@@ -58,6 +60,8 @@ export interface Standing {
   draws: number;
   winRate: number;
   opponentStrength: number;
+  /** Duración promedio (ms) de las mesas que ganó con tiempo registrado. Solo informativo. */
+  averageWinTime?: number;
 }
 
 export const uid = () => {

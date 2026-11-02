@@ -1,4 +1,5 @@
 import { hasCompletePodOutcomes, isValidPodResult, standings } from '@/domain/scoring';
+import { podDuration } from '@/domain/timing';
 import type { Player, ResultOutcome, Tournament } from '@/domain/types';
 
 export interface PlayerHighlight {
@@ -40,6 +41,11 @@ export interface BestRoundHighlight extends PlayerHighlight {
   rounds: number[];
 }
 
+/** Ganadores de la mesa que terminó más rápido; `value` es la duración en segundos. */
+export interface FastestWinHighlight extends PlayerHighlight {
+  tables: Array<{ roundNumber: number; tableNumber: number }>;
+}
+
 export interface TournamentStatistics {
   completedRounds: number;
   hunter: PlayerHighlight;
@@ -55,6 +61,7 @@ export interface TournamentStatistics {
   losingStreak: PlayerHighlight;
   constant: ConsistencyHighlight;
   tableHead: PlayerHighlight;
+  fastestWin: FastestWinHighlight;
   /** Quien más récords destacados acumula; desempata la clasificación. */
   figure?: { player: Player; titles: RecordKey[] };
 }
@@ -72,7 +79,8 @@ export type RecordKey =
   | 'punchingBag'
   | 'losingStreak'
   | 'constant'
-  | 'tableHead';
+  | 'tableHead'
+  | 'fastestWin';
 
 /** Orden de lectura de los récords: primero los de mérito, al final los de mala suerte. */
 export const RECORD_ORDER: RecordKey[] = [
@@ -80,6 +88,7 @@ export const RECORD_ORDER: RecordKey[] = [
   'tableHead',
   'unstoppable',
   'bestRound',
+  'fastestWin',
   'comeback',
   'constant',
   'drawRoyalty',
@@ -112,6 +121,7 @@ const POSITIVE_RECORDS: RecordKey[] = [
   'tableHead',
   'unstoppable',
   'bestRound',
+  'fastestWin',
   'comeback',
   'constant',
 ];
@@ -297,6 +307,28 @@ export function tournamentStatistics(tournament: Tournament): TournamentStatisti
   });
   const bestRoundValue = Math.max(0, ...Object.values(bestScores));
 
+  // Victoria más rápida: la mesa con resultados completos y tiempo registrado que terminó antes.
+  const timedWins = completedRounds.flatMap((round) =>
+    round.pods.flatMap((pod) => {
+      const duration = podDuration(round, pod);
+      const winners = (pod.results ?? [])
+        .filter((result) => result.outcome === 'win')
+        .flatMap((result) => (playersById[result.playerId] ? [playersById[result.playerId]] : []));
+      return duration !== undefined && winners.length && hasCompletePodOutcomes(pod)
+        ? [
+            {
+              seconds: Math.round(duration / 1000),
+              winners,
+              round: round.number,
+              table: pod.number,
+            },
+          ]
+        : [];
+    }),
+  );
+  const fastestSeconds = timedWins.length ? Math.min(...timedWins.map((win) => win.seconds)) : 0;
+  const fastestTables = timedWins.filter((win) => win.seconds === fastestSeconds);
+
   const statistics: TournamentStatistics = {
     completedRounds: completedRounds.length,
     hunter: playerHighlight(tournament.players, kills),
@@ -342,6 +374,15 @@ export function tournamentStatistics(tournament: Tournament): TournamentStatisti
       scores: consistencyPlayers.length ? playerPoints[consistencyPlayers[0].id] : [],
     },
     tableHead: playerHighlight(tournament.players, wins),
+    fastestWin: {
+      value: fastestSeconds,
+      players: [
+        ...new Map(
+          fastestTables.flatMap((win) => win.winners).map((player) => [player.id, player]),
+        ).values(),
+      ],
+      tables: fastestTables.map((win) => ({ roundNumber: win.round, tableNumber: win.table })),
+    },
   };
   statistics.figure = tournamentFigure(statistics, currentRanks);
   return statistics;

@@ -547,6 +547,20 @@
   border-radius: 1.1rem 2rem 1.1rem 2rem;
   background: #f5fff9;
 }
+.battle-note--fastestWin {
+  --rec-color: var(--primary-strong);
+  border-color: var(--primary-strong);
+  border-radius: 1.6rem 0.6rem 1.6rem 0.6rem;
+  background: #f2fff8;
+}
+.battle-stopwatch {
+  width: 3.4rem;
+  height: 3.6rem;
+  fill: none;
+  stroke: var(--primary-strong);
+  stroke-linecap: round;
+  stroke-width: 3;
+}
 .battle-note--bestRound {
   border-color: var(--accent);
   border-radius: 2rem 2rem 0.7rem 0.7rem;

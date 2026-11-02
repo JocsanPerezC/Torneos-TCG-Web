@@ -1,3 +1,4 @@
+import { formatDuration, parseDuration, podDuration } from '@/domain/timing';
 import { useEffect, useRef, useState, type FormEvent } from 'react';
 import { useTournaments } from '@/state/TournamentContext';
 import type { Pod } from '@/domain/types';
@@ -15,6 +16,7 @@ export function PodCard({
   names,
   readOnly,
   editable,
+  roundStartedAt,
 }: {
   tournamentId: string;
   roundId: string;
@@ -22,9 +24,13 @@ export function PodCard({
   names: Record<string, string>;
   readOnly: boolean;
   editable: boolean;
+  /** Inicio de la ronda: sin él no se puede medir ni editar el tiempo de la mesa. */
+  roundStartedAt?: string;
 }) {
   const { savePod } = useTournaments();
   const [savedFeedback, setSavedFeedback] = useState(false);
+  const [timeError, setTimeError] = useState(false);
+  const duration = podDuration({ startedAt: roundStartedAt }, pod);
   const savedFeedbackTimer = useRef<number | undefined>(undefined);
   useEffect(
     () => () => {
@@ -35,8 +41,23 @@ export function PodCard({
   function save(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const form = new FormData(event.currentTarget);
+    // Tiempo escrito por el organizador; vacío = se anota solo al guardar la mesa completa.
+    const typedTime = String(form.get('tableTime') ?? '').trim();
+    const typedDuration = typedTime ? parseDuration(typedTime) : undefined;
+    if (typedTime && typedDuration === undefined) {
+      setTimeError(true);
+      event.currentTarget.querySelector<HTMLElement>('[name="tableTime"]')?.focus();
+      return;
+    }
+    setTimeError(false);
     const next: Pod = {
       ...pod,
+      finishedAt:
+        roundStartedAt && typedDuration !== undefined
+          ? new Date(Date.parse(roundStartedAt) + typedDuration).toISOString()
+          : typedTime
+            ? pod.finishedAt
+            : undefined,
       results: pod.playerIds.map((playerId) => {
         const outcome = form.get(`outcome-${playerId}`);
         return {
@@ -65,6 +86,11 @@ export function PodCard({
   return (
     <div className={`game-table ${savedFeedback ? 'game-table--saved' : ''}`}>
       <h4>{i18n.t('app.common.table', { number: pod.number })}</h4>
+      {!editable && duration !== undefined && (
+        <p className="pod-time">
+          {i18n.t('app.tournament.finishedIn', { time: formatDuration(duration) })}
+        </p>
+      )}
       {!editable && (
         <div className="mt-3 grid gap-2">
           {pod.playerIds.map((playerId) => {
@@ -137,6 +163,32 @@ export function PodCard({
               </section>
             ))}
           </div>
+          {roundStartedAt && (
+            <div>
+              <label className="block text-sm font-medium">
+                {i18n.t('app.tournament.tableTime')}
+                <input
+                  name="tableTime"
+                  inputMode="numeric"
+                  autoComplete="off"
+                  defaultValue={duration !== undefined ? formatDuration(duration) : ''}
+                  placeholder={i18n.t('app.tournament.tableTimeAuto')}
+                  aria-invalid={timeError}
+                  aria-describedby={`table-time-help-${pod.id}${timeError ? ` table-time-error-${pod.id}` : ''}`}
+                  onInput={() => setTimeError(false)}
+                  className={`${field} mt-2 py-2 text-sm`}
+                />
+              </label>
+              <p id={`table-time-help-${pod.id}`} className="mt-1 text-xs text-muted-foreground">
+                {i18n.t('app.tournament.tableTimeHelp')}
+              </p>
+              {timeError && (
+                <p id={`table-time-error-${pod.id}`} className="app-field-error">
+                  {i18n.t('app.tournament.tableTimeInvalid')}
+                </p>
+              )}
+            </div>
+          )}
           <Button disabled={readOnly} className={primary}>
             {i18n.t('app.common.save')}
           </Button>

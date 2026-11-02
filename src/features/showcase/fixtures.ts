@@ -38,6 +38,8 @@ export const podPartial: Pod = {
 export const podComplete: Pod = {
   id: 'pod-complete',
   number: 1,
+  // Terminó 41:30 después del inicio de la ronda 1 (roundCompleted).
+  finishedAt: '2026-10-24T18:41:30.000Z',
   playerIds: tableA,
   results: [
     { playerId: 'p-ana', points: 5, kills: 2, outcome: 'win' },
@@ -112,9 +114,10 @@ export const showcaseTournament: Tournament = {
 export const showcaseStandings = standings(showcaseTournament);
 export const showcaseStatistics = tournamentStatistics(showcaseTournament);
 type Line = [string, number, number, 'win' | 'loss' | 'draw'];
-const completedPod = (id: string, number: number, lines: Line[]): Pod => ({
+const completedPod = (id: string, number: number, lines: Line[], finishedAt?: string): Pod => ({
   id,
   number,
+  finishedAt,
   playerIds: lines.map(([playerId]) => playerId),
   results: lines.map(([playerId, points, kills, outcome]) => ({
     playerId,
@@ -134,19 +137,30 @@ export const showcaseFullStatistics = tournamentStatistics({
       number: 2,
       status: 'completada',
       seed: 2,
+      startedAt: '2026-10-24T19:00:00.000Z',
       pods: [
-        completedPod('full-2-a', 1, [
-          ['p-ana', 6, 2, 'win'],
-          ['p-bruno', 4, 1, 'loss'],
-          ['p-elena', 2, 0, 'loss'],
-          ['p-gabi', 3, 1, 'draw'],
-        ]),
-        completedPod('full-2-b', 2, [
-          ['p-carla', 1, 0, 'loss'],
-          ['p-diego', 3, 1, 'draw'],
-          ['p-felipe', 4, 2, 'win'],
-          ['p-hugo', 3, 1, 'draw'],
-        ]),
+        completedPod(
+          'full-2-a',
+          1,
+          [
+            ['p-ana', 6, 2, 'win'],
+            ['p-bruno', 4, 1, 'loss'],
+            ['p-elena', 2, 0, 'loss'],
+            ['p-gabi', 3, 1, 'draw'],
+          ],
+          '2026-10-24T19:44:10.000Z',
+        ),
+        completedPod(
+          'full-2-b',
+          2,
+          [
+            ['p-carla', 1, 0, 'loss'],
+            ['p-diego', 3, 1, 'draw'],
+            ['p-felipe', 4, 2, 'win'],
+            ['p-hugo', 3, 1, 'draw'],
+          ],
+          '2026-10-24T19:52:00.000Z',
+        ),
       ],
     },
     {
@@ -154,19 +168,30 @@ export const showcaseFullStatistics = tournamentStatistics({
       number: 3,
       status: 'completada',
       seed: 3,
+      startedAt: '2026-10-24T20:00:00.000Z',
       pods: [
-        completedPod('full-3-a', 1, [
-          ['p-ana', 7, 3, 'win'],
-          ['p-bruno', 6, 2, 'loss'],
-          ['p-felipe', 2, 0, 'loss'],
-          ['p-diego', 3, 1, 'draw'],
-        ]),
-        completedPod('full-3-b', 2, [
-          ['p-elena', 9, 3, 'win'],
-          ['p-carla', 1, 0, 'loss'],
-          ['p-gabi', 4, 1, 'loss'],
-          ['p-hugo', 2, 1, 'loss'],
-        ]),
+        completedPod(
+          'full-3-a',
+          1,
+          [
+            ['p-ana', 7, 3, 'win'],
+            ['p-bruno', 6, 2, 'loss'],
+            ['p-felipe', 2, 0, 'loss'],
+            ['p-diego', 3, 1, 'draw'],
+          ],
+          '2026-10-24T20:38:30.000Z',
+        ),
+        completedPod(
+          'full-3-b',
+          2,
+          [
+            ['p-elena', 9, 3, 'win'],
+            ['p-carla', 1, 0, 'loss'],
+            ['p-gabi', 4, 1, 'loss'],
+            ['p-hugo', 2, 1, 'loss'],
+          ],
+          '2026-10-24T20:31:20.000Z',
+        ),
       ],
     },
   ],
@@ -175,6 +200,7 @@ export const showcaseEmptyStatistics = tournamentStatistics({ ...showcaseTournam
 export const showcaseJoinPreview = { token: 'k7q2m9xa4p', code: 'K7Q2M9' };
 
 export const showcasePlayerStatistics: PlayerStatisticsData = {
+  winTimes: { timedWins: 5, averageSeconds: 2320, fastestSeconds: 1880 },
   statistics: {
     tournamentsPlayed: 4,
     roundsPlayed: 12,

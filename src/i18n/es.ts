@@ -497,6 +497,15 @@ export const es = {
       finishTournament: 'Finalizar torneo',
       reopenTournament: 'Reabrir torneo',
       finishHelp: 'Finalizar bloquea las ediciones. Puede reabrirse mediante confirmación.',
+      averageWinTime: 'Victoria prom.',
+      averageWinTimeHelp:
+        'Tiempo promedio de las mesas que ganó, desde el inicio de la ronda. Es informativo: no cambia la posición.',
+      finishedIn: 'Terminó a los {{time}}',
+      tableTime: 'Tiempo de la mesa',
+      tableTimeAuto: 'Se anota solo al guardar',
+      tableTimeHelp:
+        'Minutos:segundos desde que empezó la ronda (por ejemplo 42:15). Déjalo vacío para que se anote solo.',
+      tableTimeInvalid: 'Usa minutos:segundos, por ejemplo 42:15, o déjalo vacío.',
       standingsInfo: {
         button: 'Cómo se calcula la clasificación',
         title: 'Cómo se calcula la clasificación',
@@ -564,6 +573,7 @@ export const es = {
       losingStreak: 'Mala racha',
       constant: 'Constante',
       tableHead: 'Cabeza de mesa',
+      fastestWin: 'Victoria más rápida',
       noData: 'Aún no hay una ronda cerrada. La bitácora espera sangre... o al menos puntos.',
       figure: 'Figura del torneo',
       figureTitles_one: '{{count}} título esta noche',
@@ -618,6 +628,7 @@ export const es = {
         losingStreak: 'Las cartas no acompañaron.',
         constant: 'Siempre el mismo nivel.',
         tableHead: 'La mesa tiene dueño.',
+        fastestWin: 'Ni tiempo de barajar.',
       },
       empty: {
         hunter: 'El hacha sigue limpia.',
@@ -633,6 +644,7 @@ export const es = {
         losingStreak: 'Todavía no hay una mala racha.',
         constant: 'Hacen falta dos rondas para medir la constancia.',
         tableHead: 'Nadie ha ganado dos mesas todavía.',
+        fastestWin: 'Aún no hay mesas ganadas con tiempo registrado.',
       },
     },
     tournamentGuide: {
@@ -1103,6 +1115,11 @@ export const es = {
       history: 'Historial por torneo',
       provisional: 'En juego',
       positionOf: 'de {{count}}',
+      winTime: 'Tiempo de victoria',
+      winTimeCopy_one: 'Promedio de tu victoria con tiempo. La más rápida: {{fastest}}.',
+      winTimeCopy_other:
+        'Promedio de tus {{count}} victorias con tiempo. La más rápida: {{fastest}}.',
+      noWinTime: 'Tus victorias con tiempo registrado aparecerán aquí.',
       loadFailed: 'No se pudieron cargar tus estadísticas.',
     },
     organizerDashboard: {

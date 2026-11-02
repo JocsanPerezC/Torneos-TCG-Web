@@ -439,7 +439,9 @@ export function TournamentProvider({ children }: { children: ReactNode }) {
               error = i18n.t('app.messages.outcomeRequired');
               return;
             }
-            round.pods[index] = pod;
+            // La primera vez que la mesa queda completa se anota la hora; si el organizador ya
+            // la corrigió (o se guardó antes), se respeta.
+            round.pods[index] = { ...pod, finishedAt: pod.finishedAt ?? new Date().toISOString() };
           },
           (t) => {
             const round = t.rounds.find((r) => r.id === roundId)!;
