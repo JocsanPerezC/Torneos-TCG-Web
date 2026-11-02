@@ -463,9 +463,11 @@ export function ProfilePage() {
             {message}
           </p>
         )}
-        <Button disabled={busy} className="app-button app-button--primary">
-          {busy ? t('app.profile.saving') : t('app.common.save')}
-        </Button>
+        <div className="flex justify-end">
+          <Button disabled={busy} className="app-button app-button--primary">
+            {busy ? t('app.profile.saving') : t('app.common.save')}
+          </Button>
+        </div>
         <section className="profile-danger-zone" aria-labelledby="delete-account-title">
           <div>
             <h2 id="delete-account-title">{t('app.profile.deleteTitle')}</h2>

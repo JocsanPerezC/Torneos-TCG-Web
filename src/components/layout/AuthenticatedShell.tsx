@@ -86,15 +86,10 @@ export function AuthenticatedShell({
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [accountMenuOpen, setAccountMenuOpen] = useState(false);
   const accountMenuRef = useRef<HTMLDivElement>(null);
-  const mobileAccountRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const close = (event: MouseEvent) => {
-      if (
-        !accountMenuRef.current?.contains(event.target as Node) &&
-        !mobileAccountRef.current?.contains(event.target as Node)
-      )
-        setAccountMenuOpen(false);
+      if (!accountMenuRef.current?.contains(event.target as Node)) setAccountMenuOpen(false);
     };
     const closeWithEscape = (event: KeyboardEvent) => {
       if (event.key === 'Escape') setAccountMenuOpen(false);
@@ -267,65 +262,63 @@ export function AuthenticatedShell({
             ))}
           </nav>
         </div>
-        <div className="app-sidebar__bottom">
-          <div className="app-sidebar__footer">
-            <div className="app-sidebar__account" ref={accountMenuRef}>
-              <button
-                type="button"
-                className={`app-sidebar__profile${accountMenuOpen ? ' is-open' : ''}`}
-                aria-controls="sidebar-account-menu"
-                aria-expanded={accountMenuOpen}
-                aria-haspopup="true"
-                aria-label={sidebarCollapsed ? profile.nickname : undefined}
-                title={sidebarCollapsed ? profile.nickname : undefined}
-                onClick={() => {
-                  if (sidebarCollapsed) {
-                    setSidebarCollapsed(false);
-                    setAccountMenuOpen(true);
-                    return;
-                  }
-                  setAccountMenuOpen((open) => !open);
-                }}
-              >
-                <Avatar
-                  name={profile.nickname}
-                  src={profile.avatarUrl}
-                  className="app-sidebar__profile-avatar"
-                />
-                <span className="app-sidebar__profile-text">
-                  <strong>{profile.nickname}</strong>
-                  <small>{t(`app.profile.roles.${role ?? 'organizer'}`)}</small>
-                </span>
-                <ChevronDown aria-hidden="true" />
-              </button>
-              {accountMenuOpen && (
-                <div
-                  id="sidebar-account-menu"
-                  className="app-sidebar__account-menu"
-                  aria-label={t('app.shell.account')}
-                >
-                  <p>{t('app.shell.account')}</p>
-                  <Link to="/perfil" onClick={() => setAccountMenuOpen(false)}>
-                    <CircleUserRound aria-hidden="true" />
-                    {t('app.shell.profile')}
-                  </Link>
-                  <Link to="/configuracion" onClick={() => setAccountMenuOpen(false)}>
-                    <Settings aria-hidden="true" />
-                    {t('app.shell.settings')}
-                  </Link>
-                  <div aria-hidden="true" />
-                  <button type="button" onClick={leaveSession}>
-                    <LogOut aria-hidden="true" />
-                    {t('app.shell.signOut')}
-                  </button>
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
       </aside>
-      <main className={`authenticated-shell__main ${wide ? 'is-wide' : ''}`}>{children}</main>
-      <div className="app-mobile-account-wrap" ref={mobileAccountRef}>
+      <div className="authenticated-shell__column">
+        <header className="app-topbar">
+          <Link
+            to={isAdmin ? '/admin' : '/dashboard'}
+            className="app-topbar__brand"
+            aria-label="EDH Tournaments"
+          >
+            <img src="/edh-tournaments-icon.svg" alt="" />
+          </Link>
+          <div className="app-topbar__account" ref={accountMenuRef}>
+            <button
+              type="button"
+              className={`app-topbar__profile${accountMenuOpen ? ' is-open' : ''}`}
+              aria-controls="account-menu"
+              aria-expanded={accountMenuOpen}
+              aria-haspopup="true"
+              onClick={() => setAccountMenuOpen((open) => !open)}
+            >
+              <Avatar
+                name={profile.nickname}
+                src={profile.avatarUrl}
+                className="app-topbar__avatar"
+              />
+              <span className="app-topbar__profile-text">
+                <strong>{profile.nickname}</strong>
+                <small>{t(`app.profile.roles.${role ?? 'organizer'}`)}</small>
+              </span>
+              <ChevronDown aria-hidden="true" />
+            </button>
+            {accountMenuOpen && (
+              <div
+                id="account-menu"
+                className="app-sidebar__account-menu app-topbar__menu"
+                aria-label={t('app.shell.account')}
+              >
+                <p>{t('app.shell.account')}</p>
+                <Link to="/perfil" onClick={() => setAccountMenuOpen(false)}>
+                  <CircleUserRound aria-hidden="true" />
+                  {t('app.shell.profile')}
+                </Link>
+                <Link to="/configuracion" onClick={() => setAccountMenuOpen(false)}>
+                  <Settings aria-hidden="true" />
+                  {t('app.shell.settings')}
+                </Link>
+                <div aria-hidden="true" />
+                <button type="button" onClick={leaveSession}>
+                  <LogOut aria-hidden="true" />
+                  {t('app.shell.signOut')}
+                </button>
+              </div>
+            )}
+          </div>
+        </header>
+        <main className={`authenticated-shell__main ${wide ? 'is-wide' : ''}`}>{children}</main>
+      </div>
+      <div className="app-mobile-account-wrap">
         <nav
           aria-label={t(
             tournament ? 'app.shell.tournamentNavigation' : 'app.shell.mobileNavigation',
@@ -335,42 +328,7 @@ export function AuthenticatedShell({
           {visibleMobileItems.map((item) => (
             <NavigationLink item={item} compact key={item.to} />
           ))}
-          <button
-            type="button"
-            className="app-sidebar__link app-mobile-nav__account"
-            aria-controls="mobile-account-menu"
-            aria-expanded={accountMenuOpen}
-            onClick={() => setAccountMenuOpen((open) => !open)}
-          >
-            <CircleUserRound aria-hidden="true" />
-            <span>{t('app.shell.account')}</span>
-          </button>
         </nav>
-        {accountMenuOpen && (
-          <section
-            id="mobile-account-menu"
-            className="app-mobile-account"
-            aria-label={t('app.shell.account')}
-          >
-            <p>{t('app.shell.account')}</p>
-            <span className="app-sidebar__account-role">
-              {t(`app.profile.roles.${role ?? 'organizer'}`)}
-            </span>
-            <Link to="/perfil" onClick={() => setAccountMenuOpen(false)}>
-              <CircleUserRound aria-hidden="true" />
-              {t('app.shell.profile')}
-            </Link>
-            <Link to="/configuracion" onClick={() => setAccountMenuOpen(false)}>
-              <Settings aria-hidden="true" />
-              {t('app.shell.settings')}
-            </Link>
-            <div aria-hidden="true" />
-            <button type="button" onClick={leaveSession}>
-              <LogOut aria-hidden="true" />
-              {t('app.shell.signOut')}
-            </button>
-          </section>
-        )}
       </div>
     </div>
   );

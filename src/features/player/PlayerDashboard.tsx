@@ -120,8 +120,7 @@ export function PlayerDashboard() {
                     </span>
                     <strong>{tournament.name}</strong>
                     <small>
-                      {tournament.format} · {tournament.participantName} ·{' '}
-                      {t('app.playerDashboard.statusFinished')}
+                      {tournament.format} · {t('app.playerDashboard.statusFinished')}
                     </small>
                     <ArrowRight aria-hidden="true" />
                   </Link>
