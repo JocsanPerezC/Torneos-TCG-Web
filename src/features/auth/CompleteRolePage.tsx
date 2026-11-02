@@ -122,7 +122,7 @@ export function CompleteRolePage() {
                     to="/terms"
                     target="_blank"
                     rel="noreferrer"
-                    className="font-semibold text-accent underline"
+                    className="app-text-link"
                   >
                     {t('app.auth.terms')}
                   </Link>
@@ -131,7 +131,7 @@ export function CompleteRolePage() {
                     to="/privacy"
                     target="_blank"
                     rel="noreferrer"
-                    className="font-semibold text-accent underline"
+                    className="app-text-link"
                   >
                     {t('app.auth.privacy')}
                   </Link>

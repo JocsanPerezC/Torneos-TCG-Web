@@ -54,7 +54,7 @@ export function LegalConsent() {
                   to="/terms"
                   target="_blank"
                   rel="noreferrer"
-                  className="font-semibold text-accent underline"
+                  className="app-text-link"
                 >
                   {i18n.t('app.auth.terms')}
                 </Link>
@@ -63,7 +63,7 @@ export function LegalConsent() {
                   to="/privacy"
                   target="_blank"
                   rel="noreferrer"
-                  className="font-semibold text-accent underline"
+                  className="app-text-link"
                 >
                   {i18n.t('app.auth.privacy')}
                 </Link>

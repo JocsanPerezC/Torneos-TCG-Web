@@ -548,7 +548,8 @@
 }
 @media (max-width: 820px) {
   .landing-header__links,
-  .landing-header .landing-login {
+  .landing-header .landing-login,
+  .landing-header .landing-account {
     display: none;
   }
   .landing-menu {

@@ -85,7 +85,8 @@ export function LandingHeader() {
                   {label}
                 </a>
               ))}
-              {!user && <Link to="/login">{t('landing.navigation.login')}</Link>}
+              {!loading && !user && <Link to="/login">{t('landing.navigation.login')}</Link>}
+              <Link to={accountTarget}>{accountLabel}</Link>
             </div>
           </details>
         </div>

@@ -100,6 +100,11 @@
 .intro__actions a {
   text-decoration: none;
 }
+/* La capa del título ignora clics para no tapar la escena; los botones sí los reciben. */
+.intro__actions--overlay {
+  margin-top: 1.1rem;
+  pointer-events: auto;
+}
 .intro__note {
   margin: 0;
   color: var(--primary-strong);
@@ -620,6 +625,12 @@
     top: calc(50% + 5vh);
     right: 1rem;
     left: 1rem;
+    /* Queda encima de la escena desde el inicio aunque su contenido esté oculto:
+       sin esto tapaba los botones de la primera pantalla. */
+    pointer-events: none;
+  }
+  .intro__final > * {
+    pointer-events: auto;
   }
   .night {
     height: 460vh;
@@ -836,10 +847,6 @@
   }
   .landing-header__actions {
     gap: 0.35rem;
-  }
-  .landing-header .landing-account {
-    display: inline-flex;
-    padding-inline: 0.6rem;
   }
   .landing-header__brand-name span {
     display: none;

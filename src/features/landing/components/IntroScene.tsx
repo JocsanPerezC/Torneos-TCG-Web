@@ -98,6 +98,17 @@ export function IntroScene() {
               <em>{t('landing.intro.titleAccent')}</em>
               {t('landing.intro.titleAfter')}
             </p>
+            {/* Acceso directo desde la primera pantalla, antes de la animación. */}
+            <div className="intro__actions intro__actions--overlay">
+              <Button asChild size="lg" className="border-foreground">
+                <Link to={primaryTarget}>{primaryLabel}</Link>
+              </Button>
+              {!loading && !user && (
+                <Button asChild variant="outline" size="lg">
+                  <Link to="/login">{t('landing.navigation.login')}</Link>
+                </Button>
+              )}
+            </div>
             <span className="intro__hint" aria-hidden="true">
               {t('landing.intro.scrollHint')}
               <svg viewBox="0 0 24 24">
@@ -113,16 +124,6 @@ export function IntroScene() {
             EDH <span>Tournaments</span>
           </h1>
           <p className="intro__description">{t('landing.intro.description')}</p>
-          <div className="intro__actions">
-            <Button asChild variant="outline" size="lg">
-              <Link to={user ? '/dashboard' : '/login'}>
-                {user ? t('landing.navigation.dashboard') : t('landing.navigation.login')}
-              </Link>
-            </Button>
-            <Button asChild size="lg">
-              <Link to={primaryTarget}>{primaryLabel}</Link>
-            </Button>
-          </div>
           <p className="intro__note">
             <span aria-hidden="true">✦</span> {t('landing.hero.noAccount')}
           </p>
