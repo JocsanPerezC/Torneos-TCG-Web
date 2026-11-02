@@ -26,6 +26,11 @@ export function PlayerDashboard() {
   }, [t]);
 
   const activeTournament = tournaments?.find((tournament) => tournament.status === 'activo');
+  // Ya se jugaron todas sus rondas: solo falta que el organizador lo cierre (o el cierre
+  // automático, 24 horas después de la última ronda).
+  const awaitingClose =
+    activeTournament !== undefined &&
+    activeTournament.completedRounds >= activeTournament.plannedRounds;
   const history = tournaments?.filter((tournament) => tournament.status === 'finalizado') ?? [];
 
   return (
@@ -55,8 +60,12 @@ export function PlayerDashboard() {
                   <Play aria-hidden="true" />
                 </span>
                 <p>{t('app.playerDashboard.nextTournament')}</p>
-                <span className="dashboard-focus__status">
-                  {t('app.playerDashboard.statusActive')}
+                <span
+                  className={`dashboard-focus__status${awaitingClose ? ' is-awaiting-close' : ''}`}
+                >
+                  {awaitingClose
+                    ? t('app.playerDashboard.statusAwaitingClose')
+                    : t('app.playerDashboard.statusActive')}
                 </span>
                 <h2 id="next-tournament-title">{activeTournament.name}</h2>
                 <span className="dashboard-focus__meta">

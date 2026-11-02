@@ -1071,6 +1071,12 @@
   font-size: 0.68rem;
   font-weight: 700;
 }
+/* Torneo con todas sus rondas jugadas que solo espera su cierre. */
+.dashboard-focus__status.is-awaiting-close {
+  border-color: #f0d48a;
+  background: #fff4d6;
+  color: #8a5a00;
+}
 .dashboard-history > header {
   display: flex;
   align-items: center;

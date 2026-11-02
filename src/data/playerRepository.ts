@@ -8,6 +8,8 @@ export type PlayerTournament = {
   publicSlug: string;
   plannedRounds: number;
   roundCount: number;
+  /** Rondas terminadas. Si faltara (función de Supabase sin actualizar), vale lo mismo que 0. */
+  completedRounds: number;
   participantName: string;
   createdAt: string;
 };
@@ -48,6 +50,7 @@ export async function loadPlayerTournaments(): Promise<PlayerTournament[]> {
     publicSlug: String(row.public_slug),
     plannedRounds: Number(row.planned_rounds),
     roundCount: Number(row.round_count),
+    completedRounds: Number(row.completed_round_count ?? 0),
     participantName: String(row.participant_name),
     createdAt: String(row.created_at),
   }));

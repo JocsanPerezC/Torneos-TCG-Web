@@ -483,7 +483,8 @@ export const en = {
       pointsManual: 'Points are entered manually for each table.',
       finishTournament: 'Finish tournament',
       reopenTournament: 'Reopen tournament',
-      finishHelp: 'Finishing locks edits. It can be reopened after confirmation.',
+      finishHelp:
+        'Finishing locks edits. It can be reopened after confirmation. If you do not finish it, it closes automatically 24 hours after the last planned round ends.',
       averageWinTime: 'Avg. win',
       averageWinTimeHelp:
         'Average time of the tables this player won, from the start of the round. For information only: it does not change the position.',
@@ -1056,6 +1057,7 @@ export const en = {
       active: 'At the table',
       history: 'History',
       statusActive: 'Active',
+      statusAwaitingClose: 'Awaiting close',
       statusFinished: 'Finished',
       progress: '{{current}} of {{total}} rounds',
       emptyActive: 'You have not joined an active tournament yet.',

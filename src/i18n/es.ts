@@ -496,7 +496,8 @@ export const es = {
       pointsManual: 'Los puntos se registran manualmente en cada mesa.',
       finishTournament: 'Finalizar torneo',
       reopenTournament: 'Reabrir torneo',
-      finishHelp: 'Finalizar bloquea las ediciones. Puede reabrirse mediante confirmación.',
+      finishHelp:
+        'Finalizar bloquea las ediciones. Puede reabrirse mediante confirmación. Si no lo finalizas, se cierra solo 24 horas después de terminar la última ronda planificada.',
       averageWinTime: 'Victoria prom.',
       averageWinTimeHelp:
         'Tiempo promedio de las mesas que ganó, desde el inicio de la ronda. Es informativo: no cambia la posición.',
@@ -1066,6 +1067,7 @@ export const es = {
       active: 'En juego',
       history: 'Historial',
       statusActive: 'Activo',
+      statusAwaitingClose: 'Esperando cierre',
       statusFinished: 'Finalizado',
       progress: '{{current}} de {{total}} rondas',
       emptyActive: 'Todavía no estás inscrito en un torneo activo.',
