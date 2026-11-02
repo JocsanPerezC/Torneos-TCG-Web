@@ -1,4 +1,5 @@
 import { useEffect, useId, useRef, type ReactNode } from 'react';
+import { createPortal } from 'react-dom';
 import { X } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/button';
@@ -58,7 +59,9 @@ export function Modal({ title, description, children, onClose, dialogClassName }
     };
   }, [onClose]);
 
-  return (
+  // Portal al body: si algún contenedor tiene transform o animación, un `fixed` dentro de él
+  // quedaría recortado a ese contenedor en vez de cubrir toda la pantalla.
+  return createPortal(
     <div
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/35 p-4"
       role="presentation"
@@ -98,6 +101,7 @@ export function Modal({ title, description, children, onClose, dialogClassName }
         </div>
         <div className="mt-5">{children}</div>
       </section>
-    </div>
+    </div>,
+    document.body,
   );
 }

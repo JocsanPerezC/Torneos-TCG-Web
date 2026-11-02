@@ -487,7 +487,8 @@ export const es = {
       playerActivated: 'Jugador activado.',
       results: 'Resultados',
       opponentStrength: 'Fuerza de oponentes',
-      opponentHelp: 'Suma de los puntos obtenidos por las personas contra quienes jugaste.',
+      opponentHelp:
+        'Promedio de los puntos totales de las personas contra quienes jugaste. Es el último desempate, después de victorias, empates, derrotas, win rate y kills.',
       settingsTitle: 'Configuración del torneo',
       saveChanges: 'Guardar cambios',
       plannedRounds: 'Rondas planificadas',
@@ -496,6 +497,21 @@ export const es = {
       finishTournament: 'Finalizar torneo',
       reopenTournament: 'Reabrir torneo',
       finishHelp: 'Finalizar bloquea las ediciones. Puede reabrirse mediante confirmación.',
+      standingsInfo: {
+        button: 'Cómo se calcula la clasificación',
+        title: 'Cómo se calcula la clasificación',
+        description:
+          'Los puntos los anota el organizador en cada mesa. La tabla los suma y, si hay empate, desempata en este orden:',
+        points: 'Puntos: la suma de los puntos de cada mesa con resultados completos.',
+        results: 'Más victorias; después, más empates y, luego, menos derrotas.',
+        winRate: 'Mejor win rate: (victorias + empates × 0,5) ÷ partidas con resultado.',
+        kills: 'Más kills.',
+        opponents: 'Mayor promedio de puntos de los rivales que enfrentó.',
+        shared: 'Si dos personas empatan en todo, comparten el puesto.',
+        outcomes:
+          'Victorias, empates y derrotas solo cuentan en las mesas donde todos tienen su resultado elegido.',
+        close: 'Entendido',
+      },
       roundGenerationInfo: {
         button: 'Cómo se generan las rondas',
         title: 'Cómo se generan las rondas',
@@ -695,7 +711,7 @@ export const es = {
       },
       accounts: {
         search: 'Buscar cuenta',
-        organizer: 'Organizador',
+        organizer: 'Usuario',
         email: 'Correo',
         role: 'Rol',
         registeredAt: 'Registro',

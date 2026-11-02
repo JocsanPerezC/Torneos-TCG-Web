@@ -6,6 +6,8 @@ export type AssignableRole = Exclude<AppRole, 'super_admin'>;
 export type AdminProfile = {
   id: string;
   displayName: string;
+  nickname: string;
+  avatarUrl?: string;
   role: AppRole;
   createdAt: string;
 };
@@ -41,7 +43,7 @@ export async function loadAdminOverview(): Promise<AdminOverview> {
   const [profilesResponse, tournamentsResponse] = await Promise.all([
     db
       .from('profiles')
-      .select('id, display_name, role, created_at')
+      .select('id, display_name, nickname, avatar_url, role, created_at')
       .order('created_at', { ascending: false }),
     db
       .from('tournaments')
@@ -58,6 +60,8 @@ export async function loadAdminOverview(): Promise<AdminOverview> {
     profiles: rows(profilesResponse.data).map((row) => ({
       id: String(row.id),
       displayName: String(row.display_name ?? 'Sin nombre'),
+      nickname: String(row.nickname ?? ''),
+      avatarUrl: row.avatar_url ? String(row.avatar_url) : undefined,
       role:
         row.role === 'super_admin'
           ? 'super_admin'

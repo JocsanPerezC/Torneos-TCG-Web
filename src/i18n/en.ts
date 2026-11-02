@@ -474,7 +474,8 @@ export const en = {
       playerActivated: 'Player activated.',
       results: 'Results',
       opponentStrength: 'Opponent strength',
-      opponentHelp: 'Sum of the points earned by the people you played against.',
+      opponentHelp:
+        'Average total points of the people you played against. It is the last tiebreaker, after wins, draws, losses, win rate and kills.',
       settingsTitle: 'Tournament settings',
       saveChanges: 'Save changes',
       plannedRounds: 'Planned rounds',
@@ -483,6 +484,21 @@ export const en = {
       finishTournament: 'Finish tournament',
       reopenTournament: 'Reopen tournament',
       finishHelp: 'Finishing locks edits. It can be reopened after confirmation.',
+      standingsInfo: {
+        button: 'How the standings are calculated',
+        title: 'How the standings are calculated',
+        description:
+          'The organizer enters the points at each table. The table adds them up and, if there is a tie, breaks it in this order:',
+        points: 'Points: the sum of the points from every table with complete results.',
+        results: 'More wins; then more draws, and then fewer losses.',
+        winRate: 'Better win rate: (wins + draws × 0.5) ÷ games with a result.',
+        kills: 'More kills.',
+        opponents: 'Higher average points of the opponents faced.',
+        shared: 'If two people are tied on everything, they share the place.',
+        outcomes:
+          'Wins, draws, and losses only count at tables where everyone has a result selected.',
+        close: 'Got it',
+      },
       roundGenerationInfo: {
         button: 'How rounds are generated',
         title: 'How rounds are generated',
@@ -689,7 +705,7 @@ export const en = {
       },
       accounts: {
         search: 'Search accounts',
-        organizer: 'Organizer',
+        organizer: 'User',
         email: 'Email',
         role: 'Role',
         registeredAt: 'Registered',

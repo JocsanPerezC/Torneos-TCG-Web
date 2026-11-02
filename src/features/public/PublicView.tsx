@@ -238,7 +238,7 @@ export function PublicView() {
                       <td>{row.draws}</td>
                       <td>{row.winRate.toFixed(1)}%</td>
                       <td>{row.kills}</td>
-                      <td>{row.opponentStrength}</td>
+                      <td>{row.opponentStrength.toFixed(1)}</td>
                       <td>{row.roundsPlayed}</td>
                     </tr>
                   ))}

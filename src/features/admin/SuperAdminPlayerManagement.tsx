@@ -1,12 +1,12 @@
 import { useEffect, useState, type FormEvent } from 'react';
 import { useAuth } from '@/state/AuthContext';
-import {
-  insertPlayers,
-  loadAllTournaments,
-  persistPlayer,
-  removeRemotePlayer,
-} from '@/data/tournamentRepository';
+import { insertPlayers, persistPlayer, removeRemotePlayer } from '@/data/tournamentRepository';
 import type { Tournament } from '@/domain/types';
+import {
+  adminCache,
+  refreshAdminTournaments,
+  subscribeAdminTournaments,
+} from '@/features/admin/adminCache';
 import { Button } from '@/components/ui/button';
 import { uid } from '@/domain/types';
 import i18n from '@/i18n';
@@ -14,13 +14,13 @@ import { field, panel, primary } from '@/components/ui/classes';
 
 export function SuperAdminPlayerManagement() {
   const { isSuperAdmin } = useAuth();
-  const [tournaments, setTournaments] = useState<Tournament[]>();
+  const [tournaments, setTournaments] = useState<Tournament[] | undefined>(adminCache.tournaments);
   const [search, setSearch] = useState('');
   const [error, setError] = useState<string>();
   const [busy, setBusy] = useState(false);
   const load = async () => {
     try {
-      setTournaments(await loadAllTournaments());
+      setTournaments(await refreshAdminTournaments());
       setError(undefined);
     } catch (reason) {
       setError(reason instanceof Error ? reason.message : i18n.t('app.admin.players.loadFailed'));
@@ -28,6 +28,7 @@ export function SuperAdminPlayerManagement() {
   };
   useEffect(() => {
     void load();
+    return subscribeAdminTournaments(setTournaments);
   }, []);
   const activePlayers = (tournaments ?? []).flatMap((tournament) =>
     tournament.players.filter((player) => player.active).map((player) => ({ tournament, player })),

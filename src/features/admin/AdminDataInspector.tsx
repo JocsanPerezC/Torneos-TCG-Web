@@ -1,17 +1,21 @@
 import { useEffect, useState } from 'react';
-import { loadAllTournaments } from '@/data/tournamentRepository';
+import {
+  adminCache,
+  refreshAdminTournaments,
+  subscribeAdminTournaments,
+} from '@/features/admin/adminCache';
 import type { Tournament } from '@/domain/types';
 import i18n from '@/i18n';
 import { field, panel } from '@/components/ui/classes';
 
 export function AdminDataInspector() {
-  const [tournaments, setTournaments] = useState<Tournament[]>();
+  const [tournaments, setTournaments] = useState<Tournament[] | undefined>(adminCache.tournaments);
   const [error, setError] = useState<string>();
   const [search, setSearch] = useState('');
 
   useEffect(() => {
     let active = true;
-    void loadAllTournaments()
+    void refreshAdminTournaments()
       .then((data) => {
         if (active) setTournaments(data);
       })
@@ -21,8 +25,10 @@ export function AdminDataInspector() {
             reason instanceof Error ? reason.message : i18n.t('app.admin.details.loadFailed'),
           );
       });
+    const unsubscribe = subscribeAdminTournaments(setTournaments);
     return () => {
       active = false;
+      unsubscribe();
     };
   }, []);
 

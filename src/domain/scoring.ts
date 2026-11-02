@@ -65,18 +65,48 @@ export function standings(tournament: Tournament): Standing[] {
     winRate: 0,
     opponentStrength: 0,
   }));
+  // Promedio de puntos de los rivales por cada rival enfrentado: no premia jugar más rondas
+  // ni mesas más grandes.
   for (const row of rows)
-    row.opponentStrength = row.opponents.reduce((sum, id) => sum + (stat[id]?.points ?? 0), 0);
+    row.opponentStrength = row.opponents.length
+      ? row.opponents.reduce((sum, id) => sum + (stat[id]?.points ?? 0), 0) / row.opponents.length
+      : 0;
   for (const row of rows) {
     const decidedRounds = row.wins + row.losses + row.draws;
     row.winRate = decidedRounds ? ((row.wins + row.draws * 0.5) / decidedRounds) * 100 : 0;
   }
-  rows.sort(
-    (a, b) =>
-      b.points - a.points ||
-      b.opponentStrength - a.opponentStrength ||
-      b.kills - a.kills ||
-      a.player.tieBreaker - b.player.tieBreaker,
+  rows.sort((a, b) => compareStandings(a, b) || a.player.tieBreaker - b.player.tieBreaker);
+  // Quien empata en todos los criterios comparte el puesto (1, 2, 2, 4).
+  const ranked: Standing[] = [];
+  rows.forEach((row, index) => {
+    const previous = ranked[index - 1];
+    ranked.push({
+      ...row,
+      rank: previous && compareStandings(previous, row) === 0 ? previous.rank : index + 1,
+    });
+  });
+  return ranked;
+}
+
+type RankedValues = Pick<
+  Standing,
+  'points' | 'wins' | 'draws' | 'losses' | 'winRate' | 'kills' | 'opponentStrength'
+>;
+
+/**
+ * Criterios de la clasificación, en orden: puntos, victorias, empates, menos derrotas,
+ * win rate, kills y promedio de puntos de los rivales. Devuelve 0 si empatan en todo.
+ * Las funciones de estadísticas de Supabase replican este mismo orden.
+ */
+export function compareStandings(a: RankedValues, b: RankedValues) {
+  const strength = b.opponentStrength - a.opponentStrength;
+  return (
+    b.points - a.points ||
+    b.wins - a.wins ||
+    b.draws - a.draws ||
+    a.losses - b.losses ||
+    b.winRate - a.winRate ||
+    b.kills - a.kills ||
+    (Math.abs(strength) < 1e-9 ? 0 : strength)
   );
-  return rows.map((row, index) => ({ ...row, rank: index + 1 }));
 }

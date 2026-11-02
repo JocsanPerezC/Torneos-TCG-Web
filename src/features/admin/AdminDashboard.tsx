@@ -21,21 +21,35 @@ import {
 import { AdminDataInspector } from '@/features/admin/AdminDataInspector';
 import { SuperAdminPlayerManagement } from '@/features/admin/SuperAdminPlayerManagement';
 import { UserProfileModal } from '@/features/admin/UserProfileModal';
+import { adminCacheFor, rememberAdmin, type AdminTab } from '@/features/admin/adminCache';
+import { Avatar } from '@/components/ui/Avatar';
 import { field, panel } from '@/components/ui/classes';
 
 export function AdminDashboard() {
   const { user, isSuperAdmin } = useAuth();
-  const [overview, setOverview] = useState<AdminOverview>();
+  const cache = adminCacheFor(user?.id);
+  // Arranca con lo último cargado (si lo hay) y se actualiza en segundo plano.
+  const [overview, setOverviewState] = useState<AdminOverview | undefined>(cache.overview);
   const [error, setError] = useState<string>();
   const [refreshing, setRefreshing] = useState(false);
   const [deletingTournament, setDeletingTournament] = useState<string>();
-  const [managedUsers, setManagedUsers] = useState<ManagedUser[]>([]);
+  const [managedUsers, setManagedUsersState] = useState<ManagedUser[]>(cache.managedUsers ?? []);
   const [editingUser, setEditingUser] = useState<ManagedUser>();
   const [profileSearch, setProfileSearch] = useState('');
   const [tournamentSearch, setTournamentSearch] = useState('');
-  const [adminTab, setAdminTab] = useState<'accounts' | 'tournaments' | 'players' | 'details'>(
-    'accounts',
-  );
+  const [adminTab, setAdminTabState] = useState<AdminTab>(cache.tab ?? 'accounts');
+  const setOverview = (value: AdminOverview) => {
+    rememberAdmin('overview', value);
+    setOverviewState(value);
+  };
+  const setManagedUsers = (value: ManagedUser[]) => {
+    rememberAdmin('managedUsers', value);
+    setManagedUsersState(value);
+  };
+  const setAdminTab = (tab: AdminTab) => {
+    rememberAdmin('tab', tab);
+    setAdminTabState(tab);
+  };
 
   const refresh = async () => {
     setRefreshing(true);
@@ -97,7 +111,7 @@ export function AdminDashboard() {
     overview?.profiles.filter((profile) => isSuperAdmin || profile.role !== 'super_admin') ?? [];
   const managedUsersById = new Map(managedUsers.map((managed) => [managed.id, managed]));
   const visibleProfiles = accountProfiles.filter((profile) =>
-    `${profile.displayName} ${profile.role} ${managedUsersById.get(profile.id)?.email ?? ''}`
+    `${profile.displayName} ${profile.nickname} ${profile.role} ${managedUsersById.get(profile.id)?.email ?? ''}`
       .toLocaleLowerCase()
       .includes(profileSearch.toLocaleLowerCase()),
   );
@@ -227,7 +241,19 @@ export function AdminDashboard() {
                   <tbody>
                     {visibleProfiles.map((profile) => (
                       <tr key={profile.id} className="border-b border-slate-700 last:border-0">
-                        <td className="px-5 py-3 font-semibold">{profile.displayName}</td>
+                        <td className="px-5 py-3">
+                          <span className="admin-account">
+                            <Avatar
+                              name={profile.nickname || profile.displayName}
+                              src={profile.avatarUrl}
+                              className="admin-account__avatar"
+                            />
+                            <span>
+                              <strong>{profile.displayName}</strong>
+                              {profile.nickname && <small>{profile.nickname}</small>}
+                            </span>
+                          </span>
+                        </td>
                         <td
                           className="max-w-56 truncate px-5 py-3 text-slate-300"
                           title={managedUsersById.get(profile.id)?.email}
@@ -289,11 +315,17 @@ export function AdminDashboard() {
                                 variant="outline"
                                 size="sm"
                                 className="app-button app-button--secondary"
-                                onClick={() =>
-                                  setEditingUser(
-                                    managedUsers.find((managed) => managed.id === profile.id),
-                                  )
-                                }
+                                onClick={() => {
+                                  const managed = managedUsersById.get(profile.id);
+                                  // El apodo y la foto salen del perfil, aunque la función del
+                                  // servidor publicada todavía no los envíe.
+                                  if (managed)
+                                    setEditingUser({
+                                      ...managed,
+                                      nickname: managed.nickname || profile.nickname,
+                                      avatarUrl: managed.avatarUrl ?? profile.avatarUrl ?? null,
+                                    });
+                                }}
                               >
                                 {i18n.t('app.common.edit')}
                               </Button>

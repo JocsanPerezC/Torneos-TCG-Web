@@ -1609,7 +1609,8 @@
   margin: 0;
   font-size: 1.35rem;
 }
-.rounds-deck__header h2 .app-help {
+.rounds-deck__header h2 .app-help,
+.standings-board > header h2 .app-help {
   width: 1.4rem;
   height: 1.4rem;
   margin-left: 0;
@@ -1617,12 +1618,19 @@
   border-radius: 0.45rem 0.2rem 0.45rem 0.2rem;
   background: var(--accent-soft);
 }
-.rounds-deck__header h2 .app-help svg {
+.rounds-deck__header h2 .app-help svg,
+.standings-board > header h2 .app-help svg {
   width: 0.72rem;
   height: 0.72rem;
 }
-.rounds-deck__header h2 .app-help:hover {
+.rounds-deck__header h2 .app-help:hover,
+.standings-board > header h2 .app-help:hover {
   background: #dce5ff;
+}
+.standings-board > header h2 {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.28rem;
 }
 .rounds-deck__header > div {
   display: flex;
@@ -1905,18 +1913,18 @@
 .standings-podium {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 0.65rem;
-  margin: 1.1rem 0 1.25rem;
+  gap: 0.85rem;
+  margin: 1.25rem 0 1.5rem;
   padding: 0;
   list-style: none;
 }
 .standings-podium__place {
   position: relative;
   display: grid;
-  min-height: 10.5rem;
+  min-height: 15rem;
   align-content: center;
   justify-items: center;
-  padding: 0.75rem;
+  padding: 1.1rem 0.85rem;
   border: 2px solid var(--foreground);
   border-radius: 1.1rem 0.45rem 1.1rem 0.45rem;
   background: #fff7df;
@@ -1924,60 +1932,63 @@
   box-shadow: var(--app-shadow-sm);
 }
 .standings-podium__place--2 {
-  margin-top: 1rem;
+  margin-top: 1.25rem;
   background: #f1f2f1;
 }
 .standings-podium__place--3 {
-  margin-top: 1.6rem;
+  margin-top: 2.25rem;
   background: #ffe9e1;
 }
 .standings-podium__rank {
   position: absolute;
-  top: 0.5rem;
-  left: 0.55rem;
+  top: 0.55rem;
+  left: 0.8rem;
   color: var(--red);
-  font-size: 0.7rem;
+  font-size: 2rem;
   font-weight: 700;
+  line-height: 1;
+  letter-spacing: -0.03em;
 }
 .standings-podium__avatar {
   display: grid;
-  width: 2.45rem;
-  height: 2.45rem;
+  width: 4.25rem;
+  height: 4.25rem;
   flex: none;
   overflow: hidden;
   place-items: center;
   justify-self: center;
   align-self: center;
-  border: 1.5px solid var(--foreground);
+  border: 2px solid var(--foreground);
   border-radius: 50%;
   background: var(--card);
   color: var(--foreground);
-  font-size: 0.9rem;
+  font-size: 1.5rem;
   font-style: normal;
   font-weight: 700;
 }
 .standings-podium__place strong {
   display: block;
   max-width: 100%;
-  margin-top: 0.35rem;
+  margin-top: 0.55rem;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  font-size: 0.86rem;
+  font-size: 1.15rem;
 }
 .standings-podium__place b {
-  margin-top: 0.2rem;
+  margin-top: 0.3rem;
   color: var(--accent);
-  font-size: 1.5rem;
+  font-size: 2.4rem;
+  line-height: 1.05;
 }
 .standings-podium__place b small {
   color: var(--ink-soft);
-  font-size: 0.62rem;
+  font-size: 0.8rem;
 }
 .standings-podium__place em {
-  margin-top: 0.25rem;
+  margin-top: 0.35rem;
   color: var(--ink-soft);
-  font-size: 0.67rem;
+  font-size: 0.85rem;
   font-style: normal;
 }
 .standings-table {
@@ -2341,16 +2352,16 @@
   margin-top: 1rem;
 }
 .public-podium .standings-podium__place--1 {
-  min-height: 11.25rem;
+  min-height: 16rem;
   border-color: #b98e22;
   transform: translateY(-0.4rem);
 }
 .public-podium .standings-podium__place--1 .standings-podium__avatar {
-  width: 2.8rem;
-  height: 2.8rem;
+  width: 4.75rem;
+  height: 4.75rem;
 }
 .public-podium .standings-podium__place--1 b {
-  font-size: 1.8rem;
+  font-size: 2.75rem;
 }
 .public-scoreboard__statistics {
   margin-top: 1rem;
@@ -2363,49 +2374,49 @@
   color: #fff;
 }
 .public-table h3 {
-  margin: 0 0 0.6rem;
+  margin: 0 0 0.7rem;
   color: var(--highlight);
-  font-size: 0.9rem;
+  font-size: 1.25rem;
 }
 .public-table > div {
   display: grid;
-  gap: 0.4rem;
+  gap: 0.5rem;
 }
 .public-table section {
   display: grid;
-  grid-template-columns: 1.7rem minmax(0, 1fr) auto auto auto;
+  grid-template-columns: 2.2rem minmax(0, 1fr) auto auto auto;
   align-items: center;
-  gap: 0.4rem;
-  padding: 0.45rem;
+  gap: 0.5rem;
+  padding: 0.55rem 0.6rem;
   border-radius: 0.55rem 0.22rem 0.55rem 0.22rem;
   background: var(--paper);
   color: var(--foreground);
 }
 .public-table__avatar {
-  width: 1.55rem;
-  height: 1.55rem;
+  width: 2.1rem;
+  height: 2.1rem;
   background: #dce5ff;
-  font-size: 0.58rem;
+  font-size: 0.85rem;
 }
 .public-table section strong {
   min-width: 0;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  font-size: 0.77rem;
+  font-size: 1.05rem;
 }
 .public-table section b {
   color: var(--accent);
-  font-size: 0.85rem;
+  font-size: 1.2rem;
   white-space: nowrap;
 }
 .public-table section b small {
   color: var(--ink-soft);
-  font-size: 0.58rem;
+  font-size: 0.7rem;
 }
 .public-table section em {
   color: var(--danger-text);
-  font-size: 0.7rem;
+  font-size: 0.85rem;
   font-style: normal;
   font-weight: 700;
   white-space: nowrap;
@@ -2414,8 +2425,8 @@
   display: inline-flex;
   justify-content: center;
   border-radius: var(--app-radius-pill);
-  padding: 0.22rem 0.35rem;
-  font-size: 0.58rem;
+  padding: 0.28rem 0.5rem;
+  font-size: 0.72rem;
   font-style: normal;
   font-weight: 700;
   white-space: nowrap;
@@ -2478,20 +2489,39 @@
     gap: 0.4rem;
   }
   .standings-podium__place {
-    min-height: 9.25rem;
-    padding: 0.55rem 0.3rem;
+    min-height: 11.5rem;
+    padding: 0.7rem 0.35rem;
+  }
+  .standings-podium__place--2 {
+    margin-top: 0.85rem;
+  }
+  .standings-podium__place--3 {
+    margin-top: 1.5rem;
+  }
+  .standings-podium__rank {
+    top: 0.4rem;
+    left: 0.5rem;
+    font-size: 1.25rem;
+  }
+  .standings-podium__avatar {
+    width: 2.9rem;
+    height: 2.9rem;
+    font-size: 1.05rem;
   }
   .standings-podium__place strong {
-    font-size: 0.72rem;
+    font-size: 0.85rem;
   }
   .standings-podium__place b {
-    font-size: 1.15rem;
+    font-size: 1.6rem;
+  }
+  .standings-podium__place b small {
+    font-size: 0.65rem;
   }
   .standings-podium__place em {
-    font-size: 0.58rem;
+    font-size: 0.68rem;
   }
   .public-table section {
-    grid-template-columns: 1.55rem minmax(0, 1fr) auto auto;
+    grid-template-columns: 2.2rem minmax(0, 1fr) auto auto;
   }
   .public-table .public-outcome {
     grid-column: 2 / -1;
@@ -2781,4 +2811,73 @@
 }
 .tournament-ticket::after {
   pointer-events: none;
+}
+
+/* Foto de perfil dentro del modal de edición de cuentas (consola de administración). */
+.admin-avatar-editor {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+.admin-avatar-editor__photo {
+  display: grid;
+  width: 4.5rem;
+  height: 4.5rem;
+  flex: none;
+  place-items: center;
+  overflow: hidden;
+  border: 2px solid var(--foreground);
+  border-radius: 50%;
+  background: var(--highlight);
+  font-size: 1.6rem;
+  font-weight: 700;
+}
+.admin-avatar-editor__photo img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.admin-avatar-editor__actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+}
+.admin-avatar-editor__actions .app-field-error {
+  width: 100%;
+}
+
+/* Columna Usuario de la consola: foto, apodo y, debajo, el nombre de la cuenta. */
+.admin-account {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  gap: 0.6rem;
+}
+.admin-account__avatar {
+  display: grid;
+  width: 2rem;
+  height: 2rem;
+  flex: none;
+  place-items: center;
+  overflow: hidden;
+  border: 1.5px solid var(--foreground);
+  border-radius: 50%;
+  background: var(--highlight);
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+.admin-account__avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.admin-account > span:last-child {
+  display: grid;
+  min-width: 0;
+  line-height: 1.25;
+}
+.admin-account small {
+  color: var(--muted-foreground);
+  font-size: 0.75rem;
 }

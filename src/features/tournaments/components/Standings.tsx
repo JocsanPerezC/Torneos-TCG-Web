@@ -3,6 +3,9 @@ import { useParams } from 'react-router-dom';
 import { Info } from 'lucide-react';
 import { useTournaments } from '@/state/TournamentContext';
 import { Avatar } from '@/components/ui/Avatar';
+import { Button } from '@/components/ui/button';
+import { Modal } from '@/components/ui/modal';
+import { primary } from '@/components/ui/classes';
 import i18n from '@/i18n';
 
 export function Standings() {
@@ -10,6 +13,7 @@ export function Standings() {
   const rows = useTournaments().standingsFor(id!);
   const previousRanks = useRef(new Map<string, number>());
   const [movedRankIds, setMovedRankIds] = useState<string[]>([]);
+  const [showInfo, setShowInfo] = useState(false);
   const movedRanksTimer = useRef<number | undefined>(undefined);
   const opponentHelp = i18n.t('app.tournament.opponentHelp');
   const winRateHelp = i18n.t('app.common.winRateHelp');
@@ -37,8 +41,45 @@ export function Standings() {
   return (
     <section className="standings-board">
       <header>
-        <h2>{i18n.t('app.tournament.standings')}</h2>
+        <h2>
+          {i18n.t('app.tournament.standings')}
+          <Button
+            type="button"
+            variant="ghost"
+            size="sm"
+            className="app-help"
+            aria-label={i18n.t('app.tournament.standingsInfo.button')}
+            aria-haspopup="dialog"
+            title={i18n.t('app.tournament.standingsInfo.button')}
+            onClick={() => setShowInfo(true)}
+          >
+            <Info aria-hidden />
+          </Button>
+        </h2>
       </header>
+      {showInfo && (
+        <Modal
+          title={i18n.t('app.tournament.standingsInfo.title')}
+          description={i18n.t('app.tournament.standingsInfo.description')}
+          onClose={() => setShowInfo(false)}
+        >
+          <ol className="list-decimal space-y-3 pl-5 text-sm leading-6 text-muted-foreground">
+            {(['points', 'results', 'winRate', 'kills', 'opponents', 'shared'] as const).map(
+              (step) => (
+                <li key={step}>{i18n.t(`app.tournament.standingsInfo.${step}`)}</li>
+              ),
+            )}
+          </ol>
+          <p className="mt-4 text-xs leading-5 text-muted-foreground">
+            {i18n.t('app.tournament.standingsInfo.outcomes')}
+          </p>
+          <div className="mt-5 flex justify-end">
+            <Button className={primary} onClick={() => setShowInfo(false)}>
+              {i18n.t('app.tournament.standingsInfo.close')}
+            </Button>
+          </div>
+        </Modal>
+      )}
       {rows.length > 0 && (
         <ol className="standings-podium">
           {rows.slice(0, 3).map((row) => (
@@ -131,7 +172,7 @@ export function Standings() {
                 <td>{row.draws}</td>
                 <td>{row.winRate.toFixed(1)}%</td>
                 <td>{row.kills}</td>
-                <td>{row.opponentStrength}</td>
+                <td>{row.opponentStrength.toFixed(1)}</td>
                 <td>{row.roundsPlayed}</td>
               </tr>
             ))}

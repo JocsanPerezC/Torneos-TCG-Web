@@ -5,6 +5,8 @@ export type ManagedUser = {
   id: string;
   email: string;
   displayName: string;
+  nickname: string;
+  avatarUrl: string | null;
   role: AssignableRole | 'super_admin';
   createdAt: string;
   lastAccess: LoginAccess | null;
@@ -18,6 +20,12 @@ export type LoginAccess = {
   maskedIp: string;
 };
 type UserInput = { displayName: string; email: string; password?: string; role: AssignableRole };
+/** Al editar también se cambian el apodo y, si se pide, la foto (en base64) o su eliminación. */
+type UserUpdate = UserInput & {
+  nickname: string;
+  avatar?: { data: string; type: string };
+  removeAvatar?: boolean;
+};
 
 async function invoke<T>(body: Record<string, unknown>): Promise<T> {
   if (!supabase) throw new Error('Supabase no está configurado.');
@@ -54,7 +62,7 @@ export async function recordLoginAccess() {
 export async function createManagedUser(input: Required<UserInput>) {
   await invoke({ action: 'create', ...input });
 }
-export async function updateManagedUser(id: string, input: UserInput) {
+export async function updateManagedUser(id: string, input: UserUpdate) {
   await invoke({ action: 'update', id, ...input });
 }
 export async function deleteManagedUser(id: string) {

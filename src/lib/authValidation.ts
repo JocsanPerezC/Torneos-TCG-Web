@@ -20,6 +20,8 @@ export const PASSWORD_MAX_LENGTH = 128;
 export const NAME_MAX_LENGTH = 80;
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
+export const isValidEmail = (value: string) => EMAIL_PATTERN.test(value.trim());
+
 /** Revisa los campos visibles de cada pantalla y devuelve qué está mal en cada uno. */
 export function validateAuth(screen: AuthScreen, values: AuthValues): AuthErrors {
   const errors: AuthErrors = {};

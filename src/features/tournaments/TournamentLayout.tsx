@@ -17,7 +17,7 @@ export function TournamentLayout() {
   const { id } = useParams();
   const tournament = useTournament(id);
   const { ready } = useTournaments();
-  const { isAdmin, isPlayer, loading } = useAuth();
+  const { isAdmin, isSuperAdmin, isPlayer, loading } = useAuth();
   if (loading || !ready)
     return (
       <Layout wide>
@@ -27,7 +27,9 @@ export function TournamentLayout() {
         </div>
       </Layout>
     );
-  if (isAdmin) return <Navigate to="/admin" replace />;
+  // El superadministrador puede gestionar cualquier torneo (RLS: is_tournament_owner);
+  // un admin normal solo tiene lectura y vuelve a la consola.
+  if (isAdmin && !isSuperAdmin) return <Navigate to="/admin" replace />;
   if (isPlayer) return <Navigate to="/dashboard" replace />;
   if (!tournament)
     return (

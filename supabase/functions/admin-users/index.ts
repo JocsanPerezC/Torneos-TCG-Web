@@ -225,7 +225,7 @@ Deno.serve(async (request) => {
       const ids = data.users.map((user) => user.id);
       const { data: profiles, error: profilesError } = await adminClient
         .from('profiles')
-        .select('id, display_name, role, created_at')
+        .select('id, display_name, nickname, avatar_url, role, created_at')
         .in('id', ids);
       if (profilesError) throw profilesError;
       const { data: accessRows, error: accessError } = ids.length
@@ -251,6 +251,8 @@ Deno.serve(async (request) => {
               id: user.id,
               email: user.email ?? '',
               displayName: profile?.display_name ?? '',
+              nickname: profile?.nickname ?? '',
+              avatarUrl: profile?.avatar_url ?? null,
               role: profile?.role ?? 'organizer',
               createdAt: profile?.created_at ?? user.created_at,
               lastAccess: latestAccessByAccount.get(user.id) ?? null,
@@ -311,21 +313,74 @@ Deno.serve(async (request) => {
         throw new Error('Datos de cuenta inválidos');
       if (id === caller.id)
         throw new Error('No puedes modificar tu propia cuenta desde este panel');
+      if (password && password.length < 6)
+        throw new Error('La contraseña debe tener al menos 6 caracteres');
+
+      // Apodo: mismas reglas que el perfil (2 a 24 caracteres, único sin distinguir mayúsculas).
+      const nickname = text(body.nickname).replace(/\s+/g, ' ');
+      if (nickname.length < 2 || nickname.length > 24)
+        throw new Error('El apodo debe tener entre 2 y 24 caracteres');
+      const { count: nicknameTaken, error: nicknameError } = await adminClient
+        .from('profiles')
+        .select('id', { count: 'exact', head: true })
+        // ilike sin comodines: se escapan \, % y _ para comparar el texto tal cual.
+        .ilike('nickname', nickname.replace(/[\\%_]/g, (match) => `\\${match}`))
+        .neq('id', id);
+      if (nicknameError) throw nicknameError;
+      if ((nicknameTaken ?? 0) > 0) throw new Error('Ese apodo ya está en uso. Prueba con otro.');
+
+      // Foto: se valida antes de tocar nada; luego se sube o se borra en la carpeta de la cuenta.
+      const avatar = body.avatar as { data?: unknown; type?: unknown } | undefined;
+      let avatarBytes: Uint8Array | undefined;
+      const avatarType = text(avatar?.type);
+      if (avatar) {
+        if (!['image/jpeg', 'image/png', 'image/webp'].includes(avatarType))
+          throw new Error('La foto debe ser JPG, PNG o WebP');
+        avatarBytes = Uint8Array.from(atob(text(avatar.data)), (char) => char.charCodeAt(0));
+        if (!avatarBytes.length || avatarBytes.length > 2 * 1024 * 1024)
+          throw new Error('La foto debe pesar como máximo 2 MB');
+      }
+      const avatarBucket = adminClient.storage.from('profile-avatars');
+      let avatarUrl: string | null | undefined;
+      if (avatarBytes) {
+        const { error: uploadError } = await avatarBucket.upload(`${id}/avatar`, avatarBytes, {
+          upsert: true,
+          contentType: avatarType,
+        });
+        if (uploadError) throw uploadError;
+        avatarUrl = `${avatarBucket.getPublicUrl(`${id}/avatar`).data.publicUrl}?v=${Date.now()}`;
+      } else if (body.removeAvatar === true) {
+        const { data: files, error: listError } = await avatarBucket.list(id);
+        if (listError) throw listError;
+        if (files?.length) {
+          const { error: removeError } = await avatarBucket.remove(
+            files.map((file) => `${id}/${file.name}`),
+          );
+          if (removeError) throw removeError;
+        }
+        avatarUrl = null;
+      }
+
       const attributes: {
         email: string;
         password?: string;
-        user_metadata: { display_name: string };
+        user_metadata: { display_name: string; avatar_url?: string | null };
       } = { email, user_metadata: { display_name: displayName } };
-      if (password) {
-        if (password.length < 6) throw new Error('La contraseña debe tener al menos 6 caracteres');
-        attributes.password = password;
-      }
+      if (password) attributes.password = password;
+      if (avatarUrl !== undefined) attributes.user_metadata.avatar_url = avatarUrl;
       const { error } = await adminClient.auth.admin.updateUserById(id, attributes);
       if (error) throw error;
       const { error: updateError } = await adminClient
         .from('profiles')
-        .update({ display_name: displayName, role })
+        .update({
+          display_name: displayName,
+          nickname,
+          role,
+          ...(avatarUrl !== undefined ? { avatar_url: avatarUrl } : {}),
+        })
         .eq('id', id);
+      if (updateError?.code === '23505')
+        throw new Error('Ese apodo ya está en uso. Prueba con otro.');
       if (updateError) throw updateError;
       return Response.json(
         { ok: true },
