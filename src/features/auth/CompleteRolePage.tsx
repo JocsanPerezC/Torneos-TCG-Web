@@ -118,21 +118,11 @@ export function CompleteRolePage() {
                 />
                 <span>
                   {t('app.auth.legalAgreement')}{' '}
-                  <Link
-                    to="/terms"
-                    target="_blank"
-                    rel="noreferrer"
-                    className="app-text-link"
-                  >
+                  <Link to="/terms" target="_blank" rel="noreferrer" className="app-text-link">
                     {t('app.auth.terms')}
                   </Link>
                   {t('app.auth.legalAgreementConnector')}
-                  <Link
-                    to="/privacy"
-                    target="_blank"
-                    rel="noreferrer"
-                    className="app-text-link"
-                  >
+                  <Link to="/privacy" target="_blank" rel="noreferrer" className="app-text-link">
                     {t('app.auth.privacy')}
                   </Link>
                   {t('app.auth.legalAgreementSuffix')}

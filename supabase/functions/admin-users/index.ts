@@ -324,7 +324,10 @@ Deno.serve(async (request) => {
         .from('profiles')
         .select('id', { count: 'exact', head: true })
         // ilike sin comodines: se escapan \, % y _ para comparar el texto tal cual.
-        .ilike('nickname', nickname.replace(/[\\%_]/g, (match) => `\\${match}`))
+        .ilike(
+          'nickname',
+          nickname.replace(/[\\%_]/g, (match) => `\\${match}`),
+        )
         .neq('id', id);
       if (nicknameError) throw nicknameError;
       if ((nicknameTaken ?? 0) > 0) throw new Error('Ese apodo ya está en uso. Prueba con otro.');

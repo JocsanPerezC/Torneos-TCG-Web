@@ -234,21 +234,11 @@ export function Auth({ screen }: { screen: 'login' | 'register' | 'recovery' }) 
         />
         <span>
           {i18n.t('app.auth.legalAgreement')}{' '}
-          <Link
-            to="/terms"
-            target="_blank"
-            rel="noreferrer"
-            className="app-text-link"
-          >
+          <Link to="/terms" target="_blank" rel="noreferrer" className="app-text-link">
             {i18n.t('app.auth.terms')}
           </Link>
           {i18n.t('app.auth.legalAgreementConnector')}
-          <Link
-            to="/privacy"
-            target="_blank"
-            rel="noreferrer"
-            className="app-text-link"
-          >
+          <Link to="/privacy" target="_blank" rel="noreferrer" className="app-text-link">
             {i18n.t('app.auth.privacy')}
           </Link>
           {i18n.t('app.auth.legalAgreementSuffix')}
