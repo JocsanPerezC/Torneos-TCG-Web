@@ -124,6 +124,9 @@ export function IntroScene() {
             EDH <span>Tournaments</span>
           </h1>
           <p className="intro__description">{t('landing.intro.description')}</p>
+          <p className="intro__trusted">
+            <span aria-hidden="true">✦</span> {t('landing.intro.trustedBy')}
+          </p>
           <p className="intro__note">
             <span aria-hidden="true">✦</span> {t('landing.hero.noAccount')}
           </p>

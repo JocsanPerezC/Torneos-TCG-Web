@@ -10,7 +10,6 @@ export const en = {
       label: 'Navigation',
       menu: 'Open menu',
       howItWorks: 'How it works',
-      scoring: 'Scoring',
       faq: 'FAQ',
       dashboard: 'My tournaments',
       login: 'Sign in',
@@ -20,7 +19,7 @@ export const en = {
       eyebrow: 'Create Commander tournaments',
       title: 'You bring the cards. We keep score.',
       description:
-        'Build tables, record what happened, and share standings without chasing anyone on WhatsApp. Commander, other TCGs, and every rule your group invented.',
+        'Build tables, record what happened, and share standings without chasing anyone on WhatsApp. Multiplayer Commander, casual or cEDH, with every rule your group invented.',
       noAccount: 'Your friends do not need an account. Just the urge to win.',
     },
     preview: {
@@ -53,24 +52,6 @@ export const en = {
       step3Title: 'See the board',
       step3Description: 'Standings arrange themselves. Magic, but the useful kind.',
     },
-    features: {
-      eyebrow: 'YOUR RULE, YOUR SCOREBOARD',
-      title: 'Move a counter. Watch everything change.',
-      description:
-        'Every Commander group scores its own way. Try the board: standings react right away.',
-      win: 'Win',
-      kill: 'Kill',
-      draw: 'Draw',
-      rulesTitle: 'Example scoring',
-      rulesHint: 'Adjust it to how your table plays.',
-      rulesFootnote: 'There is no points police. Thankfully.',
-      decrease: 'Lower {{label}} points',
-      increase: 'Raise {{label}} points',
-      previewLabel: 'PRACTICE STANDINGS',
-      previewLive: 'reordering',
-      points: 'pts',
-      previewNote: 'Numbers change; rivalries remain.',
-    },
     benefits: {
       eyebrow: 'MADE FOR THE TABLE',
       title: 'More playmat. Less spreadsheet.',
@@ -79,8 +60,8 @@ export const en = {
       marginNote: 'The one fixed rule: nobody should lose to a bad sum.',
       groupTitle: 'Bring your people',
       groupDescription: 'Add names, withdrawals, and the late arrival without breaking the round.',
-      gameTitle: 'Play what you play',
-      gameDescription: 'Commander, another TCG, or a home format with way too many exceptions.',
+      gameTitle: 'Commander your way',
+      gameDescription: 'Casual, cEDH, or those house rules with way too many exceptions.',
       simpleTitle: 'Share without chasing',
       simpleDescription: 'Send a public link and let the standings speak for you.',
     },
@@ -90,13 +71,13 @@ export const en = {
       description: 'The questions that come up while someone looks for basic lands.',
       accountQuestion: 'Do my friends need an account?',
       accountAnswer:
-        'No. Only the organizer signs in. Everyone else opens the public link, sees the tables, and judges pairings as tradition demands.',
+        'No. The organizer can add anyone with just a name, and everyone follows the tournament from the public link. Anyone who wants can create a player account to join with a code, save their decks, and see their stats.',
       scoringQuestion: 'Can I use a different scoring system?',
       scoringAnswer:
-        'Yes. Set the points your group uses for wins, kills, draws, or any rule that has already survived several debates.',
-      gameQuestion: 'Does it work for other TCGs?',
+        'Yes. At each table you enter the points your group uses, for wins, kills, draws, or any house rule, and the standings are calculated from them.',
+      gameQuestion: 'Does it work for cEDH or casual Commander?',
       gameAnswer:
-        'Yes. Name, format, and scoring adapt to whatever your community plays. We will not tell anyone if it is not Commander.',
+        'Yes. It is built for multiplayer Commander, at tables of 3 to 5 players: casual, cEDH, or your group’s house rules. You enter the points and the app builds the tables and the standings.',
       shareQuestion: 'How do I share the standings?',
       shareAnswer:
         'Every public tournament has a read-only link. Send it to the group and skip the blurry notebook photos.',
@@ -235,6 +216,7 @@ export const en = {
       titleAccent: 'cards',
       titleAfter: '.',
       scrollHint: 'Keep scrolling',
+      trustedBy: 'Already used by several game stores in Costa Rica',
       sceneLabel: 'Commander table with four players',
       description:
         'We keep score. Build Commander tables, record what happened, and share standings without chasing anyone on WhatsApp.',
@@ -250,6 +232,9 @@ export const en = {
     rail: {
       roundsTitle: 'Rounds in one tap',
       roundsDescription: 'Generate the next round and deal new tables without redoing the math.',
+      playersTitle: 'An account for every player',
+      playersDescription:
+        'Players join with a code or QR, see their history and stats, save their Moxfield decks, and track life with the counter.',
     },
   },
   app: {
@@ -789,7 +774,7 @@ export const en = {
           {
             title: '1. Data controller and contact',
             paragraphs: [
-              'The data controller is [DATA CONTROLLER NAME], located in [COUNTRY OR ADDRESS]. For privacy requests or questions, contact [CONTACT EMAIL].',
+              'The data controller is Jocsan Pérez Coto, located in San José, Costa Rica. For privacy requests or questions, contact jocsanperezcoto@gmail.com.',
             ],
           },
           {
@@ -829,13 +814,13 @@ export const en = {
           {
             title: '7. Your rights and account deletion',
             paragraphs: [
-              'Subject to applicable law, you may request access, correction, updating, deletion, or restriction of your personal information, and may withdraw consent. To request account and data deletion, email [CONTACT EMAIL] from the account email address with the subject “Account deletion request.” We may request identity verification before acting. Deletion may remove the account and its associated tournament data; limited information may be retained where necessary for security, fraud prevention, or legal obligations.',
+              'Subject to applicable law, you may request access, correction, updating, deletion, or restriction of your personal information, and may withdraw consent. To request account and data deletion, email jocsanperezcoto@gmail.com from the account email address with the subject “Account deletion request.” We may request identity verification before acting. Deletion may remove the account and its associated tournament data; limited information may be retained where necessary for security, fraud prevention, or legal obligations.',
             ],
           },
           {
             title: '8. Cookies, local storage, and children',
             paragraphs: [
-              'The application does not intentionally use non-essential advertising cookies or third-party cookies for analytics. Vercel Web Analytics measures visits with aggregated data and without third-party cookies. It uses only the local storage and session technologies described above, plus any strictly necessary provider storage for authentication. We do not knowingly offer the service to children where parental consent is required by applicable law. If you believe a child has provided personal information without appropriate authorization, contact us at [CONTACT EMAIL].',
+              'The application does not intentionally use non-essential advertising cookies or third-party cookies for analytics. Vercel Web Analytics measures visits with aggregated data and without third-party cookies. It uses only the local storage and session technologies described above, plus any strictly necessary provider storage for authentication. We do not knowingly offer the service to children where parental consent is required by applicable law. If you believe a child has provided personal information without appropriate authorization, contact us at jocsanperezcoto@gmail.com.',
             ],
           },
           {
@@ -855,7 +840,7 @@ export const en = {
           {
             title: '1. Service and responsible party',
             paragraphs: [
-              'EDH Tournaments is a platform for organizers to create multiplayer TCG tournaments, manage participants, rounds, results, and standings, and optionally share a public tournament view. The service is operated by [DATA CONTROLLER NAME], reachable at [CONTACT EMAIL].',
+              'EDH Tournaments is a platform for organizers to create multiplayer TCG tournaments, manage participants, rounds, results, and standings, and optionally share a public tournament view. The service is operated by Jocsan Pérez Coto, reachable at jocsanperezcoto@gmail.com.',
             ],
           },
           {
@@ -898,7 +883,7 @@ export const en = {
           {
             title: '8. Suspension, cancellation, and deletion',
             paragraphs: [
-              'We may suspend or remove access where reasonably necessary to protect the service, users, or legal rights. You may stop using the service at any time. To request deletion of your account and related personal data, follow the process in the Privacy Policy by contacting [CONTACT EMAIL]; identity verification may be required.',
+              'We may suspend or remove access where reasonably necessary to protect the service, users, or legal rights. You may stop using the service at any time. To request deletion of your account and related personal data, follow the process in the Privacy Policy by contacting jocsanperezcoto@gmail.com; identity verification may be required.',
             ],
           },
           {
@@ -910,7 +895,7 @@ export const en = {
           {
             title: '10. Changes, governing law, and contact',
             paragraphs: [
-              'We may update these Terms when the service or applicable requirements change. The effective date will be shown at the top of this page. Applicable law and venue should be confirmed by [DATA CONTROLLER NAME] with a qualified legal professional. Questions about these Terms can be sent to [CONTACT EMAIL].',
+              'We may update these Terms when the service or applicable requirements change. The effective date will be shown at the top of this page. Applicable law and venue should be confirmed by Jocsan Pérez Coto with a qualified legal professional. Questions about these Terms can be sent to jocsanperezcoto@gmail.com.',
             ],
           },
         ],

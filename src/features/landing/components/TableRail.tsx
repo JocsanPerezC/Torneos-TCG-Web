@@ -26,6 +26,7 @@ export function TableRail() {
     [t('landing.benefits.gameTitle'), t('landing.benefits.gameDescription')],
     [t('landing.benefits.simpleTitle'), t('landing.benefits.simpleDescription')],
     [t('landing.rail.roundsTitle'), t('landing.rail.roundsDescription')],
+    [t('landing.rail.playersTitle'), t('landing.rail.playersDescription')],
     [t('landing.idea.title'), t('landing.idea.description')],
   ];
 

@@ -1,4 +1,4 @@
-// Textos en español. Mantené las mismas claves en es.ts y en.ts.
+// Textos en español. Mantén las mismas claves en es.ts y en.ts.
 export const es = {
   language: {
     label: 'Idioma',
@@ -10,7 +10,6 @@ export const es = {
       label: 'Navegación',
       menu: 'Abrir menú',
       howItWorks: 'Cómo funciona',
-      scoring: 'Puntuación',
       faq: 'Preguntas frecuentes',
       dashboard: 'Ir a mis torneos',
       login: 'Iniciar sesión',
@@ -18,9 +17,9 @@ export const es = {
     },
     hero: {
       eyebrow: 'Crea torneos de Commander',
-      title: 'Vos ponés las cartas. Nosotros llevamos las cuentas.',
+      title: 'Tú pones las cartas. Nosotros llevamos las cuentas.',
       description:
-        'Armá mesas, registrá lo que pasó y compartí posiciones sin perseguir a nadie por WhatsApp. Commander, otros TCG y todas esas reglas que tu grupo inventó.',
+        'Arma mesas, registra lo que pasó y comparte posiciones sin perseguir a nadie por WhatsApp. Commander multijugador, casual o cEDH, con todas esas reglas que tu grupo inventó.',
       noAccount: 'Tus amistades no necesitan cuenta. Solo ganas de ganarte.',
     },
     preview: {
@@ -45,31 +44,13 @@ export const es = {
       eyebrow: 'LA JUGADA EN TRES PASOS',
       title: 'De “¿quién va con quién?” a posiciones listas.',
       description:
-        'La app sigue el recorrido que ya hacés en la mesa; solo le ahorra drama a tu libreta.',
-      step1Title: 'Repartí la mesa',
-      step1Description: 'Armá pods de 3 a 5 personas sin hacer Tetris humano.',
-      step2Title: 'Anotá la batalla',
+        'La app sigue el recorrido que ya haces en la mesa; solo le ahorra drama a tu libreta.',
+      step1Title: 'Reparte la mesa',
+      step1Description: 'Arma pods de 3 a 5 personas sin hacer Tetris humano.',
+      step2Title: 'Anota la batalla',
       step2Description: 'Puntos, kills y resultados antes de que alguien los recuerde distinto.',
-      step3Title: 'Mirá el tablero',
+      step3Title: 'Mira el tablero',
       step3Description: 'La clasificación se acomoda sola. Magia, pero de la útil.',
-    },
-    features: {
-      eyebrow: 'TU REGLA, TU MARCADOR',
-      title: 'Mové una ficha. Mirá cómo cambia todo.',
-      description:
-        'Cada grupo puntúa Commander a su manera. Probá el marcador: la clasificación responde al toque.',
-      win: 'Victoria',
-      kill: 'Kill',
-      draw: 'Empate',
-      rulesTitle: 'Puntuación de ejemplo',
-      rulesHint: 'Ajustala como juega tu mesa.',
-      rulesFootnote: 'No hay una policía de puntos. Por dicha.',
-      decrease: 'Bajar puntos de {{label}}',
-      increase: 'Subir puntos de {{label}}',
-      previewLabel: 'CLASIFICACIÓN DE PRUEBA',
-      previewLive: 'se reordena',
-      points: 'pts',
-      previewNote: 'Los números cambian; la rivalidad queda.',
     },
     benefits: {
       eyebrow: 'HECHA PARA LA MESA',
@@ -77,12 +58,12 @@ export const es = {
       description: 'La organización debería desaparecer justo cuando empieza la partida.',
       mapLabel: 'TODO EN SU LUGAR',
       marginNote: 'La única regla fija: nadie debería perder por una suma mal hecha.',
-      groupTitle: 'Traé a tu gente',
-      groupDescription: 'Agregá nombres, retirados y quien llegó tarde sin romper la ronda.',
-      gameTitle: 'Jugá lo que juegan',
-      gameDescription: 'Commander, otro TCG o un formato casero con demasiadas excepciones.',
-      simpleTitle: 'Compartí sin perseguir',
-      simpleDescription: 'Mandá un enlace público y dejá que la clasificación hable por vos.',
+      groupTitle: 'Trae a tu gente',
+      groupDescription: 'Agrega nombres, retirados y quien llegó tarde sin romper la ronda.',
+      gameTitle: 'Commander a tu manera',
+      gameDescription: 'Casual, cEDH o con esas reglas caseras que tienen demasiadas excepciones.',
+      simpleTitle: 'Comparte sin perseguir',
+      simpleDescription: 'Manda un enlace público y deja que la clasificación hable por ti.',
     },
     faq: {
       eyebrow: 'PREGUNTAS DE ÚLTIMA HORA',
@@ -90,16 +71,16 @@ export const es = {
       description: 'Las dudas que suelen salir mientras alguien busca tierras básicas.',
       accountQuestion: '¿Mis amistades necesitan una cuenta?',
       accountAnswer:
-        'No. Solo quien organiza inicia sesión. El resto entra al enlace público, mira mesas y opina de los emparejamientos como corresponde.',
+        'No. Quien organiza puede agregar a cualquiera solo con su nombre, y todos siguen el torneo desde el enlace público. Si alguien quiere, crea una cuenta de jugador para unirse con un código, guardar sus mazos y ver sus estadísticas.',
       scoringQuestion: '¿Puedo usar otra puntuación?',
       scoringAnswer:
-        'Sí. Configurá los puntos que use tu grupo para victorias, kills, empates o cualquier regla que ya haya sobrevivido varias discusiones.',
-      gameQuestion: '¿Sirve para otros TCG?',
+        'Sí. En cada mesa anotas los puntos que use tu grupo, por victoria, kill, empate o cualquier regla casera, y la clasificación se calcula con ellos.',
+      gameQuestion: '¿Sirve para cEDH o Commander casual?',
       gameAnswer:
-        'Sí. El nombre, formato y puntuación se adaptan a lo que juegue tu comunidad. No le contamos a nadie si no es Commander.',
+        'Sí. Está pensada para Commander multijugador, en mesas de 3 a 5 personas: casual, cEDH o con las reglas caseras de tu grupo. Tú anotas los puntos y la app arma las mesas y la clasificación.',
       shareQuestion: '¿Cómo comparto la clasificación?',
       shareAnswer:
-        'Cada torneo público tiene un enlace de solo lectura. Mandalo al grupo y evitá las fotos borrosas de una libreta.',
+        'Cada torneo público tiene un enlace de solo lectura. Mándalo al grupo y evita las fotos borrosas de una libreta.',
     },
     idea: {
       eyebrow: 'UNA IDEA NACIDA EN LA MESA',
@@ -117,7 +98,7 @@ export const es = {
       eyebrow: 'ÚLTIMA LLAMADA A MESA',
       title: '¿Cuándo es la próxima mesa?',
       description:
-        'Creá el torneo antes de que alguien diga “yo llevo las cuentas” y desaparezca en la ronda dos.',
+        'Crea el torneo antes de que alguien diga “yo llevo las cuentas” y desaparezca en la ronda dos.',
       button: 'Crear mi primer torneo',
       sideNote: 'Mulligan gratis. Caos organizado.',
     },
@@ -127,13 +108,13 @@ export const es = {
       createAccount: 'Crear cuenta',
       exit: 'Salir del modo prueba',
       ctaDescription:
-        'Probá el flujo completo antes de crear tu cuenta. Tus datos se quedan solo en esta pestaña.',
+        'Prueba el flujo completo antes de crear tu cuenta. Tus datos se quedan solo en esta pestaña.',
       eyebrow: 'MODO PRUEBA',
-      createTitle: 'Armá un torneo de prueba',
+      createTitle: 'Arma un torneo de prueba',
       createDescription:
-        'Probá el recorrido de una mesa real: agregá jugadores, registrá resultados y mirá cómo se ordena el torneo.',
+        'Prueba el recorrido de una mesa real: agrega jugadores, registra resultados y mira cómo se ordena el torneo.',
       reloadWarning: 'Modo prueba: los datos se eliminarán al recargar esta página.',
-      invalidSetup: 'Completá una configuración válida: al menos 3 jugadores y 1 mesa.',
+      invalidSetup: 'Completa una configuración válida: al menos 3 jugadores y 1 mesa.',
       tournamentName: 'Nombre del torneo',
       namePlaceholder: 'Commander de sábado',
       format: 'Juego o formato',
@@ -160,33 +141,33 @@ export const es = {
       currentRound: 'Ronda actual',
       currentRoundLabel: 'Ronda {{number}}',
       readyForPlayers: 'Todo listo para la primera mesa',
-      readyForPlayersDescription: 'Agregá al menos tres jugadores para generar la primera ronda.',
+      readyForPlayersDescription: 'Agrega al menos tres jugadores para generar la primera ronda.',
       roundStatus: {
         borrador: 'La ronda está lista para iniciar.',
-        activa: 'Registrá los puntos, kills y resultados de cada mesa.',
-        completada: 'Resultados guardados. Ya podés generar la siguiente ronda.',
+        activa: 'Registra los puntos, kills y resultados de cada mesa.',
+        completada: 'Resultados guardados. Ya puedes generar la siguiente ronda.',
       },
       playerCount: '{{count}} de {{max}} jugadores',
       players: 'jugadores',
       noPlayers: 'Todavía no hay jugadores en la mesa.',
       addPlayers: 'Agregar jugadores',
-      addPlayersDescription: 'Escribí un nombre por línea.',
+      addPlayersDescription: 'Escribe un nombre por línea.',
       playersPlaceholder: 'Ana\nBruno\nCarla',
       playerLimit: 'El torneo admite un máximo de {{count}} jugadores.',
       playersAdded: '{{count}} jugador(es) agregado(s).',
       duplicatePlayer: 'Esos jugadores ya estaban agregados.',
-      enterPlayer: 'Escribí al menos un nombre nuevo.',
-      roundsDescription: 'Generá una ronda, iniciála y anotá los resultados de cada mesa.',
+      enterPlayer: 'Escribe al menos un nombre nuevo.',
+      roundsDescription: 'Genera una ronda, iníciala y anota los resultados de cada mesa.',
       generateRound: 'Generar ronda',
-      noRounds: 'Todavía no hay rondas. Agregá jugadores y generá la primera.',
+      noRounds: 'Todavía no hay rondas. Agrega jugadores y genera la primera.',
       finishedReadOnly: 'El torneo finalizado es solo de lectura.',
-      completeCurrentRound: 'Terminá la ronda actual antes de generar otra.',
+      completeCurrentRound: 'Termina la ronda actual antes de generar otra.',
       allRoundsGenerated: 'Ya se generaron todas las rondas planificadas.',
       minimumPlayers: 'Se requieren al menos tres jugadores activos para generar una ronda.',
-      roundGenerated: 'Ronda generada. Iniciála cuando las mesas estén listas.',
+      roundGenerated: 'Ronda generada. Iníciala cuando las mesas estén listas.',
       roundStarted: 'Ronda iniciada. El cronómetro está corriendo.',
-      completeResults: 'Completá puntos y kills válidos para todas las mesas.',
-      completeOutcomes: 'Elegí un resultado para cada jugador antes de terminar la ronda.',
+      completeResults: 'Completa puntos y kills válidos para todas las mesas.',
+      completeOutcomes: 'Elige un resultado para cada jugador antes de terminar la ronda.',
       roundCompleted: 'Ronda terminada. La clasificación se actualizó.',
       startRound: 'Iniciar ronda',
       completeRound: 'Terminar ronda',
@@ -194,27 +175,27 @@ export const es = {
       points: 'Puntos',
       kills: 'Kills',
       outcome: 'Resultado',
-      chooseOutcome: 'Elegí un resultado',
+      chooseOutcome: 'Elige un resultado',
       win: 'Victoria',
       loss: 'Derrota',
       draw: 'Empate',
       standingsDescription: 'El podio está a la vista; el resto del tablero espera tu cuenta.',
       player: 'Jugador',
       noStandings: 'La clasificación aparecerá cuando guardés resultados.',
-      standingsLocked: 'Creá una cuenta para desbloquear la clasificación completa.',
+      standingsLocked: 'Crea una cuenta para desbloquear la clasificación completa.',
       statisticsTitle: 'Las estadísticas están tras un hechizo',
       statisticsLocked:
-        'Las estadísticas avanzadas están esperando su invocador. Creá una cuenta para desbloquearlas.',
+        'Las estadísticas avanzadas están esperando su invocador. Crea una cuenta para desbloquearlas.',
       settingsTitle: 'Configuración del torneo',
-      settingsLocked: 'Creá una cuenta para modificar la configuración del torneo.',
+      settingsLocked: 'Crea una cuenta para modificar la configuración del torneo.',
       finishTitle: 'Cerrar la mesa',
-      finishDescription: 'Podés terminar este torneo de prueba cuando no haya rondas pendientes.',
+      finishDescription: 'Puedes terminar este torneo de prueba cuando no haya rondas pendientes.',
       finish: 'Finalizar torneo',
-      finishIncomplete: 'Terminá la ronda actual antes de finalizar el torneo.',
+      finishIncomplete: 'Termina la ronda actual antes de finalizar el torneo.',
       tournamentFinished: 'Torneo de prueba finalizado.',
       historyTitle: 'El archivo de mesas espera tu cuenta',
       historyLocked:
-        'Creá una cuenta para guardar y consultar el historial de tus torneos terminados.',
+        'Crea una cuenta para guardar y consultar el historial de tus torneos terminados.',
       createAccountShort: 'Cuenta',
       exitShort: 'Salir',
     },
@@ -230,13 +211,14 @@ export const es = {
     },
     intro: {
       kicker: 'Torneos de Commander · EDH',
-      titleBefore: 'Vos ponés las ',
+      titleBefore: 'Tú pones las ',
       titleAccent: 'cartas',
       titleAfter: '.',
-      scrollHint: 'Seguí bajando',
+      scrollHint: 'Sigue bajando',
+      trustedBy: 'Ya se usa en varias tiendas de Costa Rica',
       sceneLabel: 'Mesa de Commander con cuatro jugadores',
       description:
-        'Nosotros llevamos las cuentas. Armá mesas de Commander, registrá lo que pasó y compartí posiciones sin perseguir a nadie por WhatsApp.',
+        'Nosotros llevamos las cuentas. Arma mesas de Commander, registra lo que pasó y comparte posiciones sin perseguir a nadie por WhatsApp.',
       points: 'pts',
     },
     night: {
@@ -248,7 +230,10 @@ export const es = {
     },
     rail: {
       roundsTitle: 'Rondas en un toque',
-      roundsDescription: 'Generá la siguiente ronda y repartí mesas nuevas sin rehacer cuentas.',
+      roundsDescription: 'Genera la siguiente ronda y reparte mesas nuevas sin rehacer cuentas.',
+      playersTitle: 'Una cuenta para cada jugador',
+      playersDescription:
+        'Se unen con un código o QR, ven su historial y estadísticas, guardan sus mazos de Moxfield y llevan las vidas con el contador.',
     },
   },
   app: {
@@ -390,7 +375,7 @@ export const es = {
       loading: 'Barajando tus torneos…',
       active: 'En juego',
       finished: 'Archivo de mesa',
-      noTournaments: 'Todavía no hay nada por acá. Cuando aparezca una mesa, la dejamos lista.',
+      noTournaments: 'Todavía no hay nada por aquí. Cuando aparezca una mesa, la dejamos lista.',
       playersAndRounds: '{{players}} activos · {{rounds}} rondas',
       deleteTitle: 'Eliminar torneo',
       deleteDescription:
@@ -796,7 +781,7 @@ export const es = {
           {
             title: '1. Responsable del tratamiento y contacto',
             paragraphs: [
-              'El responsable del tratamiento es [NOMBRE DEL RESPONSABLE], ubicado en [PAÍS O DIRECCIÓN]. Para solicitudes o consultas de privacidad, escribe a [CONTACT EMAIL].',
+              'El responsable del tratamiento es Jocsan Pérez Coto, ubicado en San José, Costa Rica. Para solicitudes o consultas de privacidad, escribe a jocsanperezcoto@gmail.com.',
             ],
           },
           {
@@ -836,13 +821,13 @@ export const es = {
           {
             title: '7. Tus derechos y eliminación de cuenta',
             paragraphs: [
-              'Sujeto a la ley aplicable, puedes solicitar acceso, corrección, actualización, eliminación o restricción de tu información personal, y retirar el consentimiento. Para solicitar la eliminación de tu cuenta y datos, escribe a [CONTACT EMAIL] desde el correo de la cuenta con el asunto “Solicitud de eliminación de cuenta”. Podemos solicitar verificación de identidad antes de actuar. La eliminación puede retirar la cuenta y sus datos de torneos asociados; puede conservarse información limitada cuando sea necesaria para seguridad, prevención de fraude u obligaciones legales.',
+              'Sujeto a la ley aplicable, puedes solicitar acceso, corrección, actualización, eliminación o restricción de tu información personal, y retirar el consentimiento. Para solicitar la eliminación de tu cuenta y datos, escribe a jocsanperezcoto@gmail.com desde el correo de la cuenta con el asunto “Solicitud de eliminación de cuenta”. Podemos solicitar verificación de identidad antes de actuar. La eliminación puede retirar la cuenta y sus datos de torneos asociados; puede conservarse información limitada cuando sea necesaria para seguridad, prevención de fraude u obligaciones legales.',
             ],
           },
           {
             title: '8. Cookies, almacenamiento local y menores de edad',
             paragraphs: [
-              'La aplicación no utiliza intencionalmente cookies no esenciales de publicidad ni cookies de terceros para la analítica. Vercel Web Analytics mide las visitas con datos agregados y sin cookies de terceros. Solo utiliza el almacenamiento local y las tecnologías de sesión descritas arriba, además del almacenamiento estrictamente necesario de proveedores para autenticación. No ofrecemos deliberadamente el servicio a menores de edad cuando la ley aplicable requiere consentimiento parental. Si crees que un menor proporcionó información personal sin autorización adecuada, contáctanos en [CONTACT EMAIL].',
+              'La aplicación no utiliza intencionalmente cookies no esenciales de publicidad ni cookies de terceros para la analítica. Vercel Web Analytics mide las visitas con datos agregados y sin cookies de terceros. Solo utiliza el almacenamiento local y las tecnologías de sesión descritas arriba, además del almacenamiento estrictamente necesario de proveedores para autenticación. No ofrecemos deliberadamente el servicio a menores de edad cuando la ley aplicable requiere consentimiento parental. Si crees que un menor proporcionó información personal sin autorización adecuada, contáctanos en jocsanperezcoto@gmail.com.',
             ],
           },
           {
@@ -862,7 +847,7 @@ export const es = {
           {
             title: '1. Servicio y parte responsable',
             paragraphs: [
-              'EDH Tournaments es una plataforma para que organizadores creen torneos multijugador de TCG, administren participantes, rondas, resultados y clasificaciones, y opcionalmente compartan una vista pública del torneo. El servicio es operado por [NOMBRE DEL RESPONSABLE], disponible en [CONTACT EMAIL].',
+              'EDH Tournaments es una plataforma para que organizadores creen torneos multijugador de TCG, administren participantes, rondas, resultados y clasificaciones, y opcionalmente compartan una vista pública del torneo. El servicio es operado por Jocsan Pérez Coto, disponible en jocsanperezcoto@gmail.com.',
             ],
           },
           {
@@ -905,7 +890,7 @@ export const es = {
           {
             title: '8. Suspensión, cancelación y eliminación',
             paragraphs: [
-              'Podemos suspender o retirar el acceso cuando sea razonablemente necesario para proteger el servicio, sus usuarios o derechos legales. Puedes dejar de usar el servicio en cualquier momento. Para solicitar la eliminación de tu cuenta y datos personales relacionados, sigue el proceso de la Política de privacidad contactando a [CONTACT EMAIL]; puede requerirse verificación de identidad.',
+              'Podemos suspender o retirar el acceso cuando sea razonablemente necesario para proteger el servicio, sus usuarios o derechos legales. Puedes dejar de usar el servicio en cualquier momento. Para solicitar la eliminación de tu cuenta y datos personales relacionados, sigue el proceso de la Política de privacidad contactando a jocsanperezcoto@gmail.com; puede requerirse verificación de identidad.',
             ],
           },
           {
@@ -917,7 +902,7 @@ export const es = {
           {
             title: '10. Cambios, ley aplicable y contacto',
             paragraphs: [
-              'Podemos actualizar estos Términos cuando cambie el servicio o los requisitos aplicables. La fecha de vigencia se mostrará al inicio de esta página. La ley aplicable y jurisdicción deben ser confirmadas por [NOMBRE DEL RESPONSABLE] con un profesional legal calificado. Las preguntas sobre estos Términos pueden enviarse a [CONTACT EMAIL].',
+              'Podemos actualizar estos Términos cuando cambie el servicio o los requisitos aplicables. La fecha de vigencia se mostrará al inicio de esta página. La ley aplicable y jurisdicción deben ser confirmadas por Jocsan Pérez Coto con un profesional legal calificado. Las preguntas sobre estos Términos pueden enviarse a jocsanperezcoto@gmail.com.',
             ],
           },
         ],
@@ -964,7 +949,7 @@ export const es = {
       foundations: 'Fundamentos',
       tokens: 'Paleta de tokens',
       typography: 'Escala tipográfica',
-      typeSample: 'Vos ponés las cartas',
+      typeSample: 'Tú pones las cartas',
       radii: 'Radios',
       shadows: 'Sombras',
       withIcon: 'Con ícono',
@@ -1000,7 +985,7 @@ export const es = {
       shellContent: 'Contenido de la página',
       signedIn: 'con sesión',
       signedOut: 'sin sesión',
-      menuHint: 'Tocá la hamburguesa para abrir el menú.',
+      menuHint: 'Toca la hamburguesa para abrir el menú.',
       metrics: 'Métricas',
       tournament: 'Torneo',
       notStarted: 'Sin iniciar (no se dibuja)',
@@ -1157,7 +1142,7 @@ export const es = {
       podiums: 'Podios',
       podiumsHelp:
         'Los podios se cuentan al finalizar el torneo o completar todas sus rondas planificadas.',
-      empty: 'Unite a un torneo con esta cuenta para comenzar tu historial.',
+      empty: 'Únete a un torneo con esta cuenta para comenzar tu historial.',
       recentForm: 'Forma reciente',
       outcome: { win: 'V', draw: 'E', loss: 'D' },
       lastResult: 'Última: {{tournament}} · Ronda {{round}}',
@@ -1185,7 +1170,7 @@ export const es = {
       invitations: 'Invitaciones y QR',
       otherActive: 'Otros torneos activos',
       noActiveTitle: 'No hay torneos en curso',
-      noActiveDescription: 'Creá un torneo cuando estés listo para organizar la próxima mesa.',
+      noActiveDescription: 'Crea un torneo cuando estés listo para organizar la próxima mesa.',
     },
     join: {
       title: 'Unirse a un torneo',
@@ -1237,10 +1222,10 @@ export const es = {
       revoked: 'Código revocado.',
       revokeFailed: 'No se pudo revocar el código.',
       showCode: 'Ver código y QR',
-      displayDescription: 'Comparte el código o escaneá el QR para unirse al torneo.',
+      displayDescription: 'Comparte el código o escanea el QR para unirse al torneo.',
       qrAlt: 'Código QR con el enlace de invitación',
-      scanQr: 'Escaneá este QR para abrir la invitación.',
-      qrFailed: 'No se pudo generar el QR. Compartí el código o copiá el enlace.',
+      scanQr: 'Escanea este QR para abrir la invitación.',
+      qrFailed: 'No se pudo generar el QR. Comparte el código o copia el enlace.',
     },
     profile: {
       title: 'Mi perfil',
@@ -1251,7 +1236,7 @@ export const es = {
       removeAvatar: 'Quitar foto',
       cropAvatarTitle: 'Ajustar foto',
       cropAvatarDescription: 'Encuadra tu foto antes de guardarla.',
-      cropAvatarHelp: 'Arrastrá el círculo para moverlo y usá el control para cambiar su tamaño.',
+      cropAvatarHelp: 'Arrastra el círculo para moverlo y usa el control para cambiar su tamaño.',
       zoom: 'Zoom',
       cropSize: 'Tamaño del recorte',
       usePhoto: 'Usar foto',
@@ -1276,12 +1261,12 @@ export const es = {
       deleteConfirm:
         'Se eliminarán tu cuenta y el acceso a tus datos. Esta acción no se puede deshacer.',
       deleteKeyword: 'ELIMINAR',
-      deleteTypeConfirmStart: 'Escribí',
+      deleteTypeConfirmStart: 'Escribe',
       deleteTypeConfirmEnd: 'para confirmar',
       deleting: 'Eliminando…',
       deleteFailed: 'No se pudo eliminar la cuenta.',
       avatarHelp: 'JPG, PNG o WebP de hasta 2 MB.',
-      avatarInvalid: 'Elegí una imagen JPG, PNG o WebP de hasta 2 MB.',
+      avatarInvalid: 'Elige una imagen JPG, PNG o WebP de hasta 2 MB.',
       role: 'Rol de cuenta',
       roles: {
         player: 'Jugador',

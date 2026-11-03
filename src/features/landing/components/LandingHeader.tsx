@@ -23,7 +23,6 @@ export function LandingHeader() {
   };
   const anchors = [
     ['#como-funciona', t('landing.navigation.howItWorks')],
-    ['#puntuacion', t('landing.navigation.scoring')],
     ['#preguntas', t('landing.navigation.faq')],
     ['#probar', t('landing.trial.action')],
   ];

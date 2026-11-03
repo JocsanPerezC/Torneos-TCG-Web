@@ -13,7 +13,6 @@ export function LandingFooter() {
           </div>
           <nav>
             <a href="#como-funciona">{t('landing.navigation.howItWorks')}</a>
-            <a href="#puntuacion">{t('landing.navigation.scoring')}</a>
             <a href="#preguntas">{t('landing.navigation.faq')}</a>
             <Link to="/privacy" target="_blank" rel="noreferrer">
               {t('landing.footer.privacy')}

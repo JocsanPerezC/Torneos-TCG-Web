@@ -28,7 +28,6 @@ import {
   SwordLink,
 } from '@/features/tournaments/components/BattleGlyphs';
 import { LandingHeader } from '@/features/landing/components/LandingHeader';
-import { FeatureList } from '@/features/landing/components/FeatureList';
 import { Faq } from '@/features/landing/components/Faq';
 import { FinalCta } from '@/features/landing/components/FinalCta';
 import { LandingFooter } from '@/features/landing/components/LandingFooter';
@@ -433,9 +432,6 @@ export function LandingSection() {
       <p className="showcase-note m-0">{t('app.showcase.landingFrameHint')}</p>
       <ShowcaseAuthProvider signedIn={false}>
         <div className="landing-theme grid gap-5">
-          <Variant label="FeatureList" className="showcase-variant--bleed">
-            <FeatureList />
-          </Variant>
           <Variant label="Faq" className="showcase-variant--bleed">
             <Faq />
           </Variant>
