@@ -118,72 +118,6 @@
 .app-sidebar__link.is-accent svg {
   color: var(--primary-strong);
 }
-.app-sidebar__create {
-  display: flex;
-  min-height: 2.55rem;
-  align-items: center;
-  justify-content: center;
-  gap: 0.45rem;
-  margin: 0.85rem 0.15rem 1rem;
-  border: 1.5px solid var(--primary-strong);
-  border-radius: var(--app-radius-pill);
-  background: var(--primary);
-  color: #fff;
-  font-size: 0.8rem;
-  font-weight: 700;
-  text-decoration: none;
-  transition:
-    transform 150ms ease,
-    background 150ms ease,
-    box-shadow 150ms ease;
-}
-.app-sidebar__create:hover {
-  background: var(--primary-hover);
-  box-shadow: 2px 3px 0 rgba(17, 17, 17, 0.15);
-  transform: translateY(-2px);
-}
-.app-sidebar__create svg {
-  width: 1rem;
-  height: 1rem;
-}
-.app-sidebar__bottom {
-  display: grid;
-  gap: 0.65rem;
-}
-.app-sidebar__bottom > .app-sidebar__language {
-  padding-inline: 0.45rem;
-}
-.app-sidebar__footer {
-  padding-top: 0.85rem;
-  border-top: 1px solid var(--border);
-}
-.app-sidebar__account {
-  position: relative;
-}
-.app-sidebar__profile {
-  display: flex;
-  width: 100%;
-  min-width: 0;
-  align-items: center;
-  gap: 0.55rem;
-  border: 0;
-  border-radius: var(--app-radius-sm);
-  padding: 0.3rem 0.45rem;
-  background: transparent;
-  color: var(--foreground);
-  font: inherit;
-  text-align: left;
-  text-decoration: none;
-  cursor: pointer;
-}
-.app-sidebar__profile:hover,
-.app-sidebar__profile.is-open {
-  background: #f1eee3;
-}
-.app-sidebar__profile:focus-visible {
-  outline: 2px solid var(--accent);
-  outline-offset: 2px;
-}
 .app-sidebar__profile-avatar {
   display: grid;
   width: 2rem;
@@ -197,32 +131,6 @@
   font-size: 0.72rem;
   font-weight: 700;
 }
-.app-sidebar__profile-text {
-  display: grid;
-  min-width: 0;
-  line-height: 1.2;
-}
-.app-sidebar__profile-text strong,
-.app-sidebar__profile-text small {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-.app-sidebar__profile-text strong {
-  font-size: 0.8rem;
-}
-.app-sidebar__profile-text small {
-  color: var(--accent);
-  font-size: 0.68rem;
-  font-weight: 600;
-}
-.app-sidebar__profile > svg {
-  width: 0.9rem;
-  height: 0.9rem;
-  flex: none;
-  margin-left: auto;
-  color: var(--muted-foreground);
-}
 .app-sidebar__account-menu {
   position: absolute;
   z-index: 40;
@@ -235,8 +143,7 @@
   background: var(--paper);
   box-shadow: var(--app-shadow-md);
 }
-.app-sidebar__account-menu > p,
-.app-mobile-account > p {
+.app-sidebar__account-menu > p {
   margin: 0;
   padding: 0.35rem 0.45rem 0.45rem;
   color: var(--violet);
@@ -245,17 +152,8 @@
   letter-spacing: 0.06em;
   text-transform: uppercase;
 }
-.app-sidebar__account-role {
-  display: block;
-  padding: 0 0.45rem 0.4rem;
-  color: var(--muted-foreground);
-  font-size: 0.72rem;
-  font-weight: 700;
-}
 .app-sidebar__account-menu > a,
-.app-sidebar__account-menu > button,
-.app-mobile-account > a,
-.app-mobile-account > button {
+.app-sidebar__account-menu > button {
   display: flex;
   width: 100%;
   min-height: 2.5rem;
@@ -274,51 +172,38 @@
   cursor: pointer;
 }
 .app-sidebar__account-menu > a:hover,
-.app-sidebar__account-menu > button:hover,
-.app-mobile-account > a:hover,
-.app-mobile-account > button:hover {
+.app-sidebar__account-menu > button:hover {
   background: #f1eee3;
   color: var(--foreground);
 }
 .app-sidebar__account-menu > a:focus-visible,
-.app-sidebar__account-menu > button:focus-visible,
-.app-mobile-account > a:focus-visible,
-.app-mobile-account > button:focus-visible {
+.app-sidebar__account-menu > button:focus-visible {
   outline: 2px solid var(--accent);
   outline-offset: -2px;
 }
 .app-sidebar__account-menu > a svg,
-.app-sidebar__account-menu > button svg,
-.app-mobile-account > a svg,
-.app-mobile-account > button svg {
+.app-sidebar__account-menu > button svg {
   width: 0.95rem;
   height: 0.95rem;
   flex: none;
   color: var(--accent);
 }
-.app-sidebar__account-menu > div,
-.app-mobile-account > div {
+.app-sidebar__account-menu > div {
   height: 1px;
   margin: 0.35rem 0;
   background: var(--border);
 }
-.app-sidebar__account-menu > button,
-.app-mobile-account > button {
+.app-sidebar__account-menu > button {
   color: var(--danger-text);
 }
-.app-sidebar__account-menu > button:hover,
-.app-mobile-account > button:hover {
+.app-sidebar__account-menu > button:hover {
   background: #fff0ed;
   color: var(--danger-text);
 }
-.app-sidebar__account-menu > button svg,
-.app-mobile-account > button svg {
+.app-sidebar__account-menu > button svg {
   color: var(--danger-text);
 }
 .app-mobile-nav {
-  display: none;
-}
-.app-mobile-account {
   display: none;
 }
 @media (max-width: 1023px) {
@@ -369,34 +254,6 @@
   .app-mobile-nav .app-sidebar__link svg {
     width: 1rem;
     height: 1rem;
-  }
-  .app-mobile-nav__account {
-    border: 0;
-    background: transparent;
-    font: inherit;
-    text-align: inherit;
-    cursor: pointer;
-  }
-  .app-mobile-nav__account[aria-expanded='true'] {
-    background: var(--accent-soft);
-    box-shadow: inset 0 0 0 1.5px var(--accent);
-  }
-  .app-mobile-nav__account[aria-expanded='true'] svg {
-    color: var(--accent);
-  }
-  .app-mobile-account {
-    position: fixed;
-    z-index: 29;
-    right: 0.75rem;
-    bottom: calc(5.25rem + env(safe-area-inset-bottom));
-    display: grid;
-    width: min(calc(100vw - 1.5rem), 20rem);
-    gap: 0.7rem;
-    padding: 0.75rem;
-    border: 1.5px solid var(--border-strong);
-    border-radius: var(--app-radius-md);
-    background: var(--paper);
-    box-shadow: var(--app-shadow-md);
   }
 }
 
@@ -1149,11 +1006,7 @@
 }
 .tournament-ticket__link:focus-visible,
 .dashboard-history__item:focus-visible,
-.app-sidebar__link:focus-visible,
-.app-sidebar__create:focus-visible,
-.app-sidebar__profile:focus-visible,
-.app-mobile-account__profile:focus-visible,
-.app-sidebar__signout:focus-visible {
+.app-sidebar__link:focus-visible {
   outline: 2px solid var(--accent);
   outline-offset: 3px;
 }
@@ -1450,8 +1303,7 @@
 .standings-table__avatar img,
 .public-table__avatar img,
 .standings-podium__avatar img,
-.profile-avatar img,
-.app-sidebar__profile > span img {
+.profile-avatar img {
   width: 100%;
   height: 100%;
   object-fit: cover;

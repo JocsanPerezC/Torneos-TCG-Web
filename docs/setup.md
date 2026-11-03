@@ -37,14 +37,15 @@ Listed in [.env.example](../.env.example). They are all public and end up in the
 
 ## Scripts
 
-| Command               | What it does                                |
-| --------------------- | ------------------------------------------- |
-| `npm run dev`         | Start the development server.               |
-| `npm run build`       | Type-check and build into `dist/`.          |
-| `npm run lint`        | Lint with oxlint.                           |
-| `npm test`            | Run the domain logic tests with Vitest.     |
-| `npm run format`      | Format with Prettier.                       |
-| `npm run preview:lan` | Serve `dist/` on your local network (5173). |
+| Command                | What it does                                |
+| ---------------------- | ------------------------------------------- |
+| `npm run dev`          | Start the development server.               |
+| `npm run build`        | Type-check and build into `dist/`.          |
+| `npm run lint`         | Lint with oxlint.                           |
+| `npm test`             | Run the tests with Vitest.                  |
+| `npm run format`       | Format with Prettier.                       |
+| `npm run format:check` | Check formatting without changing files.    |
+| `npm run preview:lan`  | Serve `dist/` on your local network (5173). |
 
 During development, `/muestrario` shows every UI component and state. It only responds on `localhost`.
 
@@ -76,7 +77,7 @@ During development, `/muestrario` shows every UI component and state. It only re
    where id = 'USER-UUID';
    ```
 
-`supabase/migrations/` starts from six themed files (schema, accounts and roles, tournaments, invitations, profile, and security) that consolidate the earlier history. See [ADR 0004](decisions/0004-consolidacion-de-migraciones.md). Migrations are immutable once applied: every change goes in a new, dated migration.
+`supabase/migrations/` starts from six themed files (schema, accounts and roles, tournaments, invitations, profile, and security) that consolidate the earlier history. See [ADR 0004](decisions/0004-consolidacion-de-migraciones.md). Migrations are immutable once applied: every change goes in a new, dated migration. The later ones (nickname, player history, tiebreakers, table times, automatic closing, decks and profile permissions) can be applied with `npx supabase db push` or pasted in order into the SQL Editor.
 
 ## Deployment
 

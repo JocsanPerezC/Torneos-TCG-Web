@@ -6,3 +6,10 @@ supabase/.temp/
 *.svg
 *.png
 *.sql
+
+# Archivos generados o de herramientas locales: no son código del proyecto.
+package-lock.json
+.codex/
+.impeccable/
+.claude/
+public/*.html

@@ -38,27 +38,33 @@ Pairings, pods, results and live standings in one place, with a public page anyo
 
 ## Features
 
+Built for **multiplayer Commander (EDH)**: casual, cEDH or your group's house rules, in pods of 3 to 5. Already used by several game stores in Costa Rica.
+
 ### 🏆 For organizers
 
 - **Tournaments** with name, format, number of rounds, player and table limits, and public visibility.
-- **Players** can be added manually (no account needed) or linked to a `player` account. Search, rename, retire or remove them before they play.
+- **Players** can be added manually (no account needed) or join with their own `player` account. Search, rename, retire or remove them before they play.
 - **Invitations** through a revocable link, a QR code or a short manual code.
 - **Pods of 3 to 5 players.** Pairing avoids repeat opponents first, then groups players with similar scores.
 - **Round control**: draft, start, timer, manual table adjustments and removal of the last round.
-- **Results per player**: manual points, kills and outcome (win, loss or draw). A round only closes once every table has valid results.
-- **Live standings**, ranked by points, opponent strength (the sum of opponents' points), kills and a stable seed.
-- **Battle log** with tournament highlights, attendance and tables.
+- **Results per table**: manual points, kills and outcome (win, loss or draw) for each player, plus the time the table finished (recorded automatically, editable). A round only closes once every table has valid results.
+- **Live standings**, ranked by points, then wins, draws, fewer losses, win rate, kills and the average points of the opponents faced. Players tied on everything share the place. An info button explains the order, and an informational "average win time" column shows how fast each player wins.
+- **Battle log** with the player of the tournament, records with clear owners (hunter, unstoppable, fastest win, best round…), tables of the night, and records still up for grabs.
+- **Automatic closing**: a tournament finishes by itself 24 hours after its last planned round, or after 30 days without activity.
 
 ### 🎴 For players
 
-- Join with an invitation link (`/unirse/:token`) or the manual code.
-- A personal dashboard with your tournaments and global stats at `/estadisticas`: tournaments, rounds, results, points, kills and podiums.
+- An account with a **private name and a public nickname**, which is what tournaments show.
+- Join with an invitation link (`/unirse/:token`), the manual code or a QR.
+- **My decks** (`/mazos`): save your Moxfield or Archidekt deck links with their commander, searched on Scryfall. Optionally pick the deck you play in each tournament, until the first round starts; its commander shows next to your name in the standings.
+- **My statistics** (`/estadisticas`): win rate, recent form, best result, win time and per-tournament history.
+- **Life counter** (`/contador`) for 2 to 6 players, with dice, coin flip and a "who goes first" roulette.
 
 ### 🌐 For everyone
 
-- **Public read-only page** at `/t/:slug` with standings, current round, tables and timer.
+- **Public read-only page** at `/t/:slug` with standings, current round, tables, table times and the timer.
 - **Trial mode** at `/trial`, no account required.
-- Email and password or Google sign-in, password recovery, profile photo, password change and self-service account deletion.
+- Email and password or Google sign-in with per-field validation, password recovery, profile photo, password change and self-service account deletion.
 - **Spanish and English** interface.
 
 ## Screenshots
@@ -78,7 +84,7 @@ Pairings, pods, results and live standings in one place, with a public page anyo
 
 | Role          | Can                                                                                     |
 | ------------- | --------------------------------------------------------------------------------------- |
-| `player`      | Join tournaments and see their own history.                                             |
+| `player`      | Join tournaments, choose a deck, and see their own history and statistics.              |
 | `organizer`   | Create and manage their own tournaments.                                                |
 | `admin`       | Browse all data from `/admin`. Cannot create tournaments.                               |
 | `super_admin` | Everything `admin` can do, plus manage any tournament, manage users and change roles.   |
@@ -101,10 +107,10 @@ src/
 ├── app/          Bootstrapping, routes (AppRouter.tsx) and form limits
 ├── features/     One folder per screen or area (tournaments, player, admin, landing…)
 ├── components/   Shared pieces: ui/, layout/ and feedback/
-├── domain/       Pure logic: tables, pairing, scoring, statistics and their tests
+├── domain/       Pure logic: tables, pairing, scoring, statistics, timing and their tests
 ├── state/        Auth and tournament contexts
 ├── data/         Supabase repositories
-├── lib/          Supabase client and utilities
+├── lib/          Supabase client, form validation, Scryfall search and utilities
 ├── i18n/         Spanish (es.ts) and English (en.ts) strings
 └── styles/       Layered CSS, imported in order from index.css
 supabase/         Migrations, the admin-users Edge Function and config

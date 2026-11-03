@@ -128,11 +128,18 @@ export function TournamentProvider({ children }: { children: ReactNode }) {
       if (showLoading) setReady(true);
     }
   };
+  // Modo demo (sin Supabase): cada cambio se guarda en el navegador para sobrevivir a recargas.
   useEffect(() => {
-    if (!supabase) {
+    if (supabase) return;
+    try {
       localStorage.setItem(storageKey, JSON.stringify(tournaments));
-      return;
+    } catch {
+      // Sin almacenamiento disponible, el demo vive solo mientras la pestaña siga abierta.
     }
+  }, [tournaments]);
+  // Con Supabase: se recargan los torneos cuando cambia la cuenta o su rol.
+  useEffect(() => {
+    if (!supabase) return;
     setOwnerId(user?.id);
     void refresh(user?.id, isSuperAdmin);
   }, [user?.id, isSuperAdmin]);
@@ -470,7 +477,7 @@ export function TournamentProvider({ children }: { children: ReactNode }) {
         return t ? standings(t) : [];
       },
     }),
-    [tournaments, ownerId, ready, remoteError],
+    [tournaments, ownerId, ready, remoteError, isSuperAdmin],
   );
   return <Context.Provider value={value}>{children}</Context.Provider>;
 }

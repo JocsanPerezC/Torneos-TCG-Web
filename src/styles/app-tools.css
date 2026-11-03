@@ -472,32 +472,17 @@
   }
   .authenticated-shell.is-sidebar-collapsed .app-sidebar__brand > span,
   .authenticated-shell.is-sidebar-collapsed .app-sidebar__context-name,
-  .authenticated-shell.is-sidebar-collapsed .app-sidebar__link > span,
-  .authenticated-shell.is-sidebar-collapsed .app-sidebar__create > span,
-  .authenticated-shell.is-sidebar-collapsed .app-sidebar__profile-text,
-  .authenticated-shell.is-sidebar-collapsed .app-sidebar__profile > svg,
-  .authenticated-shell.is-sidebar-collapsed .app-sidebar__language,
-  .authenticated-shell.is-sidebar-collapsed .app-sidebar__signout > span {
+  .authenticated-shell.is-sidebar-collapsed .app-sidebar__link > span {
     display: none;
   }
   .authenticated-shell.is-sidebar-collapsed .app-sidebar__nav-wrap {
     margin-top: 1.25rem;
   }
-  .authenticated-shell.is-sidebar-collapsed .app-sidebar__link,
-  .authenticated-shell.is-sidebar-collapsed .app-sidebar__profile,
-  .authenticated-shell.is-sidebar-collapsed .app-sidebar__footer-actions {
+  .authenticated-shell.is-sidebar-collapsed .app-sidebar__link {
     justify-content: center;
   }
   .authenticated-shell.is-sidebar-collapsed .app-sidebar__link {
     padding-inline: 0.4rem;
-  }
-  .authenticated-shell.is-sidebar-collapsed .app-sidebar__create {
-    padding-inline: 0.4rem;
-  }
-  .authenticated-shell.is-sidebar-collapsed .app-sidebar__signout {
-    width: 2.25rem;
-    justify-content: center;
-    padding-inline: 0;
   }
   .authenticated-shell.is-sidebar-collapsed .app-sidebar__account-menu {
     bottom: 0;
