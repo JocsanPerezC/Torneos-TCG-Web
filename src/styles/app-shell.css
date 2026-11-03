@@ -3038,3 +3038,176 @@
     max-width: 7rem;
   }
 }
+
+/* Mis mazos: tarjetas con el arte del comandante y el enlace a Moxfield o Archidekt. */
+.decks-page__header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+.decks-page__header h1 {
+  margin: 0;
+}
+.deck-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(16rem, 1fr));
+  gap: 1rem;
+  margin: 1.25rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+.deck-card {
+  display: grid;
+  overflow: hidden;
+  border: 2px solid var(--foreground);
+  border-radius: 1.3rem 0.6rem 1.3rem 0.6rem;
+  background: var(--card);
+  box-shadow: var(--app-shadow-md);
+}
+.deck-card__art {
+  display: grid;
+  height: 8.5rem;
+  place-items: center;
+  overflow: hidden;
+  border-bottom: 2px solid var(--foreground);
+  background: #1d855c;
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 3rem;
+}
+.deck-card__art img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.deck-card__body {
+  display: grid;
+  gap: 0.35rem;
+  padding: 0.85rem 1rem 1rem;
+}
+.deck-card__body h2 {
+  margin: 0;
+  overflow: hidden;
+  font-size: 1.15rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.deck-card__body p {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.45rem;
+  margin: 0;
+  color: var(--ink-soft);
+  font-size: 0.88rem;
+  font-weight: 600;
+}
+.deck-card__actions {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  margin-top: 0.5rem;
+}
+.deck-card__actions .app-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  margin-right: auto;
+  text-decoration: none;
+}
+.deck-card__actions svg {
+  width: 1rem;
+  height: 1rem;
+}
+.deck-card__delete {
+  color: var(--danger-text);
+}
+.deck-pips {
+  display: inline-flex;
+  gap: 0.2rem;
+}
+.deck-pip {
+  display: block;
+  width: 0.85rem;
+  height: 0.85rem;
+  border: 1.5px solid var(--foreground);
+  border-radius: 50%;
+}
+.deck-pip--W {
+  background: #f8f1d4;
+}
+.deck-pip--U {
+  background: #3d7bd8;
+}
+.deck-pip--B {
+  background: #3a3632;
+}
+.deck-pip--R {
+  background: #d8473a;
+}
+.deck-pip--G {
+  background: #2f9a5c;
+}
+.deck-pip--C {
+  background: #c9c4bb;
+}
+.deck-commander-search {
+  position: relative;
+}
+.deck-commander-search__list {
+  position: absolute;
+  z-index: 5;
+  top: calc(100% - 1.4rem);
+  right: 0;
+  left: 0;
+  max-height: 15rem;
+  margin: 0;
+  padding: 0.35rem;
+  overflow-y: auto;
+  border: 1.5px solid var(--border-strong);
+  border-radius: 0.7rem;
+  background: var(--paper);
+  box-shadow: var(--app-shadow-md);
+  list-style: none;
+}
+.deck-commander-search__list button {
+  width: 100%;
+  padding: 0.5rem 0.6rem;
+  border: 0;
+  border-radius: 0.5rem;
+  background: transparent;
+  color: var(--foreground);
+  font: inherit;
+  font-size: 0.9rem;
+  text-align: left;
+  cursor: pointer;
+}
+.deck-commander-search__list button:hover,
+.deck-commander-search__list button:focus-visible {
+  background: var(--accent-soft);
+  outline: none;
+}
+.deck-commander-chip {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-top: 0.4rem;
+  padding: 0.4rem;
+  border: 1.5px solid var(--border-strong);
+  border-radius: 0.8rem;
+  background: var(--paper);
+}
+.deck-commander-chip img {
+  width: 4.5rem;
+  height: 3.2rem;
+  flex: none;
+  border-radius: 0.5rem;
+  object-fit: cover;
+}
+.deck-commander-chip > span {
+  display: grid;
+  min-width: 0;
+  flex: 1;
+  gap: 0.25rem;
+}

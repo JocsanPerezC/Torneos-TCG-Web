@@ -37,7 +37,10 @@ export function PlayerDashboard() {
     <div className="dashboard-board player-dashboard">
       <header className="dashboard-board__header">
         <div>
-          <h1>{t('app.playerDashboard.title')}</h1>
+          <h1 className="flex items-center gap-3">
+            <Trophy className="size-7 shrink-0 text-accent" aria-hidden="true" />
+            {t('app.playerDashboard.title')}
+          </h1>
         </div>
       </header>
       {!tournaments && !error && (

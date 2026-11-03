@@ -9,6 +9,7 @@ import {
   BadgeCheck,
   CircleHelp,
   Inbox,
+  LayoutDashboard,
   Play,
   Plus,
   Table,
@@ -55,7 +56,14 @@ function OrganizerDashboard({ view }: { view: 'home' | 'tournaments' }) {
     <div className="dashboard-board organizer-dashboard">
       <header className="dashboard-board__header">
         <div>
-          <h1>{i18n.t(view === 'home' ? 'app.shell.home' : 'app.dashboard.title')}</h1>
+          <h1 className="flex items-center gap-3">
+            {view === 'home' ? (
+              <LayoutDashboard className="size-7 shrink-0 text-accent" aria-hidden="true" />
+            ) : (
+              <Trophy className="size-7 shrink-0 text-accent" aria-hidden="true" />
+            )}
+            {i18n.t(view === 'home' ? 'app.shell.home' : 'app.dashboard.title')}
+          </h1>
         </div>
         <Button asChild className={primary}>
           <Link to="/tournaments/new">

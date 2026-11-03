@@ -29,6 +29,8 @@ Los imports dentro de `src/` usan el alias `@/` (por ejemplo, `@/components/ui/b
 
 `/estadisticas` es una ruta autenticada exclusiva de las cuentas con rol `player`; muestra el historial global de sus inscripciones vinculadas.
 
+`/mazos` ("Mis mazos", en el menú de la cuenta) es exclusiva de `player`: guarda el enlace de cada mazo de Moxfield o Archidekt (validado en `src/lib/deckValidation.ts`), su nombre y, opcionalmente, el comandante buscado en Scryfall (`src/lib/scryfall.ts`, API pública desde el navegador). Tabla `decks` con RLS por dueño (migración `20261102160000_mazos.sql`). No se lee la lista de Moxfield: no tiene API pública.
+
 `/contador` también es exclusiva de `player`: un contador de vidas para la mesa (2 a 6 jugadores, dados, moneda y quién empieza) en `src/features/counter/`. No usa Supabase; la partida se guarda en `localStorage` y mantiene la pantalla encendida con la Wake Lock API. Se monta con `Layout immersive`, que en celular oculta la barra inferior; la propia pantalla trae el botón "Volver".
 
 ## Capas

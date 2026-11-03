@@ -1,7 +1,7 @@
 import { formatDuration } from '@/domain/timing';
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { ChevronRight } from 'lucide-react';
+import { BarChart3, ChevronRight } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import {
   loadPlayerStatistics,
@@ -58,7 +58,10 @@ export function PlayerStatisticsPage() {
     <div className="dashboard-board player-statistics">
       <header className="dashboard-board__header">
         <div>
-          <h1>{t('app.playerStatistics.title')}</h1>
+          <h1 className="flex items-center gap-3">
+            <BarChart3 className="size-7 shrink-0 text-accent" aria-hidden="true" />
+            {t('app.playerStatistics.title')}
+          </h1>
         </div>
       </header>
       {!loaded && !error && (

@@ -12,7 +12,8 @@
 - [ ] Contador avanzado: daño de comandante, veneno, impuesto, monarca/iniciativa y cargar la mesa actual del torneo.
 - [ ] Buscador y filtros: buscar torneos, jugadores y filtrar por formato o estado.
 - [ ] Modo oscuro y selector de tema.
-- [ ] Gestión de mazos: comandante o mazo por inscripción (buscador de Scryfall, pareja de comandantes, enlace a Moxfield/Archidekt), configurable por el organizador (no pedir / opcional / obligatorio).
+- [x] Mis mazos: enlace de Moxfield o Archidekt, nombre y comandante de Scryfall (`/mazos`).
+- [ ] Mazo por torneo, opcional para el jugador: elegir uno de "Mis mazos" al inscribirse o después, y mostrar su comandante en mesas y clasificación.
 - [ ] Perfil: comandante favorito (prellena la inscripción) y formatos favoritos.
 - [ ] Perfil público compartible por apodo (`/u/:apodo`).
 - [ ] Sistema de rankings: puntos acumulados entre torneos, temporada, top de jugadores y badges.

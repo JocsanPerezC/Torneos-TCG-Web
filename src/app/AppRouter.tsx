@@ -56,6 +56,7 @@ const PlayerStatisticsRoute = lazyNamed(
   'PlayerStatisticsRoute',
 );
 const CounterRoute = lazyNamed(() => import('@/features/counter/CounterRoute'), 'CounterRoute');
+const DecksRoute = lazyNamed(() => import('@/features/decks/DecksRoute'), 'DecksRoute');
 const NewTournament = lazyNamed(
   () => import('@/features/tournaments/NewTournament'),
   'NewTournament',
@@ -162,6 +163,14 @@ export function AppRouter() {
             element={
               <ConsentGuard>
                 <PlayerStatisticsRoute />
+              </ConsentGuard>
+            }
+          />
+          <Route
+            path="/mazos"
+            element={
+              <ConsentGuard>
+                <DecksRoute />
               </ConsentGuard>
             }
           />

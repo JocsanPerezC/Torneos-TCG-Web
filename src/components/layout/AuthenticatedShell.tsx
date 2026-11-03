@@ -4,6 +4,7 @@ import {
   ChevronDown,
   CircleUserRound,
   Heart,
+  Layers,
   ClipboardList,
   LayoutDashboard,
   LogOut,
@@ -303,6 +304,12 @@ export function AuthenticatedShell({
                   <CircleUserRound aria-hidden="true" />
                   {t('app.shell.profile')}
                 </Link>
+                {isPlayer && (
+                  <Link to="/mazos" onClick={() => setAccountMenuOpen(false)}>
+                    <Layers aria-hidden="true" />
+                    {t('app.shell.decks')}
+                  </Link>
+                )}
                 <Link to="/configuracion" onClick={() => setAccountMenuOpen(false)}>
                   <Settings aria-hidden="true" />
                   {t('app.shell.settings')}
