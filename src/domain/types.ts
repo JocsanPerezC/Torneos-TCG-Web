@@ -1,6 +1,15 @@
 export type TournamentStatus = 'activo' | 'finalizado';
 export type RoundStatus = 'borrador' | 'activa' | 'completada';
 export type ResultOutcome = 'win' | 'loss' | 'draw';
+/** "Foto" del mazo con el que un jugador se inscribió en un torneo. */
+export interface PlayerDeck {
+  name: string;
+  url: string;
+  commander?: string;
+  commanderImage?: string;
+  /** Identidad de color en orden WUBRG. */
+  colors: string;
+}
 export interface Player {
   id: string;
   name: string;
@@ -8,6 +17,8 @@ export interface Player {
   tieBreaker: number;
   profileId?: string;
   avatarUrl?: string;
+  /** Mazo elegido por el jugador para este torneo (opcional). */
+  deck?: PlayerDeck;
 }
 export interface Result {
   playerId: string;

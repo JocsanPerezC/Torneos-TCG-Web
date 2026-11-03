@@ -4,11 +4,18 @@ import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { loadPlayerTournaments, type PlayerTournament } from '@/data/playerRepository';
 import { Button } from '@/components/ui/button';
+import { Modal } from '@/components/ui/modal';
+import { showToast } from '@/components/ui/toast';
+import { listDecks, type Deck } from '@/data/deckRepository';
+import { ColorPips } from '@/features/decks/ColorPips';
+import { TournamentDeckChooser } from '@/features/decks/TournamentDeckChooser';
 
 export function PlayerDashboard() {
   const { t } = useTranslation();
   const [tournaments, setTournaments] = useState<PlayerTournament[]>();
   const [error, setError] = useState<string>();
+  const [decks, setDecks] = useState<Deck[]>();
+  const [choosingDeck, setChoosingDeck] = useState(false);
 
   useEffect(() => {
     let active = true;
@@ -78,6 +85,29 @@ export function PlayerDashboard() {
                     total: activeTournament.plannedRounds,
                   })}
                 </span>
+                {/* Mazo del torneo: se elige o cambia hasta que empieza la primera ronda. */}
+                <span className="dashboard-focus__deck">
+                  <span>{t('app.decks.deckLabel')}</span>
+                  <strong>{activeTournament.deck?.name ?? t('app.decks.noDeck')}</strong>
+                  {activeTournament.deck?.commander && (
+                    <ColorPips colors={activeTournament.deck.colors} />
+                  )}
+                  {!activeTournament.deckLocked && (
+                    <button
+                      type="button"
+                      className="dashboard-focus__deck-change"
+                      onClick={() => {
+                        setChoosingDeck(true);
+                        if (!decks)
+                          void listDecks()
+                            .then(setDecks)
+                            .catch(() => setDecks([]));
+                      }}
+                    >
+                      {t(activeTournament.deck ? 'app.decks.change' : 'app.decks.choose')}
+                    </button>
+                  )}
+                </span>
               </div>
               <Button asChild className="app-button app-button--primary">
                 <Link to={`/t/${activeTournament.publicSlug}`}>
@@ -134,6 +164,33 @@ export function PlayerDashboard() {
             )}
           </section>
         </>
+      )}
+      {choosingDeck && activeTournament && (
+        <Modal
+          title={t('app.decks.pickTitle')}
+          description={activeTournament.name}
+          onClose={() => setChoosingDeck(false)}
+        >
+          {decks ? (
+            <TournamentDeckChooser
+              tournamentId={activeTournament.id}
+              decks={decks}
+              currentDeckId={activeTournament.deckId}
+              dismissLabel={t('app.common.cancel')}
+              onDone={(changed) => {
+                setChoosingDeck(false);
+                if (!changed) return;
+                showToast(t('app.decks.chosen'));
+                void loadPlayerTournaments().then(setTournaments);
+              }}
+            />
+          ) : (
+            <div className="app-loading-note">
+              <i />
+              <span>{t('app.common.loading')}</span>
+            </div>
+          )}
+        </Modal>
       )}
     </div>
   );

@@ -13,7 +13,8 @@
 - [ ] Buscador y filtros: buscar torneos, jugadores y filtrar por formato o estado.
 - [ ] Modo oscuro y selector de tema.
 - [x] Mis mazos: enlace de Moxfield o Archidekt, nombre y comandante de Scryfall (`/mazos`).
-- [ ] Mazo por torneo, opcional para el jugador: elegir uno de "Mis mazos" al inscribirse o después, y mostrar su comandante en mesas y clasificación.
+- [x] Mazo por torneo (opcional): se elige al inscribirse o desde "Mis torneos" hasta la primera ronda, y se muestra en clasificación y lista de jugadores.
+- [ ] Estadísticas por mazo: comandantes más jugados del torneo y win rate por mazo.
 - [ ] Perfil: comandante favorito (prellena la inscripción) y formatos favoritos.
 - [ ] Perfil público compartible por apodo (`/u/:apodo`).
 - [ ] Sistema de rankings: puntos acumulados entre torneos, temporada, top de jugadores y badges.

@@ -8,6 +8,8 @@ import { clearInvitationReturnPath } from '@/lib/invitationReturnPath';
 import { useAuth } from '@/state/AuthContext';
 import { Button } from '@/components/ui/button';
 import { QrScannerModal } from '@/features/tournaments/components/QrScannerModal';
+import { listDecks, type Deck } from '@/data/deckRepository';
+import { TournamentDeckChooser } from '@/features/decks/TournamentDeckChooser';
 
 function tokenFromInput(value: string) {
   const match = value.trim().match(/\/unirse\/([a-z0-9]+)/i);
@@ -26,6 +28,8 @@ export function JoinTournamentPage() {
   const [manualError, setManualError] = useState<string>();
   const [scannerOpen, setScannerOpen] = useState(false);
   const [joined, setJoined] = useState(false);
+  // Tras inscribirse, si la cuenta tiene mazos, se ofrece elegir uno (opcional).
+  const [deckStep, setDeckStep] = useState<{ tournamentId: string; decks: Deck[] }>();
   const attemptedToken = useRef<string | undefined>(undefined);
   const joinTimer = useRef<number | undefined>(undefined);
 
@@ -43,9 +47,14 @@ export function JoinTournamentPage() {
       setJoined(false);
       setError(undefined);
       try {
-        await joinTournament(invitation, getUserProfile(user).nickname);
+        const tournamentId = await joinTournament(invitation, getUserProfile(user).nickname);
         clearInvitationReturnPath();
         setJoined(true);
+        const decks = tournamentId ? await listDecks().catch(() => []) : [];
+        if (tournamentId && decks.length) {
+          setDeckStep({ tournamentId, decks });
+          return;
+        }
         joinTimer.current = window.setTimeout(() => navigate('/dashboard', { replace: true }), 360);
       } catch (reason) {
         clearInvitationReturnPath();
@@ -78,6 +87,27 @@ export function JoinTournamentPage() {
   }, [isPlayer, loading, token, user]);
 
   if (!configured) return <Navigate to="/" replace />;
+  if (deckStep)
+    return (
+      <section className="mx-auto max-w-lg">
+        <div className="app-panel">
+          <p className="m-0 flex items-center gap-2 text-sm font-semibold text-primary-strong">
+            <Check size={16} aria-hidden />
+            {t('app.join.success')}
+          </p>
+          <h1 className="mb-0 mt-2 text-3xl">{t('app.decks.pickTitle')}</h1>
+          <p className="mt-2 text-sm leading-6 text-muted-foreground">{t('app.decks.pickHelp')}</p>
+          <div className="mt-5">
+            <TournamentDeckChooser
+              tournamentId={deckStep.tournamentId}
+              decks={deckStep.decks}
+              dismissLabel={t('app.decks.notNow')}
+              onDone={() => navigate('/dashboard', { replace: true })}
+            />
+          </div>
+        </div>
+      </section>
+    );
   if (!token) {
     const submitToken = (event: FormEvent<HTMLFormElement>) => {
       event.preventDefault();

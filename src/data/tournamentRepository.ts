@@ -26,6 +26,15 @@ const mapTournament = (row: Row): Tournament => {
       tieBreaker: Number(p.tie_breaker),
       profileId: p.profile_id ? String(p.profile_id) : undefined,
       avatarUrl: p.avatar_url ? String(p.avatar_url) : undefined,
+      deck: p.deck_name
+        ? {
+            name: String(p.deck_name),
+            url: String(p.deck_url ?? ''),
+            commander: p.deck_commander ? String(p.deck_commander) : undefined,
+            commanderImage: p.deck_commander_image ? String(p.deck_commander_image) : undefined,
+            colors: String(p.deck_colors ?? ''),
+          }
+        : undefined,
     })),
     rounds: asArray(row.rounds)
       .map((round) => ({

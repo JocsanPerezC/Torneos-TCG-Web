@@ -1,3 +1,4 @@
+import { PlayerDeckTag } from '@/features/decks/PlayerDeckTag';
 import { Link, useParams, useSearchParams } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import { useAuth } from '@/state/AuthContext';
@@ -240,8 +241,13 @@ export function PublicView() {
                           src={row.player.avatarUrl}
                           className="standings-table__avatar"
                         />
-                        {row.player.name}
-                        {!row.player.active && <small>{i18n.t('app.common.withdrawn')}</small>}
+                        <span className="player-name-stack">
+                          <span>
+                            {row.player.name}
+                            {!row.player.active && <small>{i18n.t('app.common.withdrawn')}</small>}
+                          </span>
+                          <PlayerDeckTag deck={row.player.deck} />
+                        </span>
                       </td>
                       <td>
                         <strong>{row.points}</strong>

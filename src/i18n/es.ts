@@ -1076,6 +1076,18 @@ export const es = {
       loadFailed: 'No se pudieron cargar tus torneos.',
     },
     decks: {
+      pickTitle: '¿Con qué mazo juegas?',
+      pickHelp: 'Es opcional. Tu comandante aparecerá junto a tu nombre en mesas y clasificación.',
+      noDeck: 'Sin mazo',
+      addNew: 'Agregar un mazo nuevo',
+      lockHelp: 'Puedes cambiarlo hasta que empiece la primera ronda.',
+      notNow: 'Ahora no',
+      useDeck: 'Usar este mazo',
+      deckLabel: 'Mazo:',
+      change: 'Cambiar',
+      choose: 'Elegir mazo',
+      chosen: 'Mazo del torneo actualizado.',
+      openDeck: 'Ver la lista de {{name}}',
       title: 'Mis mazos',
       add: 'Agregar mazo',
       addTitle: 'Agregar mazo',
@@ -1107,6 +1119,8 @@ export const es = {
         C: 'Incoloro',
       },
       errors: {
+        locked: 'El torneo ya empezó: el mazo ya no se puede cambiar.',
+        chooseFailed: 'No se pudo guardar el mazo del torneo.',
         urlInvalid:
           'Pega el enlace de un mazo de Moxfield (moxfield.com/decks/…) o Archidekt (archidekt.com/decks/…).',
         nameTooLong: 'El nombre puede tener hasta 60 caracteres.',

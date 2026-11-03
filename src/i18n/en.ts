@@ -1066,6 +1066,19 @@ export const en = {
       loadFailed: 'Your tournaments could not be loaded.',
     },
     decks: {
+      pickTitle: 'Which deck are you playing?',
+      pickHelp:
+        'Optional. Your commander will show next to your name at tables and in the standings.',
+      noDeck: 'No deck',
+      addNew: 'Add a new deck',
+      lockHelp: 'You can change it until the first round starts.',
+      notNow: 'Not now',
+      useDeck: 'Use this deck',
+      deckLabel: 'Deck:',
+      change: 'Change',
+      choose: 'Choose deck',
+      chosen: 'Tournament deck updated.',
+      openDeck: 'View the {{name}} list',
       title: 'My decks',
       add: 'Add deck',
       addTitle: 'Add deck',
@@ -1097,6 +1110,8 @@ export const en = {
         C: 'Colorless',
       },
       errors: {
+        locked: 'The tournament has already started: the deck can no longer be changed.',
+        chooseFailed: 'The tournament deck could not be saved.',
         urlInvalid:
           'Paste a Moxfield (moxfield.com/decks/…) or Archidekt (archidekt.com/decks/…) deck link.',
         nameTooLong: 'The name can be up to 60 characters long.',

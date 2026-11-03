@@ -1,3 +1,4 @@
+import { PlayerDeckTag } from '@/features/decks/PlayerDeckTag';
 import { useEffect, useRef, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { Info } from 'lucide-react';
@@ -176,8 +177,13 @@ export function Standings() {
                     src={row.player.avatarUrl}
                     className="standings-table__avatar"
                   />
-                  {row.player.name}
-                  {!row.player.active && <small>{i18n.t('app.common.withdrawn')}</small>}
+                  <span className="player-name-stack">
+                    <span>
+                      {row.player.name}
+                      {!row.player.active && <small>{i18n.t('app.common.withdrawn')}</small>}
+                    </span>
+                    <PlayerDeckTag deck={row.player.deck} />
+                  </span>
                 </td>
                 <td>
                   <strong>{row.points}</strong>

@@ -6,7 +6,19 @@ import { tournamentStatistics } from '@/domain/statistics';
 // Datos estáticos del muestrario: no se guardan ni salen de esta página.
 
 export const showcasePlayers: Player[] = [
-  { id: 'p-ana', name: 'Ana Rojas', active: true, tieBreaker: 1, avatarUrl: '/default-avatar.svg' },
+  {
+    id: 'p-ana',
+    name: 'Ana Rojas',
+    active: true,
+    tieBreaker: 1,
+    avatarUrl: '/default-avatar.svg',
+    deck: {
+      name: 'Atraxa contadores',
+      url: 'https://moxfield.com/decks/showcase',
+      commander: "Atraxa, Praetors' Voice",
+      colors: 'WUBG',
+    },
+  },
   { id: 'p-bruno', name: 'Bruno Vega', active: true, tieBreaker: 2 },
   { id: 'p-carla', name: 'Carla Mora', active: true, tieBreaker: 3 },
   { id: 'p-diego', name: 'Diego León', active: true, tieBreaker: 4 },

@@ -1,3 +1,4 @@
+import type { PlayerDeck } from '@/domain/types';
 import { supabase } from '@/lib/supabase';
 
 export type PlayerTournament = {
@@ -12,6 +13,11 @@ export type PlayerTournament = {
   completedRounds: number;
   participantName: string;
   createdAt: string;
+  /** Mazo elegido para el torneo, si lo hay. */
+  deckId?: string;
+  deck?: PlayerDeck;
+  /** El torneo ya empezó (o terminó): el mazo no se puede cambiar. */
+  deckLocked: boolean;
 };
 
 export type JoinableTournament = {
@@ -51,6 +57,17 @@ export async function loadPlayerTournaments(): Promise<PlayerTournament[]> {
     plannedRounds: Number(row.planned_rounds),
     roundCount: Number(row.round_count),
     completedRounds: Number(row.completed_round_count ?? 0),
+    deckId: row.deck_id ? String(row.deck_id) : undefined,
+    deck: row.deck_name
+      ? {
+          name: String(row.deck_name),
+          url: '',
+          commander: row.deck_commander ? String(row.deck_commander) : undefined,
+          commanderImage: row.deck_commander_image ? String(row.deck_commander_image) : undefined,
+          colors: String(row.deck_colors ?? ''),
+        }
+      : undefined,
+    deckLocked: Boolean(row.deck_locked),
     participantName: String(row.participant_name),
     createdAt: String(row.created_at),
   }));
@@ -167,8 +184,20 @@ export async function loadJoinableTournament(
     : undefined;
 }
 
+/** Inscribe a la cuenta y devuelve el id del torneo. */
 export async function joinTournament(token: string, name: string) {
-  const { error } = await client().rpc('join_tournament', { p_token: token, p_name: name });
+  const { data, error } = await client().rpc('join_tournament', { p_token: token, p_name: name });
+  if (error) throw error;
+  const result = (data ?? {}) as { tournamentId?: string };
+  return result.tournamentId ? String(result.tournamentId) : undefined;
+}
+
+/** Elige (o quita, con null) el mazo de la propia inscripción, antes de la primera ronda. */
+export async function setMyTournamentDeck(tournamentId: string, deckId: string | null) {
+  const { error } = await client().rpc('set_my_tournament_deck', {
+    p_tournament_id: tournamentId,
+    p_deck_id: deckId,
+  });
   if (error) throw error;
 }
 

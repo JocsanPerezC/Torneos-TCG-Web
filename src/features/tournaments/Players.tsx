@@ -1,3 +1,4 @@
+import { PlayerDeckTag } from '@/features/decks/PlayerDeckTag';
 import { useParams } from 'react-router-dom';
 import { useEffect, useRef, useState, type FormEvent } from 'react';
 import { useTournaments } from '@/state/TournamentContext';
@@ -131,6 +132,7 @@ export function Players() {
               <Avatar name={player.name} src={player.avatarUrl} className="player-slip__avatar" />
               <div>
                 <strong>{player.name}</strong>
+                <PlayerDeckTag deck={player.deck} />
                 {player.profileId && (
                   <span
                     className="player-slip__verified"
