@@ -74,7 +74,7 @@ export function Modal({ title, description, children, onClose, dialogClassName }
         aria-labelledby={titleId}
         aria-describedby={description ? descriptionId : undefined}
         tabIndex={-1}
-        className={`w-full max-w-md rounded-[var(--app-radius-lg)] border-[1.5px] border-border-strong bg-card p-6 shadow-[var(--app-shadow-lg)] ${dialogClassName ?? ''}`}
+        className={`max-h-[calc(100dvh-2rem)] w-full max-w-md overflow-y-auto overscroll-contain rounded-[var(--app-radius-lg)] border-[1.5px] border-border-strong bg-card p-6 shadow-[var(--app-shadow-lg)] max-sm:p-5 ${dialogClassName ?? ''}`}
         onMouseDown={(event) => event.stopPropagation()}
       >
         <div className="flex items-start justify-between gap-4">
