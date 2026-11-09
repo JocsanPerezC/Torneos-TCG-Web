@@ -141,6 +141,7 @@ export function AppRouter() {
           <Route path="/login" element={<Auth screen="login" />} />
           <Route path="/register" element={<Auth screen="register" />} />
           <Route path="/forgot-password" element={<Auth screen="recovery" />} />
+          <Route path="/reset-password" element={<Auth screen="reset" />} />
           <Route path="/auth/confirmed" element={<ConfirmedAccount />} />
           <Route
             path="/dashboard"

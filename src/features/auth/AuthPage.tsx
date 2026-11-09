@@ -30,6 +30,8 @@ const FIELD_ORDER: AuthField[] = [
   'confirmPassword',
   'legalConsent',
 ];
+const recoveryRequestKey = 'torneos-tcg.password-recovery.request';
+const recoveryOpenedKey = 'torneos-tcg.password-recovery.opened';
 
 function readValues(form: HTMLFormElement): AuthValues {
   const data = new FormData(form);
@@ -53,13 +55,15 @@ function FieldError({ name, errors }: { name: AuthField; errors: AuthErrors }) {
   ) : null;
 }
 
-export function Auth({ screen }: { screen: 'login' | 'register' | 'recovery' }) {
+export function Auth({ screen }: { screen: 'login' | 'register' | 'recovery' | 'reset' }) {
   const {
     configured,
+    loading,
     user,
     signIn,
     signUp,
     resetPassword,
+    updatePassword,
     isNicknameAvailable,
     isEmailRegistered,
   } = useAuth();
@@ -70,9 +74,13 @@ export function Auth({ screen }: { screen: 'login' | 'register' | 'recovery' }) 
   const [errors, setErrors] = useState<AuthErrors>({});
   const [submitted, setSubmitted] = useState(false);
   const [busy, setBusy] = useState(false);
+  const [passwordUpdated, setPasswordUpdated] = useState(false);
+  const [recoveryRequestId, setRecoveryRequestId] = useState('');
+  const [recoveryOpened, setRecoveryOpened] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [legalAccepted, setLegalAccepted] = useState(false);
   const recovery = screen === 'recovery';
+  const reset = screen === 'reset';
   const register = screen === 'register';
   const title = i18n.t(`app.auth.${screen}`);
   const requestedPath = searchParams.get('next');
@@ -82,6 +90,31 @@ export function Auth({ screen }: { screen: 'login' | 'register' | 'recovery' }) 
   useEffect(() => {
     if (register && user) navigate(returnPath, { replace: true });
   }, [register, returnPath, user, navigate]);
+
+  useEffect(() => {
+    if (!passwordUpdated) return;
+    const timer = window.setTimeout(() => navigate('/dashboard', { replace: true }), 1200);
+    return () => window.clearTimeout(timer);
+  }, [navigate, passwordUpdated]);
+
+  useEffect(() => {
+    if (!reset || !user) return;
+    const requestId = localStorage.getItem(recoveryRequestKey);
+    if (requestId) localStorage.setItem(recoveryOpenedKey, requestId);
+  }, [reset, user]);
+
+  useEffect(() => {
+    if (!recovery || !recoveryRequestId) return;
+    const markOpened = (requestId: string | null) => {
+      if (requestId === recoveryRequestId) setRecoveryOpened(true);
+    };
+    markOpened(localStorage.getItem(recoveryOpenedKey));
+    const onStorage = (event: StorageEvent) => {
+      if (event.key === recoveryOpenedKey) markOpened(event.newValue);
+    };
+    window.addEventListener('storage', onStorage);
+    return () => window.removeEventListener('storage', onStorage);
+  }, [recovery, recoveryRequestId]);
 
   // La misma pantalla sirve para entrar, registrarse y recuperar: al cambiar, empieza limpia.
   const [currentScreen, setCurrentScreen] = useState(screen);
@@ -125,11 +158,18 @@ export function Auth({ screen }: { screen: 'login' | 'register' | 'recovery' }) 
     }
     setErrors({});
     setBusy(true);
-    const email = values.email!.trim();
+    const email = values.email?.trim() ?? '';
     try {
       if (recovery) {
         await resetPassword(email);
+        const requestId = `${Date.now()}-${Math.random()}`;
+        localStorage.setItem(recoveryRequestKey, requestId);
+        localStorage.removeItem(recoveryOpenedKey);
+        setRecoveryRequestId(requestId);
         setNotice(i18n.t('app.auth.recoverySent'));
+      } else if (reset) {
+        await updatePassword(values.password!);
+        setPasswordUpdated(true);
       } else if (register) {
         const nickname = normalizeNickname(values.nickname!)!;
         const [emailTaken, nicknameFree] = await Promise.all([
@@ -192,7 +232,7 @@ export function Auth({ screen }: { screen: 'login' | 'register' | 'recovery' }) 
           name={name}
           maxLength={PASSWORD_MAX_LENGTH}
           type={showPassword ? 'text' : 'password'}
-          autoComplete={register ? 'new-password' : 'current-password'}
+          autoComplete={register || reset ? 'new-password' : 'current-password'}
           className={`${field} pr-12`}
           // El margen de .app-field va en el contenedor para que el ojo quede centrado.
           style={{ marginTop: 0 }}
@@ -247,13 +287,74 @@ export function Auth({ screen }: { screen: 'login' | 'register' | 'recovery' }) 
       <FieldError name="legalConsent" errors={errors} />
     </fieldset>
   );
+
+  if (passwordUpdated) {
+    return (
+      <Layout showHeader={false} hideNavigation>
+        <div className="mx-auto max-w-md text-center">
+          <section className={panel}>
+            <span className="text-4xl">✓</span>
+            <h1 className="mt-3 text-2xl font-black">{i18n.t('app.auth.passwordReset')}</h1>
+            <p className="mt-3 text-muted-foreground">
+              {i18n.t('app.auth.passwordResetDescription')}
+            </p>
+          </section>
+        </div>
+      </Layout>
+    );
+  }
+
+  if (recoveryOpened) {
+    return (
+      <Layout showHeader={false} hideNavigation>
+        <div className="mx-auto max-w-md text-center">
+          <section className={panel}>
+            <span className="text-4xl">✓</span>
+            <h1 className="mt-3 text-2xl font-black">{i18n.t('app.auth.recoveryLinkOpened')}</h1>
+            <p className="mt-3 text-muted-foreground">
+              {i18n.t('app.auth.recoveryLinkOpenedDescription')}
+            </p>
+            <Button
+              type="button"
+              className={`${primary} mt-5 w-full`}
+              onClick={() => window.close()}
+            >
+              {i18n.t('app.auth.closeTab')}
+            </Button>
+            <p className="mt-3 text-sm text-muted-foreground">{i18n.t('app.auth.closeTabHelp')}</p>
+          </section>
+        </div>
+      </Layout>
+    );
+  }
+
+  if (reset && configured && !loading && !user) {
+    return (
+      <Layout showHeader={false} hideNavigation>
+        <div className="mx-auto max-w-md">
+          <section className={panel}>
+            <h1 className="text-2xl font-black">{title}</h1>
+            <p className="mt-3 text-muted-foreground">{i18n.t('app.auth.invalidResetLink')}</p>
+            <Button asChild className={`${primary} mt-5 w-full`}>
+              <Link to="/forgot-password">{i18n.t('app.auth.requestNewLink')}</Link>
+            </Button>
+          </section>
+        </div>
+      </Layout>
+    );
+  }
+
   return (
-    <Layout>
+    <Layout showHeader={!recovery && !reset} hideNavigation={recovery || reset}>
       <div className="mx-auto max-w-md">
         <div className={panel}>
           <h1 className="text-2xl font-black">{title}</h1>
           <p className="mt-2 text-sm text-muted-foreground">
-            {configured ? '' : i18n.t('app.auth.localMode')}
+            {reset
+              ? i18n.t('app.auth.resetPasswordDescription')
+              : configured
+                ? ''
+                : i18n.t('app.auth.localMode')}
           </p>
           {(notice || errors.form) && (
             <div className="mt-4" role="alert">
@@ -300,21 +401,25 @@ export function Auth({ screen }: { screen: 'login' | 'register' | 'recovery' }) 
                   {i18n.t('app.auth.nicknameHelp')}
                 </span>,
               )}
-            {labelled(
-              'email',
-              i18n.t('app.common.email'),
-              <input
-                name="email"
-                type="email"
-                autoComplete="email"
-                className={field}
-                placeholder={i18n.t('app.auth.emailPlaceholder')}
-                {...invalid('email')}
-              />,
-            )}
+            {!reset &&
+              labelled(
+                'email',
+                i18n.t('app.common.email'),
+                <input
+                  name="email"
+                  type="email"
+                  autoComplete="email"
+                  className={field}
+                  placeholder={i18n.t('app.auth.emailPlaceholder')}
+                  {...invalid('email')}
+                />,
+              )}
             {!recovery && (
               <>
-                {passwordField('password', i18n.t('app.common.password'))}
+                {passwordField(
+                  'password',
+                  reset ? i18n.t('app.auth.newPassword') : i18n.t('app.common.password'),
+                )}
                 {screen === 'login' && (
                   <div className="-mt-2 flex justify-end">
                     <Link
@@ -325,7 +430,8 @@ export function Auth({ screen }: { screen: 'login' | 'register' | 'recovery' }) 
                     </Link>
                   </div>
                 )}
-                {register && passwordField('confirmPassword', i18n.t('app.auth.confirmPassword'))}
+                {(register || reset) &&
+                  passwordField('confirmPassword', i18n.t('app.auth.confirmPassword'))}
               </>
             )}
             {register && consent}
@@ -334,10 +440,12 @@ export function Auth({ screen }: { screen: 'login' | 'register' | 'recovery' }) 
                 ? i18n.t('app.auth.processing')
                 : recovery
                   ? i18n.t('app.auth.sendInstructions')
-                  : i18n.t('app.auth.continue')}
+                  : reset
+                    ? i18n.t('app.auth.updatePassword')
+                    : i18n.t('app.auth.continue')}
             </Button>
           </form>
-          {!recovery && (
+          {!recovery && !reset && (
             <GoogleAuthButton
               requiresConsent={register}
               consentAccepted={legalAccepted}

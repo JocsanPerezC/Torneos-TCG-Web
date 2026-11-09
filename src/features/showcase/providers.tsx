@@ -37,6 +37,7 @@ export function ShowcaseAuthProvider({
     isNicknameAvailable: async () => true,
     saveNickname: async (nickname: string) => nickname,
     resetPassword: noop,
+    updatePassword: noop,
     acceptLegalConsent: noop,
     signOut: noop,
   };

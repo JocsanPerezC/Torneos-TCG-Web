@@ -36,6 +36,7 @@ export type AuthStore = {
   /** Valida, comprueba que esté libre y guarda el apodo de la cuenta actual. */
   saveNickname(nickname: string): Promise<string>;
   resetPassword(email: string): Promise<void>;
+  updatePassword(password: string): Promise<void>;
   acceptLegalConsent(): Promise<void>;
   signOut(): Promise<void>;
 };
@@ -190,8 +191,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       async resetPassword(email) {
         if (!supabase) return;
         const { error } = await supabase.auth.resetPasswordForEmail(email, {
-          redirectTo: `${window.location.origin}/login`,
+          redirectTo: `${window.location.origin}/reset-password`,
         });
+        if (error) throw error;
+      },
+      async updatePassword(password) {
+        if (!supabase) return;
+        const { error } = await supabase.auth.updateUser({ password });
         if (error) throw error;
       },
       async acceptLegalConsent() {

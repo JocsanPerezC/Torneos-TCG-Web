@@ -1,6 +1,6 @@
 import { normalizeNickname } from '@/lib/userProfile';
 
-export type AuthScreen = 'login' | 'register' | 'recovery';
+export type AuthScreen = 'login' | 'register' | 'recovery' | 'reset';
 export type AuthField =
   'name' | 'nickname' | 'email' | 'password' | 'confirmPassword' | 'legalConsent' | 'form';
 /** Clave de i18n del mensaje de cada campo con error. */
@@ -25,12 +25,25 @@ export const isValidEmail = (value: string) => EMAIL_PATTERN.test(value.trim());
 /** Revisa los campos visibles de cada pantalla y devuelve qué está mal en cada uno. */
 export function validateAuth(screen: AuthScreen, values: AuthValues): AuthErrors {
   const errors: AuthErrors = {};
+  const password = values.password ?? '';
+  if (screen === 'reset') {
+    if (!password) errors.password = 'app.auth.errors.required';
+    else if (password.length < PASSWORD_MIN_LENGTH)
+      errors.password = 'app.auth.errors.passwordShort';
+    else if (password.length > PASSWORD_MAX_LENGTH)
+      errors.password = 'app.auth.errors.passwordLong';
+
+    if (!values.confirmPassword) errors.confirmPassword = 'app.auth.errors.required';
+    else if (values.confirmPassword !== password)
+      errors.confirmPassword = 'app.auth.passwordsMismatch';
+    return errors;
+  }
+
   const email = values.email?.trim() ?? '';
   if (!email) errors.email = 'app.auth.errors.required';
   else if (!EMAIL_PATTERN.test(email)) errors.email = 'app.auth.errors.emailInvalid';
   if (screen === 'recovery') return errors;
 
-  const password = values.password ?? '';
   if (!password) errors.password = 'app.auth.errors.required';
   if (screen === 'login') return errors;
 

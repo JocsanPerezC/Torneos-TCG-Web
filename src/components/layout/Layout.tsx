@@ -32,15 +32,19 @@ export function Layout({
   immersive = false,
   tournament,
   showHeader = true,
+  hideNavigation = false,
 }: {
   children: React.ReactNode;
   wide?: boolean;
   immersive?: boolean;
   tournament?: TournamentNavigation;
   showHeader?: boolean;
+  /** Para flujos temporales que no deben mostrar la sesión de la cuenta. */
+  hideNavigation?: boolean;
 }) {
   const { configured, requiresLegalConsent, requiresRoleSelection, user } = useAuth();
-  const useSidebar = configured && user && !requiresLegalConsent && !requiresRoleSelection;
+  const useSidebar =
+    !hideNavigation && configured && user && !requiresLegalConsent && !requiresRoleSelection;
   return useSidebar ? (
     <>
       <AuthenticatedShell wide={wide} immersive={immersive} tournament={tournament}>

@@ -60,7 +60,7 @@ During development, `/muestrario` shows every UI component and state. It only re
    npx supabase db push
    ```
 
-3. Under **Authentication**, add your environment's redirect URLs (account confirmation, password recovery and Google).
+3. Under **Authentication**, add your environment's redirect URLs, including `/auth/confirmed` and `/reset-password` (plus the Google callback).
 4. Deploy the user management Edge Function:
 
    ```bash

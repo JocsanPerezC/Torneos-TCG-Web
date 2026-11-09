@@ -48,6 +48,16 @@ describe('validateAuth', () => {
       email: 'app.auth.errors.emailInvalid',
     });
   });
+
+  it('la nueva contraseña requiere confirmación y respeta sus límites', () => {
+    expect(validateAuth('reset', { password: '123', confirmPassword: '456' })).toEqual({
+      password: 'app.auth.errors.passwordShort',
+      confirmPassword: 'app.auth.passwordsMismatch',
+    });
+    expect(validateAuth('reset', { password: 'secreta1', confirmPassword: 'secreta1' })).toEqual(
+      {},
+    );
+  });
 });
 
 describe('authErrorFromServer', () => {
