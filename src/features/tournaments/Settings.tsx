@@ -42,6 +42,8 @@ export function Settings() {
       plannedRounds,
       maxPlayers,
       maxTables,
+      tracksKills: form.get('tracksKills') === 'on',
+      tracksFirstBlood: form.get('tracksFirstBlood') === 'on',
       isPublic: true,
     });
     setMessage('');
@@ -63,7 +65,7 @@ export function Settings() {
               <input required name="name" defaultValue={tournament.name} className={field} />
             </label>
             <label>
-              {i18n.t('app.createTournament.format')}
+              {i18n.t('app.createTournament.gameOrFormat')}
               <input required name="format" defaultValue={tournament.format} className={field} />
             </label>
             <label>
@@ -78,7 +80,7 @@ export function Settings() {
               />
             </label>
             <label>
-              {i18n.t('app.createTournament.maxPlayers')}
+              {i18n.t('app.createTournament.maxPlayersShort')}
               <input
                 required
                 type="number"
@@ -100,6 +102,30 @@ export function Settings() {
               />
             </label>
           </div>
+          <fieldset className="settings-desk__rules" disabled={tournament.status === 'finalizado'}>
+            <legend>{i18n.t('app.createTournament.gameRules')}</legend>
+            <p>{i18n.t('app.createTournament.gameRulesHelp')}</p>
+            <div className="settings-desk__switches">
+              <label>
+                <span>{i18n.t('app.common.kills')}</span>
+                <input
+                  type="checkbox"
+                  role="switch"
+                  name="tracksKills"
+                  defaultChecked={tournament.tracksKills !== false}
+                />
+              </label>
+              <label>
+                <span>{i18n.t('app.common.firstBlood')}</span>
+                <input
+                  type="checkbox"
+                  role="switch"
+                  name="tracksFirstBlood"
+                  defaultChecked={tournament.tracksFirstBlood === true}
+                />
+              </label>
+            </div>
+          </fieldset>
           <p className="settings-desk__hint">{i18n.t('app.tournament.pointsManual')}</p>
           <div className="flex justify-end">
             <Button disabled={tournament.status === 'finalizado'} className={primary}>
