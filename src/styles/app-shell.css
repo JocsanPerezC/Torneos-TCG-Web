@@ -311,6 +311,12 @@
   background: var(--accent-soft);
   box-shadow: 3px 4px 0 rgba(61, 90, 251, 0.22);
 }
+@media (max-width: 1023px) {
+  .tournament-guide-button {
+    z-index: 31;
+    bottom: calc(4rem + env(safe-area-inset-bottom));
+  }
+}
 .tournament-guide-dialog {
   max-width: 38rem;
 }
@@ -2651,11 +2657,10 @@
 }
 @media (max-width: 460px) {
   .tournament-guide-button {
-    right: 1rem;
-    bottom: 1rem;
-    width: 3.25rem;
-    min-width: 3.25rem;
-    height: 3.25rem;
+    right: 0.5rem;
+    width: 2.75rem;
+    min-width: 2.75rem;
+    height: 2.75rem;
     padding: 0;
   }
   .tournament-guide-button span {
@@ -3126,9 +3131,6 @@
   }
 }
 @media (max-width: 480px) {
-  .app-topbar__profile-text small {
-    display: none;
-  }
   .app-topbar__profile-text strong {
     max-width: 7rem;
   }
