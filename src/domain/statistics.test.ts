@@ -16,6 +16,7 @@ describe('tournamentStatistics', () => {
       publicSlug: 'liga',
       maxPlayers: 3,
       maxTables: 1,
+      tracksFirstBlood: true,
       createdAt: '',
       players: ['a', 'b', 'c'].map((id, tieBreaker) => ({
         id,
@@ -35,7 +36,7 @@ describe('tournamentStatistics', () => {
               number: 1,
               playerIds: ['a', 'b', 'c'],
               results: [
-                { playerId: 'a', points: 10, kills: 1, outcome: 'win' },
+                { playerId: 'a', points: 10, kills: 1, firstBlood: true, outcome: 'win' },
                 { playerId: 'b', points: 0, kills: 0, outcome: 'loss' },
                 { playerId: 'c', points: 5, kills: 1, outcome: 'draw' },
               ],
@@ -53,7 +54,7 @@ describe('tournamentStatistics', () => {
               number: 1,
               playerIds: ['a', 'b', 'c'],
               results: [
-                { playerId: 'a', points: 7, kills: 2, outcome: 'win' },
+                { playerId: 'a', points: 7, kills: 2, firstBlood: true, outcome: 'win' },
                 { playerId: 'b', points: 20, kills: 1, outcome: 'loss' },
                 { playerId: 'c', points: 7, kills: 0, outcome: 'draw' },
               ],
@@ -86,6 +87,8 @@ describe('tournamentStatistics', () => {
     expect(statistics.completedRounds).toBe(2);
     expect(statistics.hunter.players.map((player) => player.id)).toEqual(['a']);
     expect(statistics.hunter.value).toBe(3);
+    expect(statistics.firstBlood.players.map((player) => player.id)).toEqual(['a']);
+    expect(statistics.firstBlood.value).toBe(2);
     expect(statistics.unstoppable.players.map((player) => player.id)).toEqual(['a']);
     expect(statistics.unstoppable.value).toBe(2);
     expect(statistics.perfectAttendance.players.map((player) => player.id)).toEqual([
@@ -114,12 +117,13 @@ describe('tournamentStatistics', () => {
       'b',
     ]);
 
-    // Figura: "a" es Cazador, Cabeza de mesa e Imparable.
+    // Figura: "a" es Cazador, Primera sangre, Cabeza de mesa e Imparable.
     expect(statistics.figure?.player.id).toBe('a');
-    expect(statistics.figure?.titles).toEqual(['hunter', 'tableHead', 'unstoppable']);
+    expect(statistics.figure?.titles).toEqual(['hunter', 'firstBlood', 'tableHead', 'unstoppable']);
 
     const [a, b, c] = statistics.perfectAttendance.players;
     expect(recordStatus(statistics, 'hunter')).toBe('notable');
+    expect(recordStatus(statistics, 'firstBlood')).toBe('notable');
     // Un récord compartido por tres no destaca a nadie.
     expect(
       recordStatus({ ...statistics, hunter: { value: 3, players: [a, b, c] } }, 'hunter'),

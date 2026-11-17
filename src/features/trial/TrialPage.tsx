@@ -182,8 +182,9 @@ export function TrialPage() {
     if (!tournament) return;
     const round = tournament.rounds.find((item) => item.id === roundId);
     if (!round) return;
-    if (!round.pods.every(isValidPodResult)) return setMessage(t('landing.trial.completeResults'));
-    if (!round.pods.every(hasCompletePodOutcomes))
+    if (!round.pods.every((pod) => isValidPodResult(pod)))
+      return setMessage(t('landing.trial.completeResults'));
+    if (!round.pods.every((pod) => hasCompletePodOutcomes(pod)))
       return setMessage(t('landing.trial.completeOutcomes'));
 
     updateTournament((current) => {

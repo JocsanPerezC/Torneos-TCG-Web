@@ -240,6 +240,7 @@ export const en = {
   app: {
     messages: {
       completeResults: 'Complete valid points and kills for every table before ending the round.',
+      completeResultsWithoutKills: 'Complete valid points for every table before ending the round.',
       outcomeRequired: 'Select Win, Loss, or Draw for every player at the table.',
       required: 'Complete this field.',
       playerNameMax: 'Each player name can have a maximum of 80 characters.',
@@ -269,6 +270,9 @@ export const en = {
       pointsShort_one: '{{count}} pt',
       pointsShort_other: '{{count}} pts',
       kills: 'Kills',
+      firstBlood: 'First blood',
+      yes: 'Yes',
+      no: 'No',
       outcome: 'Outcome',
       win: 'Win',
       loss: 'Loss',
@@ -395,15 +399,34 @@ export const en = {
     },
     createTournament: {
       title: 'New tournament',
-      description: 'Set the basics now; you can adjust settings later.',
-      format: 'Format',
       gameOrFormat: 'Game or format',
-      plannedRounds: 'Planned rounds',
-      maxPlayers: 'Maximum players',
-      maxTables: 'Maximum tables',
+      rounds: 'Rounds',
+      maxPlayersShort: 'Max. players',
+      maxTablesShort: 'Max. tables',
+      configuration: 'Configuration',
+      configurationHelp: 'Set the tournament size. Each table holds 3 to 5 players.',
+      gameRules: 'Game rules',
+      gameRulesHelp: 'Choose what is recorded at each table. Points are always counted.',
+      decrease: 'Decrease {{label}}',
+      increase: 'Increase {{label}}',
+      tableSummaryEqual_one: '{{players}} players at {{tables}} table ({{low}} per table).',
+      tableSummaryEqual_other: '{{players}} players at {{tables}} tables ({{low}} per table).',
+      tableSummaryMixed_one:
+        '{{players}} players at {{tables}} table ({{low}} and {{high}} per table).',
+      tableSummaryMixed_other:
+        '{{players}} players at {{tables}} tables ({{low}} and {{high}} per table).',
       create: 'Create tournament',
-      invalidLimits: 'Enter valid limits: at least 3 players and 1 table.',
+      invalidLimits:
+        'Check the numbers: rounds from 1 to 15, players from 3 to 256, and at least 1 table.',
+      tooFewPlayersForTables:
+        '{{tables}} tables need at least {{minimum}} players. Reduce the tables or add players.',
+      tooManyPlayersForTables:
+        '{{tables}} tables fit at most {{maximum}} players. You need at least {{minimumTables}} tables.',
+      nameRequired: 'Enter a name to recognize the tournament.',
       namePlaceholder: 'Saturday Commander',
+      playerPreview: 'This is how each player will look at the table:',
+      previewPlayer: 'Player',
+      previewOutcome: '—',
       creating: 'Creating…',
       created: 'Tournament created.',
     },
@@ -474,6 +497,8 @@ export const en = {
       opponentStrength: 'Opponent strength',
       opponentHelp:
         'Average total points of the people you played against. It is the last tiebreaker, after wins, draws, losses, win rate and kills.',
+      opponentHelpWithoutKills:
+        'Average total points of the people you played against. It is the last tiebreaker, after wins, draws, losses, and win rate.',
       settingsTitle: 'Tournament settings',
       saveChanges: 'Save changes',
       plannedRounds: 'Planned rounds',
@@ -492,6 +517,7 @@ export const en = {
       tableTimeHelp:
         'Minutes:seconds since the round started (for example 42:15). Leave it empty to record it automatically.',
       tableTimeInvalid: 'Use minutes:seconds, for example 42:15, or leave it empty.',
+      firstBloodFor: 'Mark first blood for {{player}}',
       standingsInfo: {
         button: 'How the standings are calculated',
         title: 'How the standings are calculated',
@@ -556,6 +582,7 @@ export const en = {
       roundsDone_one: 'completed round',
       roundsDone_other: 'completed rounds',
       hunter: 'Hunter',
+      firstBlood: 'First blood',
       unstoppable: 'Unstoppable',
       perfectAttendance: 'Perfect attendance',
       rivals: 'Frequent rivals',
@@ -584,6 +611,8 @@ export const en = {
       units: {
         hunter_one: 'kill',
         hunter_other: 'kills',
+        firstBlood_one: 'first blood',
+        firstBlood_other: 'first bloods',
         unstoppable_one: 'win in a row',
         unstoppable_other: 'wins in a row',
         perfectAttendance_one: 'round without missing',
@@ -611,6 +640,7 @@ export const en = {
       },
       taglines: {
         hunter: 'The axe never rests.',
+        firstBlood: 'Always strikes first.',
         unstoppable: 'Nobody has found an answer.',
         perfectAttendance: 'Not a single empty chair.',
         rivals: 'They know each other’s mulligans.',
@@ -627,6 +657,7 @@ export const en = {
       },
       empty: {
         hunter: 'The axe is still clean.',
+        firstBlood: 'First blood is waiting for its owner.',
         unstoppable: 'Nobody has chained wins yet.',
         perfectAttendance: 'Two rounds are needed to take attendance.',
         rivals: 'There is no rematch to tell yet.',

@@ -32,7 +32,10 @@ import {
   removeRemotePlayer,
 } from '@/data/tournamentRepository';
 
-type CreateInput = Pick<Tournament, 'name' | 'format' | 'plannedRounds' | 'isPublic'> &
+type CreateInput = Pick<
+  Tournament,
+  'name' | 'format' | 'plannedRounds' | 'isPublic' | 'tracksKills' | 'tracksFirstBlood'
+> &
   Partial<Pick<Tournament, 'maxPlayers' | 'maxTables'>>;
 export type TournamentStore = Store;
 type Store = {
@@ -81,6 +84,8 @@ function localInitial(): Tournament[] {
         information: tournament.information ?? '',
         maxPlayers: tournament.maxPlayers ?? 32,
         maxTables: tournament.maxTables ?? 8,
+        tracksKills: tournament.tracksKills ?? true,
+        tracksFirstBlood: tournament.tracksFirstBlood ?? false,
       }));
   } catch {}
   return [
@@ -96,6 +101,8 @@ function localInitial(): Tournament[] {
       publicSlug: 'torneos-tcg-demo',
       maxPlayers: 32,
       maxTables: 8,
+      tracksKills: true,
+      tracksFirstBlood: false,
       players: samplePlayers,
       rounds: [],
       createdAt: new Date().toISOString(),
@@ -196,6 +203,8 @@ export function TournamentProvider({ children }: { children: ReactNode }) {
           isPublic: true,
           maxPlayers: input.maxPlayers ?? 32,
           maxTables: input.maxTables ?? 8,
+          tracksKills: input.tracksKills ?? true,
+          tracksFirstBlood: input.tracksFirstBlood ?? false,
           status: 'activo',
           publicSlug: uid().replaceAll('-', ''),
           players: [],
@@ -410,11 +419,15 @@ export function TournamentProvider({ children }: { children: ReactNode }) {
               error = 'Primero debes iniciar la ronda.';
               return;
             }
-            if (!round.pods.every(isValidPodResult)) {
-              error = i18n.t('app.messages.completeResults');
+            if (!round.pods.every((pod) => isValidPodResult(pod, t.tracksKills !== false))) {
+              error = i18n.t(
+                t.tracksKills !== false
+                  ? 'app.messages.completeResults'
+                  : 'app.messages.completeResultsWithoutKills',
+              );
               return;
             }
-            if (!round.pods.every(hasCompletePodOutcomes)) {
+            if (!round.pods.every((pod) => hasCompletePodOutcomes(pod, t.tracksKills !== false))) {
               error = i18n.t('app.messages.outcomeRequired');
               return;
             }
@@ -438,11 +451,15 @@ export function TournamentProvider({ children }: { children: ReactNode }) {
             const round = t.rounds.find((r) => r.id === roundId);
             if (!round) return;
             const index = round.pods.findIndex((item) => item.id === podId);
-            if (index < 0 || !isValidPodResult(pod)) {
-              error = i18n.t('app.messages.completeResults');
+            if (index < 0 || !isValidPodResult(pod, t.tracksKills !== false)) {
+              error = i18n.t(
+                t.tracksKills !== false
+                  ? 'app.messages.completeResults'
+                  : 'app.messages.completeResultsWithoutKills',
+              );
               return;
             }
-            if (!hasCompletePodOutcomes(pod)) {
+            if (!hasCompletePodOutcomes(pod, t.tracksKills !== false)) {
               error = i18n.t('app.messages.outcomeRequired');
               return;
             }

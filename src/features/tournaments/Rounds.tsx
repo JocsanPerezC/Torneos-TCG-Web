@@ -271,6 +271,8 @@ export function Rounds() {
                   names={names}
                   editable={selectedRound.status === 'activa'}
                   roundStartedAt={selectedRound.startedAt}
+                  tracksKills={tournament.tracksKills !== false}
+                  tracksFirstBlood={tournament.tracksFirstBlood === true}
                 />
               ),
             )}

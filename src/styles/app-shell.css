@@ -29,7 +29,8 @@
   width: 100%;
   min-width: 0;
   height: 100vh;
-  min-height: 36rem;
+  height: 100dvh;
+  min-height: 0;
   align-self: start;
   flex-direction: column;
   overflow: hidden;
@@ -1739,7 +1740,7 @@
 .outcome-chips {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.28rem;
+  gap: 0.35rem;
 }
 .outcome-chips__option {
   display: inline-flex;
@@ -2308,6 +2309,9 @@
   font-weight: 700;
   white-space: nowrap;
 }
+.public-table section .public-table__first-blood {
+  color: var(--violet);
+}
 .public-outcome {
   display: inline-flex;
   justify-content: center;
@@ -2411,6 +2415,10 @@
     grid-template-columns: 2.2rem minmax(0, 1fr) auto auto;
   }
   .public-table .public-outcome {
+    grid-column: 2 / -1;
+    justify-self: start;
+  }
+  .public-table .public-table__first-blood {
     grid-column: 2 / -1;
     justify-self: start;
   }
@@ -2592,6 +2600,9 @@
   grid-template-columns: repeat(3, minmax(0, 1fr));
   border-top: 1px solid var(--border);
 }
+.pod-entry__metrics--with-first-blood {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
 .pod-entry__metrics p {
   margin: 0;
   padding: 0.55rem 0.65rem;
@@ -2617,12 +2628,20 @@
   flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
-  gap: 0.55rem;
+  gap: 0.75rem;
+  padding: 0 0.75rem;
+}
+.pod-entry__header h5 {
+  padding-right: 0;
+  padding-left: 0;
 }
 .pod-entry__fields {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   border-top: 1px solid var(--border);
+}
+.pod-entry__fields--with-first-blood {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
 }
 .pod-entry__fields label {
   padding: 0.65rem 0.75rem;
@@ -2632,6 +2651,49 @@
 }
 .pod-entry__fields label + label {
   border-left: 1px solid var(--border);
+}
+.pod-entry__fields .pod-first-blood {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.45rem;
+}
+.pod-first-blood__control {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--app-radius-pill);
+  padding: 0.35rem 0.55rem;
+  background: var(--paper);
+  color: var(--ink-soft);
+  line-height: 1;
+  transition:
+    border-color 150ms ease,
+    background 150ms ease,
+    color 150ms ease;
+}
+.pod-first-blood__input {
+  width: 0.95rem;
+  height: 0.95rem;
+  margin: 0;
+  appearance: none;
+  border: 1.5px solid var(--ink-soft);
+  border-radius: 50%;
+  background: var(--paper);
+  cursor: pointer;
+}
+.pod-first-blood__input:checked {
+  border: 0.3rem solid var(--violet);
+}
+.pod-first-blood:has(.pod-first-blood__input:checked) .pod-first-blood__control {
+  border-color: var(--violet);
+  background: var(--violet-soft);
+  color: var(--violet);
+}
+.pod-first-blood__input:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
 }
 .app-help {
   appearance: none;

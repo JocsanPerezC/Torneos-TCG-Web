@@ -240,6 +240,8 @@ export const es = {
     messages: {
       completeResults:
         'Completa los puntos y kills válidos de todas las mesas antes de terminar la ronda.',
+      completeResultsWithoutKills:
+        'Completa los puntos válidos de todas las mesas antes de terminar la ronda.',
       outcomeRequired: 'Selecciona Victoria, Derrota o Empate para cada jugador de la mesa.',
       required: 'Completa este campo.',
       playerNameMax: 'Cada nombre de jugador admite un máximo de 80 caracteres.',
@@ -269,6 +271,9 @@ export const es = {
       pointsShort_one: '{{count}} pt',
       pointsShort_other: '{{count}} pts',
       kills: 'Kills',
+      firstBlood: 'Primera sangre',
+      yes: 'Sí',
+      no: 'No',
       outcome: 'Resultado',
       win: 'Victoria',
       loss: 'Derrota',
@@ -395,15 +400,34 @@ export const es = {
     },
     createTournament: {
       title: 'Nuevo torneo',
-      description: 'Define lo básico ahora; podrás ajustar la configuración después.',
-      format: 'Formato',
       gameOrFormat: 'Juego o formato',
-      plannedRounds: 'Rondas planificadas',
-      maxPlayers: 'Máximo de jugadores',
-      maxTables: 'Máximo de mesas',
+      rounds: 'Rondas',
+      maxPlayersShort: 'Máx. de jugadores',
+      maxTablesShort: 'Máx. de mesas',
+      configuration: 'Configuración',
+      configurationHelp: 'Define el tamaño del torneo. Cada mesa admite de 3 a 5 jugadores.',
+      gameRules: 'Reglas de la partida',
+      gameRulesHelp: 'Elige qué se registra en cada mesa. Los puntos siempre se cuentan.',
+      decrease: 'Reducir {{label}}',
+      increase: 'Aumentar {{label}}',
+      tableSummaryEqual_one: '{{players}} jugadores en {{tables}} mesa ({{low}} por mesa).',
+      tableSummaryEqual_other: '{{players}} jugadores en {{tables}} mesas ({{low}} por mesa).',
+      tableSummaryMixed_one:
+        '{{players}} jugadores en {{tables}} mesa ({{low}} y {{high}} por mesa).',
+      tableSummaryMixed_other:
+        '{{players}} jugadores en {{tables}} mesas ({{low}} y {{high}} por mesa).',
       create: 'Crear torneo',
-      invalidLimits: 'Indica límites válidos: al menos 3 jugadores y 1 mesa.',
+      invalidLimits:
+        'Revisa los números: rondas de 1 a 15, jugadores de 3 a 256 y al menos 1 mesa.',
+      tooFewPlayersForTables:
+        'Con {{tables}} mesas necesitas al menos {{minimum}} jugadores. Reduce las mesas o suma jugadores.',
+      tooManyPlayersForTables:
+        'Con {{tables}} mesas caben máximo {{maximum}} jugadores. Necesitas al menos {{minimumTables}} mesas.',
+      nameRequired: 'Escribe un nombre para reconocer el torneo.',
       namePlaceholder: 'Commander de sábado',
+      playerPreview: 'Así se verá cada jugador en la mesa:',
+      previewPlayer: 'Jugador',
+      previewOutcome: '—',
       creating: 'Creando…',
       created: 'Torneo creado.',
     },
@@ -486,6 +510,8 @@ export const es = {
       opponentStrength: 'Fuerza de oponentes',
       opponentHelp:
         'Promedio de los puntos totales de las personas contra quienes jugaste. Es el último desempate, después de victorias, empates, derrotas, win rate y kills.',
+      opponentHelpWithoutKills:
+        'Promedio de los puntos totales de las personas contra quienes jugaste. Es el último desempate, después de victorias, empates, derrotas y win rate.',
       settingsTitle: 'Configuración del torneo',
       saveChanges: 'Guardar cambios',
       plannedRounds: 'Rondas planificadas',
@@ -504,6 +530,7 @@ export const es = {
       tableTimeHelp:
         'Minutos:segundos desde que empezó la ronda (por ejemplo 42:15). Déjalo vacío para que se anote solo.',
       tableTimeInvalid: 'Usa minutos:segundos, por ejemplo 42:15, o déjalo vacío.',
+      firstBloodFor: 'Marcar primera sangre para {{player}}',
       standingsInfo: {
         button: 'Cómo se calcula la clasificación',
         title: 'Cómo se calcula la clasificación',
@@ -559,6 +586,7 @@ export const es = {
       roundsDone_one: 'ronda terminada',
       roundsDone_other: 'rondas terminadas',
       hunter: 'Cazador',
+      firstBlood: 'Primera sangre',
       unstoppable: 'Imparable',
       perfectAttendance: 'Asistencia perfecta',
       rivals: 'Rivales frecuentes',
@@ -587,6 +615,8 @@ export const es = {
       units: {
         hunter_one: 'kill',
         hunter_other: 'kills',
+        firstBlood_one: 'primera sangre',
+        firstBlood_other: 'primeras sangres',
         unstoppable_one: 'victoria seguida',
         unstoppable_other: 'victorias seguidas',
         perfectAttendance_one: 'ronda sin faltar',
@@ -614,6 +644,7 @@ export const es = {
       },
       taglines: {
         hunter: 'El hacha no descansa.',
+        firstBlood: 'Siempre pega primero.',
         unstoppable: 'Nadie le encuentra la vuelta.',
         perfectAttendance: 'Ni una silla vacía.',
         rivals: 'Ya se saben los mulligans.',
@@ -630,6 +661,7 @@ export const es = {
       },
       empty: {
         hunter: 'El hacha sigue limpia.',
+        firstBlood: 'La primera sangre espera su dueño.',
         unstoppable: 'Nadie encadenó victorias todavía.',
         perfectAttendance: 'Hacen falta dos rondas para pasar lista.',
         rivals: 'Todavía no hay revancha que contar.',

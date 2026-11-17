@@ -64,6 +64,8 @@ export function PublicView() {
   };
   const names = Object.fromEntries(tournament.players.map((player) => [player.id, player.name]));
   const rows = standings(tournament);
+  const tracksKills = tournament.tracksKills !== false;
+  const tracksFirstBlood = tournament.tracksFirstBlood === true;
   return (
     <main className="public-scoreboard">
       <div className="public-scoreboard__wrap">
@@ -158,7 +160,15 @@ export function PublicView() {
                                 <b>
                                   {result.points} <small>{i18n.t('app.common.points')}</small>
                                 </b>
-                                <em>{result.kills} ☠</em>
+                                {tracksKills && <em>{result.kills} ☠</em>}
+                                {tracksFirstBlood && (
+                                  <em className="public-table__first-blood">
+                                    {i18n.t('app.common.firstBlood')}{' '}
+                                    {result.firstBlood
+                                      ? i18n.t('app.common.yes')
+                                      : i18n.t('app.common.no')}
+                                  </em>
+                                )}
                                 <i
                                   className={`public-outcome public-outcome--${result.outcome ?? 'pending'}`}
                                 >
@@ -204,7 +214,8 @@ export function PublicView() {
                     {row.points} <small>{i18n.t('app.common.points')}</small>
                   </b>
                   <em>
-                    {row.kills} ☠ · {row.winRate.toFixed(1)}%
+                    {tracksKills && `${row.kills} ☠ · `}
+                    {row.winRate.toFixed(1)}%
                   </em>
                 </li>
               ))}
@@ -220,7 +231,8 @@ export function PublicView() {
                     <th>{i18n.t('app.common.losses')}</th>
                     <th>{i18n.t('app.common.draws')}</th>
                     <th>{i18n.t('app.common.winRate')}</th>
-                    <th>{i18n.t('app.common.kills')}</th>
+                    {tracksKills && <th>{i18n.t('app.common.kills')}</th>}
+                    {tracksFirstBlood && <th>{i18n.t('app.common.firstBlood')}</th>}
                     <th>{i18n.t('app.tournament.opponentStrength')}</th>
                     <th title={i18n.t('app.tournament.averageWinTimeHelp')}>
                       {i18n.t('app.tournament.averageWinTime')}
@@ -256,7 +268,8 @@ export function PublicView() {
                       <td>{row.losses}</td>
                       <td>{row.draws}</td>
                       <td>{row.winRate.toFixed(1)}%</td>
-                      <td>{row.kills}</td>
+                      {tracksKills && <td>{row.kills}</td>}
+                      {tracksFirstBlood && <td>{row.firstBloods}</td>}
                       <td>{row.opponentStrength.toFixed(1)}</td>
                       <td>
                         {row.averageWinTime !== undefined
@@ -273,7 +286,11 @@ export function PublicView() {
         )}
         {view === 'statistics' && (
           <section className="public-scoreboard__statistics">
-            <BattleLedger statistics={tournamentStatistics(tournament)} />
+            <BattleLedger
+              statistics={tournamentStatistics(tournament)}
+              tracksKills={tracksKills}
+              tracksFirstBlood={tracksFirstBlood}
+            />
           </section>
         )}
       </div>

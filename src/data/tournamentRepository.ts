@@ -18,6 +18,8 @@ const mapTournament = (row: Row): Tournament => {
     publicSlug: String(row.public_slug),
     maxPlayers: Number(row.max_players ?? 32),
     maxTables: Number(row.max_tables ?? 8),
+    tracksKills: Boolean(row.tracks_kills ?? true),
+    tracksFirstBlood: Boolean(row.tracks_first_blood ?? false),
     createdAt: String(row.created_at),
     players: asArray(row.players).map((p) => ({
       id: String(p.id),
@@ -54,6 +56,7 @@ const mapTournament = (row: Row): Tournament => {
             playerId: String(result.player_id),
             points: Number(result.points),
             kills: Number(result.kills),
+            firstBlood: Boolean(result.first_blood),
             outcome: asOutcome(result.outcome),
           })),
         })),
@@ -88,19 +91,23 @@ export async function loadPublicTournament(slug: string) {
   return data ? (data as Tournament) : undefined;
 }
 export async function insertTournament(t: Tournament) {
-  const { error } = await client().from('tournaments').insert({
-    id: t.id,
-    owner_id: t.ownerId,
-    name: t.name,
-    format: t.format,
-    information: t.information,
-    planned_rounds: t.plannedRounds,
-    status: t.status,
-    is_public: t.isPublic,
-    public_slug: t.publicSlug,
-    max_players: t.maxPlayers,
-    max_tables: t.maxTables,
-  });
+  const { error } = await client()
+    .from('tournaments')
+    .insert({
+      id: t.id,
+      owner_id: t.ownerId,
+      name: t.name,
+      format: t.format,
+      information: t.information,
+      planned_rounds: t.plannedRounds,
+      status: t.status,
+      is_public: t.isPublic,
+      public_slug: t.publicSlug,
+      max_players: t.maxPlayers,
+      max_tables: t.maxTables,
+      tracks_kills: t.tracksKills ?? true,
+      tracks_first_blood: t.tracksFirstBlood ?? false,
+    });
   if (error) throw error;
 }
 export async function persistTournament(t: Tournament) {
@@ -115,6 +122,8 @@ export async function persistTournament(t: Tournament) {
       is_public: t.isPublic,
       max_players: t.maxPlayers,
       max_tables: t.maxTables,
+      tracks_kills: t.tracksKills ?? true,
+      tracks_first_blood: t.tracksFirstBlood ?? false,
     })
     .eq('id', t.id);
   if (error) throw error;
@@ -197,6 +206,7 @@ export async function persistPod(pod: Pod) {
         player_id: r.playerId,
         points: r.points,
         kills: r.kills,
+        first_blood: r.firstBlood ?? false,
         outcome: r.outcome ?? null,
       })),
       { onConflict: 'pod_id,player_id' },

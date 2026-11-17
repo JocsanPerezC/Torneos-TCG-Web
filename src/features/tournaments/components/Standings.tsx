@@ -12,12 +12,18 @@ import i18n from '@/i18n';
 
 export function Standings() {
   const { id } = useParams();
-  const rows = useTournaments().standingsFor(id!);
+  const { standingsFor, tournaments } = useTournaments();
+  const rows = standingsFor(id!);
+  const tournament = tournaments.find((item) => item.id === id);
+  const tracksKills = tournament?.tracksKills !== false;
+  const tracksFirstBlood = tournament?.tracksFirstBlood === true;
   const previousRanks = useRef(new Map<string, number>());
   const [movedRankIds, setMovedRankIds] = useState<string[]>([]);
   const [showInfo, setShowInfo] = useState(false);
   const movedRanksTimer = useRef<number | undefined>(undefined);
-  const opponentHelp = i18n.t('app.tournament.opponentHelp');
+  const opponentHelp = i18n.t(
+    tracksKills ? 'app.tournament.opponentHelp' : 'app.tournament.opponentHelpWithoutKills',
+  );
   const winRateHelp = i18n.t('app.common.winRateHelp');
   const averageWinHelp = i18n.t('app.tournament.averageWinTimeHelp');
   useEffect(() => {
@@ -67,11 +73,11 @@ export function Standings() {
           onClose={() => setShowInfo(false)}
         >
           <ol className="list-decimal space-y-3 pl-5 text-sm leading-6 text-muted-foreground">
-            {(['points', 'results', 'winRate', 'kills', 'opponents', 'shared'] as const).map(
-              (step) => (
+            {(['points', 'results', 'winRate', 'kills', 'opponents', 'shared'] as const)
+              .filter((step) => tracksKills || step !== 'kills')
+              .map((step) => (
                 <li key={step}>{i18n.t(`app.tournament.standingsInfo.${step}`)}</li>
-              ),
-            )}
+              ))}
           </ol>
           <p className="mt-4 text-xs leading-5 text-muted-foreground">
             {i18n.t('app.tournament.standingsInfo.outcomes')}
@@ -103,7 +109,8 @@ export function Standings() {
                 {row.points} <small>{i18n.t('app.common.points')}</small>
               </b>
               <em>
-                {row.kills} ☠ · {row.winRate.toFixed(1)}%
+                {tracksKills && `${row.kills} ☠ · `}
+                {row.winRate.toFixed(1)}%
               </em>
             </li>
           ))}
@@ -132,7 +139,8 @@ export function Standings() {
                   </span>
                 </span>
               </th>
-              <th>{i18n.t('app.common.kills')}</th>
+              {tracksKills && <th>{i18n.t('app.common.kills')}</th>}
+              {tracksFirstBlood && <th>{i18n.t('app.common.firstBlood')}</th>}
               <th>
                 <span>
                   {i18n.t('app.tournament.opponentStrength')}
@@ -192,7 +200,8 @@ export function Standings() {
                 <td>{row.losses}</td>
                 <td>{row.draws}</td>
                 <td>{row.winRate.toFixed(1)}%</td>
-                <td>{row.kills}</td>
+                {tracksKills && <td>{row.kills}</td>}
+                {tracksFirstBlood && <td>{row.firstBloods}</td>}
                 <td>{row.opponentStrength.toFixed(1)}</td>
                 <td>
                   {row.averageWinTime !== undefined ? formatDuration(row.averageWinTime) : '—'}

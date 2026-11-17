@@ -1,7 +1,7 @@
 import { podDuration } from '@/domain/timing';
 import type { Pod, Standing, Tournament } from '@/domain/types';
 
-export function isValidPodResult(pod: Pod): boolean {
+export function isValidPodResult(pod: Pod, tracksKills = true): boolean {
   const results = pod.results ?? [];
   if (
     results.length !== pod.playerIds.length ||
@@ -9,9 +9,7 @@ export function isValidPodResult(pod: Pod): boolean {
       (r) =>
         r.points < 0 ||
         !Number.isInteger(r.points) ||
-        r.kills < 0 ||
-        r.kills > 5 ||
-        !Number.isInteger(r.kills),
+        (tracksKills && (r.kills < 0 || r.kills > 5 || !Number.isInteger(r.kills))),
     )
   )
     return false;
@@ -23,17 +21,22 @@ export function isValidPodResult(pod: Pod): boolean {
   return true;
 }
 
-export function hasCompletePodOutcomes(pod: Pod): boolean {
-  return isValidPodResult(pod) && (pod.results ?? []).every((result) => result.outcome);
+export function hasCompletePodOutcomes(pod: Pod, tracksKills = true): boolean {
+  return (
+    isValidPodResult(pod, tracksKills) && (pod.results ?? []).every((result) => result.outcome)
+  );
 }
 
 export function standings(tournament: Tournament): Standing[] {
+  const tracksKills = tournament.tracksKills !== false;
+  const tracksFirstBlood = tournament.tracksFirstBlood === true;
   const stat = Object.fromEntries(
     tournament.players.map((player) => [
       player.id,
       {
         points: 0,
         kills: 0,
+        firstBloods: 0,
         roundsPlayed: 0,
         wins: 0,
         losses: 0,
@@ -45,12 +48,13 @@ export function standings(tournament: Tournament): Standing[] {
   );
   for (const round of tournament.rounds)
     for (const pod of round.pods)
-      if (isValidPodResult(pod)) {
-        const hasCompleteOutcomes = hasCompletePodOutcomes(pod);
+      if (isValidPodResult(pod, tracksKills)) {
+        const hasCompleteOutcomes = hasCompletePodOutcomes(pod, tracksKills);
         for (const result of pod.results ?? []) {
           const entry = stat[result.playerId];
           entry.points += result.points;
-          entry.kills += result.kills;
+          entry.kills += tracksKills ? result.kills : 0;
+          entry.firstBloods += tracksFirstBlood && result.firstBlood ? 1 : 0;
           entry.roundsPlayed++;
           entry.opponents.push(...pod.playerIds.filter((id) => id !== result.playerId));
           if (hasCompleteOutcomes) {
@@ -85,14 +89,15 @@ export function standings(tournament: Tournament): Standing[] {
     const decidedRounds = row.wins + row.losses + row.draws;
     row.winRate = decidedRounds ? ((row.wins + row.draws * 0.5) / decidedRounds) * 100 : 0;
   }
-  rows.sort((a, b) => compareStandings(a, b) || a.player.tieBreaker - b.player.tieBreaker);
+  const compare = (a: RankedValues, b: RankedValues) => compareStandings(a, b, tracksKills);
+  rows.sort((a, b) => compare(a, b) || a.player.tieBreaker - b.player.tieBreaker);
   // Quien empata en todos los criterios comparte el puesto (1, 2, 2, 4).
   const ranked: Standing[] = [];
   rows.forEach((row, index) => {
     const previous = ranked[index - 1];
     ranked.push({
       ...row,
-      rank: previous && compareStandings(previous, row) === 0 ? previous.rank : index + 1,
+      rank: previous && compare(previous, row) === 0 ? previous.rank : index + 1,
     });
   });
   return ranked;
@@ -108,7 +113,7 @@ type RankedValues = Pick<
  * win rate, kills y promedio de puntos de los rivales. Devuelve 0 si empatan en todo.
  * Las funciones de estadísticas de Supabase replican este mismo orden.
  */
-export function compareStandings(a: RankedValues, b: RankedValues) {
+export function compareStandings(a: RankedValues, b: RankedValues, tracksKills = true) {
   const strength = b.opponentStrength - a.opponentStrength;
   return (
     b.points - a.points ||
@@ -116,7 +121,7 @@ export function compareStandings(a: RankedValues, b: RankedValues) {
     b.draws - a.draws ||
     a.losses - b.losses ||
     b.winRate - a.winRate ||
-    b.kills - a.kills ||
+    (tracksKills ? b.kills - a.kills : 0) ||
     (Math.abs(strength) < 1e-9 ? 0 : strength)
   );
 }

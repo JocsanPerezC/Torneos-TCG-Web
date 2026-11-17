@@ -25,6 +25,8 @@ import {
 
 interface BattleLedgerProps {
   statistics: TournamentStatistics;
+  tracksKills?: boolean;
+  tracksFirstBlood?: boolean;
 }
 
 /** Columnas (de 6) para que cada fila de tarjetas cierre sin huecos. */
@@ -99,7 +101,11 @@ function recordGlyph(key: RecordKey, statistics: TournamentStatistics): ReactNod
   }
 }
 
-export function BattleLedger({ statistics }: BattleLedgerProps) {
+export function BattleLedger({
+  statistics,
+  tracksKills = true,
+  tracksFirstBlood = false,
+}: BattleLedgerProps) {
   const { t, i18n } = useTranslation();
   const list = new Intl.ListFormat(i18n.language, { type: 'conjunction' });
   const names = (players: Player[]) =>
@@ -107,7 +113,11 @@ export function BattleLedger({ statistics }: BattleLedgerProps) {
       ? `${list.format(players.slice(0, 3).map((player) => player.name))} +${players.length - 3}`
       : list.format(players.map((player) => player.name));
 
-  const statuses = RECORD_ORDER.map((key) => [key, recordStatus(statistics, key)] as const);
+  const statuses = RECORD_ORDER.filter(
+    (key) =>
+      (tracksKills || (key !== 'hunter' && key !== 'bloodiestTable')) &&
+      (tracksFirstBlood || key !== 'firstBlood'),
+  ).map((key) => [key, recordStatus(statistics, key)] as const);
   const notable = statuses.filter(([, status]) => status === 'notable').map(([key]) => key);
   const playerRecords = notable.filter((key) => !TABLE_RECORDS.includes(key));
   const tableRecords = notable.filter((key) => TABLE_RECORDS.includes(key));

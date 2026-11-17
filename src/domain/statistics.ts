@@ -49,6 +49,7 @@ export interface FastestWinHighlight extends PlayerHighlight {
 export interface TournamentStatistics {
   completedRounds: number;
   hunter: PlayerHighlight;
+  firstBlood: PlayerHighlight;
   unstoppable: PlayerHighlight;
   perfectAttendance: PlayerHighlight;
   rivals: RivalryHighlight;
@@ -68,6 +69,7 @@ export interface TournamentStatistics {
 
 export type RecordKey =
   | 'hunter'
+  | 'firstBlood'
   | 'unstoppable'
   | 'perfectAttendance'
   | 'rivals'
@@ -85,6 +87,7 @@ export type RecordKey =
 /** Orden de lectura de los récords: primero los de mérito, al final los de mala suerte. */
 export const RECORD_ORDER: RecordKey[] = [
   'hunter',
+  'firstBlood',
   'tableHead',
   'unstoppable',
   'bestRound',
@@ -118,6 +121,7 @@ const MIN_RECORD_VALUE: Partial<Record<RecordKey, number>> = {
 
 const POSITIVE_RECORDS: RecordKey[] = [
   'hunter',
+  'firstBlood',
   'tableHead',
   'unstoppable',
   'bestRound',
@@ -178,11 +182,14 @@ function tableHighlight(
 }
 
 export function tournamentStatistics(tournament: Tournament): TournamentStatistics {
+  const tracksKills = tournament.tracksKills !== false;
+  const tracksFirstBlood = tournament.tracksFirstBlood === true;
   const completedRounds = tournament.rounds
     .filter((round) => round.status === 'completada')
     .sort((first, second) => first.number - second.number);
   const playersById = Object.fromEntries(tournament.players.map((player) => [player.id, player]));
   const kills = Object.fromEntries(tournament.players.map((player) => [player.id, 0]));
+  const firstBloods = Object.fromEntries(tournament.players.map((player) => [player.id, 0]));
   const attendance = Object.fromEntries(tournament.players.map((player) => [player.id, 0]));
   const wins = Object.fromEntries(tournament.players.map((player) => [player.id, 0]));
   const losses = Object.fromEntries(tournament.players.map((player) => [player.id, 0]));
@@ -207,7 +214,7 @@ export function tournamentStatistics(tournament: Tournament): TournamentStatisti
           const key = [pod.playerIds[index], pod.playerIds[next]].sort().join('|');
           rivalries.set(key, (rivalries.get(key) ?? 0) + 1);
         }
-      if (isValidPodResult(pod)) {
+      if (isValidPodResult(pod, tracksKills)) {
         const results = pod.results ?? [];
         const points = results.map((result) => result.points);
         tableStats.push({
@@ -223,22 +230,24 @@ export function tournamentStatistics(tournament: Tournament): TournamentStatisti
                     {
                       player: playersById[result.playerId],
                       points: result.points,
-                      kills: result.kills,
+                      kills: tracksKills ? result.kills : 0,
                     },
                   ]
                 : [],
             )
             .sort((first, second) => second.points - first.points),
           pointDifference: Math.max(...points) - Math.min(...points),
-          kills: results.reduce((total, result) => total + result.kills, 0),
+          kills: tracksKills ? results.reduce((total, result) => total + result.kills, 0) : 0,
         });
         for (const result of results) {
-          kills[result.playerId] = (kills[result.playerId] ?? 0) + result.kills;
+          kills[result.playerId] = (kills[result.playerId] ?? 0) + (tracksKills ? result.kills : 0);
+          firstBloods[result.playerId] =
+            (firstBloods[result.playerId] ?? 0) + (tracksFirstBlood && result.firstBlood ? 1 : 0);
           bestScores[result.playerId] = Math.max(bestScores[result.playerId] ?? 0, result.points);
           playerPoints[result.playerId] = [...(playerPoints[result.playerId] ?? []), result.points];
         }
       }
-      if (hasCompletePodOutcomes(pod))
+      if (hasCompletePodOutcomes(pod, tracksKills))
         for (const result of pod.results ?? []) {
           outcomes.set(result.playerId, result.outcome!);
           if (result.outcome === 'win') wins[result.playerId] = (wins[result.playerId] ?? 0) + 1;
@@ -332,6 +341,7 @@ export function tournamentStatistics(tournament: Tournament): TournamentStatisti
   const statistics: TournamentStatistics = {
     completedRounds: completedRounds.length,
     hunter: playerHighlight(tournament.players, kills),
+    firstBlood: playerHighlight(tournament.players, firstBloods),
     unstoppable: playerHighlight(tournament.players, longestWinStreak),
     perfectAttendance: completedRounds.length
       ? {

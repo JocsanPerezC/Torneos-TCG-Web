@@ -24,6 +24,7 @@ export interface Result {
   playerId: string;
   points: number;
   kills: number;
+  firstBlood?: boolean;
   outcome?: ResultOutcome;
 }
 export interface Pod {
@@ -56,6 +57,10 @@ export interface Tournament {
   publicSlug: string;
   maxPlayers: number;
   maxTables: number;
+  /** Registra kills y las usa como desempate. */
+  tracksKills?: boolean;
+  /** Permite marcar una sola primera sangre por mesa. */
+  tracksFirstBlood?: boolean;
   players: Player[];
   rounds: Round[];
   createdAt: string;
@@ -65,6 +70,7 @@ export interface Standing {
   rank: number;
   points: number;
   kills: number;
+  firstBloods: number;
   roundsPlayed: number;
   wins: number;
   losses: number;

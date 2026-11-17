@@ -502,7 +502,8 @@
   --rec-color: var(--red);
 }
 .battle-note--tableHead,
-.battle-note--drawRoyalty {
+.battle-note--drawRoyalty,
+.battle-note--firstBlood {
   --rec-color: var(--violet);
 }
 .battle-note--constant,
@@ -540,6 +541,11 @@
   border-color: var(--violet);
   border-radius: 0.8rem 2rem 0.8rem 2rem;
   background: #faf7ff;
+}
+.battle-note--firstBlood {
+  border-color: var(--violet);
+  border-radius: 1.5rem 0.65rem 1.5rem 0.65rem;
+  background: var(--violet-soft);
 }
 .battle-note--perfectAttendance {
   border-style: dashed;

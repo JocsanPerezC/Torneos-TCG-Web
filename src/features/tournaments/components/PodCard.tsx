@@ -17,6 +17,8 @@ export function PodCard({
   readOnly,
   editable,
   roundStartedAt,
+  tracksKills = true,
+  tracksFirstBlood = false,
 }: {
   tournamentId: string;
   roundId: string;
@@ -26,6 +28,8 @@ export function PodCard({
   editable: boolean;
   /** Inicio de la ronda: sin él no se puede medir ni editar el tiempo de la mesa. */
   roundStartedAt?: string;
+  tracksKills?: boolean;
+  tracksFirstBlood?: boolean;
 }) {
   const { savePod } = useTournaments();
   const [savedFeedback, setSavedFeedback] = useState(false);
@@ -63,7 +67,8 @@ export function PodCard({
         return {
           playerId,
           points: Number(form.get(`points-${playerId}`)),
-          kills: Number(form.get(`kills-${playerId}`)),
+          kills: tracksKills ? Number(form.get(`kills-${playerId}`)) : 0,
+          firstBlood: tracksFirstBlood && form.get('firstBlood') === playerId,
           outcome:
             outcome === 'win' || outcome === 'loss' || outcome === 'draw' ? outcome : undefined,
         };
@@ -73,6 +78,7 @@ export function PodCard({
       savePod(tournamentId, roundId, pod.id, next) ?? i18n.t('app.tournament.results');
     const validationMessages = [
       i18n.t('app.messages.completeResults'),
+      i18n.t('app.messages.completeResultsWithoutKills'),
       i18n.t('app.messages.outcomeRequired'),
     ];
     const isValidationError = validationMessages.includes(message);
@@ -99,13 +105,27 @@ export function PodCard({
               <section className="pod-entry" key={playerId}>
                 <h5>{names[playerId]}</h5>
                 {result ? (
-                  <div className="pod-entry__metrics">
+                  <div
+                    className={`pod-entry__metrics ${
+                      tracksFirstBlood ? 'pod-entry__metrics--with-first-blood' : ''
+                    }`}
+                  >
                     <p>
                       {i18n.t('app.common.points')} <strong>{result.points}</strong>
                     </p>
-                    <p>
-                      {i18n.t('app.common.kills')} <strong>{result.kills}</strong>
-                    </p>
+                    {tracksKills && (
+                      <p>
+                        {i18n.t('app.common.kills')} <strong>{result.kills}</strong>
+                      </p>
+                    )}
+                    {tracksFirstBlood && (
+                      <p>
+                        {i18n.t('app.common.firstBlood')}{' '}
+                        <strong>
+                          {result.firstBlood ? i18n.t('app.common.yes') : i18n.t('app.common.no')}
+                        </strong>
+                      </p>
+                    )}
                     <p>
                       {i18n.t('app.common.outcome')} <strong>{outcomeLabel(result.outcome)}</strong>
                     </p>
@@ -119,7 +139,7 @@ export function PodCard({
         </div>
       )}
       {editable && (
-        <form onSubmit={save} className="mt-3 space-y-4">
+        <form onSubmit={save} className="mt-5 space-y-4">
           <p className="pod-results-help">{i18n.t('app.tournament.registerResults')}</p>
           <div className="grid gap-3">
             {pod.playerIds.map((playerId) => (
@@ -131,7 +151,11 @@ export function PodCard({
                     outcome={pod.results?.find((result) => result.playerId === playerId)?.outcome}
                   />
                 </div>
-                <div className="pod-entry__fields">
+                <div
+                  className={`pod-entry__fields ${
+                    tracksFirstBlood ? 'pod-entry__fields--with-first-blood' : ''
+                  }`}
+                >
                   <label>
                     {i18n.t('app.common.points')}
                     <input
@@ -145,20 +169,41 @@ export function PodCard({
                       className={`${field} mt-2 py-2 text-sm`}
                     />
                   </label>
-                  <label>
-                    {i18n.t('app.common.kills')}
-                    <input
-                      required
-                      min="0"
-                      max="5"
-                      name={`kills-${playerId}`}
-                      defaultValue={
-                        pod.results?.find((result) => result.playerId === playerId)?.kills ?? 0
-                      }
-                      type="number"
-                      className={`${field} mt-2 py-2 text-sm`}
-                    />
-                  </label>
+                  {tracksKills && (
+                    <label>
+                      {i18n.t('app.common.kills')}
+                      <input
+                        required
+                        min="0"
+                        max="5"
+                        name={`kills-${playerId}`}
+                        defaultValue={
+                          pod.results?.find((result) => result.playerId === playerId)?.kills ?? 0
+                        }
+                        type="number"
+                        className={`${field} mt-2 py-2 text-sm`}
+                      />
+                    </label>
+                  )}
+                  {tracksFirstBlood && (
+                    <label className="pod-first-blood">
+                      <span className="pod-first-blood__control">
+                        <input
+                          type="radio"
+                          name="firstBlood"
+                          value={playerId}
+                          defaultChecked={Boolean(
+                            pod.results?.find((result) => result.playerId === playerId)?.firstBlood,
+                          )}
+                          aria-label={i18n.t('app.tournament.firstBloodFor', {
+                            player: names[playerId],
+                          })}
+                          className="pod-first-blood__input"
+                        />
+                        <span>{i18n.t('app.common.firstBlood')}</span>
+                      </span>
+                    </label>
+                  )}
                 </div>
               </section>
             ))}

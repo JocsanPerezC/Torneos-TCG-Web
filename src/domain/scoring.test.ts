@@ -38,6 +38,7 @@ describe('standings', () => {
       publicSlug: 'liga',
       maxPlayers: 3,
       maxTables: 1,
+      tracksFirstBlood: true,
       createdAt: '',
       players: ['a', 'b', 'c'].map((id, tieBreaker) => ({
         id,
@@ -57,7 +58,7 @@ describe('standings', () => {
               number: 1,
               playerIds: ['a', 'b', 'c'],
               results: [
-                { playerId: 'a', points: 0, kills: 0, outcome: 'win' },
+                { playerId: 'a', points: 0, kills: 0, firstBlood: true, outcome: 'win' },
                 { playerId: 'b', points: 3, kills: 0, outcome: 'loss' },
                 { playerId: 'c', points: 1, kills: 0, outcome: 'loss' },
               ],
@@ -76,7 +77,7 @@ describe('standings', () => {
               playerIds: ['a', 'b', 'c'],
               results: [
                 { playerId: 'a', points: 2, kills: 0, outcome: 'draw' },
-                { playerId: 'b', points: 2, kills: 0, outcome: 'draw' },
+                { playerId: 'b', points: 2, kills: 0, firstBlood: true, outcome: 'draw' },
                 { playerId: 'c', points: 0, kills: 0, outcome: 'loss' },
               ],
             },
@@ -110,6 +111,8 @@ describe('standings', () => {
     expect(rows.a).toMatchObject({ wins: 1, losses: 0, draws: 1, roundsPlayed: 3, winRate: 75 });
     expect(rows.b).toMatchObject({ wins: 0, losses: 1, draws: 1, roundsPlayed: 3, winRate: 25 });
     expect(rows.c).toMatchObject({ wins: 0, losses: 2, draws: 0, roundsPlayed: 3, winRate: 0 });
+    expect(rows.a.firstBloods).toBe(1);
+    expect(rows.b.firstBloods).toBe(1);
   });
 
   it('ordena por puntos, victorias, empates, derrotas, win rate, kills y rivales', () => {
@@ -134,6 +137,53 @@ describe('standings', () => {
     expect(better({ kills: 3, opponentStrength: 0 })).toBe(true);
     expect(better({ opponentStrength: 5 })).toBe(true);
     expect(compareStandings(base, { ...base })).toBe(0);
+  });
+
+  it('omite kills de los totales y desempates cuando el torneo no las registra', () => {
+    const rows = standings({
+      id: 't',
+      ownerId: 'o',
+      name: 'Liga',
+      format: 'Commander',
+      information: '',
+      plannedRounds: 1,
+      status: 'activo',
+      isPublic: false,
+      publicSlug: 'liga',
+      maxPlayers: 3,
+      maxTables: 1,
+      tracksKills: false,
+      createdAt: '',
+      players: ['a', 'b', 'c'].map((id, tieBreaker) => ({
+        id,
+        name: id,
+        active: true,
+        tieBreaker,
+      })),
+      rounds: [
+        {
+          id: 'r1',
+          number: 1,
+          status: 'completada',
+          seed: 1,
+          pods: [
+            {
+              id: 'p1',
+              number: 1,
+              playerIds: ['a', 'b', 'c'],
+              results: [
+                { playerId: 'a', points: 3, kills: 0, outcome: 'win' },
+                { playerId: 'b', points: 1, kills: 5, outcome: 'loss' },
+                { playerId: 'c', points: 1, kills: 0, outcome: 'loss' },
+              ],
+            },
+          ],
+        },
+      ],
+    });
+
+    expect(rows.find((row) => row.player.id === 'b')).toMatchObject({ kills: 0, rank: 2 });
+    expect(rows.find((row) => row.player.id === 'c')).toMatchObject({ kills: 0, rank: 2 });
   });
 
   it('promedia los puntos de los rivales y comparte el puesto en un empate total', () => {
