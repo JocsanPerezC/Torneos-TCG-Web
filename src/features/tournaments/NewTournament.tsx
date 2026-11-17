@@ -1,6 +1,6 @@
 import { Navigate, useNavigate } from 'react-router-dom';
 import { useRef, useState, type FormEvent } from 'react';
-import { Check, LoaderCircle, Minus, Plus } from 'lucide-react';
+import { Check, Droplets, LoaderCircle, Minus, Plus, Swords } from 'lucide-react';
 import { useTournaments } from '@/state/TournamentContext';
 import { useAuth } from '@/state/AuthContext';
 import { Button } from '@/components/ui/button';
@@ -235,8 +235,11 @@ export function NewTournament() {
             <h2 id="tournament-rules-title">{i18n.t('app.createTournament.gameRules')}</h2>
             <p>{i18n.t('app.createTournament.gameRulesHelp')}</p>
             <div className="new-tournament-form__switches">
-              <label>
-                <span>{i18n.t('app.common.kills')}</span>
+              <label className="tournament-rule tournament-rule--kills">
+                <span className="tournament-rule__copy">
+                  <Swords aria-hidden />
+                  <strong>{i18n.t('app.common.kills')}</strong>
+                </span>
                 <input
                   type="checkbox"
                   role="switch"
@@ -244,8 +247,11 @@ export function NewTournament() {
                   onChange={(event) => setTracksKills(event.target.checked)}
                 />
               </label>
-              <label>
-                <span>{i18n.t('app.common.firstBlood')}</span>
+              <label className="tournament-rule tournament-rule--first-blood">
+                <span className="tournament-rule__copy">
+                  <Droplets aria-hidden />
+                  <strong>{i18n.t('app.common.firstBlood')}</strong>
+                </span>
                 <input
                   type="checkbox"
                   role="switch"

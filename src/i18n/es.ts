@@ -513,6 +513,10 @@ export const es = {
       opponentHelpWithoutKills:
         'Promedio de los puntos totales de las personas contra quienes jugaste. Es el último desempate, después de victorias, empates, derrotas y win rate.',
       settingsTitle: 'Configuración del torneo',
+      settingsDetails: 'Datos del torneo',
+      settingsSize: 'Tamaño y rondas',
+      settingsFinish: 'Cierre del torneo',
+      settingsFinishHelp: 'Finaliza solo cuando no queden rondas pendientes.',
       saveChanges: 'Guardar cambios',
       plannedRounds: 'Rondas planificadas',
       maxTablesPerRound: 'Máximo de mesas por ronda',

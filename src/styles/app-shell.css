@@ -1949,34 +1949,91 @@
   gap: 1rem;
 }
 .settings-desk__form {
+  display: grid;
+  gap: 1.15rem;
   padding: 1.15rem;
   border: 2px solid var(--foreground);
   border-radius: var(--app-radius-lg);
   background: var(--paper);
   box-shadow: var(--app-shadow-md);
 }
+.settings-desk__form > header h2 {
+  margin: 0;
+}
+.settings-desk__section,
+.settings-desk__rules {
+  min-width: 0;
+  margin: 0;
+  border: 0;
+  border-top: 1px solid var(--border);
+  padding: 1rem 0 0;
+}
+.settings-desk__section h3,
+.settings-desk__rules legend {
+  padding: 0;
+  color: var(--foreground);
+  font-size: 0.9rem;
+  font-weight: 700;
+}
 .settings-desk__fields {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 0.75rem;
-  margin-top: 1rem;
+  margin-top: 0.65rem;
 }
 .settings-desk__fields label {
   color: var(--ink-soft);
   font-size: 0.8rem;
   font-weight: 700;
 }
-.settings-desk__rules {
-  margin: 1rem 0 0;
-  border: 0;
-  border-top: 1px solid var(--border);
-  padding: 1rem 0 0;
+.settings-desk__steppers {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.75rem;
+  margin-top: 0.65rem;
 }
-.settings-desk__rules legend {
-  padding: 0;
+.settings-desk__stepper > label {
+  display: block;
+  margin-bottom: 0.4rem;
   color: var(--foreground);
-  font-size: 0.9rem;
+  font-size: 0.8rem;
   font-weight: 700;
+}
+.settings-desk__stepper > div {
+  display: grid;
+  grid-template-columns: 2.35rem minmax(0, 1fr) 2.35rem;
+  overflow: hidden;
+  border: 1.5px solid var(--border-strong);
+  border-radius: var(--app-radius-sm);
+  background: var(--card);
+}
+.settings-desk__stepper-button {
+  min-width: 0;
+  min-height: 2.45rem;
+  border: 0;
+  border-radius: 0;
+  padding: 0;
+  background: var(--paper);
+}
+.settings-desk__stepper-button:first-child {
+  border-right: 1px solid var(--border);
+}
+.settings-desk__stepper-button:last-child {
+  border-left: 1px solid var(--border);
+}
+.settings-desk__stepper input {
+  min-width: 0;
+  border: 0;
+  background: transparent;
+  color: var(--foreground);
+  font: inherit;
+  font-weight: 700;
+  text-align: center;
+  outline: none;
+}
+.settings-desk__stepper:focus-within > div {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(61, 90, 251, 0.14);
 }
 .settings-desk__rules > p {
   margin: 0.3rem 0 0;
@@ -2000,8 +2057,35 @@
   padding: 0.55rem 0.65rem;
   background: var(--card);
   color: var(--foreground);
+}
+.tournament-rule__copy {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  gap: 0.55rem;
+}
+.tournament-rule__copy > svg {
+  flex: none;
+  width: 1.2rem;
+  height: 1.2rem;
+  color: var(--ink-soft);
+}
+.tournament-rule__copy strong {
   font-size: 0.82rem;
-  font-weight: 700;
+}
+.tournament-rule--kills:has(input:checked) {
+  border-color: var(--primary-strong);
+  background: var(--success-soft);
+}
+.tournament-rule--kills:has(input:checked) .tournament-rule__copy > svg {
+  color: var(--primary-strong);
+}
+.tournament-rule--first-blood:has(input:checked) {
+  border-color: var(--violet);
+  background: var(--violet-soft);
+}
+.tournament-rule--first-blood:has(input:checked) .tournament-rule__copy > svg {
+  color: var(--violet);
 }
 .settings-desk__switches input {
   position: relative;
@@ -2047,42 +2131,54 @@
 .settings-desk__rules:disabled .settings-desk__switches input {
   cursor: not-allowed;
 }
-.settings-desk__hint {
-  margin: 1rem 0;
+.new-tournament-form__switches .tournament-rule {
   padding: 0.55rem 0.65rem;
-  border-left: 3px solid var(--accent);
-  background: #f3f5ff;
-  color: var(--ink-soft);
-  font-size: 0.8rem;
+  border: 1.5px solid var(--border-strong);
+  border-radius: var(--app-radius-sm);
 }
-.settings-desk__danger {
+.new-tournament-form__switches .tournament-rule input {
+  background: var(--secondary);
+}
+.settings-desk__hint {
+  margin: 0.75rem 0 0;
+  padding: 0;
+  color: var(--ink-soft);
+  font-size: 0.72rem;
+  font-weight: 600;
+}
+.settings-desk__actions {
+  display: flex;
+  justify-content: flex-end;
+}
+.settings-desk__finish {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 0.7rem;
   align-self: start;
-  padding: 1.15rem;
-  border: 2px dashed var(--danger-text);
-  border-radius: 0.65rem 1.4rem 0.65rem 1.4rem;
+  padding: 1rem;
+  border: 1.5px solid var(--danger-text);
+  border-radius: var(--app-radius-md);
   background: #fff5f2;
 }
-.settings-desk__danger > span {
-  display: grid;
-  width: 1.8rem;
-  height: 1.8rem;
-  place-items: center;
-  border: 1.5px solid var(--danger-text);
-  border-radius: 50%;
+.settings-desk__finish > svg {
+  width: 1.3rem;
+  height: 1.3rem;
   color: var(--danger-text);
-  font-weight: 700;
 }
-.settings-desk__danger h2 {
-  margin-top: 0.65rem;
+.settings-desk__finish h2 {
+  margin: 0;
+  font-size: 1rem;
 }
-.settings-desk__danger p {
+.settings-desk__finish p {
+  margin: 0.25rem 0 0;
   color: var(--ink-soft);
-  font-size: 0.84rem;
-  line-height: 1.45;
+  font-size: 0.76rem;
+  line-height: 1.35;
 }
-.settings-desk__danger .app-button {
+.settings-desk__finish .app-button {
+  grid-column: 1 / -1;
   width: 100%;
-  margin-top: 0.75rem;
+  margin-top: 0.15rem;
 }
 
 .public-scoreboard {
@@ -2454,7 +2550,8 @@
   .tournament-tabs {
     margin-inline: -0.25rem;
   }
-  .settings-desk__fields {
+  .settings-desk__fields,
+  .settings-desk__steppers {
     grid-template-columns: 1fr;
   }
   .settings-desk__switches {

@@ -500,6 +500,10 @@ export const en = {
       opponentHelpWithoutKills:
         'Average total points of the people you played against. It is the last tiebreaker, after wins, draws, losses, and win rate.',
       settingsTitle: 'Tournament settings',
+      settingsDetails: 'Tournament details',
+      settingsSize: 'Size and rounds',
+      settingsFinish: 'Tournament close',
+      settingsFinishHelp: 'Finish only when there are no pending rounds.',
       saveChanges: 'Save changes',
       plannedRounds: 'Planned rounds',
       maxTablesPerRound: 'Maximum tables per round',

@@ -2,16 +2,6 @@
   "detector": {
     "ignoreRules": [],
     "ignoreFiles": [],
-    "ignoreValues": [
-      {
-        "rule": "side-tab",
-        "value": "*",
-        "files": [
-          "src/styles/app-shell.css"
-        ],
-        "createdAt": "2026-11-17T21:47:20.975Z",
-        "reason": "Agent: pre-existing committed settings hint at line 1971; unrelated to the requested tournament rules and preserved as part of the incumbent interface."
-      }
-    ]
+    "ignoreValues": []
   }
 }
