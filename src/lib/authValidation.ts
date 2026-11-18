@@ -15,7 +15,7 @@ export type AuthValues = {
   legalConsent?: boolean;
 };
 
-export const PASSWORD_MIN_LENGTH = 6;
+export const PASSWORD_MIN_LENGTH = 8;
 export const PASSWORD_MAX_LENGTH = 128;
 export const NAME_MAX_LENGTH = 80;
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -67,7 +67,10 @@ export function validateAuth(screen: AuthScreen, values: AuthValues): AuthErrors
 }
 
 /** Traduce los errores de Supabase Auth al campo y mensaje que entiende el usuario. */
-export function authErrorFromServer(error: unknown): AuthErrors {
+export function authErrorFromServer(
+  error: unknown,
+  options: { concealAccountExistence?: boolean } = {},
+): AuthErrors {
   const code = (error as { code?: string } | null)?.code ?? '';
   const message = error instanceof Error ? error.message : '';
   if (code === 'invalid_credentials' || /invalid login credentials/i.test(message))
@@ -77,8 +80,11 @@ export function authErrorFromServer(error: unknown): AuthErrors {
     code === 'email_exists' ||
     /already registered/i.test(message)
   )
-    return { email: 'app.auth.errors.emailTaken' };
+    return options.concealAccountExistence
+      ? { form: 'app.auth.errors.registrationUnavailable' }
+      : { email: 'app.auth.errors.emailTaken' };
   if (code === 'weak_password') return { password: 'app.auth.errors.passwordShort' };
+  if (code === 'captcha_failed') return { form: 'app.auth.errors.captchaFailed' };
   if (code === 'email_address_invalid') return { email: 'app.auth.errors.emailInvalid' };
   if (code.startsWith('over_') || /rate limit|for security purposes/i.test(message))
     return { form: 'app.auth.errors.tooManyAttempts' };

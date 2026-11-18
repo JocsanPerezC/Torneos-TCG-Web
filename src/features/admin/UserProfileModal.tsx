@@ -9,7 +9,7 @@ import {
 import { Modal } from '@/components/ui/modal';
 import { Button } from '@/components/ui/button';
 import { Avatar } from '@/components/ui/Avatar';
-import { isValidEmail } from '@/lib/authValidation';
+import { isValidEmail, PASSWORD_MIN_LENGTH } from '@/lib/authValidation';
 import { NICKNAME_MAX_LENGTH, normalizeNickname } from '@/lib/userProfile';
 import i18n from '@/i18n';
 
@@ -32,7 +32,8 @@ function validate(form: FormData): Errors {
   if (!email.trim()) errors.email = 'app.auth.errors.required';
   else if (!isValidEmail(email)) errors.email = 'app.auth.errors.emailInvalid';
   const password = String(form.get('password'));
-  if (password && password.length < 6) errors.password = 'app.auth.errors.passwordShort';
+  if (password && password.length < PASSWORD_MIN_LENGTH)
+    errors.password = 'app.auth.errors.passwordShort';
   return errors;
 }
 
@@ -168,6 +169,7 @@ export function UserProfileModal({
           type={type}
           defaultValue={value}
           autoComplete={type === 'password' ? 'new-password' : 'off'}
+          minLength={name === 'password' ? PASSWORD_MIN_LENGTH : undefined}
           maxLength={name === 'nickname' ? NICKNAME_MAX_LENGTH : undefined}
           aria-invalid={Boolean(errors[name])}
           aria-describedby={errors[name] ? `admin-${name}-error` : undefined}

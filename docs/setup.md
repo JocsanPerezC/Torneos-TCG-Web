@@ -22,11 +22,12 @@ npm run dev
 
 Listed in [.env.example](../.env.example). They are all public and end up in the browser bundle:
 
-| Variable                 | Purpose                                         |
-| ------------------------ | ----------------------------------------------- |
-| `VITE_SUPABASE_URL`      | Your Supabase project URL.                      |
-| `VITE_SUPABASE_ANON_KEY` | Public anonymous key.                           |
-| `VITE_PUBLIC_APP_URL`    | Base URL used in invitation links and QR codes. |
+| Variable                  | Purpose                                         |
+| ------------------------- | ----------------------------------------------- |
+| `VITE_SUPABASE_URL`       | Your Supabase project URL.                      |
+| `VITE_SUPABASE_ANON_KEY`  | Public anonymous key.                           |
+| `VITE_PUBLIC_APP_URL`     | Base URL used in invitation links and QR codes. |
+| `VITE_TURNSTILE_SITE_KEY` | Optional public Cloudflare Turnstile site key.  |
 
 > [!CAUTION]
 > Never put the `service_role` key in the frontend or in `.env.local`.
@@ -76,6 +77,17 @@ During development, `/muestrario` shows every UI component and state. It only re
    set role = 'super_admin'
    where id = 'USER-UUID';
    ```
+
+### Production security settings
+
+Before inviting real users, configure these settings in the Supabase Dashboard:
+
+1. In **Authentication > Sign In / Providers**, enable email confirmation and limit one-time links to one hour or less.
+2. In **Authentication > Password security**, require at least 8 characters and enable leaked-password protection when your plan supports it.
+3. Create a Cloudflare Turnstile widget for each deployed domain, set its public key as `VITE_TURNSTILE_SITE_KEY`, then in **Authentication > Bot and Abuse Protection** enable Cloudflare Turnstile for email sign-up, password sign-in and password recovery and save the secret key. The application sends its token automatically.
+4. In **Authentication > Rate Limits**, review and lower the limits to match your expected traffic; enable MFA for administrators.
+
+The migration `20261117130000_endurecer_registro.sql` also removes public email-account lookups and restricts account-only RPCs to authenticated requests.
 
 `supabase/migrations/` starts from six themed files (schema, accounts and roles, tournaments, invitations, profile, and security) that consolidate the earlier history. See [ADR 0004](decisions/0004-consolidacion-de-migraciones.md). Migrations are immutable once applied: every change goes in a new, dated migration. The later ones (nickname, player history, tiebreakers, table times, automatic closing, decks and profile permissions) can be applied with `npx supabase db push` or pasted in order into the SQL Editor.
 

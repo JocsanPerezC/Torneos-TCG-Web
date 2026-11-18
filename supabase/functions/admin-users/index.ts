@@ -286,9 +286,9 @@ Deno.serve(async (request) => {
     const role = body.role;
 
     if (action === 'create') {
-      if (!displayName || !email || password.length < 6 || !validRole(role))
+      if (!displayName || !email || password.length < 8 || !validRole(role))
         throw new Error(
-          'Nombre, correo, contraseña de al menos 6 caracteres y rol válido son obligatorios',
+          'Nombre, correo, contraseña de al menos 8 caracteres y rol válido son obligatorios',
         );
       const { data, error } = await adminClient.auth.admin.createUser({
         email,
@@ -313,8 +313,8 @@ Deno.serve(async (request) => {
         throw new Error('Datos de cuenta inválidos');
       if (id === caller.id)
         throw new Error('No puedes modificar tu propia cuenta desde este panel');
-      if (password && password.length < 6)
-        throw new Error('La contraseña debe tener al menos 6 caracteres');
+      if (password && password.length < 8)
+        throw new Error('La contraseña debe tener al menos 8 caracteres');
 
       // Apodo: mismas reglas que el perfil (2 a 24 caracteres, único sin distinguir mayúsculas).
       const nickname = text(body.nickname).replace(/\s+/g, ' ');

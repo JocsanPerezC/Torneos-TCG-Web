@@ -5,6 +5,10 @@ import { invitationReturnPath, savedInvitationReturnPath } from '@/lib/invitatio
 import { Eye, EyeOff } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { GoogleAuthButton } from '@/features/auth/components/GoogleAuthButton';
+import {
+  TurnstileCaptcha,
+  type TurnstileCaptchaHandle,
+} from '@/features/auth/components/TurnstileCaptcha';
 import { Notice } from '@/components/feedback/Notice';
 import i18n from '@/i18n';
 import { currentLegalConsent } from '@/lib/legal';
@@ -32,6 +36,7 @@ const FIELD_ORDER: AuthField[] = [
 ];
 const recoveryRequestKey = 'torneos-tcg.password-recovery.request';
 const recoveryOpenedKey = 'torneos-tcg.password-recovery.opened';
+const turnstileSiteKey = import.meta.env.VITE_TURNSTILE_SITE_KEY?.trim();
 
 function readValues(form: HTMLFormElement): AuthValues {
   const data = new FormData(form);
@@ -65,11 +70,11 @@ export function Auth({ screen }: { screen: 'login' | 'register' | 'recovery' | '
     resetPassword,
     updatePassword,
     isNicknameAvailable,
-    isEmailRegistered,
   } = useAuth();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const formRef = useRef<HTMLFormElement>(null);
+  const captchaRef = useRef<TurnstileCaptchaHandle>(null);
   const [notice, setNotice] = useState('');
   const [errors, setErrors] = useState<AuthErrors>({});
   const [submitted, setSubmitted] = useState(false);
@@ -79,6 +84,7 @@ export function Auth({ screen }: { screen: 'login' | 'register' | 'recovery' | '
   const [recoveryOpened, setRecoveryOpened] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [legalAccepted, setLegalAccepted] = useState(false);
+  const [captchaToken, setCaptchaToken] = useState('');
   const recovery = screen === 'recovery';
   const reset = screen === 'reset';
   const register = screen === 'register';
@@ -123,6 +129,7 @@ export function Auth({ screen }: { screen: 'login' | 'register' | 'recovery' | '
     setErrors({});
     setSubmitted(false);
     setNotice('');
+    setCaptchaToken('');
   }
 
   const showErrors = (next: AuthErrors) => {
@@ -157,11 +164,15 @@ export function Auth({ screen }: { screen: 'login' | 'register' | 'recovery' | '
       return;
     }
     setErrors({});
+    if (turnstileSiteKey && !captchaToken) {
+      showErrors({ form: 'app.auth.errors.captchaRequired' });
+      return;
+    }
     setBusy(true);
     const email = values.email?.trim() ?? '';
     try {
       if (recovery) {
-        await resetPassword(email);
+        await resetPassword(email, captchaToken || undefined);
         const requestId = `${Date.now()}-${Math.random()}`;
         localStorage.setItem(recoveryRequestKey, requestId);
         localStorage.removeItem(recoveryOpenedKey);
@@ -172,26 +183,27 @@ export function Auth({ screen }: { screen: 'login' | 'register' | 'recovery' | '
         setPasswordUpdated(true);
       } else if (register) {
         const nickname = normalizeNickname(values.nickname!)!;
-        const [emailTaken, nicknameFree] = await Promise.all([
-          isEmailRegistered(email),
-          isNicknameAvailable(nickname),
-        ]);
-        const taken: AuthErrors = {
-          ...(nicknameFree ? {} : { nickname: 'app.auth.nicknameTaken' }),
-          ...(emailTaken ? { email: 'app.auth.errors.emailTaken' } : {}),
-        };
+        const nicknameFree = await isNicknameAvailable(nickname);
+        const taken: AuthErrors = nicknameFree ? {} : { nickname: 'app.auth.nicknameTaken' };
         if (Object.keys(taken).length) {
           showErrors(taken);
           return;
         }
-        await signUp(values.name!.trim(), nickname, email, values.password!, currentLegalConsent);
+        await signUp(
+          values.name!.trim(),
+          nickname,
+          email,
+          values.password!,
+          currentLegalConsent,
+          captchaToken || undefined,
+        );
         navigate(returnPath, { replace: true });
       } else {
-        await signIn(email, values.password!);
+        await signIn(email, values.password!, captchaToken || undefined);
         navigate(returnPath);
       }
     } catch (error) {
-      const mapped = authErrorFromServer(error);
+      const mapped = authErrorFromServer(error, { concealAccountExistence: register });
       showErrors(
         Object.keys(mapped).length
           ? mapped
@@ -204,6 +216,10 @@ export function Auth({ screen }: { screen: 'login' | 'register' | 'recovery' | '
       );
     } finally {
       setBusy(false);
+      if (turnstileSiteKey) {
+        setCaptchaToken('');
+        captchaRef.current?.reset();
+      }
     }
   }
 
@@ -435,6 +451,21 @@ export function Auth({ screen }: { screen: 'login' | 'register' | 'recovery' | '
               </>
             )}
             {register && consent}
+            {turnstileSiteKey && (
+              <TurnstileCaptcha
+                ref={captchaRef}
+                siteKey={turnstileSiteKey}
+                onSuccess={(token) => {
+                  setCaptchaToken(token);
+                  setErrors((current) => ({ ...current, form: undefined }));
+                }}
+                onExpired={() => setCaptchaToken('')}
+                onError={() => {
+                  setCaptchaToken('');
+                  setErrors((current) => ({ ...current, form: 'app.auth.errors.captchaFailed' }));
+                }}
+              />
+            )}
             <Button disabled={busy} className={`${primary} w-full`}>
               {busy
                 ? i18n.t('app.auth.processing')

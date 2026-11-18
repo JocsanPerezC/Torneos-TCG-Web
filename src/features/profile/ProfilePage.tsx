@@ -11,6 +11,7 @@ import { Navigate, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { BadgeCheck, Camera, KeyRound, Trash2 } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
+import { PASSWORD_MIN_LENGTH } from '@/lib/authValidation';
 import { getUserProfile, NICKNAME_MAX_LENGTH } from '@/lib/userProfile';
 import { useAuth } from '@/state/AuthContext';
 import { Button } from '@/components/ui/button';
@@ -284,7 +285,7 @@ export function ProfilePage() {
 
   const changePassword = async () => {
     if (!supabase) return;
-    if (newPassword.length < 6) {
+    if (newPassword.length < PASSWORD_MIN_LENGTH) {
       setPasswordFeedback({ text: t('app.profile.passwordTooShort'), error: true });
       return;
     }
@@ -418,7 +419,7 @@ export function ProfilePage() {
                   onChange={(event) => setNewPassword(event.target.value)}
                   type="password"
                   autoComplete="new-password"
-                  minLength={6}
+                  minLength={PASSWORD_MIN_LENGTH}
                   className="app-field"
                 />
               </label>
@@ -429,7 +430,7 @@ export function ProfilePage() {
                   onChange={(event) => setPasswordConfirmation(event.target.value)}
                   type="password"
                   autoComplete="new-password"
-                  minLength={6}
+                  minLength={PASSWORD_MIN_LENGTH}
                   className="app-field"
                 />
               </label>

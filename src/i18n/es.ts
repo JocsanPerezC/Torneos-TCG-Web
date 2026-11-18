@@ -312,10 +312,14 @@ export const es = {
         nameTooLong: 'El nombre puede tener hasta 80 caracteres.',
         emailInvalid: 'Escribe un correo válido, por ejemplo nombre@gmail.com.',
         emailTaken: 'Ya existe una cuenta con este correo. Inicia sesión o recupera tu contraseña.',
-        passwordShort: 'La contraseña debe tener al menos 6 caracteres.',
+        passwordShort: 'La contraseña debe tener al menos 8 caracteres.',
         passwordLong: 'La contraseña puede tener hasta 128 caracteres.',
         invalidCredentials: 'El correo o la contraseña no son correctos.',
         tooManyAttempts: 'Demasiados intentos seguidos. Espera un momento y vuelve a probar.',
+        registrationUnavailable:
+          'No se pudo completar el registro. Si ya tienes una cuenta, inicia sesión o recupera tu contraseña.',
+        captchaRequired: 'Completa la verificación de seguridad para continuar.',
+        captchaFailed: 'No se pudo validar la verificación de seguridad. Inténtalo de nuevo.',
         emailNotConfirmed:
           'Confirma tu correo con el enlace que te enviamos antes de iniciar sesión.',
       },
@@ -1298,7 +1302,7 @@ export const es = {
       changingPassword: 'Cambiando…',
       passwordUpdated: 'Contraseña actualizada.',
       passwordFailed: 'No se pudo cambiar la contraseña.',
-      passwordTooShort: 'La nueva contraseña debe tener al menos 6 caracteres.',
+      passwordTooShort: 'La nueva contraseña debe tener al menos 8 caracteres.',
       passwordsMismatch: 'Las contraseñas nuevas no coinciden.',
       googlePasswordDescription:
         'Inicias sesión con Google. Tu contraseña se administra desde tu Cuenta de Google.',

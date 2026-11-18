@@ -22,20 +22,20 @@ export type AuthStore = {
   requiresLegalConsent: boolean;
   loading: boolean;
   configured: boolean;
-  signIn(email: string, password: string): Promise<void>;
+  signIn(email: string, password: string, captchaToken?: string): Promise<void>;
   signUp(
     name: string,
     nickname: string,
     email: string,
     password: string,
     consent: LegalConsent,
+    captchaToken?: string,
   ): Promise<void>;
   completeRegistrationRole(role: RegistrationRole): Promise<void>;
-  isEmailRegistered(email: string): Promise<boolean>;
   isNicknameAvailable(nickname: string): Promise<boolean>;
   /** Valida, comprueba que esté libre y guarda el apodo de la cuenta actual. */
   saveNickname(nickname: string): Promise<string>;
-  resetPassword(email: string): Promise<void>;
+  resetPassword(email: string, captchaToken?: string): Promise<void>;
   updatePassword(password: string): Promise<void>;
   acceptLegalConsent(): Promise<void>;
   signOut(): Promise<void>;
@@ -135,18 +135,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       requiresLegalConsent,
       loading,
       configured: Boolean(supabase),
-      async signIn(email, password) {
+      async signIn(email, password, captchaToken) {
         if (!supabase) return;
-        const { error } = await supabase.auth.signInWithPassword({ email, password });
-        if (error) throw error;
-      },
-      async isEmailRegistered(email) {
-        if (!supabase) return false;
-        const { data, error } = await supabase.rpc('is_email_registered', {
-          candidate_email: email,
+        const { error } = await supabase.auth.signInWithPassword({
+          email,
+          password,
+          options: { captchaToken },
         });
         if (error) throw error;
-        return Boolean(data);
       },
       isNicknameAvailable: nicknameAvailable,
       async saveNickname(value) {
@@ -163,7 +159,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         );
         return nickname;
       },
-      async signUp(name, nickname, email, password, consent) {
+      async signUp(name, nickname, email, password, consent, captchaToken) {
         if (!supabase) return;
         const { error } = await supabase.auth.signUp({
           email,
@@ -177,6 +173,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
               privacy_version: consent.privacyVersion,
             },
             emailRedirectTo: `${window.location.origin}/auth/confirmed`,
+            captchaToken,
           },
         });
         if (error) throw error;
@@ -188,10 +185,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setRole(nextRole);
         setRequiresRoleSelection(false);
       },
-      async resetPassword(email) {
+      async resetPassword(email, captchaToken) {
         if (!supabase) return;
         const { error } = await supabase.auth.resetPasswordForEmail(email, {
           redirectTo: `${window.location.origin}/reset-password`,
+          captchaToken,
         });
         if (error) throw error;
       },

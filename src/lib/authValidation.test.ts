@@ -5,8 +5,8 @@ const validRegistration = {
   name: 'Jocsan Pérez',
   nickname: 'Jocsan',
   email: 'jocsan@gmail.com',
-  password: 'secreta1',
-  confirmPassword: 'secreta1',
+  password: 'Clave123',
+  confirmPassword: 'Clave123',
   legalConsent: true,
 };
 
@@ -54,7 +54,7 @@ describe('validateAuth', () => {
       password: 'app.auth.errors.passwordShort',
       confirmPassword: 'app.auth.passwordsMismatch',
     });
-    expect(validateAuth('reset', { password: 'secreta1', confirmPassword: 'secreta1' })).toEqual(
+    expect(validateAuth('reset', { password: 'Clave123', confirmPassword: 'Clave123' })).toEqual(
       {},
     );
   });
@@ -68,8 +68,14 @@ describe('authErrorFromServer', () => {
     expect(authErrorFromServer({ code: 'user_already_exists' })).toEqual({
       email: 'app.auth.errors.emailTaken',
     });
+    expect(
+      authErrorFromServer({ code: 'user_already_exists' }, { concealAccountExistence: true }),
+    ).toEqual({ form: 'app.auth.errors.registrationUnavailable' });
     expect(authErrorFromServer({ code: 'over_email_send_rate_limit' })).toEqual({
       form: 'app.auth.errors.tooManyAttempts',
+    });
+    expect(authErrorFromServer({ code: 'captcha_failed' })).toEqual({
+      form: 'app.auth.errors.captchaFailed',
     });
     expect(authErrorFromServer(new Error('algo raro'))).toEqual({});
   });
